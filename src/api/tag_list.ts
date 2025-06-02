@@ -22,13 +22,13 @@ const logger = new Logger("TagList");
 
 
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
-    constructor(tags: TagWithUsageCounts[], label?: ObjListDataSource) {
+    constructor(tags: TagWithUsageCounts[], label: ObjListDataSource) {
         super(tags.map(repairTag), label);
     }
 
     // Remove elements that don't match the predicate(). Returns a new TagList object
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
-        return new TagList(this.objs.filter(predicate));
+        return new TagList(this.objs.filter(predicate), this.source);
     }
 
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
@@ -64,7 +64,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
 
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
     // # of times the tag appears in 'toots'.
-    static fromUsageCounts(toots: Toot[], label?: string): TagList {
+    static fromUsageCounts(toots: Toot[], label: ObjListDataSource): TagList {
         // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
         let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
         const isRetooter = (retootsPct > config.participatedTags.minPctToCountRetoots);
@@ -85,7 +85,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
             {} as TagNames
         );
 
-        return new this(Object.values(tagsWithUsageCounts));
+        return new this(Object.values(tagsWithUsageCounts), label);
     }
 
     // Return the tag if it exists in 'tags' array, otherwise undefined.

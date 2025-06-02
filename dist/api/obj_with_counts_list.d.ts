@@ -2,13 +2,13 @@ import { Logger } from '../helpers/logger';
 import { type NamedObjWithTootCount, type ObjListDataSource, type ObjNames, type StringNumberDict } from "../types";
 export type ObjList = ObjWithCountList<NamedObjWithTootCount>;
 export default class ObjWithCountList<T extends NamedObjWithTootCount> {
-    source?: ObjListDataSource;
+    source: ObjListDataSource;
     logger: Logger;
     length: number;
     nameDict: ObjNames;
     private _objs;
-    constructor(objs: T[], label?: ObjListDataSource);
-    static buildFromDict(dict: StringNumberDict, label?: ObjListDataSource): ObjList;
+    constructor(objs: T[], label: ObjListDataSource);
+    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): ObjList;
     get objs(): T[];
     set objs(theTags: T[]);
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;

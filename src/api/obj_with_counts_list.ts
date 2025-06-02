@@ -19,13 +19,13 @@ const logger = new Logger("TagList");
 
 
 export default class ObjWithCountList<T extends NamedObjWithTootCount> {
-    source?: ObjListDataSource;
+    source: ObjListDataSource;
     logger: Logger;
     length: number;
     nameDict: ObjNames = {};  // Dict of tag names to tags
     private _objs: T[];
 
-    constructor(objs: T[], label?: ObjListDataSource) {
+    constructor(objs: T[], label: ObjListDataSource) {
         this._objs = objs.map(completeObjWithTootCounts) as T[];
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
@@ -34,7 +34,7 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
     }
 
     // Alternate constructor to create synthetic tags
-    static buildFromDict(dict: StringNumberDict, label?: ObjListDataSource): ObjList {
+    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): ObjList {
         const objs = Object.entries(dict).map(([name, numToots]) => {
             const obj: NamedObjWithTootCount = { name, numToots, url: "blank" };
             return obj;
@@ -56,7 +56,7 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
 
     // Remove elements that don't match the predicate(). Returns a new ObjWithCountList object
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T> {
-        return new ObjWithCountList(this.objs.filter(predicate));
+        return new ObjWithCountList(this.objs.filter(predicate), this.source);
     }
 
     // Return the tag if it exists in 'tags' array, otherwise undefined.

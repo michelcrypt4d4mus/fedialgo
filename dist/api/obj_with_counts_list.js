@@ -45,7 +45,7 @@ class ObjWithCountList {
     }
     // Remove elements that don't match the predicate(). Returns a new ObjWithCountList object
     filter(predicate) {
-        return new ObjWithCountList(this.objs.filter(predicate));
+        return new ObjWithCountList(this.objs.filter(predicate), this.source);
     }
     // Return the tag if it exists in 'tags' array, otherwise undefined.
     getObj(name) {

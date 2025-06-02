@@ -12,7 +12,7 @@ import Storage from "../Storage";
 import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { CacheKey, ScoreName } from "../enums";
+import { CacheKey, ScoreName, TagTootsCacheKey } from "../enums";
 import { config } from "../config";
 import { addDicts, countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
@@ -36,25 +36,25 @@ interface UserApiData {
 
 
 export default class UserData {
-    favouriteAccounts: ObjList = new ObjWithCountList([]);
-    favouritedTags: TagList = new TagList([]);
+    favouriteAccounts: ObjList = new ObjWithCountList([], ScoreName.FAVOURITED_ACCOUNTS);
+    favouritedTags: TagList = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
-    followedTags: TagList = new TagList([])
+    followedTags: TagList = new TagList([], ScoreName.FOLLOWED_TAGS);
     languagesPostedIn: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
-    participatedTags: TagList = new TagList([]);
+    participatedTags: TagList = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage: string = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
 
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
-        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots)
+        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
-        userData.participatedTags = TagList.fromUsageCounts(data.recentToots);
+        userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
 

@@ -21,7 +21,7 @@ class TagList extends obj_with_counts_list_1.default {
     }
     // Remove elements that don't match the predicate(). Returns a new TagList object
     filter(predicate) {
-        return new TagList(this.objs.filter(predicate));
+        return new TagList(this.objs.filter(predicate), this.source);
     }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
@@ -57,7 +57,7 @@ class TagList extends obj_with_counts_list_1.default {
             });
             return tagCounts;
         }, {});
-        return new this(Object.values(tagsWithUsageCounts));
+        return new this(Object.values(tagsWithUsageCounts), label);
     }
     // Return the tag if it exists in 'tags' array, otherwise undefined.
     getTag(tag) {

@@ -17,24 +17,24 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
-    favouriteAccounts = new obj_with_counts_list_1.default([]);
-    favouritedTags = new tag_list_1.default([]);
+    favouriteAccounts = new obj_with_counts_list_1.default([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
+    favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
-    followedTags = new tag_list_1.default([]);
+    followedTags = new tag_list_1.default([], enums_1.ScoreName.FOLLOWED_TAGS);
     languagesPostedIn = {};
     mutedAccounts = {};
-    participatedTags = new tag_list_1.default([]);
+    participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = []; // TODO: currently unused, only here for getCurrentState() by client app
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
-        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots);
+        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
-        userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots);
+        userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         // Add up the favourites, retoots, and replies for each account

@@ -89,6 +89,13 @@ const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load"
 
+const EMPTY_TRENDING_DATA = {
+    links: [],
+    tags: new TagList([], TagTootsCacheKey.TRENDING_TAG_TOOTS),
+    servers: {},
+    toots: []
+};
+
 const LOAD_STARTED_MSGS = [
     BACKFILL_FEED,
     PULLING_USER_HISTORY,
@@ -115,7 +122,7 @@ class TheAlgorithm {
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
     logger: Logger = new Logger(`TheAlgorithm`);
-    trendingData: TrendingData = {links: [], tags: new TagList([]), servers: {}, toots: []};
+    trendingData: TrendingData = EMPTY_TRENDING_DATA;
     userData: UserData = new UserData();
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
