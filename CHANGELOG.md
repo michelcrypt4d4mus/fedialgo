@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-# v0.58.0
+## v0.58.0
 * Add `map()` method to `TagList`
 * Add a section for "Hashtags You Often Favourite"
 
