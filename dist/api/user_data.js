@@ -31,7 +31,7 @@ class UserData {
         const userData = new UserData();
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
-        userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.CacheKey.FOLLOWED_TAGS);
+        userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots);

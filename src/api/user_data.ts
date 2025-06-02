@@ -51,7 +51,7 @@ export default class UserData {
         const userData = new UserData();
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots)
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
-        userData.followedTags = new TagList(data.followedTags, CacheKey.FOLLOWED_TAGS);
+        userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots);

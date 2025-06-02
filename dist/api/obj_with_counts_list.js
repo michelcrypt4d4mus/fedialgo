@@ -14,7 +14,7 @@ const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger = new logger_1.Logger("TagList");
 class ObjWithCountList {
-    label;
+    source;
     logger;
     length;
     nameDict = {}; // Dict of tag names to tags
@@ -23,7 +23,7 @@ class ObjWithCountList {
         this._objs = objs.map(completeObjWithTootCounts);
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this.label = label;
+        this.source = label;
         this.logger = label ? new logger_1.Logger(label, "TagList") : logger;
     }
     // Alternate constructor to create synthetic tags

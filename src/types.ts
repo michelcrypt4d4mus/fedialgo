@@ -106,6 +106,14 @@ export type MinMaxID = {
     max: string;
 };
 
+export type ObjListDataSource = (
+    BooleanFilterName
+  | CacheKey.FEDIVERSE_TRENDING_TAGS
+  | ScoreName.FAVOURITED_ACCOUNTS
+  | ScoreName.FOLLOWED_TAGS
+  | TagTootsCacheKey
+);
+
 // Abstract interface for objects that have numToots of some kind
 export interface ObjWithTootCount extends WithCounts {
     name: string;

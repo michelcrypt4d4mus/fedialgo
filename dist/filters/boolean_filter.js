@@ -152,7 +152,7 @@ class BooleanFilter extends toot_filter_1.default {
             regex: (0, string_helpers_1.wordRegex)(name),
             url: api_1.default.instance.tagUrl(name),
         }));
-        return new tag_list_1.default(tags, `BooleanFilter <${this.title}>`);
+        return new tag_list_1.default(tags, this.title);
     }
     // Return the available options sorted alphabetically by name
     optionsSortedByName() {

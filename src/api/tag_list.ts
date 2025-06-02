@@ -13,6 +13,7 @@ import { ScoreName, TagTootsCacheKey } from "../enums";
 import {
     type MastodonTag,
     type NamedObjWithTootCount,
+    type ObjListDataSource,
     type TagNames,
     type TagWithUsageCounts,
 } from "../types";
@@ -21,7 +22,7 @@ const logger = new Logger("TagList");
 
 
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
-    constructor(tags: TagWithUsageCounts[], label?: string) {
+    constructor(tags: TagWithUsageCounts[], label?: ObjListDataSource) {
         super(tags.map(repairTag), label);
     }
 

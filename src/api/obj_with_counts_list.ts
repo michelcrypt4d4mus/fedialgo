@@ -8,6 +8,7 @@ import { Logger } from '../helpers/logger';
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import {
     type NamedObjWithTootCount,
+    type ObjListDataSource,
     type ObjNames,
     type StringNumberDict,
 } from "../types";
@@ -18,22 +19,22 @@ const logger = new Logger("TagList");
 
 
 export default class ObjWithCountList<T extends NamedObjWithTootCount> {
-    label?: string;
+    source?: ObjListDataSource;
     logger: Logger;
     length: number;
     nameDict: ObjNames = {};  // Dict of tag names to tags
     private _objs: T[];
 
-    constructor(objs: T[], label?: string) {
+    constructor(objs: T[], label?: ObjListDataSource) {
         this._objs = objs.map(completeObjWithTootCounts) as T[];
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this.label = label;
+        this.source = label;
         this.logger = label ? new Logger(label, "TagList") : logger;
     }
 
     // Alternate constructor to create synthetic tags
-    static buildFromDict(dict: StringNumberDict, label?: string): ObjList {
+    static buildFromDict(dict: StringNumberDict, label?: ObjListDataSource): ObjList {
         const objs = Object.entries(dict).map(([name, numToots]) => {
             const obj: NamedObjWithTootCount = { name, numToots, url: "blank" };
             return obj;
