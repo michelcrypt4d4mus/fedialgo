@@ -18,7 +18,7 @@ import Storage, {
 } from "../Storage";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { extractDomain } from '../helpers/string_helpers';
-import { CacheKey } from "../enums";
+import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { findMinMaxId, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
@@ -26,6 +26,7 @@ import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
+    type ApiCacheKey,
     type ApiMutex,
     type ConcurrencyLockRelease,
     type MastodonApiObject,
@@ -137,10 +138,12 @@ export default class MastoApi {
         this.logger = getLogger();
 
         // Initialize mutexes for each StorageKey
-        this.mutexes = Object.keys(CacheKey).reduce((acc, key) => {
-            acc[CacheKey[key as keyof typeof CacheKey]] = new Mutex();
-            return acc;
+        this.mutexes = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)].reduce((mutexes, key) => {
+            mutexes[key] = new Mutex();
+            return mutexes;
         }, {} as ApiMutex);
+
+        apiLogger.log(`MastoApi mutex keys:`, Object.keys(this.mutexes), `\nmutexes:`, this.mutexes);
     }
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
@@ -225,7 +228,7 @@ export default class MastoApi {
     // Currently used for the variou hashtag feeds (participated, trending, favourited).
     async getCacheableToots(
         fetch: () => Promise<mastodon.v1.Status[]>,
-        key: CacheKey,
+        key: ApiCacheKey,
         maxRecords: number,
     ): Promise<Toot[]> {
         const logger = getLogger(key);

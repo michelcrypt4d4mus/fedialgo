@@ -1,5 +1,4 @@
-import { CacheKey } from "../enums";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
+import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { Logger } from './logger';
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
@@ -13,7 +12,7 @@ export declare function makeChunks<T>(array: T[], options: {
     logger?: Logger;
     numChunks?: number;
 }): T[][];
-export declare function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void;
+export declare function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logger: Logger, reason: string, // Describe why things were filtered

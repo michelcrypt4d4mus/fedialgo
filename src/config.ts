@@ -1,14 +1,13 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { CacheKey } from "./enums";
+import { CacheKey, NonScoreWeightName, TagTootsCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { Logger } from "./helpers/logger";
-import { NonScoreWeightName } from './enums';
-import { type NonScoreWeightInfoDict } from "./types";
+import { ApiCacheKey, type NonScoreWeightInfoDict } from "./types";
 
 // Cachey keys for the fediverse wide trending data
-export const FEDIVERSE_KEYS = [
+export const FEDIVERSE_CACHE_KEYS = [
     CacheKey.FEDIVERSE_POPULAR_SERVERS,
     CacheKey.FEDIVERSE_TRENDING_LINKS,
     CacheKey.FEDIVERSE_TRENDING_TAGS,
@@ -45,9 +44,7 @@ type ApiRequestDefaults = {
     supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
 };
 
-type ApiDataConfig = {
-    [key in CacheKey]?: ApiRequestDefaults;
-};
+type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
 
 // See Config object for comments explaining these and other values
 interface ApiConfig {
@@ -148,7 +145,7 @@ interface ConfigType {
 // App level config that is not user configurable
 class Config implements ConfigType {
     api = {
-        backgroundLoadIntervalMinutes: 10,      // Background poll for user data after initial load
+        backgroundLoadIntervalMinutes: 10,      // Time between background polling for additional user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
@@ -161,6 +158,9 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+                minutesUntilStale: 60,
+            },
             [CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
@@ -172,7 +172,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.FEDIVERSE_TRENDING_TAGS]: {
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+                minutesUntilStale: 6 * MINUTES_IN_HOUR,
             },
             [CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
@@ -193,7 +193,7 @@ class Config implements ConfigType {
             },
             [CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
-                lookbackForUpdatesMinutes: 180,  // How long to look back for updates (edits, increased reblogs, etc.)
+                lookbackForUpdatesMinutes: 180,  // How far before the most recent toot we already have to look back for updates (edits, increased reblogs, etc.)
                 supportsMinMaxId: true,
             },
             [CacheKey.MUTED_ACCOUNTS]: {
@@ -206,7 +206,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 6 * MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [CacheKey.PARTICIPATED_TAG_TOOTS]: {
+            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
             [CacheKey.RECENT_USER_TOOTS]: {
@@ -219,9 +219,9 @@ class Config implements ConfigType {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.TIMELINE_TOOTS]: {
-                // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.
+                // TODO: TIMELINE_TOOTS are assembled from all the other feeds, not API requests directly. This is here for type safety.
             },
-            [CacheKey.TRENDING_TAG_TOOTS]: {
+            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
         } as ApiDataConfig,
@@ -421,7 +421,7 @@ class Config implements ConfigType {
             numTrendingLinksPerServer: 20,      // How many trending links to pull from each server
         },
         tags: {
-            invalidTags: [              // Tags that are too generic to be considered trending
+            invalidTags: [                      // Tags that are too generic to be considered trending
                 "government",
                 "news",
                 "photography",
@@ -441,12 +441,12 @@ class Config implements ConfigType {
         logger.debug(`validated:`, this);
     };
 
-    // Compute min value for FEDIVERSE_KEYS minutesUntilStale
+    // Compute min value for FEDIVERSE_CACHE_KEYS minutesUntilStale
     minTrendingMinutesUntilStale(): number {
-        const trendStalenesses = FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+        const trendStalenesses = FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
 
-        if (trendStalenesses.length != FEDIVERSE_KEYS.length) {
-            logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
+        if (trendStalenesses.length != FEDIVERSE_CACHE_KEYS.length) {
+            logger.warn(`Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
             return 60;
         } else {
             return Math.min(...trendStalenesses as number[]);

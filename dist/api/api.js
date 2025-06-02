@@ -86,10 +86,11 @@ class MastoApi {
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         this.logger = getLogger();
         // Initialize mutexes for each StorageKey
-        this.mutexes = Object.keys(enums_1.CacheKey).reduce((acc, key) => {
-            acc[enums_1.CacheKey[key]] = new async_mutex_1.Mutex();
-            return acc;
+        this.mutexes = [...Object.values(enums_1.CacheKey), ...Object.values(enums_1.TagTootsCacheKey)].reduce((mutexes, key) => {
+            mutexes[key] = new async_mutex_1.Mutex();
+            return mutexes;
         }, {});
+        apiLogger.log(`MastoApi mutex keys:`, Object.keys(this.mutexes), `\nmutexes:`, this.mutexes);
     }
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time

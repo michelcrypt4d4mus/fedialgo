@@ -11,7 +11,7 @@ import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
-import { AlgorithmStorageKey, CacheKey } from "./enums";
+import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
@@ -34,6 +34,7 @@ import {
     type TrendingData,
     type WeightName,
     type Weights,
+    ApiCacheKey,
 } from "./types";
 
 // Configure localForage to use WebSQL as the driver
@@ -51,17 +52,17 @@ interface StorableObjWithStaleness extends CacheTimestamp {
     obj: StorableObjWithCache,
 };
 
-type StorageKey = AlgorithmStorageKey | CacheKey;
+type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
 
-export const STORAGE_KEYS_WITH_TOOTS: StorageKey[] = Object.entries(CacheKey).reduce(
+export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
-    [] as CacheKey[]
-);
+    [] as StorageKey[]
+).concat(Object.values(TagTootsCacheKey));
 
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys,
-    [] as CacheKey[]
-);
+    [] as StorageKey[]
+);;
 
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
 export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
@@ -151,7 +152,7 @@ export default class Storage {
     }
 
     // Return null if the data is in storage is stale or doesn't exist
-    static async getIfNotStale<T extends StorableObjWithCache>(key: CacheKey): Promise<T | null> {
+    static async getIfNotStale<T extends StorableObjWithCache>(key: ApiCacheKey): Promise<T | null> {
         const withStaleness = await this.getWithStaleness(key);
 
         if (!withStaleness || withStaleness.isStale) {
@@ -203,7 +204,7 @@ export default class Storage {
     }
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
-    static async getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null> {
+    static async getWithStaleness(key: ApiCacheKey): Promise<StorableObjWithStaleness | null> {
         const logger = new Logger(LOG_PREFIX, key, `getWithStaleness`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
 

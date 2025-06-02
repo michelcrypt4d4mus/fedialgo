@@ -1,6 +1,6 @@
 import { CacheKey } from "./enums";
-import { type NonScoreWeightInfoDict } from "./types";
-export declare const FEDIVERSE_KEYS: CacheKey[];
+import { ApiCacheKey, type NonScoreWeightInfoDict } from "./types";
+export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;
@@ -17,9 +17,7 @@ type ApiRequestDefaults = {
     skipCache?: boolean;
     supportsMinMaxId?: boolean;
 };
-type ApiDataConfig = {
-    [key in CacheKey]?: ApiRequestDefaults;
-};
+type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
 interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
     data: ApiDataConfig;

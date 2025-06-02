@@ -21,7 +21,7 @@ const logger_1 = require("../helpers/logger");
 const enums_2 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
-const TRENDING_MUTEXES = config_1.FEDIVERSE_KEYS.reduce((mutexes, key) => {
+const TRENDING_MUTEXES = config_1.FEDIVERSE_CACHE_KEYS.reduce((mutexes, key) => {
     mutexes[key] = new async_mutex_1.Mutex();
     return mutexes;
 }, {});

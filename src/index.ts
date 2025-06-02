@@ -33,14 +33,14 @@ import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
-import TootsForTagsList, { TagTootsCacheKey } from "./api/toots_for_tags_list";
+import TootsForTagsList from "./api/toots_for_tags_list";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
-import { AlgorithmStorageKey, CacheKey } from "./enums";
+import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -58,6 +58,7 @@ import {
     isValueInStringEnum,
     makeChunks,
     makePercentileChunks,
+    sortKeysByValue,
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
@@ -225,9 +226,9 @@ class TheAlgorithm {
 
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(CacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(CacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(CacheKey.TRENDING_TAG_TOOTS),
+            hashtagToots(TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
+            hashtagToots(TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
+            hashtagToots(TagTootsCacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             MastoApi.instance.getUserData().then((userData) => this.userData = userData),
@@ -686,7 +687,6 @@ export {
     type MinMaxAvgScore,
     type ScoreStats,
     type StringNumberDict,
-    type TagTootsCacheKey,
     type TagWithUsageCounts,
     type TrendingData,
     type TrendingLink,
@@ -712,6 +712,7 @@ export {
     MediaCategory,
     NonScoreWeightName,
     ScoreName,
+    TagTootsCacheKey,
     TrendingType,
     TypeFilterName,
     WeightName,
@@ -723,5 +724,6 @@ export {
     isValueInStringEnum,
     makeChunks,
     makePercentileChunks, // TODO: unused in demo app (for now)
+    sortKeysByValue,
     timeString,
 };

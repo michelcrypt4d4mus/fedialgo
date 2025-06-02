@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fully separate `TagTootsCacheKey` enum elements from `CacheKey` enum
 
 # v0.57.0
 * Add `favouritedTags` property to `UserData` object

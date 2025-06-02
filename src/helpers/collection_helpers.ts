@@ -6,7 +6,7 @@ import chunk from 'lodash/chunk';
 import { bracketed, compareStr, hashObject } from "./string_helpers";
 import { CacheKey } from "../enums";
 import { config } from "../config";
-import { CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
+import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
@@ -86,7 +86,7 @@ export function makeChunks<T>(
 
 
 // Check if the elements of 'array' are as unique as they should be
-export function checkUniqueIDs(array: MastodonObjWithID[], label: CacheKey): void {
+export function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void {
     const logPrefix = `[${label}]`;
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);

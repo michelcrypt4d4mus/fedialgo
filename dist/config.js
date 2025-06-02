@@ -1,15 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_KEYS = void 0;
+exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_CACHE_KEYS = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const logger_1 = require("./helpers/logger");
-const enums_2 = require("./enums");
 // Cachey keys for the fediverse wide trending data
-exports.FEDIVERSE_KEYS = [
+exports.FEDIVERSE_CACHE_KEYS = [
     enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
     enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
     enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
@@ -53,6 +52,9 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+                minutesUntilStale: 60,
+            },
             [enums_1.CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
@@ -64,7 +66,7 @@ class Config {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
@@ -98,7 +100,7 @@ class Config {
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: {
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
             [enums_1.CacheKey.RECENT_USER_TOOTS]: {
@@ -111,9 +113,9 @@ class Config {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.TIMELINE_TOOTS]: {
-            // TODO: TIMELINE_TOOTS are assemble from all the other feeds, not API requests directly. This is here for type safety.
+            // TODO: TIMELINE_TOOTS are assembled from all the other feeds, not API requests directly. This is here for type safety.
             },
-            [enums_1.CacheKey.TRENDING_TAG_TOOTS]: {
+            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,
             },
         },
@@ -275,16 +277,16 @@ class Config {
         nonScoreWeightMinValue: 0.001,
         nonScoreWeightsConfig: {
             // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
-            [enums_2.NonScoreWeightName.TIME_DECAY]: {
+            [enums_1.NonScoreWeightName.TIME_DECAY]: {
                 description: "Higher values favour recent toots more",
             },
             // Trending data has a lot of reblogs, likes, replies, etc. giving disproportionately high scores.
             // To adjust for this we multiply those scores by the TRENDING weighting value.
-            [enums_2.NonScoreWeightName.TRENDING]: {
+            [enums_1.NonScoreWeightName.TRENDING]: {
                 description: "Multiplier applied to trending toots, tags, and links",
             },
             // If this value is 2 then square root scores, if it's 3 then cube root scores, etc.
-            [enums_2.NonScoreWeightName.OUTLIER_DAMPENER]: {
+            [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: {
                 description: "Dampens the effect of outlier scores",
             },
         },
@@ -324,11 +326,11 @@ class Config {
         logger.debug(`validated:`, this);
     }
     ;
-    // Compute min value for FEDIVERSE_KEYS minutesUntilStale
+    // Compute min value for FEDIVERSE_CACHE_KEYS minutesUntilStale
     minTrendingMinutesUntilStale() {
-        const trendStalenesses = exports.FEDIVERSE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
-        if (trendStalenesses.length != exports.FEDIVERSE_KEYS.length) {
-            logger.warn(`Not all FEDIVERSE_KEYS have minutesUntilStale configured!`);
+        const trendStalenesses = exports.FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+        if (trendStalenesses.length != exports.FEDIVERSE_CACHE_KEYS.length) {
+            logger.warn(`Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
             return 60;
         }
         else {

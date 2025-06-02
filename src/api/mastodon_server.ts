@@ -13,7 +13,7 @@ import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { CacheKey } from "../enums";
-import { config, FEDIVERSE_KEYS } from "../config";
+import { config, FEDIVERSE_CACHE_KEYS } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { TrendingType } from '../enums';
@@ -43,7 +43,7 @@ import {
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
 
-const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_KEYS.reduce(
+const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_CACHE_KEYS.reduce(
     (mutexes, key) => {
         mutexes[key] = new Mutex();
         return mutexes;

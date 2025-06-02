@@ -1,7 +1,7 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { AlgorithmStorageKey, CacheKey } from "./enums";
-import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights } from "./types";
+import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
+import { type FeedFilterSettings, type StorableObj, type StorableObjWithCache, type TrendingData, type Weights, ApiCacheKey } from "./types";
 export interface CacheTimestamp {
     isStale: boolean;
     updatedAt: Date;
@@ -9,7 +9,7 @@ export interface CacheTimestamp {
 interface StorableObjWithStaleness extends CacheTimestamp {
     obj: StorableObjWithCache;
 }
-type StorageKey = AlgorithmStorageKey | CacheKey;
+type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[];
@@ -18,10 +18,10 @@ export default class Storage {
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getCoerced<T>(key: CacheKey): Promise<T[]>;
     static getFilters(): Promise<FeedFilterSettings | null>;
-    static getIfNotStale<T extends StorableObjWithCache>(key: CacheKey): Promise<T | null>;
+    static getIfNotStale<T extends StorableObjWithCache>(key: ApiCacheKey): Promise<T | null>;
     static getTrendingData(): Promise<TrendingData>;
     static getWeights(): Promise<Weights>;
-    static getWithStaleness(key: CacheKey): Promise<StorableObjWithStaleness | null>;
+    static getWithStaleness(key: ApiCacheKey): Promise<StorableObjWithStaleness | null>;
     static isDataStale(key: CacheKey): Promise<boolean>;
     static loadUserData(): Promise<UserData>;
     static logAppOpen(user: Account): Promise<void>;

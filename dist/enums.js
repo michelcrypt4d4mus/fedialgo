@@ -3,7 +3,7 @@
  * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.CacheKey = void 0;
+exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
 // Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
 // Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 // This should live in Storage.ts but that creates a circular dependency with config.ts
@@ -11,7 +11,6 @@ var CacheKey;
 (function (CacheKey) {
     CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
     CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
-    CacheKey["FAVOURITED_TAG_TOOTS"] = "FavouritedHashtagToots";
     CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
     CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
     CacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
@@ -22,12 +21,17 @@ var CacheKey;
     CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
     CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     CacheKey["NOTIFICATIONS"] = "Notifications";
-    CacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
     CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
     CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
     CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
-    CacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
+;
+var TagTootsCacheKey;
+(function (TagTootsCacheKey) {
+    TagTootsCacheKey["FAVOURITED_TAG_TOOTS"] = "FavouritedHashtagToots";
+    TagTootsCacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
+    TagTootsCacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
+})(TagTootsCacheKey || (exports.TagTootsCacheKey = TagTootsCacheKey = {}));
 ;
 // Storage keys but not for the API cache, for user data etc.
 var AlgorithmStorageKey;

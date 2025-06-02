@@ -8,15 +8,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const api_1 = __importDefault(require("./api"));
 const tag_list_1 = __importDefault(require("./tag_list"));
-const enums_1 = require("../enums");
 const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
+const enums_1 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const HASHTAG_TOOTS_CONFIG = {
-    [enums_1.CacheKey.FAVOURITED_TAG_TOOTS]: config_1.config.favouritedTags,
-    [enums_1.CacheKey.PARTICIPATED_TAG_TOOTS]: config_1.config.participatedTags,
-    [enums_1.CacheKey.TRENDING_TAG_TOOTS]: config_1.config.trending.tags,
+    [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: config_1.config.favouritedTags,
+    [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: config_1.config.participatedTags,
+    [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: config_1.config.trending.tags,
 };
 class TootsForTagsList {
     cacheKey;
@@ -27,7 +27,7 @@ class TootsForTagsList {
     static async create(cacheKey) {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         let tagList;
-        if (cacheKey === enums_1.CacheKey.FAVOURITED_TAG_TOOTS) {
+        if (cacheKey === enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS) {
             tagList = await tag_list_1.default.fromFavourites();
             await this.removeUnwantedTags(tagList, tootsConfig);
             // Remove tags that have been used in 2 or more toots by the user
@@ -35,11 +35,11 @@ class TootsForTagsList {
             const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
             tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
         }
-        else if (cacheKey === enums_1.CacheKey.PARTICIPATED_TAG_TOOTS) {
+        else if (cacheKey === enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS) {
             tagList = await tag_list_1.default.fromParticipated();
             await this.removeUnwantedTags(tagList, tootsConfig);
         }
-        else if (cacheKey === enums_1.CacheKey.TRENDING_TAG_TOOTS) {
+        else if (cacheKey === enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS) {
             tagList = await tag_list_1.default.fromTrending();
         }
         else {

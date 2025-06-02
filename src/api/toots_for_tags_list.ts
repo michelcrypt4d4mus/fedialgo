@@ -4,22 +4,17 @@
 import MastoApi from "./api";
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
-import { CacheKey } from "../enums";
 import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { tagStr } from "./objects/tag";
+import { TagTootsCacheKey } from "../enums";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
-export type TagTootsCacheKey =
-      CacheKey.FAVOURITED_TAG_TOOTS
-    | CacheKey.PARTICIPATED_TAG_TOOTS
-    | CacheKey.TRENDING_TAG_TOOTS;
-
 const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsConfig> = {
-    [CacheKey.FAVOURITED_TAG_TOOTS]: config.favouritedTags,
-    [CacheKey.PARTICIPATED_TAG_TOOTS]: config.participatedTags,
-    [CacheKey.TRENDING_TAG_TOOTS]: config.trending.tags,
+    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: config.favouritedTags,
+    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: config.participatedTags,
+    [TagTootsCacheKey.TRENDING_TAG_TOOTS]: config.trending.tags,
 };
 
 
@@ -34,17 +29,17 @@ export default class TootsForTagsList {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         let tagList: TagList;
 
-        if (cacheKey === CacheKey.FAVOURITED_TAG_TOOTS) {
+        if (cacheKey === TagTootsCacheKey.FAVOURITED_TAG_TOOTS) {
             tagList = await TagList.fromFavourites();
             await this.removeUnwantedTags(tagList, tootsConfig);
             // Remove tags that have been used in 2 or more toots by the user
             // TODO: use a configured value or a heuristic instead of hardcoded 2
             const participatedTags = (await TagList.fromParticipated()).tagNameDict();
             tagList.tags = tagList.tags.filter((tag) => (participatedTags[tag.name]?.numToots || 0) <= 3);
-        } else if (cacheKey === CacheKey.PARTICIPATED_TAG_TOOTS) {
+        } else if (cacheKey === TagTootsCacheKey.PARTICIPATED_TAG_TOOTS) {
             tagList = await TagList.fromParticipated();
             await this.removeUnwantedTags(tagList, tootsConfig);
-        } else if (cacheKey === CacheKey.TRENDING_TAG_TOOTS) {
+        } else if (cacheKey === TagTootsCacheKey.TRENDING_TAG_TOOTS) {
             tagList = await TagList.fromTrending();
         } else {
             throw new Error(`TootsForTagsList: Invalid cacheKey ${cacheKey}`);

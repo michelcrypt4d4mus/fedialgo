@@ -1,7 +1,6 @@
 export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     FAVOURITED_TOOTS = "FavouritedToots",
-    FAVOURITED_TAG_TOOTS = "FavouritedHashtagToots",
     FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
     FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
     FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
@@ -12,10 +11,13 @@ export declare enum CacheKey {
     HOME_TIMELINE_TOOTS = "HomeTimelineToots",
     MUTED_ACCOUNTS = "MutedAccounts",
     NOTIFICATIONS = "Notifications",
-    PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     RECENT_USER_TOOTS = "RecentUserToots",
     SERVER_SIDE_FILTERS = "ServerFilters",
-    TIMELINE_TOOTS = "TimelineToots",
+    TIMELINE_TOOTS = "TimelineToots"
+}
+export declare enum TagTootsCacheKey {
+    FAVOURITED_TAG_TOOTS = "FavouritedHashtagToots",
+    PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     TRENDING_TAG_TOOTS = "TrendingTagToots"
 }
 export declare enum AlgorithmStorageKey {

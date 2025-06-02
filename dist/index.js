@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
+exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isDebugMode = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -76,6 +76,7 @@ const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/vide
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
+Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
@@ -104,6 +105,7 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
+Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -225,9 +227,9 @@ class TheAlgorithm {
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(enums_1.CacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(enums_1.CacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(enums_1.CacheKey.TRENDING_TAG_TOOTS),
+            hashtagToots(enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
+            hashtagToots(enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
+            hashtagToots(enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),
