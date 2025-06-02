@@ -324,7 +324,7 @@ function truncateToConfiguredLength(array, maxRecords, logger) {
     logger ||= new logger_1.Logger("truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
-    logger.log(`Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
+    logger.deep(`Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
     return array;
 }
 exports.truncateToConfiguredLength = truncateToConfiguredLength;

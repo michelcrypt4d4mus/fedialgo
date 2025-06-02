@@ -170,7 +170,7 @@ export default class Storage {
         return {
             links: await this.getCoerced<TrendingLink>(CacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers as MastodonInstances,
-            tags: new TagList(trendingTags, CacheKey.FEDIVERSE_TRENDING_TAGS),
+            tags: new TagList(trendingTags, TagTootsCacheKey.TRENDING_TAG_TOOTS),
             toots: await this.getCoerced<Toot>(CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
