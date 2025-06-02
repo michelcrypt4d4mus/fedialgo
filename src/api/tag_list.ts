@@ -111,6 +111,10 @@ export default class TagList {
         return this.tagNames[name.toLowerCase()];
     }
 
+    map<T>(callback: (tag: TagWithUsageCounts) => T): T[] {
+        return this.tags.map(callback);
+    }
+
     maxNumAccounts(): number | undefined {
         const tagsNumAccounts = this.tags.map(t => t.numAccounts).filter(n => !isNull(n) && !isNaN(n!));
         return tagsNumAccounts.length ? Math.max(...tagsNumAccounts as number[]) : undefined

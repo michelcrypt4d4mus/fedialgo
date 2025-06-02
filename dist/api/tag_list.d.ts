@@ -14,6 +14,7 @@ export default class TagList {
     static fromTrending(): Promise<TagList>;
     static fromUsageCounts(toots: Toot[]): TagList;
     getTag(tag: string | MastodonTag): TagWithUsageCounts | undefined;
+    map<T>(callback: (tag: TagWithUsageCounts) => T): T[];
     maxNumAccounts(): number | undefined;
     maxNumToots(): number | undefined;
     numTootsLookupDict(): StringNumberDict;

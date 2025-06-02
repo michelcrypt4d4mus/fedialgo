@@ -85,6 +85,9 @@ class TagList {
         const name = typeof tag === 'string' ? tag : tag.name;
         return this.tagNames[name.toLowerCase()];
     }
+    map(callback) {
+        return this.tags.map(callback);
+    }
     maxNumAccounts() {
         const tagsNumAccounts = this.tags.map(t => t.numAccounts).filter(n => !(0, string_helpers_1.isNull)(n) && !isNaN(n));
         return tagsNumAccounts.length ? Math.max(...tagsNumAccounts) : undefined;

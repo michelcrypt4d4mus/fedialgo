@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add map() method to TagList
 
 ### v0.57.3
 * Stop exporting `isDebugMode` (it's a static property now)
