@@ -60,8 +60,15 @@ export default class UserData {
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
         const favouritedAccounts = MostFavouritedAccountsScorer.buildFavouritedAccounts(data.favouritedToots);
         const retootedAccounts = MostRetootedAccountsScorer.buildRetootedAccounts(data.recentToots);
-        userData.favouriteAccounts = TagList.buildFromDict(addDicts(favouritedAccounts, retootedAccounts));
 
+        // Fill in zeros for accounts that the user follows but has not favourited or retooted
+        const followedAccountZeros = data.followedAccounts.reduce((zeros, account) => {
+            zeros[account.webfingerURI] = 0;
+            return zeros;
+        }, {} as StringNumberDict);
+
+        const accountsDict = addDicts(favouritedAccounts, followedAccountZeros, retootedAccounts);
+        userData.favouriteAccounts = TagList.buildFromDict(accountsDict);
         logger.trace("Built from data:", userData);
         return userData;
     }

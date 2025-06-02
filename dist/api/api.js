@@ -287,7 +287,8 @@ class MastoApi {
     // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData() {
         // TODO: the staleness check probably belongs in the UserData class
-        if (!this.userData || (await this.userData.isDataStale())) {
+        // TODO: the check for favouriteAccounts is an upgrade thing that can be removed later
+        if (!this.userData || (await this.userData.isDataStale()) || !this.userData.favouriteAccounts) {
             this.userData = await user_data_1.default.build();
         }
         return this.userData;

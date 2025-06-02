@@ -39,7 +39,13 @@ class UserData {
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
         const favouritedAccounts = most_favourited_accounts_scorer_1.default.buildFavouritedAccounts(data.favouritedToots);
         const retootedAccounts = most_retooted_accounts_scorer_1.default.buildRetootedAccounts(data.recentToots);
-        userData.favouriteAccounts = tag_list_1.default.buildFromDict((0, collection_helpers_1.addDicts)(favouritedAccounts, retootedAccounts));
+        // Fill in zeros for accounts that the user follows but has not favourited or retooted
+        const followedAccountZeros = data.followedAccounts.reduce((zeros, account) => {
+            zeros[account.webfingerURI] = 0;
+            return zeros;
+        }, {});
+        const accountsDict = (0, collection_helpers_1.addDicts)(favouritedAccounts, followedAccountZeros, retootedAccounts);
+        userData.favouriteAccounts = tag_list_1.default.buildFromDict(accountsDict);
         logger.trace("Built from data:", userData);
         return userData;
     }
