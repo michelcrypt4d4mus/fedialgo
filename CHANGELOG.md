@@ -1,8 +1,11 @@
 # NEXT RELEASE
+
+### v0.57.4
 * Add `UserData.favouriteAccounts` property
 * Repair broken audio attachments too
 * Refactor an abstract `ObjWithCountList` class from `TagList` class so we can hold account info
 * (Demo App) Reorder filter section (and make it easily configurable in the future)
+* (Demo App) Fix but with computing gradients at new user login
 
 ## v0.58.0
 * Add `map()` method to `TagList`
