@@ -17,14 +17,11 @@ export default class MostFavouritedAccountsScorer extends AccountScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return await MostFavouritedAccountsScorer.getFavouritedAccounts();
+        const favouritedToots = await MastoApi.instance.getFavouritedToots();
+        return MostFavouritedAccountsScorer.buildFavouritedAccounts(favouritedToots);
     };
 
     static buildFavouritedAccounts(favourites: Toot[]): StringNumberDict {
         return Account.countAccounts(favourites.map(toot => toot.account));
-    }
-
-    static async getFavouritedAccounts(): Promise<StringNumberDict> {
-        return this.buildFavouritedAccounts(await MastoApi.instance.getFavouritedToots());
     }
 };

@@ -6,5 +6,4 @@ export default class MostFavouritedAccountsScorer extends AccountScorer {
     constructor();
     prepareScoreData(): Promise<StringNumberDict>;
     static buildFavouritedAccounts(favourites: Toot[]): StringNumberDict;
-    static getFavouritedAccounts(): Promise<StringNumberDict>;
 }

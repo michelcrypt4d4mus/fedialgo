@@ -17,14 +17,12 @@ class MostFavouritedAccountsScorer extends acccount_scorer_1.default {
     }
     ;
     async prepareScoreData() {
-        return await MostFavouritedAccountsScorer.getFavouritedAccounts();
+        const favouritedToots = await api_1.default.instance.getFavouritedToots();
+        return MostFavouritedAccountsScorer.buildFavouritedAccounts(favouritedToots);
     }
     ;
     static buildFavouritedAccounts(favourites) {
         return account_1.default.countAccounts(favourites.map(toot => toot.account));
-    }
-    static async getFavouritedAccounts() {
-        return this.buildFavouritedAccounts(await api_1.default.instance.getFavouritedToots());
     }
 }
 exports.default = MostFavouritedAccountsScorer;

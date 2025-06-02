@@ -6,5 +6,4 @@ export default class MostRetootedAccountsScorer extends AccountScorer {
     constructor();
     prepareScoreData(): Promise<StringNumberDict>;
     static buildRetootedAccounts(recentToots: Toot[]): StringNumberDict;
-    static getRetootedAccounts(): Promise<StringNumberDict>;
 }
