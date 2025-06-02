@@ -30,12 +30,12 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
         removeUnwantedTags: true,
     },
     [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-        buildTagList: async () => await TagList.fromParticipated(),
+        buildTagList: TagList.fromParticipated,
         config: config.participatedTags,
         removeUnwantedTags: true,
     },
     [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
-        buildTagList: async () => await TagList.fromTrending(),
+        buildTagList: TagList.fromTrending,
         config: config.trending.tags,
         removeUnwantedTags: false,  // Trending tags are already filtered
     }

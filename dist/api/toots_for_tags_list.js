@@ -26,12 +26,12 @@ const HASHTAG_TOOTS_CONFIG = {
         removeUnwantedTags: true,
     },
     [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-        buildTagList: async () => await tag_list_1.default.fromParticipated(),
+        buildTagList: tag_list_1.default.fromParticipated,
         config: config_1.config.participatedTags,
         removeUnwantedTags: true,
     },
     [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
-        buildTagList: async () => await tag_list_1.default.fromTrending(),
+        buildTagList: tag_list_1.default.fromTrending,
         config: config_1.config.trending.tags,
         removeUnwantedTags: false, // Trending tags are already filtered
     }
