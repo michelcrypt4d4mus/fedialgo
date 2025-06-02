@@ -98,8 +98,8 @@ class Toot {
     favourited;
     filtered;
     language;
-    inReplyToId;
     inReplyToAccountId;
+    inReplyToId;
     muted;
     pinned;
     poll;
@@ -140,16 +140,16 @@ class Toot {
         tootObj.favourited = toot.favourited;
         tootObj.favouritesCount = toot.favouritesCount;
         tootObj.filtered = toot.filtered;
-        tootObj.inReplyToId = toot.inReplyToId;
         tootObj.inReplyToAccountId = toot.inReplyToAccountId;
+        tootObj.inReplyToId = toot.inReplyToId;
         tootObj.language = toot.language;
         tootObj.mediaAttachments = toot.mediaAttachments;
         tootObj.mentions = toot.mentions;
         tootObj.muted = toot.muted;
         tootObj.pinned = toot.pinned;
         tootObj.poll = toot.poll;
-        tootObj.reblogsCount = toot.reblogsCount;
         tootObj.reblogged = toot.reblogged;
+        tootObj.reblogsCount = toot.reblogsCount;
         tootObj.repliesCount = toot.repliesCount;
         tootObj.sensitive = toot.sensitive;
         tootObj.spoilerText = toot.spoilerText;

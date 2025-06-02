@@ -72,8 +72,8 @@ export default class Toot implements TootObj {
     favourited?: boolean | null;
     filtered?: mastodon.v1.FilterResult[];
     language?: string | null;
-    inReplyToId?: string | null;
     inReplyToAccountId?: string | null;
+    inReplyToId?: string | null;
     muted?: boolean | null;
     pinned?: boolean | null;
     poll?: mastodon.v1.Poll | null;

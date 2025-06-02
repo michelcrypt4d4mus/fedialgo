@@ -187,8 +187,8 @@ export default class Toot implements TootObj {
     favourited?: boolean | null;
     filtered?: mastodon.v1.FilterResult[];
     language?: string | null;
-    inReplyToId?: string | null;
     inReplyToAccountId?: string | null;
+    inReplyToId?: string | null;
     muted?: boolean | null;
     pinned?: boolean | null;
     poll?: mastodon.v1.Poll | null;
@@ -231,16 +231,16 @@ export default class Toot implements TootObj {
         tootObj.favourited = toot.favourited;
         tootObj.favouritesCount = toot.favouritesCount;
         tootObj.filtered = toot.filtered;
-        tootObj.inReplyToId = toot.inReplyToId;
         tootObj.inReplyToAccountId = toot.inReplyToAccountId;
+        tootObj.inReplyToId = toot.inReplyToId;
         tootObj.language = toot.language;
         tootObj.mediaAttachments = toot.mediaAttachments;
         tootObj.mentions = toot.mentions;
         tootObj.muted = toot.muted;
         tootObj.pinned = toot.pinned;
         tootObj.poll = toot.poll;
-        tootObj.reblogsCount = toot.reblogsCount;
         tootObj.reblogged = toot.reblogged;
+        tootObj.reblogsCount = toot.reblogsCount;
         tootObj.repliesCount = toot.repliesCount;
         tootObj.sensitive = toot.sensitive;
         tootObj.spoilerText = toot.spoilerText;
