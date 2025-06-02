@@ -27,6 +27,7 @@ import NumericFilter from './filters/numeric_filter';
 import NumFavouritesScorer from "./scorer/feature/num_favourites_scorer";
 import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
 import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
+import ObjWithCountList, { ObjList } from "./api/obj_with_counts_list";
 import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
@@ -67,6 +68,7 @@ import {
     type MastodonInstance,
     type MastodonTag,
     type MinMaxAvgScore,
+    type NamedObjWithTootCount,
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -685,6 +687,8 @@ export {
     type KeysOfValueType,
     type MastodonInstance,
     type MinMaxAvgScore,
+    type NamedObjWithTootCount,
+    type ObjList,
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -705,6 +709,7 @@ export {
     BooleanFilter,
     Logger,
     NumericFilter,
+    ObjWithCountList,
     TagList,
     Toot,
     // Enums

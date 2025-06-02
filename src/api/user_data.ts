@@ -9,9 +9,10 @@ import MastoApi from "./api";
 import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
 import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
 import Storage from "../Storage";
+import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { CacheKey } from "../enums";
+import { CacheKey, ScoreName } from "../enums";
 import { config } from "../config";
 import { addDicts, countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
@@ -35,7 +36,7 @@ interface UserApiData {
 
 
 export default class UserData {
-    favouriteAccounts: TagList = new TagList([]);  // Add up the favourites, retoots, and replies for each account
+    favouriteAccounts: ObjList = new ObjWithCountList([]);
     favouritedTags: TagList = new TagList([]);
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TagList = new TagList([])
@@ -50,13 +51,14 @@ export default class UserData {
         const userData = new UserData();
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots)
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
-        userData.followedTags = new TagList(data.followedTags);
+        userData.followedTags = new TagList(data.followedTags, CacheKey.FOLLOWED_TAGS);
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots);
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
 
+        // Add up the favourites, retoots, and replies for each account
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
         const favouritedAccounts = MostFavouritedAccountsScorer.buildFavouritedAccounts(data.favouritedToots);
         const retootedAccounts = MostRetootedAccountsScorer.buildRetootedAccounts(data.recentToots);
@@ -68,7 +70,7 @@ export default class UserData {
         }, {} as StringNumberDict);
 
         const accountsDict = addDicts(favouritedAccounts, followedAccountZeros, retootedAccounts);
-        userData.favouriteAccounts = TagList.buildFromDict(accountsDict);
+        userData.favouriteAccounts = ObjWithCountList.buildFromDict(accountsDict, ScoreName.FAVOURITED_ACCOUNTS);
         logger.trace("Built from data:", userData);
         return userData;
     }

@@ -155,7 +155,7 @@ class MastodonServer {
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(tags, t => t.name);
             }
         });
-        const trendingTagList = new tag_list_1.default(tags);
+        const trendingTagList = new tag_list_1.default(tags, enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
         trendingTagList.removeInvalidTrendingTags();
         await trendingTagList.removeMutedTags();
         return trendingTagList;

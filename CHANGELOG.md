@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Add UserData.favouriteAccounts property
+* Add `UserData.favouriteAccounts` property
+* Refactor an abstract `ObjWithCountList` class from `TagList` class so we can hold account info
 * (Demo App) Reorder filter section (and make it easily configurable in the future)
 
 ## v0.58.0

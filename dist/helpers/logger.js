@@ -75,7 +75,7 @@ class Logger {
         const numRemoved = before.length - after.length;
         if (numRemoved == 0)
             return;
-        this.debug(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
+        this.trace(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
     }
     // Log a message with the amount of time from startedAt to now.
     logTelemetry(msg, startedAt, ...args) {

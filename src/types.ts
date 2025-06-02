@@ -17,6 +17,7 @@ export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<ApiCacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
+export type ObjNames = Record<string, ObjWithTootCount>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -105,6 +106,13 @@ export type MinMaxID = {
     max: string;
 };
 
+// Abstract interface for objects that have numToots of some kind
+export interface ObjWithTootCount extends WithCounts {
+    name: string;
+};
+
+export type NamedObjWithTootCount = ObjWithTootCount | TagWithUsageCounts;
+
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
     weighted: MinMaxAvgScore[];
@@ -139,7 +147,7 @@ export type StorableWithTimestamp = {
     value: StorableObj;
 };
 
-export interface TagWithUsageCounts extends mastodon.v1.Tag, TrendingHistory {
+export interface TagWithUsageCounts extends mastodon.v1.Tag, WithCounts {
     language?: string;
 };
 
@@ -160,7 +168,7 @@ export type TootScore = {
 };
 
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {};
+export interface TrendingLink extends mastodon.v1.TrendLink, WithCounts {};
 
 // TODO: we can't enforce that keys are TrendingType enum because "toots" is different from "statuses"
 export type TrendingData = {
@@ -172,12 +180,6 @@ export type TrendingData = {
 
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
-
-export interface TrendingHistory {
-    numAccounts?: number;
-    numToots?: number;
-    regex?: RegExp;
-};
 
 export type WeightedScore = {
     raw: number;
@@ -192,6 +194,12 @@ export type WeightInfo = {
 
 // Names of all the user adjustable score weightings, both those with a Scorer and those without
 export type WeightName = ScoreName | NonScoreWeightName;
+
+export interface WithCounts {
+    numAccounts?: number;
+    numToots?: number;
+    regex?: RegExp;
+};
 
 
 // TODO: unused stuff below here

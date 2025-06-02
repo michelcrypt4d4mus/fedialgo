@@ -571,10 +571,10 @@ export default class Toot implements TootObj {
 
         // containsString() matched way too many toots so we use containsTag() for participated tags
         // TODO: things might be fast enough to try this again
-        toot.participatedTags = userData.participatedTags.filter(tag => toot.containsTag(tag)).tags;
+        toot.participatedTags = userData.participatedTags.filter(tag => toot.containsTag(tag)).objs;
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
-        toot.followedTags = userData.followedTags.filter(tag => toot.containsTag(tag, isDeepInspect)).tags;
+        toot.followedTags = userData.followedTags.filter(tag => toot.containsTag(tag, isDeepInspect)).objs;
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
 
         // Only set the completedAt field if isDeepInspect is true  // TODO: might be fast enough to try this again?
@@ -805,7 +805,7 @@ export default class Toot implements TootObj {
         let startedAt = new Date();
 
         const userData = await MastoApi.instance.getUserData();
-        const trendingTags = (await TagList.fromTrending()).topTags();
+        const trendingTags = (await TagList.fromTrending()).topObjs();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
 
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching

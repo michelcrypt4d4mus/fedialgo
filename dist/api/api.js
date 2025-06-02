@@ -506,12 +506,15 @@ class MastoApi {
             }
             else {
                 // TODO: is this right? we used to return the cached data quickly if it was OK...
+                // TODO: at the very least we are filling in this value when it is only used for updating stale data...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
-                logger.info(`Incremental load possible; loading fwd from maxId in cache: "${minMaxIdParams.minIdForFetch}"`);
+                if (cacheResult.isStale) {
+                    logger.info(`Incremental update of stale data from cached maxId "${minMaxIdParams.minIdForFetch}"`);
+                }
             }
         }
         else if (maxId) {
-            logger.info(`loading backward from manually provided maxId: "${maxId}"`);
+            logger.info(`Loading backward from manually provided maxId: "${maxId}"`);
             minMaxIdParams.maxIdForFetch = maxId; // If we have a manually provided maxId use it as the maxIdForFetch
         }
         // If 'moar' flag is set, add another unit of maxRecords to the row count we have now

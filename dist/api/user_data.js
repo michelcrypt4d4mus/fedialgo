@@ -8,6 +8,7 @@ const api_1 = __importDefault(require("./api"));
 const most_favourited_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_favourited_accounts_scorer"));
 const most_retooted_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_retooted_accounts_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
+const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
@@ -16,7 +17,7 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
-    favouriteAccounts = new tag_list_1.default([]); // Add up the favourites, retoots, and replies for each account
+    favouriteAccounts = new obj_with_counts_list_1.default([]);
     favouritedTags = new tag_list_1.default([]);
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
     followedTags = new tag_list_1.default([]);
@@ -30,12 +31,13 @@ class UserData {
         const userData = new UserData();
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
-        userData.followedTags = new tag_list_1.default(data.followedTags);
+        userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.CacheKey.FOLLOWED_TAGS);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots);
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
+        // Add up the favourites, retoots, and replies for each account
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
         const favouritedAccounts = most_favourited_accounts_scorer_1.default.buildFavouritedAccounts(data.favouritedToots);
         const retootedAccounts = most_retooted_accounts_scorer_1.default.buildRetootedAccounts(data.recentToots);
@@ -45,7 +47,7 @@ class UserData {
             return zeros;
         }, {});
         const accountsDict = (0, collection_helpers_1.addDicts)(favouritedAccounts, followedAccountZeros, retootedAccounts);
-        userData.favouriteAccounts = tag_list_1.default.buildFromDict(accountsDict);
+        userData.favouriteAccounts = obj_with_counts_list_1.default.buildFromDict(accountsDict, enums_1.ScoreName.FAVOURITED_ACCOUNTS);
         logger.trace("Built from data:", userData);
         return userData;
     }

@@ -36,6 +36,7 @@ const HASHTAG_TOOTS_CONFIG = {
         removeUnwantedTags: false, // Trending tags are already filtered
     }
 };
+const logger = new logger_1.Logger("TootsForTagsList");
 class TootsForTagsList {
     cacheKey;
     config;
@@ -46,7 +47,12 @@ class TootsForTagsList {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
         if (tootsConfig.removeUnwantedTags) {
-            await this.removeUnwantedTags(tagList, tootsConfig.config);
+            try {
+                await this.removeUnwantedTags(tagList, tootsConfig.config);
+            }
+            catch (err) {
+                logger.error(`Error removing unwanted tags for "${cacheKey}":`, err);
+            }
         }
         return new TootsForTagsList(cacheKey, tagList, tootsConfig.config);
     }
@@ -71,8 +77,8 @@ class TootsForTagsList {
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags) {
         numTags ||= this.config.numTags;
-        const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topTags(), numTags, this.logger);
-        this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagStr)(t)}`).join("\n"));
+        const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topObjs(), numTags, this.logger);
+        this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagInfoStr)(t)}`).join("\n"));
         return tags;
     }
     // Create then immediately fetch toots for the tags
@@ -84,8 +90,8 @@ class TootsForTagsList {
     static async removeUnwantedTags(tagList, tootsConfig) {
         await tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();
-        tagList.removeKeywordsFromTags((await tag_list_1.default.fromTrending()).tags.map(t => t.name)); // Remove trending tags
-        tagList.removeKeywordsFromTags(tootsConfig.invalidTags || []);
+        tagList.removeKeywords((await tag_list_1.default.fromTrending()).objs.map(t => t.name)); // Remove trending tags
+        tagList.removeKeywords(tootsConfig.invalidTags || []);
     }
 }
 exports.default = TootsForTagsList;

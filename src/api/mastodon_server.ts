@@ -207,7 +207,7 @@ export default class MastodonServer {
             }
         });
 
-        const trendingTagList = new TagList(tags);
+        const trendingTagList = new TagList(tags, CacheKey.FEDIVERSE_TRENDING_TAGS);
         trendingTagList.removeInvalidTrendingTags();
         await trendingTagList.removeMutedTags();
         return trendingTagList;

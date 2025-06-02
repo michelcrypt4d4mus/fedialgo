@@ -17,7 +17,7 @@ export default class HashtagParticipationScorer extends FeatureScorer {
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return (await TagList.fromParticipated()).numTootsLookupDict();
+        return (await TagList.fromParticipated()).nameToNumTootsDict();
     };
 
     // Use the square root of the number of toots with the hashtag to prevent runaway scores

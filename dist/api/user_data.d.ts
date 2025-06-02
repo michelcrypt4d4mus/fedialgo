@@ -1,5 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
+import { ObjList } from "./obj_with_counts_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { type AccountNames, type StringNumberDict, type TagWithUsageCounts } from "../types";
@@ -12,7 +13,7 @@ interface UserApiData {
     serverSideFilters: mastodon.v2.Filter[];
 }
 export default class UserData {
-    favouriteAccounts: TagList;
+    favouriteAccounts: ObjList;
     favouritedTags: TagList;
     followedAccounts: StringNumberDict;
     followedTags: TagList;

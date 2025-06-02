@@ -6,7 +6,7 @@ import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
-import { tagStr } from "./objects/tag";
+import { tagInfoStr } from "./objects/tag";
 import { TagTootsCacheKey } from "../enums";
 import { truncateToConfiguredLength } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
@@ -41,6 +41,8 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
     }
 };
 
+const logger = new Logger("TootsForTagsList");
+
 
 export default class TootsForTagsList {
     cacheKey: TagTootsCacheKey;
@@ -54,7 +56,11 @@ export default class TootsForTagsList {
         const tagList = await tootsConfig.buildTagList();
 
         if (tootsConfig.removeUnwantedTags) {
-            await this.removeUnwantedTags(tagList, tootsConfig.config);
+            try {
+                await this.removeUnwantedTags(tagList, tootsConfig.config);
+            } catch (err) {
+                logger.error(`Error removing unwanted tags for "${cacheKey}":`, err);
+            }
         }
 
         return new TootsForTagsList(cacheKey, tagList, tootsConfig.config);
@@ -94,8 +100,8 @@ export default class TootsForTagsList {
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.config.numTags;
-        const tags = truncateToConfiguredLength(this.tagList.topTags(), numTags, this.logger);
-        this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagStr(t)}`).join("\n"));
+        const tags = truncateToConfiguredLength(this.tagList.topObjs(), numTags, this.logger);
+        this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagInfoStr(t)}`).join("\n"));
         return tags;
     }
 
@@ -109,7 +115,7 @@ export default class TootsForTagsList {
     static async removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void> {
         await tagList.removeFollowedAndMutedTags();
         tagList.removeInvalidTrendingTags();
-        tagList.removeKeywordsFromTags((await TagList.fromTrending()).tags.map(t => t.name)); // Remove trending tags
-        tagList.removeKeywordsFromTags(tootsConfig.invalidTags || []);
+        tagList.removeKeywords((await TagList.fromTrending()).objs.map(t => t.name)); // Remove trending tags
+        tagList.removeKeywords(tootsConfig.invalidTags || []);
     }
 };

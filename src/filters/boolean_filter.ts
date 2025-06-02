@@ -164,7 +164,7 @@ export default class BooleanFilter extends TootFilter {
             url: MastoApi.instance.tagUrl(name),
         }));
 
-        return new TagList(tags);
+        return new TagList(tags, `BooleanFilter <${this.title}>`);
     }
 
     // Return the available options sorted alphabetically by name

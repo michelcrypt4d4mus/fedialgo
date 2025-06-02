@@ -16,7 +16,7 @@ class HashtagParticipationScorer extends feature_scorer_1.default {
         super(enums_1.ScoreName.PARTICIPATED_TAGS);
     }
     async prepareScoreData() {
-        return (await tag_list_1.default.fromParticipated()).numTootsLookupDict();
+        return (await tag_list_1.default.fromParticipated()).nameToNumTootsDict();
     }
     ;
     // Use the square root of the number of toots with the hashtag to prevent runaway scores
