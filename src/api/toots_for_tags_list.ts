@@ -20,11 +20,11 @@ type TagTootsBuildConfig = {
 const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
     [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
         buildTagList: async () => {
-            const maxParticipations = config.favouritedTags.maxParticipations;  // TODO: a heuristic to decide this number?
-            const participatedTags = (await TagList.fromParticipated()).tagNameDict();
             const tagList = await TagList.fromFavourites();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
-            return tagList.filter(t => (participatedTags[t.name]?.numToots || 0) <= maxParticipations);
+            const participatedTags = (await TagList.fromParticipated()).tagNameDict();
+            const maxParticipations = config.favouritedTags.maxParticipations;  // TODO: use heuristic to pick this number?
+            return tagList.filter(tag => (participatedTags[tag.name]?.numToots || 0) <= maxParticipations);
         },
         config: config.favouritedTags,
         removeUnwantedTags: true,

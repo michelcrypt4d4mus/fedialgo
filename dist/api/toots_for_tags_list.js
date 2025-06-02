@@ -16,11 +16,11 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const HASHTAG_TOOTS_CONFIG = {
     [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
         buildTagList: async () => {
-            const maxParticipations = config_1.config.favouritedTags.maxParticipations; // TODO: a heuristic to decide this number?
-            const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
             const tagList = await tag_list_1.default.fromFavourites();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
-            return tagList.filter(t => (participatedTags[t.name]?.numToots || 0) <= maxParticipations);
+            const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
+            const maxParticipations = config_1.config.favouritedTags.maxParticipations; // TODO: use heuristic to pick this number?
+            return tagList.filter(tag => (participatedTags[tag.name]?.numToots || 0) <= maxParticipations);
         },
         config: config_1.config.favouritedTags,
         removeUnwantedTags: true,
