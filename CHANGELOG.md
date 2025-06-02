@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add `config.favouritedTags.maxParticipations` param
+* (Demo App) Fix bug where reply mentions were injected twice
 
 ### v0.57.1
 * Fully separate `TagTootsCacheKey` enum elements from `CacheKey` enum

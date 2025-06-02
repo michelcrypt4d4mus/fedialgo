@@ -49,7 +49,7 @@ export default class UserData {
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots)
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags).tagNameDict();
-        userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language); // TODO: this is empty in the GUI?
+        userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedHashtags = TagList.fromUsageCounts(data.recentToots).tagNameDict();
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
