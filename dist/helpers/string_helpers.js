@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.isVideo = exports.isImage = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.isNull = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.VIDEO_EXTENSIONS = exports.IMAGE_EXTENSIONS = exports.GIFV = exports.NUMBER_REGEX = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.isNull = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.NUMBER_REGEX = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -29,8 +29,11 @@ const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
 const WHITESPACE_REGEX = /\s+/g;
 // Multimedia types
 exports.GIFV = "gifv";
-exports.IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
-exports.VIDEO_EXTENSIONS = ["mp4"];
+exports.MEDIA_FILE_EXTENSIONS = {
+    [enums_1.MediaCategory.AUDIO]: ["aac", "aif", "flac", "m4a", "mp3", "ogg", "opus", "wav"],
+    [enums_1.MediaCategory.IMAGE]: ["gif", "jpg", "jpeg", "png", "webp"],
+    [enums_1.MediaCategory.VIDEO]: ["mp4"],
+};
 exports.VIDEO_TYPES = [
     exports.GIFV,
     enums_1.MediaCategory.VIDEO,
@@ -115,6 +118,20 @@ function createRandomString(length) {
 }
 exports.createRandomString = createRandomString;
 ;
+// Guess the media category based on the file extension in the URI.
+function determineMediaCategory(uri) {
+    if (!uri)
+        return undefined;
+    let category;
+    Object.entries(exports.MEDIA_FILE_EXTENSIONS).forEach(([mediaType, fileExtensions]) => {
+        if (fileExtensions.some(ext => uri.split("?")[0].endsWith(ext))) {
+            category = mediaType;
+        }
+    });
+    return category;
+}
+exports.determineMediaCategory = determineMediaCategory;
+;
 // "http://www.mast.ai/foobar" => "mast.ai"
 function extractDomain(url) {
     url ??= "";
@@ -150,22 +167,6 @@ function htmlToParagraphs(html) {
     return html.split(/<\/p>/i).filter(p => p.length).map(p => `${p}</p>`);
 }
 exports.htmlToParagraphs = htmlToParagraphs;
-;
-// Return true if uri ends with an image extension like .jpg or .png
-function isImage(uri) {
-    if (!uri)
-        return false;
-    return exports.IMAGE_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
-}
-exports.isImage = isImage;
-;
-// Return true if uri ends with a video extension like .mp4 or .gifv
-function isVideo(uri) {
-    if (!uri)
-        return false;
-    return exports.VIDEO_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
-}
-exports.isVideo = isVideo;
 ;
 // 1st, 2nd, 3rd, 4th, etc.
 const ordinalSuffix = (n) => {

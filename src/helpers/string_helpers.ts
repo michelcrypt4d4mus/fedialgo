@@ -29,8 +29,12 @@ const WHITESPACE_REGEX = /\s+/g;
 
 // Multimedia types
 export const GIFV = "gifv";
-export const IMAGE_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp"];
-export const VIDEO_EXTENSIONS = ["mp4"];
+
+export const MEDIA_FILE_EXTENSIONS: Record<MediaCategory, string[]> = {
+    [MediaCategory.AUDIO]: ["aac", "aif", "flac", "m4a", "mp3", "ogg", "opus", "wav"],
+    [MediaCategory.IMAGE]: ["gif", "jpg", "jpeg", "png", "webp"],
+    [MediaCategory.VIDEO]: ["mp4"],
+}
 
 export const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[] = [
     GIFV,
@@ -108,6 +112,21 @@ export function createRandomString(length: number): string {
 };
 
 
+// Guess the media category based on the file extension in the URI.
+export function determineMediaCategory(uri: string | null | undefined): MediaCategory | undefined {
+    if (!uri) return undefined;
+    let category: MediaCategory | undefined;
+
+    Object.entries(MEDIA_FILE_EXTENSIONS).forEach(([mediaType, fileExtensions]) => {
+        if (fileExtensions.some(ext => uri.split("?")[0].endsWith(ext))) {
+            category = mediaType as MediaCategory;
+        }
+    });
+
+    return category;
+};
+
+
 // "http://www.mast.ai/foobar" => "mast.ai"
 export function extractDomain(url: string): string {
     url ??= "";
@@ -142,20 +161,6 @@ export function htmlToText(html: string): string {
 export function htmlToParagraphs(html: string): string[] {
     if (!(html.includes("</p>") || html.includes("</P>"))) return [html];
     return html.split(/<\/p>/i).filter(p => p.length).map(p => `${p}</p>`);
-};
-
-
-// Return true if uri ends with an image extension like .jpg or .png
-export function isImage(uri: string | null | undefined): boolean {
-    if (!uri) return false;
-    return IMAGE_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
-};
-
-
-// Return true if uri ends with a video extension like .mp4 or .gifv
-export function isVideo(uri: string | null | undefined): boolean {
-    if (!uri) return false;
-    return VIDEO_EXTENSIONS.some(ext => uri.split("?")[0].endsWith(ext));
 };
 
 

@@ -55,7 +55,7 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
-const BLUESKY_BRIDGY = 'bsky.brid.gy';
+const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = numeric_filter_1.FILTERABLE_SCORES.concat("numTimesShown");
@@ -591,15 +591,13 @@ class Toot {
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
-                if ((0, string_helpers_1.isImage)(media.remoteUrl)) {
-                    repairLogger.trace(`Repairing broken image attachment in toot:`, this);
-                    media.type = enums_1.MediaCategory.IMAGE;
+                const category = (0, string_helpers_1.determineMediaCategory)(media.remoteUrl);
+                if (category) {
+                    repairLogger.trace(`Repaired broken ${category} attachment in toot:`, this);
+                    media.type = category;
                 }
-                else if ((0, string_helpers_1.isVideo)(media.remoteUrl)) {
-                    repairLogger.trace(`Repairing broken video attachment in toot:`, this);
-                    media.type = enums_1.MediaCategory.VIDEO;
-                }
-                else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
+                else if (this.uri?.includes(BSKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
+                    // Special handling for Bluesky bridge images
                     repairLogger.debug(`Repairing broken bluesky bridge image attachment in toot:`, this);
                     media.type = enums_1.MediaCategory.IMAGE;
                 }

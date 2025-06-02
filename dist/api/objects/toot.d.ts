@@ -1,8 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./account";
 import { Logger } from '../../helpers/logger';
-import { MediaCategory } from '../../enums';
-import { ScoreName } from '../../enums';
+import { MediaCategory, ScoreName } from '../../enums';
 import { type AccountLike, type FeedFilterSettings, type MastodonTag, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TrendingLink, type WeightedScore } from "../../types";
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;

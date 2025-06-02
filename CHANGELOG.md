@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Add `UserData.favouriteAccounts` property
+* Repair broken audio attachments too
 * Refactor an abstract `ObjWithCountList` class from `TagList` class so we can hold account info
 * (Demo App) Reorder filter section (and make it easily configurable in the future)
 

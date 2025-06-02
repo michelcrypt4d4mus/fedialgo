@@ -18,9 +18,8 @@ import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
-import { MediaCategory } from '../../enums';
+import { MediaCategory, ScoreName } from '../../enums';
 import { repairTag } from "./tag";
-import { ScoreName } from '../../enums';
 import { TypeFilterName } from "../../filters/boolean_filter";
 import {
     batchMap,
@@ -34,17 +33,16 @@ import {
 } from "../../helpers/collection_helpers";
 import {
     DEFAULT_FONT_SIZE,
+    MEDIA_FILE_EXTENSIONS,
     MEDIA_TYPES,
     VIDEO_TYPES,
     arrowed,
     at,
-    bracketed,
     collapseWhitespace,
+    determineMediaCategory,
     extractDomain,
     htmlToParagraphs,
     htmlToText,
-    isImage,
-    isVideo,
     removeDiacritics,
     removeEmojis,
     removeLinks,
@@ -93,7 +91,7 @@ const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
 const UNKNOWN = "unknown";
-const BLUESKY_BRIDGY = 'bsky.brid.gy';
+const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = FILTERABLE_SCORES.concat("numTimesShown");
@@ -743,13 +741,13 @@ export default class Toot implements TootObj {
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
             if (media.type == UNKNOWN) {
-                if (isImage(media.remoteUrl)) {
-                    repairLogger.trace(`Repairing broken image attachment in toot:`, this);
-                    media.type = MediaCategory.IMAGE;
-                } else if (isVideo(media.remoteUrl)) {
-                    repairLogger.trace(`Repairing broken video attachment in toot:`, this);
-                    media.type = MediaCategory.VIDEO;
-                } else if (this.uri?.includes(BLUESKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
+                const category = determineMediaCategory(media.remoteUrl);
+
+                if (category) {
+                    repairLogger.trace(`Repaired broken ${category} attachment in toot:`, this);
+                    media.type = category;
+                } else if (this.uri?.includes(BSKY_BRIDGY) && media.previewUrl?.endsWith("/small") && !media.previewRemoteUrl) {
+                    // Special handling for Bluesky bridge images
                     repairLogger.debug(`Repairing broken bluesky bridge image attachment in toot:`, this);
                     media.type = MediaCategory.IMAGE;
                 } else {
