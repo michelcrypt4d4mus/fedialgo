@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* Add map() method to TagList
+
+# v0.58.0
+* Add `map()` method to `TagList`
+* Add a section for "Hashtags You Often Favourite"
 
 ### v0.57.3
 * Stop exporting `isDebugMode` (it's a static property now)
