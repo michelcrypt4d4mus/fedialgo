@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
+const most_favourited_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_favourited_accounts_scorer"));
+const most_retooted_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_retooted_accounts_scorer"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const enums_1 = require("../enums");
@@ -14,6 +16,7 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
+    favouriteAccounts = {}; // Add up the favourites, retoots, and replies for each account
     favouritedTags = new tag_list_1.default([]);
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
     followedTags = new tag_list_1.default([]);
@@ -33,6 +36,10 @@ class UserData {
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots);
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
+        // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
+        const favouritedAccounts = most_favourited_accounts_scorer_1.default.buildFavouritedAccounts(data.favouritedToots);
+        const retootedAccounts = most_retooted_accounts_scorer_1.default.buildRetootedAccounts(data.recentToots);
+        userData.favouriteAccounts = (0, collection_helpers_1.addDicts)(favouritedAccounts, retootedAccounts);
         logger.trace("Built from data:", userData);
         return userData;
     }

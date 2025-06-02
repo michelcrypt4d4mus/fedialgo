@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.makePercentileChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.makeChunks = exports.batchMap = exports.average = exports.atLeastValues = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.makePercentileChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.makeChunks = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -14,6 +14,16 @@ const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
 const BATCH_MAP = "batchMap()";
+function addDicts(...args) {
+    return args.reduce((acc, dict) => {
+        Object.entries(dict).forEach(([k, v]) => {
+            acc[k] = (acc[k] || 0) + v;
+        });
+        return acc;
+    }, {});
+}
+exports.addDicts = addDicts;
+;
 // Return a new object with only the key/value pairs that have a value greater than minValue
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));

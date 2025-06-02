@@ -17,11 +17,16 @@ class MostRetootedAccountsScorer extends acccount_scorer_1.default {
         super(enums_1.ScoreName.MOST_RETOOTED_ACCOUNTS);
     }
     async prepareScoreData() {
-        const recentToots = await api_1.default.instance.getRecentUserToots();
+        return await MostRetootedAccountsScorer.getRetootedAccounts();
+    }
+    ;
+    static buildRetootedAccounts(recentToots) {
         const retootedAccounts = recentToots.filter(toot => toot?.reblog).map(toot => toot.reblog.account);
         return account_1.default.countAccounts(retootedAccounts);
     }
-    ;
+    static async getRetootedAccounts() {
+        return this.buildRetootedAccounts(await api_1.default.instance.getRecentUserToots());
+    }
 }
 exports.default = MostRetootedAccountsScorer;
 ;

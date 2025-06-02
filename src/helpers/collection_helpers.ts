@@ -13,6 +13,17 @@ import { sleep } from './time_helpers';
 const BATCH_MAP = "batchMap()";
 
 
+export function addDicts(...args: StringNumberDict[]): StringNumberDict {
+    return args.reduce((acc, dict) => {
+        Object.entries(dict).forEach(([k, v]) => {
+            acc[k] = (acc[k] || 0) + v;
+        });
+
+        return acc;
+    }, {} as StringNumberDict);
+};
+
+
 // Return a new object with only the key/value pairs that have a value greater than minValue
 export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));

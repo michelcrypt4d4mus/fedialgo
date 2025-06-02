@@ -4,6 +4,7 @@
 import Account from '../../api/objects/account';
 import AccountScorer from "./acccount_scorer";
 import MastoApi from '../../api/api';
+import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
@@ -16,7 +17,14 @@ export default class MostFavouritedAccountsScorer extends AccountScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        const recentFavourites = await MastoApi.instance.getFavouritedToots();
-        return Account.countAccounts(recentFavourites.map(toot => toot.account));
+        return await MostFavouritedAccountsScorer.getFavouritedAccounts();
     };
+
+    static buildFavouritedAccounts(favourites: Toot[]): StringNumberDict {
+        return Account.countAccounts(favourites.map(toot => toot.account));
+    }
+
+    static async getFavouritedAccounts(): Promise<StringNumberDict> {
+        return this.buildFavouritedAccounts(await MastoApi.instance.getFavouritedToots());
+    }
 };

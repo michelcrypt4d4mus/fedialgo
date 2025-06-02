@@ -12,6 +12,7 @@ interface UserApiData {
     serverSideFilters: mastodon.v2.Filter[];
 }
 export default class UserData {
+    favouriteAccounts: StringNumberDict;
     favouritedTags: TagList;
     followedAccounts: StringNumberDict;
     followedTags: TagList;

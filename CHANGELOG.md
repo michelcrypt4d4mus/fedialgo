@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Add UserData.favouriteAccounts property
+* (Demo App) Reorder filter section (and make it easily configurable in the future)
 
 ## v0.58.0
 * Add `map()` method to `TagList`

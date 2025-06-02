@@ -1,5 +1,6 @@
 import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { Logger } from './logger';
+export declare function addDicts(...args: StringNumberDict[]): StringNumberDict;
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {

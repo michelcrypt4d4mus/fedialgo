@@ -6,17 +6,18 @@ import { mastodon } from "masto";
 
 import Account from "./objects/account";
 import MastoApi from "./api";
+import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
+import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { CacheKey } from "../enums";
 import { config } from "../config";
-import { countValues, sortKeysByValue } from "../helpers/collection_helpers";
+import { addDicts, countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
     type StringNumberDict,
-    type TagNames,
     type TagWithUsageCounts
 } from "../types";
 
@@ -34,6 +35,7 @@ interface UserApiData {
 
 
 export default class UserData {
+    favouriteAccounts: StringNumberDict = {};  // Add up the favourites, retoots, and replies for each account
     favouritedTags: TagList = new TagList([]);
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
     followedTags: TagList = new TagList([])
@@ -54,6 +56,12 @@ export default class UserData {
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots);
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
+
+        // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
+        const favouritedAccounts = MostFavouritedAccountsScorer.buildFavouritedAccounts(data.favouritedToots);
+        const retootedAccounts = MostRetootedAccountsScorer.buildRetootedAccounts(data.recentToots);
+        userData.favouriteAccounts = addDicts(favouritedAccounts, retootedAccounts)
+
         logger.trace("Built from data:", userData);
         return userData;
     }
