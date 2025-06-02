@@ -426,24 +426,23 @@ class Toot {
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.
     // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
     completeProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
-        // TODO: We handle muted and followed before checking if complete so we can refresh mutes & follows
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
         }
+        // TODO: We handled muted/followed before checking if complete so we can refresh mutes & follows which sucks
         if (this.isComplete())
             return;
-        // Retoots never have their own tags, etc.
-        const toot = this.realToot();
-        const allFollowedTags = Object.values(userData.followedTags);
+        const toot = this.realToot(); // Retoots never have their own tags, etc.
         // containsString() matched way too many toots so we use containsTag() for participated tags
-        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
+        // TODO: things might be fast enough to try this again
+        toot.participatedTags = userData.participatedTags.filter(tag => toot.containsTag(tag)).tags;
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
-        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        toot.followedTags = userData.followedTags.filter(tag => toot.containsTag(tag, isDeepInspect)).tags;
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
-        // Only set the completedAt field if isDeepInspect is true
+        // Only set the completedAt field if isDeepInspect is true  // TODO: might be fast enough to try this again?
         if (isDeepInspect) {
             toot.trendingLinks = trendingLinks.filter(link => link.regex.test(this.contentWithCard()));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!

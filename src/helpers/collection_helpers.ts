@@ -3,8 +3,7 @@
  */
 import chunk from 'lodash/chunk';
 
-import { bracketed, compareStr, hashObject } from "./string_helpers";
-import { CacheKey } from "../enums";
+import { compareStr, hashObject, isNull } from "./string_helpers";
 import { config } from "../config";
 import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { isNumber } from "./math_helper";
@@ -126,8 +125,7 @@ export function countValues<T>(
     return items.reduce(
         (counts, item) => {
             const key = getKey(item);
-            if (key == null && !countNulls) return counts;
-            return incrementCount(counts, key);
+            return (isNull(key) && !countNulls) ? counts : incrementCount(counts, key);
         },
         {} as StringNumberDict
     );

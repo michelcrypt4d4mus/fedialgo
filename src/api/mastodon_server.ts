@@ -74,8 +74,6 @@ export default class MastodonServer {
     private static v1Url = (path: string) => `${API_V1}/${path}`;
     private static v2Url = (path: string) => `${API_V2}/${path}`;
     private static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
-    private endpointDomain = (endpoint: string) => `${this.domain}/${endpoint}`;
-    private endpointUrl = (endpoint: string) => `https://${this.endpointDomain(endpoint)}`;
 
     constructor(domain: string) {
         this.domain = domain;
@@ -143,14 +141,13 @@ export default class MastodonServer {
 
     // Get data from a public API endpoint on a Mastodon server.
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
-        let url = this.endpointUrl(endpoint);
-        if (limit) url += `?limit=${limit}`;
-        // this.logger.trace(`(${this.endpointDomain(endpoint)}) fetching...`);
+        const url = this.endpointUrl(endpoint, limit);
+        this.logger.deep(`Fetching "${url}"...`);
         const startedAt = new Date();
         const json = await axios.get<T>(url, { timeout: config.api.timeoutMS });
 
         if (json.status === 200 && json.data) {
-            this.logger.trace(`(${this.endpointDomain(endpoint)}) fetch response ${ageString(startedAt)}:`, json.data);
+            this.logger.trace(`(${endpoint}) fetch response ${ageString(startedAt)}:`, json.data);
             return transformKeys(json.data, camelCase) as T;
         } else {
             throw json;
@@ -200,15 +197,20 @@ export default class MastodonServer {
         });
     }
 
-    // Get the top trending tags from all servers
-    static async fediverseTrendingTags(): Promise<TagWithUsageCounts[]> {
-        return await this.fetchTrendingObjsFromAllServers<TagWithUsageCounts>({
+    // Get the top trending tags from all servers, minus any invalid or muted tags
+    static async fediverseTrendingTags(): Promise<TagList> {
+        const tags = await this.fetchTrendingObjsFromAllServers<TagWithUsageCounts>({
             key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 return uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
             }
         });
+
+        const trendingTagList = new TagList(tags);
+        trendingTagList.removeInvalidTrendingTags();
+        await trendingTagList.removeMutedTags();
+        return trendingTagList;
     }
 
         // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
@@ -246,14 +248,14 @@ export default class MastodonServer {
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData(): Promise<TrendingData> {
         // TODO: would this be parallelized even without Promise.all?
-        const [links, tagList, servers, toots] = await Promise.all([
+        const [links, tags, servers, toots] = await Promise.all([
             this.fediverseTrendingLinks(),
             TagList.fromTrending(),
             this.getMastodonInstancesInfo(),
             this.fediverseTrendingToots(),
         ]);
 
-        return { links, servers, tags: tagList.topTags(), toots };
+        return { links, servers, tags, toots };
     }
 
     ///////////////////////////////////////
@@ -374,6 +376,10 @@ export default class MastodonServer {
     ): Promise<Record<string, T>> {
         const domains = await this.getTopServerDomains();
         return await this.callForServers(domains, fxn);
+    }
+
+    private endpointUrl(endpoint: string, limit?: number) {
+        return `https://${this.domain}/${endpoint}` + (limit ? `?limit=${limit}` : '');
     }
 
     // Returns true if the domain is known to not provide MAU and trending data via public API

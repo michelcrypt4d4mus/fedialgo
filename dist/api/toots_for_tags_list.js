@@ -18,9 +18,9 @@ const HASHTAG_TOOTS_CONFIG = {
         buildTagList: async () => {
             const tagList = await tag_list_1.default.fromFavourites();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
-            const participatedTags = (await tag_list_1.default.fromParticipated()).tagNameDict();
+            const participatedTags = await tag_list_1.default.fromParticipated();
             const maxParticipations = config_1.config.favouritedTags.maxParticipations; // TODO: use heuristic to pick this number?
-            return tagList.filter(tag => (participatedTags[tag.name]?.numToots || 0) <= maxParticipations);
+            return tagList.filter(tag => (participatedTags.getTag(tag)?.numToots || 0) <= maxParticipations);
         },
         config: config_1.config.favouritedTags,
         removeUnwantedTags: true,

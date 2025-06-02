@@ -16,10 +16,10 @@ const logger = new logger_1.Logger("UserData");
 class UserData {
     favouritedTags = new tag_list_1.default([]);
     followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
-    followedTags = {}; // TODO: could be TagList?
+    followedTags = new tag_list_1.default([]);
     languagesPostedIn = {};
     mutedAccounts = {};
-    participatedHashtags = {}; // TODO: could be TagList?
+    participatedTags = new tag_list_1.default([]);
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = []; // TODO: currently unused, only here for getCurrentState() by client app
     // Alternate constructor to build UserData from raw API data
@@ -27,10 +27,10 @@ class UserData {
         const userData = new UserData();
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
-        userData.followedTags = new tag_list_1.default(data.followedTags).tagNameDict();
+        userData.followedTags = new tag_list_1.default(data.followedTags);
         userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
-        userData.participatedHashtags = tag_list_1.default.fromUsageCounts(data.recentToots).tagNameDict();
+        userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots);
         userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         logger.trace("Built from data:", userData);
@@ -59,10 +59,6 @@ class UserData {
     // TODO: could be smarter
     async isDataStale() {
         return await Storage_1.default.isDataStale(enums_1.CacheKey.MUTED_ACCOUNTS);
-    }
-    // Returns TrendingTags the user has participated in sorted by number of times they tooted it
-    popularUserTags() {
-        return (new tag_list_1.default(Object.values(this.participatedHashtags))).topTags();
     }
     /////////////////////////////
     //      Static Methods     //

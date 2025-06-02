@@ -9,6 +9,8 @@ export declare class Logger {
     info: (msg: string, ...args: any[]) => void;
     debug: (msg: string, ...args: any[]) => void;
     trace: (msg: string, ...args: any[]) => void;
+    deep: (msg: string, ...args: any[]) => void;
+    warnWithoutTrace: (msg: string, ...args: any[]) => void;
     logAndThrowError(msg: string, ...args: any[]): never;
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void;
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;

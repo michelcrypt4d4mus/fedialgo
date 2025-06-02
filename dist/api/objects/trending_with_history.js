@@ -27,14 +27,15 @@ function uniquifyTrendingObjs(trendingObjs, uniqueKey) {
     const urlObjs = trendingObjs.reduce((unique, obj) => {
         const key = uniqueKey(obj).toLowerCase();
         if (unique[key]) {
-            unique[key].numToots = Math.max(unique[key].numToots || 0, obj.numToots || 0);
             unique[key].numAccounts = Math.max(unique[key].numAccounts || 0, obj.numAccounts || 0);
+            unique[key].numToots = Math.max(unique[key].numToots || 0, obj.numToots || 0);
         }
         else {
             unique[key] = obj;
         }
         return unique;
     }, {});
+    // TODO: should this sort by numToots too instead? Usually we sort things by numToots but here we want to sort by numAccounts
     const sortedObjs = Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
     return sortedObjs;
 }

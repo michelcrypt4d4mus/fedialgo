@@ -4,6 +4,7 @@ import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
+import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
 import { CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -98,7 +99,7 @@ export interface TrendingLink extends mastodon.v1.TrendLink, TrendingHistory {
 export type TrendingData = {
     links: TrendingLink[];
     servers: MastodonInstances;
-    tags: TagWithUsageCounts[];
+    tags: TagList;
     toots: Toot[];
 };
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;

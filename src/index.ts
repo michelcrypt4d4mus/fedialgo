@@ -112,7 +112,7 @@ class TheAlgorithm {
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
     logger: Logger = new Logger(`TheAlgorithm`);
-    trendingData: TrendingData = {links: [], tags: [], servers: {}, toots: []};
+    trendingData: TrendingData = {links: [], tags: new TagList([]), servers: {}, toots: []};
     userData: UserData = new UserData();
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
@@ -720,7 +720,6 @@ export {
     // Helpers
     extractDomain,
     isAccessTokenRevokedError,
-    isDebugMode,
     isValueInStringEnum,
     makeChunks,
     makePercentileChunks, // TODO: unused in demo app (for now)

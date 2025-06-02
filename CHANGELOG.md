@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Stop exporting `isDebugMode` (it's a static property now)
+* Add FEDIALGO_DEEP_DEBUG env var
 
 ### v0.57.2
 * Add `config.favouritedTags.maxParticipations` param
@@ -10,7 +12,7 @@
 # v0.57.0
 * Add `favouritedTags` property to `UserData` object
 * Export `TagTootsCacheKey` type
-* (Demo App) Add cyan color gradient for user's favourited hashtags
+* (Demo App) Add cyan color gradient for user's favourited hashtags in the hashtag filter view
 
 ### v0.56.4
 * (Demo App) Link the Github Release Notes instead of the raw CHANGELOG.md in the header

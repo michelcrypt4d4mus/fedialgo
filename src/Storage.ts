@@ -166,13 +166,11 @@ export default class Storage {
     static async getTrendingData(): Promise<TrendingData> {
         const servers = (await this.get(CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
         const trendingTags = await this.getCoerced<TagWithUsageCounts>(CacheKey.FEDIVERSE_TRENDING_TAGS)
-        const trendingTagList = new TagList(trendingTags);
-        trendingTagList.removeInvalidTrendingTags();  // TODO: sucks to do this here...
 
         return {
             links: await this.getCoerced<TrendingLink>(CacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers as MastodonInstances,
-            tags: trendingTagList.topTags(),
+            tags: new TagList(trendingTags),
             toots: await this.getCoerced<Toot>(CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }

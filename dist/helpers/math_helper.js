@@ -71,7 +71,7 @@ exports.sizeFromBufferByteLength = sizeFromBufferByteLength;
 ;
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
 function sizeOf(obj, sizes) {
-    if (obj === null || obj === undefined)
+    if ((0, string_helpers_1.isNull)(obj))
         return 0;
     let bytes = 0;
     switch (typeof obj) {

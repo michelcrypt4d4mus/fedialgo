@@ -36,10 +36,10 @@ interface UserApiData {
 export default class UserData {
     favouritedTags: TagList = new TagList([]);
     followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
-    followedTags: TagNames = {};  // TODO: could be TagList?
+    followedTags: TagList = new TagList([])
     languagesPostedIn: StringNumberDict = {};
     mutedAccounts: AccountNames = {};
-    participatedHashtags: TagNames = {};  // TODO: could be TagList?
+    participatedTags: TagList = new TagList([]);
     preferredLanguage: string = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
 
@@ -48,10 +48,10 @@ export default class UserData {
         const userData = new UserData();
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots)
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
-        userData.followedTags = new TagList(data.followedTags).tagNameDict();
+        userData.followedTags = new TagList(data.followedTags);
         userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
-        userData.participatedHashtags = TagList.fromUsageCounts(data.recentToots).tagNameDict();
+        userData.participatedTags = TagList.fromUsageCounts(data.recentToots);
         userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
         logger.trace("Built from data:", userData);
@@ -83,11 +83,6 @@ export default class UserData {
     // TODO: could be smarter
     async isDataStale(): Promise<boolean> {
         return await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
-    }
-
-    // Returns TrendingTags the user has participated in sorted by number of times they tooted it
-    popularUserTags(): TagWithUsageCounts[] {
-        return (new TagList(Object.values(this.participatedHashtags))).topTags();
     }
 
     /////////////////////////////

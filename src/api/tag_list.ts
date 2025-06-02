@@ -6,10 +6,10 @@ import MastodonServer from "./mastodon_server";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
 import { config } from "../config";
+import { isNull, wordRegex } from "../helpers/string_helpers";
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sortObjsByProps } from "../helpers/collection_helpers";
-import { wordRegex } from "../helpers/string_helpers";
 import {
     type MastodonTag,
     type StringNumberDict,
@@ -17,30 +17,40 @@ import {
     type TagWithUsageCounts
 } from "../types";
 
-const SORT_TAGS_BY = [
-    "numToots" as keyof TagWithUsageCounts,
-    "name" as keyof TagWithUsageCounts
-];
-
 const logger = new Logger("TagList");
 
 
 export default class TagList {
-    tags: TagWithUsageCounts[];
+    length: number;
+    tagNames: TagNames = {};  // Dict of tag names to tags
+    private _tags: TagWithUsageCounts[];
 
     constructor(tags: MastodonTag[]) {
-        this.tags = tags.map(tag => {
+        this._tags = tags.map(tag => {
             const newTag = tag as TagWithUsageCounts;
             repairTag(newTag);
             newTag.regex ||= wordRegex(tag.name);
             return newTag;
         });
+
+        this.length = this._tags.length;
+        this.tagNames = this.tagNameDict();
     }
 
-    // Mutates the 'tags' array
+    public get tags(): TagWithUsageCounts[] {
+        return this._tags;
+    }
+
+    // Has side effect of mutating the 'tagNames' dict property
+    public set tags(theTags: TagWithUsageCounts[]) {
+        this._tags = theTags;
+        this.length = this._tags.length;
+        this.tagNames = this.tagNameDict();
+    }
+
+    // Remove elements that don't match the predicate(). Returns a new TagList object
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
-        this.tags = this.tags.filter(predicate);
-        return this;
+        return new TagList(this.tags.filter(predicate));
     }
 
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
@@ -58,29 +68,29 @@ export default class TagList {
         return TagList.fromUsageCounts(await MastoApi.instance.getRecentUserToots());
     }
 
-    // Trending tags across the fediverse
+    // Trending tags across the fediverse, but stripped of any followed or muted tags
     static async fromTrending(): Promise<TagList> {
-        const tagList = new TagList(await MastodonServer.fediverseTrendingTags());
-        tagList.removeFollowedAndMutedTags();
-        tagList.removeInvalidTrendingTags();
-        return tagList;
+        const trendingTagList = await MastodonServer.fediverseTrendingTags();
+        await trendingTagList.removeFollowedTags();
+        return trendingTagList;
     }
 
     // Alternate constructor, builds Tags with numToots set to the # of times the tag appears in the toots
     static fromUsageCounts(toots: Toot[]): TagList {
+        // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
         let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
+        const isRetooter = (retootsPct > config.participatedTags.minPctToCountRetoots);
 
         const tagsWithUsageCounts = toots.reduce(
             (tagCounts, toot) => {
-                // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
-                toot = (retootsPct > config.participatedTags.minPctToCountRetoots) ? toot.realToot() : toot;
+                toot = isRetooter ? toot.realToot() : toot;
 
                 toot.tags.forEach((tag) => {
                     const newTag = Object.assign({}, tag) as TagWithUsageCounts;
                     newTag.numToots ??= 0;
 
                     if (!(tag.name in tagCounts) && (newTag.numToots > 0)) {
-                        logger.warn(`<countTags()> "${tag.name}" not in tagCounts but numToots is > 0`, tag);
+                        logger.warn(`<fromUsageCounts()> "${tag.name}" not in tagCounts but numToots is > 0`, tag);
                     }
 
                     tagCounts[tag.name] ??= newTag;
@@ -95,11 +105,23 @@ export default class TagList {
         return new TagList(Object.values(tagsWithUsageCounts));
     }
 
-    length(): number {
-        return this.tags.length;
+    // Return the tag if it exists in 'tags' array, otherwise undefined.
+    getTag(tag: string | MastodonTag): TagWithUsageCounts | undefined {
+        const name = typeof tag === 'string' ? tag : tag.name;
+        return this.tagNames[name.toLowerCase()];
     }
 
-    // Returns a dict of tag names to numToots
+    maxNumAccounts(): number | undefined {
+        const tagsNumAccounts = this.tags.map(t => t.numAccounts).filter(n => !isNull(n) && !isNaN(n!));
+        return tagsNumAccounts.length ? Math.max(...tagsNumAccounts as number[]) : undefined
+    }
+
+    maxNumToots(): number | undefined {
+        const tagsNumToots = this.tags.map(t => t.numToots).filter(n => !isNull(n) && !isNaN(n!));
+        return tagsNumToots.length ? Math.max(...tagsNumToots as number[]) : undefined
+    }
+
+    // Returns a dict of tag names to numToots, which is (for now) what is used by BooleanFilter
     numTootsLookupDict(): StringNumberDict {
         return this.tags.reduce((dict, tag) => {
             dict[tag.name] = tag.numToots || 0;
@@ -142,17 +164,20 @@ export default class TagList {
         this.removeKeywordsFromTags(await UserData.getMutedKeywords());
     };
 
+    // Return numTags tags sorted by numAccounts if it exists, otherwise numToots, then by name
+    // If 'numTags' is not set return all tags.
+    topTags(numTags?: number): TagWithUsageCounts[] {
+        const sortBy = (this.tags.every(t => t.numAccounts) ? "numAccounts" : "numToots");
+        const sortByAndName = [sortBy, "name"] as (keyof TagWithUsageCounts)[]
+        this.tags = sortObjsByProps(Object.values(this.tags), sortByAndName, [false, true]);
+        return numTags ? this.tags.slice(0, numTags) : this.tags;
+    }
+
     // Return a dictionary of tag names to tags
-    tagNameDict(): TagNames {
+    private tagNameDict(): TagNames {
         return this.tags.reduce((tagNames, tag) => {
             tagNames[tag.name] = tag;
             return tagNames;
         }, {} as TagNames);
-    }
-
-    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
-    topTags(numTags?: number): TagWithUsageCounts[] {
-        this.tags = sortObjsByProps(Object.values(this.tags), SORT_TAGS_BY, [false, true]);
-        return numTags ? this.tags.slice(0, numTags) : this.tags;
     }
 };

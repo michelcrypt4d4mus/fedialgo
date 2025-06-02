@@ -52,7 +52,10 @@ class Logger {
     log = (msg, ...args) => console.log(this.str(msg), ...args);
     info = (msg, ...args) => console.info(this.str(msg), ...args);
     debug = (msg, ...args) => console.debug(this.str(msg), ...args);
-    trace = (msg, ...args) => { environment_helpers_1.isDebugMode && this.debug(msg, ...args); };
+    trace = (msg, ...args) => { (environment_helpers_1.isDebugMode || environment_helpers_1.isDeepDebug) && this.debug(msg, ...args); };
+    deep = (msg, ...args) => { environment_helpers_1.isDeepDebug && this.debug(msg, ...args); };
+    // Not a real warning, just a log with a warning prefix in colored text
+    warnWithoutTrace = (msg, ...args) => console.log(`%cWarning: ${msg}`, 'color: orange;');
     // Log an error message and throw an Error with the stringified args and the message.
     logAndThrowError(msg, ...args) {
         console.error(msg, args);

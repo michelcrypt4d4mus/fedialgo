@@ -100,9 +100,7 @@ exports.computeMinMax = computeMinMax;
 function countValues(items, getKey = (item) => item, countNulls) {
     return items.reduce((counts, item) => {
         const key = getKey(item);
-        if (key == null && !countNulls)
-            return counts;
-        return incrementCount(counts, key);
+        return ((0, string_helpers_1.isNull)(key) && !countNulls) ? counts : incrementCount(counts, key);
     }, {});
 }
 exports.countValues = countValues;

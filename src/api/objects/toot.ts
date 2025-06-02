@@ -16,7 +16,7 @@ import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } fr
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
-import { isDebugMode, isProduction } from "../../helpers/environment_helpers";
+import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory } from '../../enums';
 import { repairTag } from "./tag";
@@ -558,7 +558,6 @@ export default class Toot implements TootObj {
         trendingTags: TagWithUsageCounts[],
         isDeepInspect?: boolean
     ): void {
-        // TODO: We handle muted and followed before checking if complete so we can refresh mutes & follows
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
 
@@ -566,18 +565,19 @@ export default class Toot implements TootObj {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
         }
 
+        // TODO: We handled muted/followed before checking if complete so we can refresh mutes & follows which sucks
         if (this.isComplete()) return;
-        // Retoots never have their own tags, etc.
-        const toot = this.realToot();
-        const allFollowedTags = Object.values(userData.followedTags);
+        const toot = this.realToot();  // Retoots never have their own tags, etc.
+
         // containsString() matched way too many toots so we use containsTag() for participated tags
-        toot.participatedTags = Object.values(userData.participatedHashtags).filter(t => toot.containsTag(t));
+        // TODO: things might be fast enough to try this again
+        toot.participatedTags = userData.participatedTags.filter(tag => toot.containsTag(tag)).tags;
         // With all the containsString() calls it takes ~1.1 seconds to build 40 toots
         // Without them it's ~0.1 seconds. In particular the trendingLinks are slow! maybe 90% of that time.
-        toot.followedTags = allFollowedTags.filter(tag => toot.containsTag(tag, isDeepInspect));
+        toot.followedTags = userData.followedTags.filter(tag => toot.containsTag(tag, isDeepInspect)).tags;
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
 
-        // Only set the completedAt field if isDeepInspect is true
+        // Only set the completedAt field if isDeepInspect is true  // TODO: might be fast enough to try this again?
         if (isDeepInspect) {
             toot.trendingLinks = trendingLinks.filter(link => link.regex!.test(this.contentWithCard()));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!

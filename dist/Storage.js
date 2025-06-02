@@ -151,12 +151,10 @@ class Storage {
     static async getTrendingData() {
         const servers = (await this.get(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
         const trendingTags = await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
-        const trendingTagList = new tag_list_1.default(trendingTags);
-        trendingTagList.removeInvalidTrendingTags(); // TODO: sucks to do this here...
         return {
             links: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers,
-            tags: trendingTagList.topTags(),
+            tags: new tag_list_1.default(trendingTags),
             toots: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }

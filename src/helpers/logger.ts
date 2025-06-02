@@ -2,7 +2,7 @@
  * Standardized logger.
  */
 import { ageString } from './time_helpers';
-import { isDebugMode } from './environment_helpers';
+import { isDebugMode, isDeepDebug } from './environment_helpers';
 import { split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from './string_helpers';
 
@@ -58,7 +58,11 @@ export class Logger {
     log =   (msg: string, ...args: any[]) => console.log(this.str(msg), ...args);
     info =  (msg: string, ...args: any[]) => console.info(this.str(msg), ...args);
     debug = (msg: string, ...args: any[]) => console.debug(this.str(msg), ...args);
-    trace = (msg: string, ...args: any[]) => {isDebugMode && this.debug(msg, ...args)};
+    trace = (msg: string, ...args: any[]) => {(isDebugMode || isDeepDebug) && this.debug(msg, ...args)};
+    deep =  (msg: string, ...args: any[]) => {isDeepDebug && this.debug(msg, ...args)};
+
+    // Not a real warning, just a log with a warning prefix in colored text
+    warnWithoutTrace = (msg: string, ...args: any[]) => console.log(`%cWarning: ${msg}`, 'color: orange;');
 
     // Log an error message and throw an Error with the stringified args and the message.
     logAndThrowError(msg: string, ...args: any[]): never {

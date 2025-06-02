@@ -1,3 +1,4 @@
+import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { Logger } from '../helpers/logger';
 import { type MastodonInstance, type MastodonInstances, type TagWithUsageCounts, type TrendingLink, type TrendingData } from "../types";
@@ -8,8 +9,6 @@ export default class MastodonServer {
     private static v1Url;
     private static v2Url;
     private static trendUrl;
-    private endpointDomain;
-    private endpointUrl;
     constructor(domain: string);
     fetchServerInfo(): Promise<InstanceResponse>;
     fetchTrendingStatuses(): Promise<Toot[]>;
@@ -19,7 +18,7 @@ export default class MastodonServer {
     private fetchList;
     private fetchTrending;
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
-    static fediverseTrendingTags(): Promise<TagWithUsageCounts[]>;
+    static fediverseTrendingTags(): Promise<TagList>;
     static fediverseTrendingToots(): Promise<Toot[]>;
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
     static getTrendingData(): Promise<TrendingData>;
@@ -28,5 +27,6 @@ export default class MastodonServer {
     private static getTopServerDomains;
     private static callForServers;
     private static callForTopServers;
+    private endpointUrl;
     private static isNoMauServer;
 }
