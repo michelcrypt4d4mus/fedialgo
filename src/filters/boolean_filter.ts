@@ -4,7 +4,7 @@
  * (e.g. language, hashtag, type of toot).
  */
 import MastoApi from '../api/api';
-import ObjWithCountList from '../api/obj_with_counts_list';
+import ObjWithCountList, { ObjList } from '../api/obj_with_counts_list';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
@@ -161,15 +161,8 @@ export default class BooleanFilter extends TootFilter {
     }
 
     // Convert the optionInfo to a TagList with the counts as numToots
-    optionsAsTagList(): TagList {
-        const tags: TagWithUsageCounts[] = Object.entries(this.optionInfo).map(([name, numToots]) => ({
-            name,
-            numToots,
-            regex: wordRegex(name),  // Create a regex for the tag name
-            url: MastoApi.instance.tagUrl(name),
-        }));
-
-        return new TagList(tags, this.title);
+    optionsAsObjList(): ObjList {
+        return this.optionInfo;
     }
 
     // Return the available options sorted alphabetically by name

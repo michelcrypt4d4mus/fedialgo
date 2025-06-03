@@ -4,14 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.TypeFilterName = exports.BooleanFilterName = void 0;
-/*
- * Feed filtering information related to a single criterion on which toots
- * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language, hashtag, type of toot).
- */
-const api_1 = __importDefault(require("../api/api"));
 const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
-const tag_list_1 = __importDefault(require("../api/tag_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
@@ -147,14 +140,8 @@ class BooleanFilter extends toot_filter_1.default {
         return Object.keys(this.optionInfo).length;
     }
     // Convert the optionInfo to a TagList with the counts as numToots
-    optionsAsTagList() {
-        const tags = Object.entries(this.optionInfo).map(([name, numToots]) => ({
-            name,
-            numToots,
-            regex: (0, string_helpers_1.wordRegex)(name),
-            url: api_1.default.instance.tagUrl(name),
-        }));
-        return new tag_list_1.default(tags, this.title);
+    optionsAsObjList() {
+        return this.optionInfo;
     }
     // Return the available options sorted alphabetically by name
     optionsSortedByName() {

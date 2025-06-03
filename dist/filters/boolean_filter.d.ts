@@ -1,5 +1,4 @@
-import ObjWithCountList from '../api/obj_with_counts_list';
-import TagList from '../api/tag_list';
+import ObjWithCountList, { ObjList } from '../api/obj_with_counts_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
@@ -51,7 +50,7 @@ export default class BooleanFilter extends TootFilter {
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
     numOptions(): number;
-    optionsAsTagList(): TagList;
+    optionsAsObjList(): ObjList;
     optionsSortedByName(): string[];
     optionsSortedByValue(minValue?: number): string[];
     setOptions(optionInfo: StringNumberDict): void;
