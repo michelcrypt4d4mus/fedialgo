@@ -64,7 +64,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
         return this.nameDict[name.toLowerCase()];
     }
 
-    map(callback: (obj: T) => any): T[] {
+    map(callback: (obj: T, i?: number) => any): T[] {
         return this.objs.map(callback);
     }
 

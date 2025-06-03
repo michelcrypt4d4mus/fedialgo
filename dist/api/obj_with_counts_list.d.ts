@@ -13,7 +13,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     set objs(theTags: T[]);
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
     getObj(name: string): ObjWithTootCount | undefined;
-    map(callback: (obj: T) => any): T[];
+    map(callback: (obj: T, i?: number) => any): T[];
     maxNumAccounts(): number | undefined;
     maxNumToots(): number | undefined;
     nameToNumTootsDict(): StringNumberDict;
