@@ -38,12 +38,13 @@ export type TootNumberProp = KeysOfValueType<Toot, number>;
 
 
 // Filters
-export type FilterOptionDataSource = typeof FILTER_OPTION_DATA_SOURCES[number];
-type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
-export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {};
-
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
+
+export type FilterOptionDataSource = typeof FILTER_OPTION_DATA_SOURCES[number];
+type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
+// Add FilterOptionDataSource properties to the ObjWithTootCount interface
+export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {};
 
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];

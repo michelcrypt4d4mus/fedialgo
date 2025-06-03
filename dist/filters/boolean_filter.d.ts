@@ -35,7 +35,6 @@ export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends FilterArgs {
-    optionInfo?: BooleanFilterOption[];
     validValues?: string[];
 }
 export default class BooleanFilter extends TootFilter {
@@ -43,11 +42,12 @@ export default class BooleanFilter extends TootFilter {
     title: BooleanFilterName;
     validValues: string[];
     visible: boolean;
-    constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs);
-    optionsSortedByValue(minValue?: number): BooleanFilterOptionList;
-    optionsSortedByName(minValue?: number): BooleanFilterOptionList;
+    constructor({ title, invertSelection, validValues }: BooleanFilterArgs);
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
+    optionListWithMinToots(options: BooleanFilterOption[], minToots?: number): BooleanFilterOptionList;
+    optionsSortedByName(minToots?: number): BooleanFilterOptionList;
+    optionsSortedByValue(minToots?: number): BooleanFilterOptionList;
     setOptions(optionInfo: StringNumberDict): Promise<void>;
     updateValidOptions(element: string, isValidOption: boolean): void;
     toArgs(): BooleanFilterArgs;

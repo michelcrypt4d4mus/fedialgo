@@ -11,11 +11,11 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  */
 const api_1 = __importDefault(require("../api/api"));
 const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
+const tag_list_1 = __importDefault(require("../api/tag_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const tag_list_1 = __importDefault(require("../api/tag_list"));
 const enums_1 = require("../enums");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
@@ -101,46 +101,28 @@ class BooleanFilter extends toot_filter_1.default {
     title;
     validValues;
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
-    // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
-    constructor({ title, invertSelection, optionInfo, validValues }) {
-        optionInfo ??= [];
+    constructor({ title, invertSelection, validValues }) {
+        let optionInfo;
         let description;
+        // Set up defaults for type filters so something always shows up in the options // TODO: is this necessary?
         if (title == BooleanFilterName.TYPE) {
-            // Set up the default for type filters so something always shows up in the options
-            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
-            optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionCounts, title).objs;
             description = SOURCE_FILTER_DESCRIPTION;
+            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
+            optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionCounts, title);
         }
         else {
             const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
+            optionInfo = new boolean_filter_option_list_1.default([], title);
         }
         super({ description, invertSelection, title });
         this.title = title;
-        this.optionInfo = new boolean_filter_option_list_1.default(optionInfo ?? [], title);
+        this.optionInfo = optionInfo;
         this.validValues = validValues ?? [];
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
             this.visible = config_1.config.gui.isAppFilterVisible;
         }
-    }
-    // Return the available options sorted by value from highest to lowest
-    // If minValue is set then only return options with a value greater than or equal to minValue
-    // along with any 'validValues' entries that are below that threshold.
-    // optionsSortedByValue(minValue?: number): BooleanFilterOptionList[] {
-    optionsSortedByValue(minValue) {
-        let options = this.optionInfo.topObjs();
-        if (minValue) {
-            options = options.filter(o => (o.numToots || 0) >= minValue || this.isThisSelectionEnabled(o.name));
-        }
-        return new boolean_filter_option_list_1.default(options, this.title);
-    }
-    optionsSortedByName(minValue) {
-        let options = this.optionInfo.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.name, b.name));
-        if (minValue) {
-            options = options.filter(o => (o.numToots || 0) >= minValue || this.isThisSelectionEnabled(o.name));
-        }
-        return new boolean_filter_option_list_1.default(options, this.title);
     }
     // Return true if the toot matches the filter
     isAllowed(toot) {
@@ -153,6 +135,22 @@ class BooleanFilter extends toot_filter_1.default {
     // If the option is in validValues then it's enabled
     isThisSelectionEnabled(optionName) {
         return this.validValues.includes(optionName);
+    }
+    // Return only options that have at least minToots or are in validValues
+    optionListWithMinToots(options, minToots = 0) {
+        options = options.filter(o => (o.numToots || 0) >= minToots || this.isThisSelectionEnabled(o.name));
+        return new boolean_filter_option_list_1.default(options, this.title);
+    }
+    // Similar to optionsSortedByValue() but sorts by name instead of numToots
+    optionsSortedByName(minToots = 0) {
+        let options = this.optionInfo.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.name, b.name));
+        return this.optionListWithMinToots(options, minToots);
+    }
+    // Return the available options sorted by numToots from highest to lowest.
+    // If minToots is set then only return options with a value greater than or equal to minValue
+    // along with any 'validValues' entries that are below that threshold.
+    optionsSortedByValue(minToots = 0) {
+        return this.optionListWithMinToots(this.optionInfo.topObjs(), minToots);
     }
     // Update the filter with the possible options that can be selected for validValues
     async setOptions(optionInfo) {

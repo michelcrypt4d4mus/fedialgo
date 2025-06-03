@@ -5,16 +5,15 @@
  */
 import MastoApi from '../api/api';
 import BooleanFilterOptionList from './boolean_filter_option_list';
-import ObjWithCountList, { ObjList } from '../api/obj_with_counts_list';
+import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { alphabetize, compareStr, wordRegex } from '../helpers/string_helpers';
+import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
-import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
-import TagList from '../api/tag_list';
 import { ScoreName, TagTootsCacheKey } from '../enums';
-import UserData from '../api/user_data';
+import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
+import { min } from 'lodash';
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
@@ -98,9 +97,6 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 };
 
 export interface BooleanFilterArgs extends FilterArgs {
-    // TODO: optionInfo is not serialized to storage and that seems like a good thing?
-    // in which case it doesn't have to be here at all.
-    optionInfo?: BooleanFilterOption[];  // e.g. counts of toots with this option
     validValues?: string[];
 };
 
@@ -110,55 +106,31 @@ export default class BooleanFilter extends TootFilter {
     title: BooleanFilterName
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
-    // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
 
-    constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs) {
-        optionInfo ??= [];
+    constructor({ title, invertSelection, validValues }: BooleanFilterArgs) {
+        let optionInfo: BooleanFilterOptionList;
         let description: string;
 
+        // Set up defaults for type filters so something always shows up in the options // TODO: is this necessary?
         if (title == BooleanFilterName.TYPE) {
-            // Set up the default for type filters so something always shows up in the options
-            const optionCounts = countValues<TypeFilterName>(Object.values(TypeFilterName));
-            optionInfo = BooleanFilterOptionList.buildFromDict(optionCounts, title).objs;
             description = SOURCE_FILTER_DESCRIPTION;
+            const optionCounts = countValues<TypeFilterName>(Object.values(TypeFilterName));
+            optionInfo = BooleanFilterOptionList.buildFromDict(optionCounts, title);
         } else {
             const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
+            optionInfo = new BooleanFilterOptionList([], title);
         }
 
         super({ description, invertSelection, title });
         this.title = title as BooleanFilterName
-        this.optionInfo = new BooleanFilterOptionList(optionInfo ?? [], title);
+        this.optionInfo = optionInfo;
         this.validValues = validValues ?? [];
 
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
             this.visible = config.gui.isAppFilterVisible;
         }
-    }
-
-    // Return the available options sorted by value from highest to lowest
-    // If minValue is set then only return options with a value greater than or equal to minValue
-    // along with any 'validValues' entries that are below that threshold.
-    // optionsSortedByValue(minValue?: number): BooleanFilterOptionList[] {
-    optionsSortedByValue(minValue?: number): BooleanFilterOptionList {
-        let options = this.optionInfo.topObjs();
-
-        if (minValue) {
-            options = options.filter(o => (o.numToots || 0) >= minValue || this.isThisSelectionEnabled(o.name));
-        }
-
-        return new BooleanFilterOptionList(options, this.title);
-    }
-
-    optionsSortedByName(minValue?: number): BooleanFilterOptionList {
-        let options = this.optionInfo.objs.toSorted((a, b) => compareStr(a.name, b.name));
-
-        if (minValue) {
-            options = options.filter(o => (o.numToots || 0) >= minValue || this.isThisSelectionEnabled(o.name));
-        }
-
-        return new BooleanFilterOptionList(options, this.title);
     }
 
     // Return true if the toot matches the filter
@@ -172,6 +144,25 @@ export default class BooleanFilter extends TootFilter {
     // If the option is in validValues then it's enabled
     isThisSelectionEnabled(optionName: string): boolean {
         return this.validValues.includes(optionName);
+    }
+
+    // Return only options that have at least minToots or are in validValues
+    optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
+        options = options.filter(o => (o.numToots || 0) >= minToots || this.isThisSelectionEnabled(o.name));
+        return new BooleanFilterOptionList(options, this.title);
+    }
+
+    // Similar to optionsSortedByValue() but sorts by name instead of numToots
+    optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
+        let options = this.optionInfo.objs.toSorted((a, b) => compareStr(a.name, b.name));
+        return this.optionListWithMinToots(options, minToots);
+    }
+
+    // Return the available options sorted by numToots from highest to lowest.
+    // If minToots is set then only return options with a value greater than or equal to minValue
+    // along with any 'validValues' entries that are below that threshold.
+    optionsSortedByValue(minToots: number = 0): BooleanFilterOptionList {
+        return this.optionListWithMinToots(this.optionInfo.topObjs(), minToots);
     }
 
     // Update the filter with the possible options that can be selected for validValues
