@@ -253,7 +253,7 @@ class MastodonServer {
     // Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
-        const logger = getLogger(key, "fetchTrendingObjsFromAllServers()");
+        const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
         const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[key], logger);
         const startedAt = new Date();
         try {

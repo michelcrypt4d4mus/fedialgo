@@ -1,7 +1,8 @@
 # NEXT RELEASE
 * Rename `BooleanFilter.validValues()` to `selectedOptions`
-* Add a maxSecondsPerPage to the API config that will halt polling if things are going slow
+* Add a `maxSecondsPerPage` to the API config that will halt polling if things are going slow
 * (Demo App) Fix bug with formatting of type filters leading to errors when selecting multi word options
+* (Demo App) minToots slider value should update as more data comes in
 
 ### v0.60.2
 * Rename `BooleanFilter.isThisSelectionEnabled()` to `isOptionEnabled()`

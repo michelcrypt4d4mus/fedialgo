@@ -326,7 +326,7 @@ export default class MastodonServer {
         props: FetchTrendingProps<T>
     ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
-        const logger = getLogger(key, "fetchTrendingObjsFromAllServers()");
+        const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
         const releaseMutex = await lockExecution(TRENDING_MUTEXES[key]!, logger);
         const startedAt = new Date();
 
