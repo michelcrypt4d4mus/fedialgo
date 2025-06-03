@@ -228,7 +228,7 @@ export default class MastodonServer {
 
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
-        const logger =  getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo()");
+        const logger =  getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo");
         const releaseMutex = await lockExecution(TRENDING_MUTEXES[CacheKey.FEDIVERSE_POPULAR_SERVERS]!, logger);
 
         try {
@@ -351,7 +351,7 @@ export default class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     private static async getTopServerDomains(): Promise<string[]> {
         const servers = await this.getMastodonInstancesInfo();
-        const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains()");
+        const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains");
 
         // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort(
@@ -391,7 +391,7 @@ export default class MastodonServer {
 
 // Return a dict of servers with MAU over the minServerMAU threshold
 function filterMinMAU(serverInfos: Record<string, InstanceResponse>, minMAU: number): InstanceDict {
-    const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU()");
+    const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU");
 
     const servers = Object.entries(serverInfos).reduce(
         (filtered, [domain, instanceObj]) => {

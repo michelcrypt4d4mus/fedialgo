@@ -1,6 +1,7 @@
 # NEXT RELEASE
 
 ### v0.60.6
+* (Demo App) Fix build
 
 ### v0.60.5
 * (Demo App) Standardize app configuration
@@ -8,7 +9,7 @@
 ### v0.60.4
 * Rename `BooleanFilter`'s `updateValidOptions()` to `updateOption()`
 * Completely reset scorers when `reset()` is called
-* Suppress foreign language and muted keywrod trending tags completely
+* Suppress foreign language and muted keyword trending tags completely
 
 ### v0.60.3
 * Rename `BooleanFilter.validValues()` to `selectedOptions`
