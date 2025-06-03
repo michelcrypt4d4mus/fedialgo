@@ -14,10 +14,10 @@ const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger = new logger_1.Logger("TagList");
 class ObjWithCountList {
-    source;
     logger;
     length;
     nameDict = {}; // Dict of tag names to tags
+    source;
     _objs;
     constructor(objs, label) {
         this._objs = objs.map(completeObjWithTootCounts);

@@ -1,14 +1,14 @@
 # NEXT RELEASE
 
-# v0.60.0
+## v0.60.0
 * (Demo App) Add a 'Create New Toot' button to the main page
 
 ### v0.59.1
 * Export `DATA_SOURCES_FOR_FILTER_OPTIONS`, add `filterOptionDataSources()` method to `TheAlgorithm`
 
-# v0.59.0
+## v0.59.0
 * `BooleanFilterOption` now contain more information than just the number of toots in the current timeline they match (in particular they now contain enough information to drive the color gradients)
-* (Demo App) Lower `idealNumOptions` to 60
+* (Demo App) Lower configured `idealNumOptions` for the `MinTootsSlider` to 60
 
 ### v0.58.2
 * Add `UserData.favouriteAccounts` property
