@@ -186,18 +186,18 @@ export default class BooleanFilter extends TootFilter {
 
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it
-    updateOption(element: string, isValidOption: boolean) {
-        this.logger.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
+    updateOption(optionName: string, isSelected: boolean) {
+        this.logger.debug(`Updating options for ${this.title} with ${optionName} and ${isSelected}`);
 
-        if (isValidOption && !this.isOptionEnabled(element)) {
-            this.selectedOptions.push(element);
+        if (isSelected && !this.isOptionEnabled(optionName)) {
+            this.selectedOptions.push(optionName);
         } else {
-            if (!this.isOptionEnabled(element)) {
-                this.logger.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
+            if (!this.isOptionEnabled(optionName)) {
+                this.logger.warn(`Tried to remove ${optionName} from ${this.title} but it wasn't there`);
                 return;
             }
 
-            this.selectedOptions.splice(this.selectedOptions.indexOf(element), 1);
+            this.selectedOptions.splice(this.selectedOptions.indexOf(optionName), 1);
         }
 
         // Remove duplicates; build new Array object to trigger useMemo() in Demo App // TODO: not great
