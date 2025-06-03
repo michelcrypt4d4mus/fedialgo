@@ -152,7 +152,7 @@ function updateHashtagCounts(filters, toots) {
     const newTootTagCounts = {};
     logger.log(`${logPrefx} Launched...`);
     const startedAt = Date.now();
-    Object.keys(filters.booleanFilters[boolean_filter_1.BooleanFilterName.HASHTAG].optionInfo).forEach((tagName) => {
+    Object.keys(filters.booleanFilters[boolean_filter_1.BooleanFilterName.HASHTAG].options).forEach((tagName) => {
         toots.forEach((toot) => {
             if (toot.realToot().containsString(tagName)) {
                 (0, collection_helpers_1.incrementCount)(newTootTagCounts, tagName);

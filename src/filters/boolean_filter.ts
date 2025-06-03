@@ -100,7 +100,7 @@ export interface BooleanFilterArgs extends FilterArgs {
 
 
 export default class BooleanFilter extends TootFilter {
-    optionInfo: BooleanFilterOptionList;  // e.g. counts of toots with this option
+    options: BooleanFilterOptionList;  // e.g. counts of toots with this option
     title: BooleanFilterName
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
@@ -121,7 +121,7 @@ export default class BooleanFilter extends TootFilter {
         }
 
         super({ description, invertSelection, title });
-        this.optionInfo = optionInfo;
+        this.options = optionInfo;
         this.title = title as BooleanFilterName;
         this.validValues = validValues ?? [];
 
@@ -153,18 +153,18 @@ export default class BooleanFilter extends TootFilter {
     // If minToots is set then only return options with a value greater than or equal to minValue
     // along with any 'validValues' entries that are below that threshold.
     optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
-        let options = this.optionInfo.objs.toSorted((a, b) => compareStr(a.name, b.name));
+        let options = this.options.objs.toSorted((a, b) => compareStr(a.name, b.name));
         return this.optionListWithMinToots(options, minToots);
     }
 
     // Sort options by numToots, then by name
     optionsSortedByValue(minToots: number = 0): BooleanFilterOptionList {
-        return this.optionListWithMinToots(this.optionInfo.topObjs(), minToots);
+        return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
 
     // Update the filter with the possible options that can be selected for validValues
     async setOptions(optionInfo: StringNumberDict) {
-        this.optionInfo = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
+        this.options = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
         this.validValues = this.validValues.filter((v) => v in optionInfo);  // Remove options that are no longer valid
 
         // Populate additional properties on each option - participation counts, favourited counts, etc.
@@ -172,7 +172,7 @@ export default class BooleanFilter extends TootFilter {
             const dataForTagPropLists = await TagList.allTagTootsLists();
 
             Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
-                this.optionInfo.objs.forEach((option) => {
+                this.options.objs.forEach((option) => {
                     if (tagList.getObj(option.name)) {
                         option[key as TagTootsCacheKey] = tagList.getObj(option.name)!.numToots || 0;
                     }
@@ -181,7 +181,7 @@ export default class BooleanFilter extends TootFilter {
         } else if (this.title == BooleanFilterName.USER) {
             const favouritedAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
 
-            this.optionInfo.objs.forEach((option) => {
+            this.options.objs.forEach((option) => {
                 if (favouritedAccounts.getObj(option.name)) {
                     option[ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)!.numToots || 0;
                 }

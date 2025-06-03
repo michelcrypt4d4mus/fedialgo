@@ -38,7 +38,7 @@ export interface BooleanFilterArgs extends FilterArgs {
     validValues?: string[];
 }
 export default class BooleanFilter extends TootFilter {
-    optionInfo: BooleanFilterOptionList;
+    options: BooleanFilterOptionList;
     title: BooleanFilterName;
     validValues: string[];
     visible: boolean;

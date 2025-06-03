@@ -96,7 +96,7 @@ const TOOT_MATCHERS = {
 };
 ;
 class BooleanFilter extends toot_filter_1.default {
-    optionInfo; // e.g. counts of toots with this option
+    options; // e.g. counts of toots with this option
     title;
     validValues;
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
@@ -115,7 +115,7 @@ class BooleanFilter extends toot_filter_1.default {
             optionInfo = new boolean_filter_option_list_1.default([], title);
         }
         super({ description, invertSelection, title });
-        this.optionInfo = optionInfo;
+        this.options = optionInfo;
         this.title = title;
         this.validValues = validValues ?? [];
         // The app filter is kind of useless so we mark it as invisible via config option
@@ -143,22 +143,22 @@ class BooleanFilter extends toot_filter_1.default {
     // If minToots is set then only return options with a value greater than or equal to minValue
     // along with any 'validValues' entries that are below that threshold.
     optionsSortedByName(minToots = 0) {
-        let options = this.optionInfo.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.name, b.name));
+        let options = this.options.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.name, b.name));
         return this.optionListWithMinToots(options, minToots);
     }
     // Sort options by numToots, then by name
     optionsSortedByValue(minToots = 0) {
-        return this.optionListWithMinToots(this.optionInfo.topObjs(), minToots);
+        return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
     // Update the filter with the possible options that can be selected for validValues
     async setOptions(optionInfo) {
-        this.optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
+        this.options = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
         this.validValues = this.validValues.filter((v) => v in optionInfo); // Remove options that are no longer valid
         // Populate additional properties on each option - participation counts, favourited counts, etc.
         if (this.title == BooleanFilterName.HASHTAG) {
             const dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
             Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
-                this.optionInfo.objs.forEach((option) => {
+                this.options.objs.forEach((option) => {
                     if (tagList.getObj(option.name)) {
                         option[key] = tagList.getObj(option.name).numToots || 0;
                     }
@@ -167,7 +167,7 @@ class BooleanFilter extends toot_filter_1.default {
         }
         else if (this.title == BooleanFilterName.USER) {
             const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
-            this.optionInfo.objs.forEach((option) => {
+            this.options.objs.forEach((option) => {
                 if (favouritedAccounts.getObj(option.name)) {
                     option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name).numToots || 0;
                 }
