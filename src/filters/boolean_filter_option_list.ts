@@ -2,10 +2,8 @@
  * Special case of ObjWithCountList for lists of boolean filter options.
  */
 import ObjWithCountList from "../api/obj_with_counts_list";
-import { BooleanFilterName } from "./boolean_filter";
-import { Logger } from '../helpers/logger';
-import { BooleanFilterOption } from "../types";
 import {
+    type BooleanFilterOption,
     type ObjWithTootCount,
     type ObjListDataSource,
     type StringNumberDict,
@@ -23,7 +21,7 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
     }
 
     // Alternate constructor to create synthetic tags
-    static buildFromDict<T extends BooleanFilterOption>(dict: StringNumberDict, label: ObjListDataSource): BooleanFilterOptionList {
+    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): BooleanFilterOptionList {
         const objs: BooleanFilterOption[] = Object.entries(dict).map(([name, numToots]) => {
             const obj: ObjWithTootCount = { name, numToots };
             return obj;

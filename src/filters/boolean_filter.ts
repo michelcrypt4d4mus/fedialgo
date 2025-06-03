@@ -3,8 +3,8 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import MastoApi from '../api/api';
 import BooleanFilterOptionList from './boolean_filter_option_list';
+import MastoApi from '../api/api';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
@@ -13,7 +13,6 @@ import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
 import { ScoreName, TagTootsCacheKey } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
-import { min } from 'lodash';
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
@@ -56,25 +55,25 @@ export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilte
 
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
-    [TypeFilterName.AUDIO]:                 (toot) => !!toot.realToot().audioAttachments.length,
-    [TypeFilterName.BOT]:                   (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
-    [TypeFilterName.DIRECT_MESSAGE]:        (toot) => toot.isDM(),
-    [TypeFilterName.FOLLOWED_ACCOUNTS]:     (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
-    [TypeFilterName.FOLLOWED_HASHTAGS]:     (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.IMAGES]:                (toot) => !!toot.realToot().imageAttachments.length,
-    [TypeFilterName.LINKS]:                 (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
-    [TypeFilterName.MENTIONS]:              (toot) => toot.containsUserMention(),
-    [TypeFilterName.POLLS]:                 (toot) => !!toot.realToot().poll,
+    [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot().audioAttachments.length,
+    [TypeFilterName.BOT]:               (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
+    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
+    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
+    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
+    [TypeFilterName.IMAGES]:            (toot) => !!toot.realToot().imageAttachments.length,
+    [TypeFilterName.LINKS]:             (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
+    [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
+    [TypeFilterName.POLLS]:             (toot) => !!toot.realToot().poll,
     [TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
-    [TypeFilterName.PRIVATE]:               (toot) => !!toot.realToot().isPrivate(),
-    [TypeFilterName.REPLIES]:               (toot) => !!toot.realToot().inReplyToId,
-    [TypeFilterName.RETOOTS]:               (toot) => !!toot.reblog,
-    [TypeFilterName.SENSITIVE]:             (toot) => !!toot.realToot().sensitive,
-    [TypeFilterName.SPOILERED]:             (toot) => !!toot.realToot().spoilerText,
-    [TypeFilterName.TRENDING_LINKS]:        (toot) => !!toot.realToot().trendingLinks?.length,
-    [TypeFilterName.TRENDING_TAGS]:         (toot) => !!toot.realToot().trendingTags?.length,
-    [TypeFilterName.TRENDING_TOOTS]:        (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]:                (toot) => !!toot.realToot().videoAttachments.length,
+    [TypeFilterName.PRIVATE]:           (toot) => !!toot.realToot().isPrivate(),
+    [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot().inReplyToId,
+    [TypeFilterName.RETOOTS]:           (toot) => !!toot.reblog,
+    [TypeFilterName.SENSITIVE]:         (toot) => !!toot.realToot().sensitive,
+    [TypeFilterName.SPOILERED]:         (toot) => !!toot.realToot().spoilerText,
+    [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot().trendingLinks?.length,
+    [TypeFilterName.TRENDING_TAGS]:     (toot) => !!toot.realToot().trendingTags?.length,
+    [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot().trendingRank,
+    [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot().videoAttachments.length,
 };
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS

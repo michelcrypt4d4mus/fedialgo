@@ -9,8 +9,8 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-const api_1 = __importDefault(require("../api/api"));
 const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
+const api_1 = __importDefault(require("../api/api"));
 const tag_list_1 = __importDefault(require("../api/tag_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const string_helpers_1 = require("../helpers/string_helpers");
