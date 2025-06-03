@@ -1,9 +1,10 @@
 # NEXT RELEASE
-* (Demo App) Lower idealNumOptions to 60
+
+# v0.59.0
+* BooleanFilterOptions now contain more information than just the number of toots in the current timeline they match (in particular they now contain enough information to drive the color gradients)
+* (Demo App) Lower `idealNumOptions` to 60
 
 ### v0.58.2
-
-### v0.58.1
 * Add `UserData.favouriteAccounts` property
 * Repair broken audio attachments like we do with images and videos
 * Refactor an abstract `ObjWithCountList` class from `TagList` class so we can hold account info
