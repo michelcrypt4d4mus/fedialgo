@@ -554,7 +554,7 @@ class MastoApi {
     // and return the appropriate rows and return the appropriate rows in a single array.
     // TODO: handle rate limiting errors
     handleApiError(params, rows, startedAt, err) {
-        const { cacheResult, cacheKey, logger } = params;
+        const { cacheKey, cacheResult, logger } = params;
         const cachedRows = cacheResult?.rows || [];
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);

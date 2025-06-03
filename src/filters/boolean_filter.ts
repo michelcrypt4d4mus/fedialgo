@@ -14,12 +14,11 @@ import { countValues, isValueInStringEnum } from "../helpers/collection_helpers"
 import { ScoreName, TagTootsCacheKey } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
-type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
+type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
-// This is the order the filters will appear in the UI in the demo app
 export enum BooleanFilterName {
     HASHTAG = 'hashtag',
     LANGUAGE = 'language',
@@ -122,8 +121,8 @@ export default class BooleanFilter extends TootFilter {
         }
 
         super({ description, invertSelection, title });
-        this.title = title as BooleanFilterName
         this.optionInfo = optionInfo;
+        this.title = title as BooleanFilterName;
         this.validValues = validValues ?? [];
 
         // The app filter is kind of useless so we mark it as invisible via config option

@@ -18,7 +18,6 @@ const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const enums_1 = require("../enums");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-// This is the order the filters will appear in the UI in the demo app
 var BooleanFilterName;
 (function (BooleanFilterName) {
     BooleanFilterName["HASHTAG"] = "hashtag";
@@ -116,8 +115,8 @@ class BooleanFilter extends toot_filter_1.default {
             optionInfo = new boolean_filter_option_list_1.default([], title);
         }
         super({ description, invertSelection, title });
-        this.title = title;
         this.optionInfo = optionInfo;
+        this.title = title;
         this.validValues = validValues ?? [];
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {

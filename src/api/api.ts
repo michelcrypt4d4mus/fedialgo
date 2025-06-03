@@ -667,7 +667,7 @@ export default class MastoApi {
         startedAt: Date,
         err: Error | unknown,
     ): T[] {
-        const { cacheResult, cacheKey, logger } = params;
+        const { cacheKey, cacheResult, logger } = params;
         const cachedRows = cacheResult?.rows || [];
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
