@@ -1,6 +1,8 @@
 # NEXT RELEASE
-* Rename BooleanFilter's optionInfo property to just options
-* Drop configured initialMaxRecords for favourited toots to half of the other configuration because it seems to be the bottleneck
+
+### v0.60.1
+* Rename `BooleanFilter`'s `optionInfo` property to just `options`
+* Drop configured `initialMaxRecords` for favourited toots to half of the other configuration because it seems to be the bottleneck
 
 ## v0.60.0
 * (Demo App) Add a 'Create New Toot' button to the main page

@@ -265,7 +265,7 @@ export default class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
-        const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
+        const logger = getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances");
         logger.trace(`Fetching ${CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
 
