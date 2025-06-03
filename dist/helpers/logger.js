@@ -91,8 +91,8 @@ class Logger {
         this.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
     }
     // Returns new Logger with one additional prefix.
-    tempLogger(prefix) {
-        const args = [...this.prefixes, prefix];
+    tempLogger(...args) {
+        args = [...this.prefixes, ...args];
         return new Logger(args[0], ...args.slice(1));
     }
     // Mutates args array to pop the first Error if it exists

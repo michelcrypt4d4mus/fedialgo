@@ -778,7 +778,7 @@ export default class Toot implements TootObj {
         skipSort?: boolean
     ): Promise<Toot[]> {
         if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
-        const logger = new Logger(tootLogger.logPrefix, source, `buildToots()`);
+        const logger = tootLogger.tempLogger(tootLogger.logPrefix, source, `buildToots()`);
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true

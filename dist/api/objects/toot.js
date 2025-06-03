@@ -624,7 +624,7 @@ class Toot {
     static async buildToots(statuses, source, skipSort) {
         if (!statuses.length)
             return []; // Avoid the data fetching if we don't to build anything
-        const logger = new logger_1.Logger(tootLogger.logPrefix, source, `buildToots()`);
+        const logger = tootLogger.tempLogger(tootLogger.logPrefix, source, `buildToots()`);
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.

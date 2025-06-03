@@ -108,8 +108,8 @@ export class Logger {
     }
 
     // Returns new Logger with one additional prefix.
-    tempLogger(prefix: string): Logger {
-        const args = [...this.prefixes, prefix];
+    tempLogger(...args: string[]): Logger {
+        args = [...this.prefixes, ...args];
         return new Logger(args[0], ...args.slice(1));
     }
 
