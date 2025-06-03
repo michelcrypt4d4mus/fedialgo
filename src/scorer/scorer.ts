@@ -55,6 +55,12 @@ export default abstract class Scorer {
         };
     }
 
+    reset(): void {
+        this.isReady = false;
+        this.scoreData = {};
+        this.logger.debug(`Reset scorer`);
+    }
+
     // This is the public API for scoring a toot
     async score(toot: Toot): Promise<number> {
         if (this.isReady) return await this._score(toot);
@@ -116,9 +122,9 @@ export default abstract class Scorer {
         return toots;
     }
 
-    ///////////////////////////////
-    //   Private class methods   //
-    ///////////////////////////////
+    ////////////////////////////////
+    //   Private static methods   //
+    ////////////////////////////////
 
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {

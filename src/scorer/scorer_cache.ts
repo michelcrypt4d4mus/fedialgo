@@ -20,6 +20,6 @@ export default class ScorerCache {
     }
 
     static resetScorers() {
-        this.weightedScorers.forEach(scorer => scorer.isReady = false);
+        this.weightedScorers.forEach(scorer => scorer.reset());
     }
 };

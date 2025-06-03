@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Completely reset scorers when reset() is called
 
 ### v0.60.3
 * Rename `BooleanFilter.validValues()` to `selectedOptions`
@@ -53,7 +54,7 @@
 
 ### v0.56.4
 * (Demo App) Link the Github Release Notes instead of the raw CHANGELOG.md in the header
-* New `BoleanFilter` method `optionsAsTagList()`
+* New `BooleanFilter` method `optionsAsTagList()`
 * Lower staleness duration for server side filters to four hours
 * Don't alias `Logger` to `ComponentLogger` when exporting
 * (Demo App) Use new `MinTootsSlider` component to control the number of trending objects in the list

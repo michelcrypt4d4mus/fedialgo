@@ -40,6 +40,11 @@ class Scorer {
             scorer: this,
         };
     }
+    reset() {
+        this.isReady = false;
+        this.scoreData = {};
+        this.logger.debug(`Reset scorer`);
+    }
     // This is the public API for scoring a toot
     async score(toot) {
         if (this.isReady)
@@ -94,9 +99,9 @@ class Scorer {
         }
         return toots;
     }
-    ///////////////////////////////
-    //   Private class methods   //
-    ///////////////////////////////
+    ////////////////////////////////
+    //   Private static methods   //
+    ////////////////////////////////
     // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
         const realToot = toot.realToot();

@@ -10,6 +10,7 @@ export default abstract class Scorer {
     scoreData: StringNumberDict;
     constructor(name: ScoreName);
     getInfo(): WeightInfo;
+    reset(): void;
     score(toot: Toot): Promise<number>;
     abstract _score(_toot: Toot): Promise<number>;
     static scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]>;
