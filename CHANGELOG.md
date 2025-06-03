@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.59.1
 * Export `DATA_SOURCES_FOR_FILTER_OPTIONS`, add `filterOptionDataSources()` method to `TheAlgorithm`
 
 # v0.59.0
