@@ -650,6 +650,9 @@ export default class MastoApi {
         if (!cachedData) return null;
         const rows = cachedData?.obj as T[];
 
+        // NOTE: Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
+        // or future. For a while we used a small offset to the list of toots sorted by created_at instead
+        // of the actual min/max.
         return {
             isStale: cachedData.isStale,
             // minMaxId is not returned  if endpoint doesn't support min/max ID API requests (even if it exists)

@@ -749,16 +749,6 @@ class Toot {
         logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
         return deduped;
     }
-    // Extract a minimum ID from a set of toots that will be appropriate to use as the maxId param
-    // for a call to the mastodon API to get the next page of toots.
-    // Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
-    // or future so we use the MAX_ID_IDX toot when sorted by createdAt to get the min ID.
-    static findMinIdForMaxIdParam(toots) {
-        if (toots.length == 0)
-            return null;
-        const idx = Math.min(toots.length - 1, MAX_ID_IDX);
-        return sortByCreatedAt(toots)[idx].id;
-    }
     static async removeInvalidToots(toots, logger) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
         return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');

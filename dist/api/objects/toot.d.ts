@@ -141,7 +141,6 @@ export default class Toot implements TootObj {
     static buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]>;
     static completeToots(toots: TootLike[], logger: Logger, isDeepInspect: boolean): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], inLogger?: Logger): Toot[];
-    static findMinIdForMaxIdParam(toots: Toot[]): string | null;
     static removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]>;
     private static uniqFlatMap;
 }
