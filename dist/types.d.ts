@@ -29,6 +29,10 @@ export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
+export interface BooleanFilterOption extends ObjWithTootCount {
+    score?: number;
+    scoreType?: UserDataSource;
+}
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
@@ -67,7 +71,6 @@ export type MinMaxID = {
     max: string;
 };
 export type ObjListDataSource = (BooleanFilterName | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS | UserDataSource);
-export type UserDataSource = (ScoreName.FAVOURITED_ACCOUNTS | TagTootsCacheKey);
 export interface ObjWithTootCount extends WithCounts {
     name: string;
 }
@@ -111,6 +114,7 @@ export type TrendingData = {
 };
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
+export type UserDataSource = (ScoreName.FAVOURITED_ACCOUNTS | TagTootsCacheKey);
 export type WeightedScore = {
     raw: number;
     weighted: number;

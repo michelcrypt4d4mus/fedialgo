@@ -4,16 +4,18 @@
  * (e.g. language, hashtag, type of toot).
  */
 import MastoApi from '../api/api';
+import ObjWithCountList from '../api/obj_with_counts_list';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { alphabetize, wordRegex } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
-import { type FilterArgs, type StringNumberDict, type TagWithUsageCounts } from "../types";
+import { type BooleanFilterOption, type FilterArgs, type StringNumberDict, type TagWithUsageCounts } from "../types";
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
+type BooleanFilterOptions = Record<string, BooleanFilterOption>;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
@@ -94,17 +96,17 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 };
 
 export interface BooleanFilterArgs extends FilterArgs {
-    optionInfo?: StringNumberDict;  // e.g. counts of toots with this option
+    optionInfo?: BooleanFilterOptions;  // e.g. counts of toots with this option
     validValues?: string[];
 };
 
 
 export default class BooleanFilter extends TootFilter {
     title: BooleanFilterName
-    optionInfo: StringNumberDict;
-    effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
+    optionInfo: BooleanFilterOptions;
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
+    // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
 
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs) {
         optionInfo ??= {};
@@ -112,7 +114,8 @@ export default class BooleanFilter extends TootFilter {
 
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
-            optionInfo = countValues<TypeFilterName>(Object.values(TypeFilterName));
+            const optionCounts = countValues<TypeFilterName>(Object.values(TypeFilterName));
+            optionInfo = ObjWithCountList.buildFromDict(optionCounts, title).nameDict;
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
             const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";

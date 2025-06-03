@@ -41,6 +41,11 @@ export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 
+export interface BooleanFilterOption extends ObjWithTootCount {
+    score?: number;
+    scoreType?: UserDataSource;
+};
+
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
@@ -112,13 +117,6 @@ export type ObjListDataSource = (
   | ScoreName.FOLLOWED_TAGS
   | UserDataSource
 );
-
-// TODO: this is a janky name for what we want, which is a name for a data source that can be used
-// in demo app to compute gradient colors.
-export type UserDataSource = (
-    ScoreName.FAVOURITED_ACCOUNTS
-  | TagTootsCacheKey
-)
 
 // Abstract interface for objects that have numToots of some kind
 export interface ObjWithTootCount extends WithCounts {
@@ -194,6 +192,13 @@ export type TrendingData = {
 
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
+
+// TODO: this is a janky name for what we want, which is a name for a data source that can be used
+// in demo app to compute gradient colors.
+export type UserDataSource = (
+    ScoreName.FAVOURITED_ACCOUNTS
+  | TagTootsCacheKey
+);
 
 export type WeightedScore = {
     raw: number;

@@ -10,6 +10,7 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  * (e.g. language, hashtag, type of toot).
  */
 const api_1 = __importDefault(require("../api/api"));
+const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
 const tag_list_1 = __importDefault(require("../api/tag_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const string_helpers_1 = require("../helpers/string_helpers");
@@ -97,15 +98,16 @@ const TOOT_MATCHERS = {
 class BooleanFilter extends toot_filter_1.default {
     title;
     optionInfo;
-    effectiveOptionInfo = {}; // optionInfo with the counts of toots that match the filter
     validValues;
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
+    // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
     constructor({ title, invertSelection, optionInfo, validValues }) {
         optionInfo ??= {};
         let description;
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
-            optionInfo = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
+            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
+            optionInfo = obj_with_counts_list_1.default.buildFromDict(optionCounts, title).nameDict;
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
