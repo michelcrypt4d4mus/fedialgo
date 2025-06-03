@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Standardize app configuration
 
 ### v0.60.4
 * Rename `BooleanFilter`'s `updateValidOptions()` to `updateOption()`
