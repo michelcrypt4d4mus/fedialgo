@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Completely reset scorers when reset() is called
+* Completely reset scorers when `reset()` is called
 
 ### v0.60.3
 * Rename `BooleanFilter.validValues()` to `selectedOptions`

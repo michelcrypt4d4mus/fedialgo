@@ -27,6 +27,7 @@ var BooleanFilterName;
     BooleanFilterName["APP"] = "app";
 })(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
 ;
+// The values have spaces to make them more usable in the demo app's presentation
 var TypeFilterName;
 (function (TypeFilterName) {
     TypeFilterName["AUDIO"] = "audio";
@@ -56,12 +57,12 @@ const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum
 exports.isTypeFilterName = isTypeFilterName;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
-    [TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments.length,
+    [TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments?.length,
     [TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
     [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments.length,
+    [TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments?.length,
     [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
@@ -74,7 +75,7 @@ exports.TYPE_FILTERS = {
     [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments.length,
+    [TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments?.length,
 };
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS = {

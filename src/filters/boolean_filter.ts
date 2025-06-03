@@ -27,6 +27,7 @@ export enum BooleanFilterName {
     APP = 'app',  // App filter visibility is controlled by Config.isAppFilterVisible
 };
 
+// The values have spaces to make them more usable in the demo app's presentation
 export enum TypeFilterName {
     AUDIO = 'audio',
     BOT = 'bot',
@@ -54,12 +55,12 @@ export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilte
 
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
-    [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot().audioAttachments.length,
+    [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot().audioAttachments?.length,
     [TypeFilterName.BOT]:               (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
     [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.IMAGES]:            (toot) => !!toot.realToot().imageAttachments.length,
+    [TypeFilterName.IMAGES]:            (toot) => !!toot.realToot().imageAttachments?.length,
     [TypeFilterName.LINKS]:             (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
     [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]:             (toot) => !!toot.realToot().poll,
@@ -72,7 +73,7 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot().trendingLinks?.length,
     [TypeFilterName.TRENDING_TAGS]:     (toot) => !!toot.realToot().trendingTags?.length,
     [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot().videoAttachments.length,
+    [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot().videoAttachments?.length,
 };
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
