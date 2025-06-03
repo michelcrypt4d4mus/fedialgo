@@ -282,6 +282,7 @@ class TheAlgorithm {
         }
     }
     // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
+    // Note this won't always be completely up to date, but it will be close enough for the UI
     filterOptionDataSources() {
         return {
             [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
