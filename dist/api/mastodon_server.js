@@ -205,7 +205,7 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
-        const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances()");
+        const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances");
         logger.trace(`Fetching ${enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
         const startedAt = new Date();
         // Find the servers which have the most accounts followed by the user to check for trends of interest

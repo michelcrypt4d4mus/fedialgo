@@ -140,13 +140,13 @@ export default class BooleanFilter extends TootFilter {
     }
 
     // If the option is in validValues then it's enabled
-    isThisSelectionEnabled(optionName: string): boolean {
+    isOptionEnabled(optionName: string): boolean {
         return this.validValues.includes(optionName);
     }
 
     // Return only options that have at least minToots or are in validValues
     optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
-        options = options.filter(o => (o.numToots || 0) >= minToots || this.isThisSelectionEnabled(o.name));
+        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
         return new BooleanFilterOptionList(options, this.title);
     }
 
@@ -194,10 +194,10 @@ export default class BooleanFilter extends TootFilter {
     updateValidOptions(element: string, isValidOption: boolean) {
         this.logger.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
 
-        if (isValidOption && !this.isThisSelectionEnabled(element)) {
+        if (isValidOption && !this.isOptionEnabled(element)) {
             this.validValues.push(element);
         } else {
-            if (!this.isThisSelectionEnabled(element)) {
+            if (!this.isOptionEnabled(element)) {
                 this.logger.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
                 return;
             }

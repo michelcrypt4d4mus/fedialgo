@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename BooleanFilter.isThisSelectionEnabled() to isOptionEnabled()
 
 ### v0.60.1
 * Rename `BooleanFilter`'s `optionInfo` property to just `options`
@@ -96,7 +97,7 @@
 * `MastoApi` now has a `reset()` method which is called by `TheAlgorithm` during resets
 * Add telemetry to `MastoApi` for request wait times (data is returned in `getCurrentState()` under the new `Api` section)
 * `QUICK_MODE` isn't always turned on when `NODE_ENV=development` and/the `FEDIALGO_DEBUG` env var is turned on; has to be enabled separately now
-* Add `BooleanFilter.isThisSelectionEnabled()` method (**THIS IS WHERE THE ISSUES STARTED**)
+* Add `BooleanFilter.isThisSelectionEnabled()` method
 * (maybe) ~~fixed bug where `BooleanFilter` wasn't being fully reconstructed as class instances (they were just objects and so had no instance methods)~~
 * Export `ComponentLogger` class
 

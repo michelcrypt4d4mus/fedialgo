@@ -132,12 +132,12 @@ class BooleanFilter extends toot_filter_1.default {
         return this.invertSelection ? !isMatched : isMatched;
     }
     // If the option is in validValues then it's enabled
-    isThisSelectionEnabled(optionName) {
+    isOptionEnabled(optionName) {
         return this.validValues.includes(optionName);
     }
     // Return only options that have at least minToots or are in validValues
     optionListWithMinToots(options, minToots = 0) {
-        options = options.filter(o => (o.numToots || 0) >= minToots || this.isThisSelectionEnabled(o.name));
+        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
         return new boolean_filter_option_list_1.default(options, this.title);
     }
     // If minToots is set then only return options with a value greater than or equal to minValue
@@ -178,11 +178,11 @@ class BooleanFilter extends toot_filter_1.default {
     // If isValidOption is false remove the element from the filter instead of adding it
     updateValidOptions(element, isValidOption) {
         this.logger.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
-        if (isValidOption && !this.isThisSelectionEnabled(element)) {
+        if (isValidOption && !this.isOptionEnabled(element)) {
             this.validValues.push(element);
         }
         else {
-            if (!this.isThisSelectionEnabled(element)) {
+            if (!this.isOptionEnabled(element)) {
                 this.logger.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
                 return;
             }
