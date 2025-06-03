@@ -4,11 +4,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.TypeFilterName = exports.BooleanFilterName = void 0;
-const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
+/*
+ * Feed filtering information related to a single criterion on which toots
+ * can be filtered inclusively or exclusively based on an array of strings
+ * (e.g. language, hashtag, type of toot).
+ */
+const api_1 = __importDefault(require("../api/api"));
+const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const tag_list_1 = __importDefault(require("../api/tag_list"));
+const enums_1 = require("../enums");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 // This is the order the filters will appear in the UI in the demo app
 var BooleanFilterName;
@@ -100,7 +107,7 @@ class BooleanFilter extends toot_filter_1.default {
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
             const optionCounts = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
-            optionInfo = obj_with_counts_list_1.default.buildFromDict(optionCounts, title).objs;
+            optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionCounts, title).objs;
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
@@ -109,7 +116,7 @@ class BooleanFilter extends toot_filter_1.default {
         }
         super({ description, invertSelection, title });
         this.title = title;
-        this.optionInfo = new obj_with_counts_list_1.default(optionInfo ?? [], title);
+        this.optionInfo = new boolean_filter_option_list_1.default(optionInfo ?? [], title);
         this.validValues = validValues ?? [];
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
@@ -135,18 +142,6 @@ class BooleanFilter extends toot_filter_1.default {
     isThisSelectionEnabled(optionName) {
         return this.validValues.includes(optionName);
     }
-    // Return the number of options in the filter
-    numOptions() {
-        return Object.keys(this.optionInfo).length;
-    }
-    // Convert the optionInfo to a TagList with the counts as numToots
-    optionsAsObjList() {
-        return this.optionInfo;
-    }
-    // Return the available options sorted alphabetically by name
-    optionsSortedByName() {
-        return (0, string_helpers_1.alphabetize)(Object.keys(this.optionInfo));
-    }
     // Return the available options sorted by value from highest to lowest
     // If minValue is set then only return options with a value greater than or equal to minValue
     // along with any 'validValues' entries that are below that threshold.
@@ -158,10 +153,36 @@ class BooleanFilter extends toot_filter_1.default {
         return options.map(([k, _v]) => k);
     }
     // Update the filter with the possible options that can be selected for validValues
-    setOptions(optionInfo) {
-        // Filter out any options that are no longer valid
-        this.validValues = this.validValues.filter((v) => v in optionInfo);
-        this.optionInfo = obj_with_counts_list_1.default.buildFromDict(optionInfo, this.title);
+    // TODO: convert to setter
+    async setOptions(optionInfo) {
+        this.validValues = this.validValues.filter((v) => v in optionInfo); // Remove options that are no longer valid
+        this.optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
+        // Add score property to each option
+        if (this.title == BooleanFilterName.HASHTAG) {
+            const favouritedTags = (await tag_list_1.default.fromFavourites()).nameToNumTootsDict();
+            const participatedTags = (await tag_list_1.default.fromParticipated()).nameToNumTootsDict();
+            const trendingTags = (await tag_list_1.default.fromTrending()).nameToNumTootsDict();
+            this.optionInfo.objs.forEach((option) => {
+                if (favouritedTags[option.name])
+                    option[enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS] = favouritedTags[option.name] || 0;
+                if (participatedTags[option.name])
+                    option[enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] = participatedTags[option.name] || 0;
+                if (trendingTags[option.name])
+                    option[enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS] = trendingTags[option.name] || 0;
+            });
+            const optionsToLog = this.optionInfo.filter(option => (((option[enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) +
+                (option[enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0) +
+                (option[enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0));
+            this.logger.trace(`setOptions() built new options:`, optionsToLog);
+        }
+        else if (this.title == BooleanFilterName.USER) {
+            const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
+            this.optionInfo.objs.forEach((option) => {
+                option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)?.numToots || 0;
+            });
+            const optionsToLog = this.optionInfo.filter(option => !!option[enums_1.ScoreName.FAVOURITED_ACCOUNTS]);
+            this.logger.trace(`setOptions() built new options:`, optionsToLog);
+        }
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it

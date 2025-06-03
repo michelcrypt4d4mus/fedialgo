@@ -42,9 +42,12 @@ export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 
 export interface BooleanFilterOption extends ObjWithTootCount {
+    // TODO: these are really the wrong cache keys for the use case but it's consistent w/demo app for now
+    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]?: number;
+    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]?: number;
+    [TagTootsCacheKey.TRENDING_TAG_TOOTS]?: number;
+    [ScoreName.FAVOURITED_ACCOUNTS]?: number,
     // numToots: number;  // TODO: requiring this to exist is a typing error
-    score?: number;
-    scoreType?: UserDataSource;
 };
 
 export type FeedFilterSettingsSerialized = {
@@ -124,8 +127,6 @@ export interface ObjWithTootCount extends WithCounts {
     name: string;
 };
 
-export type NamedObjWithTootCount = ObjWithTootCount | TagWithUsageCounts;
-
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
     weighted: MinMaxAvgScore[];
@@ -160,7 +161,7 @@ export type StorableWithTimestamp = {
     value: StorableObj;
 };
 
-export interface TagWithUsageCounts extends mastodon.v1.Tag, WithCounts {
+export interface TagWithUsageCounts extends mastodon.v1.Tag, ObjWithTootCount {
     language?: string;
 };
 

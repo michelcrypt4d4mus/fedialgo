@@ -12,7 +12,7 @@ import { repairTag } from "./objects/tag";
 import { ScoreName, TagTootsCacheKey } from "../enums";
 import {
     type MastodonTag,
-    type NamedObjWithTootCount,
+    type ObjWithTootCount,
     type ObjListDataSource,
     type TagNames,
     type TagWithUsageCounts,
@@ -89,7 +89,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     }
 
     // Return the tag if it exists in 'tags' array, otherwise undefined.
-    getTag(tag: string | MastodonTag): NamedObjWithTootCount | undefined {
+    getTag(tag: string | MastodonTag): ObjWithTootCount | undefined {
         return this.getObj(typeof tag == "string" ? tag : tag.name);
     }
 

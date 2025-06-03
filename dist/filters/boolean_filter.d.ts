@@ -1,8 +1,7 @@
-import ObjWithCountList, { ObjList } from '../api/obj_with_counts_list';
+import BooleanFilterOptionList from './boolean_filter_option_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
-export type BooleanFilterOptions = ObjWithCountList<BooleanFilterOption>;
 type TypeFilter = (toot: Toot) => boolean;
 export declare enum BooleanFilterName {
     HASHTAG = "hashtag",
@@ -40,7 +39,7 @@ export interface BooleanFilterArgs extends FilterArgs {
     validValues?: string[];
 }
 export default class BooleanFilter extends TootFilter {
-    optionInfo: BooleanFilterOptions;
+    optionInfo: BooleanFilterOptionList;
     title: BooleanFilterName;
     validValues: string[];
     visible: boolean;
@@ -49,11 +48,8 @@ export default class BooleanFilter extends TootFilter {
     objsSortedByValue(): BooleanFilterOption[];
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
-    numOptions(): number;
-    optionsAsObjList(): ObjList;
-    optionsSortedByName(): string[];
     optionsSortedByValue(minValue?: number): string[];
-    setOptions(optionInfo: StringNumberDict): void;
+    setOptions(optionInfo: StringNumberDict): Promise<void>;
     updateValidOptions(element: string, isValidOption: boolean): void;
     toArgs(): BooleanFilterArgs;
 }
