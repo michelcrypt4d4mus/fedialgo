@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.60.6
+
 ### v0.60.5
 * (Demo App) Standardize app configuration
 
