@@ -182,9 +182,10 @@ class BooleanFilter extends toot_filter_1.default {
                 if (trendingTags[option.name])
                     option[enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS] = trendingTags[option.name] || 0;
             });
-            const optionsToLog = this.optionInfo.filter(option => (((option[enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) +
-                (option[enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0) +
-                (option[enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0));
+            const optionsToLog = this.optionInfo.filter(option => !!(((option[enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) &&
+                (option[enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0))
+            // + (option[TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0
+            ));
             this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
         }
         else if (this.title == BooleanFilterName.USER) {
@@ -194,8 +195,8 @@ class BooleanFilter extends toot_filter_1.default {
                     option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)?.numToots || 0;
                 }
             });
-            const optionsToLog = this.optionInfo.filter(option => !!option[enums_1.ScoreName.FAVOURITED_ACCOUNTS]);
-            this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
+            // const optionsToLog = this.optionInfo.filter(option => !!option[ScoreName.FAVOURITED_ACCOUNTS]);
+            // this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
         }
     }
     // Add the element to the filters array if it's not already there or remove it if it is

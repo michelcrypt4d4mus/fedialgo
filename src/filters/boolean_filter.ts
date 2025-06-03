@@ -98,6 +98,8 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 };
 
 export interface BooleanFilterArgs extends FilterArgs {
+    // TODO: optionInfo is not serialized to storage and that seems like a good thing?
+    // in which case it doesn't have to be here at all.
     optionInfo?: BooleanFilterOption[];  // e.g. counts of toots with this option
     validValues?: string[];
 };
@@ -203,10 +205,10 @@ export default class BooleanFilter extends TootFilter {
                 if (trendingTags[option.name]) option[TagTootsCacheKey.TRENDING_TAG_TOOTS] = trendingTags[option.name] || 0;
             });
 
-            const optionsToLog = this.optionInfo.filter(option => (
-                ((option[TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) +
-                (option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0) +
-                (option[TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0
+            const optionsToLog = this.optionInfo.filter(option => !!(
+                ((option[TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) &&
+                (option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0))
+                // + (option[TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0
             ));
 
             this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
@@ -219,8 +221,8 @@ export default class BooleanFilter extends TootFilter {
                 }
             })
 
-            const optionsToLog = this.optionInfo.filter(option => !!option[ScoreName.FAVOURITED_ACCOUNTS]);
-            this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
+            // const optionsToLog = this.optionInfo.filter(option => !!option[ScoreName.FAVOURITED_ACCOUNTS]);
+            // this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
         }
     }
 
