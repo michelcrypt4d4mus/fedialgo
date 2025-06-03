@@ -41,7 +41,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
-import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, DATA_SOURCES_FOR_FILTER_OPTIONS } from "./enums";
+import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, FILTER_OPTION_DATA_SOURCES } from "./enums";
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -65,6 +65,7 @@ import {
 import {
     type BooleanFilterOption,
     type FeedFilterSettings,
+    type FilterOptionDataSource,
     type KeysOfValueType,
     type MastodonInstance,
     type MastodonTag,
@@ -694,6 +695,7 @@ export {
     // Types
     type BooleanFilterOption,
     type FeedFilterSettings,
+    type FilterOptionDataSource,
     type KeysOfValueType,
     type MastodonInstance,
     type MinMaxAvgScore,
@@ -709,7 +711,7 @@ export {
     type UserDataSource,
     type Weights,
     // Constants
-    DATA_SOURCES_FOR_FILTER_OPTIONS,
+    FILTER_OPTION_DATA_SOURCES,
     FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,

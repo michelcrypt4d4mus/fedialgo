@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.DATA_SOURCES_FOR_FILTER_OPTIONS = void 0;
+exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -79,7 +79,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
 Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
-Object.defineProperty(exports, "DATA_SOURCES_FOR_FILTER_OPTIONS", { enumerable: true, get: function () { return enums_1.DATA_SOURCES_FOR_FILTER_OPTIONS; } });
+Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return enums_1.FILTER_OPTION_DATA_SOURCES; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");

@@ -30,7 +30,7 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
-import { TagTootsCacheKey, DATA_SOURCES_FOR_FILTER_OPTIONS } from "./enums";
+import { TagTootsCacheKey, FILTER_OPTION_DATA_SOURCES } from "./enums";
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
@@ -38,7 +38,7 @@ import { Logger } from './helpers/logger';
 import { MediaCategory, TrendingType } from './enums';
 import { NonScoreWeightName, ScoreName } from './enums';
 import { isValueInStringEnum, makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
-import { type BooleanFilterOption, type FeedFilterSettings, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ObjWithTootCount, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type UserDataSource, type WeightName, type Weights, type WeightInfoDict } from "./types";
+import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ObjWithTootCount, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type UserDataSource, type WeightName, type Weights, type WeightInfoDict } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -111,5 +111,5 @@ declare class TheAlgorithm {
     updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
-export { type BooleanFilterOption, type FeedFilterSettings, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ObjWithTootCount, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type UserDataSource, type Weights, DATA_SOURCES_FOR_FILTER_OPTIONS, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, LANGUAGE_CODES, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, ObjWithCountList, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
+export { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ObjWithTootCount, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type UserDataSource, type Weights, FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, LANGUAGE_CODES, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, ObjWithCountList, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
 sortKeysByValue, timeString, };

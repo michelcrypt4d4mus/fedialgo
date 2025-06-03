@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Export `DATA_SOURCES_FOR_FILTER_OPTIONS`
 
 # v0.59.0
 * `BooleanFilterOption` now contain more information than just the number of toots in the current timeline they match (in particular they now contain enough information to drive the color gradients)
