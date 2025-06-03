@@ -5,13 +5,12 @@
  */
 import MastoApi from '../api/api';
 import ObjWithCountList, { ObjList } from '../api/obj_with_counts_list';
-import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { alphabetize, wordRegex } from '../helpers/string_helpers';
 import { config } from '../config';
-import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
-import { type BooleanFilterOption, type FilterArgs, type StringNumberDict, type TagWithUsageCounts } from "../types";
+import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
+import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
 export type BooleanFilterOptions = ObjWithCountList<BooleanFilterOption>;
 type TypeFilter = (toot: Toot) => boolean;
