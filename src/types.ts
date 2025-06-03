@@ -111,10 +111,10 @@ export type MinMaxID = {
 };
 
 export type ObjListDataSource = (
-    FilterTitle
+    FilterOptionDataSource
+  | FilterTitle
   | CacheKey.FEDIVERSE_TRENDING_TAGS
   | ScoreName.FOLLOWED_TAGS
-  | UserDataSource
 );
 
 // Abstract interface for objects that have numToots of some kind
@@ -189,13 +189,6 @@ export type TrendingData = {
 
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
-
-// TODO: this is a janky name for what we want, which is a name for a data source that can be used
-// in demo app to compute gradient colors.
-export type UserDataSource = (
-    ScoreName.FAVOURITED_ACCOUNTS
-  | TagTootsCacheKey
-);
 
 export type WeightedScore = {
     raw: number;

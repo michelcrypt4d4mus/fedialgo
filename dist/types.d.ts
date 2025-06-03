@@ -72,7 +72,7 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
-export type ObjListDataSource = (FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS | UserDataSource);
+export type ObjListDataSource = (FilterOptionDataSource | FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS);
 export interface ObjWithTootCount extends WithCounts {
     name: string;
 }
@@ -115,7 +115,6 @@ export type TrendingData = {
 };
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
-export type UserDataSource = (ScoreName.FAVOURITED_ACCOUNTS | TagTootsCacheKey);
 export type WeightedScore = {
     raw: number;
     weighted: number;

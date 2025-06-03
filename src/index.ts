@@ -78,7 +78,6 @@ import {
     type TrendingLink,
     type TrendingObj,
     type TrendingWithHistory,
-    type UserDataSource,
     type WeightName,
     type Weights,
     type WeightInfoDict,
@@ -708,7 +707,6 @@ export {
     type TrendingLink,
     type TrendingObj,
     type TrendingWithHistory,
-    type UserDataSource,
     type Weights,
     // Constants
     FILTER_OPTION_DATA_SOURCES,
