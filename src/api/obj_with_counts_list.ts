@@ -19,10 +19,10 @@ const logger = new Logger("TagList");
 
 
 export default class ObjWithCountList<T extends ObjWithTootCount> {
-    source: ObjListDataSource;
     logger: Logger;
     length: number;
     nameDict: ObjNames = {};  // Dict of tag names to tags
+    source: ObjListDataSource;
     private _objs: T[];
 
     constructor(objs: T[], label: ObjListDataSource) {

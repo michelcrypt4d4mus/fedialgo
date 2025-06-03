@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+# v0.60.0
+* (Demo App) Add a 'Create New Toot' button to the main page
+
 ### v0.59.1
 * Export `DATA_SOURCES_FOR_FILTER_OPTIONS`, add `filterOptionDataSources()` method to `TheAlgorithm`
 
