@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.60.3
 * Rename `BooleanFilter.validValues()` to `selectedOptions`
 * Add a `maxSecondsPerPage` to the API config that will halt polling if things are going slow
 * (Demo App) Fix bug with formatting of type filters leading to errors when selecting multi word options
