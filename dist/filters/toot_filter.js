@@ -6,12 +6,10 @@ class TootFilter {
     invertSelection;
     logger;
     title;
-    visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
-    constructor({ description, invertSelection, title, visible }) {
+    constructor({ description, invertSelection, title }) {
         this.description = description ?? title;
         this.invertSelection = invertSelection ?? false;
         this.title = title;
-        this.visible = visible ?? true;
         this.logger = logger_1.Logger.withParenthesizedName("TootFilter", title);
     }
     // Extend in subclasses. Required for serialization to local storage
@@ -19,7 +17,6 @@ class TootFilter {
         return {
             invertSelection: this.invertSelection,
             title: this.title,
-            visible: this.visible
         };
     }
 }

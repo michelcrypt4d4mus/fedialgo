@@ -135,7 +135,7 @@ Object.entries(algorithm.weightPresets).forEach(([presetName, weights]) => {
 import { BooleanFilterName, ScoreName, TagTootsCacheKey, Toot, Weights } from "fedialgo";
 
 // Set a filter for only German language toots
-algorithm.filters.booleanFilters[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
+algorithm.filters.booleanFilters[BooleanFilterName.LANGUAGE].updateOption("de", true);
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 
 // Set a filter for only toots with at least 3 replies

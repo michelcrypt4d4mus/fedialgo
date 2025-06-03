@@ -12,13 +12,11 @@ export default abstract class TootFilter {
     invertSelection: boolean;
     logger: Logger;
     title: FilterTitle;
-    visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
 
-    constructor({ description, invertSelection, title, visible }: FilterArgs) {
+    constructor({ description, invertSelection, title }: FilterArgs) {
         this.description = description ?? title as string;
         this.invertSelection = invertSelection ?? false;
         this.title = title;
-        this.visible = visible ?? true;
         this.logger = Logger.withParenthesizedName("TootFilter", title);
     }
 
@@ -30,7 +28,6 @@ export default abstract class TootFilter {
         return {
             invertSelection: this.invertSelection,
             title: this.title,
-            visible: this.visible
         };
     }
 };

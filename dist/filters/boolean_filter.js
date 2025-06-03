@@ -100,7 +100,6 @@ class BooleanFilter extends toot_filter_1.default {
     options; // e.g. counts of toots with this option
     selectedOptions; // Which options are selected for use in the filter
     title;
-    visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
     constructor({ title, invertSelection, selectedOptions }) {
         let optionInfo;
         let description;
@@ -119,10 +118,6 @@ class BooleanFilter extends toot_filter_1.default {
         this.options = optionInfo;
         this.title = title;
         this.selectedOptions = selectedOptions ?? [];
-        // The app filter is kind of useless so we mark it as invisible via config option
-        if (this.title == BooleanFilterName.APP) {
-            this.visible = config_1.config.gui.isAppFilterVisible;
-        }
     }
     // Return true if the toot matches the filter
     isAllowed(toot) {
@@ -177,7 +172,7 @@ class BooleanFilter extends toot_filter_1.default {
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it
-    updateValidOptions(element, isValidOption) {
+    updateOption(element, isValidOption) {
         this.logger.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
         if (isValidOption && !this.isOptionEnabled(element)) {
             this.selectedOptions.push(element);

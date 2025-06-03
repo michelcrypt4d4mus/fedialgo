@@ -41,7 +41,6 @@ export default class BooleanFilter extends TootFilter {
     options: BooleanFilterOptionList;
     selectedOptions: string[];
     title: BooleanFilterName;
-    visible: boolean;
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
     isAllowed(toot: Toot): boolean;
     isOptionEnabled(optionName: string): boolean;
@@ -49,7 +48,7 @@ export default class BooleanFilter extends TootFilter {
     optionsSortedByName(minToots?: number): BooleanFilterOptionList;
     optionsSortedByValue(minToots?: number): BooleanFilterOptionList;
     setOptions(optionInfo: StringNumberDict): Promise<void>;
-    updateValidOptions(element: string, isValidOption: boolean): void;
+    updateOption(element: string, isValidOption: boolean): void;
     toArgs(): BooleanFilterArgs;
 }
 export {};

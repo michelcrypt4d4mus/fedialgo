@@ -58,10 +58,9 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 };
 
 export type FilterArgs = {
-    title: FilterTitle;
     description?: string;
     invertSelection?: boolean;
-    visible?: boolean;
+    title: FilterTitle;
 };
 
 

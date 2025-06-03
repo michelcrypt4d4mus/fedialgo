@@ -44,10 +44,9 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     numericFilters: NumericFilters;
 }
 export type FilterArgs = {
-    title: FilterTitle;
     description?: string;
     invertSelection?: boolean;
-    visible?: boolean;
+    title: FilterTitle;
 };
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;

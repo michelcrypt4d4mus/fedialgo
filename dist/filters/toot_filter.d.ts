@@ -6,8 +6,7 @@ export default abstract class TootFilter {
     invertSelection: boolean;
     logger: Logger;
     title: FilterTitle;
-    visible: boolean;
-    constructor({ description, invertSelection, title, visible }: FilterArgs);
+    constructor({ description, invertSelection, title }: FilterArgs);
     abstract isAllowed(toot: Toot): boolean;
     toArgs(): FilterArgs;
 }
