@@ -115,4 +115,19 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     async removeMutedTags(): Promise<void> {
         this.removeKeywords(await UserData.getMutedKeywords());
     }
+
+    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
+    static async allTagTootsLists(): Promise<Record<TagTootsCacheKey, TagList>> {
+        const tagLists = await Promise.all([
+            TagList.fromFavourites(),
+            TagList.fromParticipated(),
+            TagList.fromTrending(),
+        ]);
+
+        return {
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
+            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
+            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
+        };
+    }
 };

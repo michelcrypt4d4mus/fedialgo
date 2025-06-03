@@ -6,7 +6,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
+import { CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey, DATA_SOURCES_FOR_FILTER_OPTIONS } from './enums';
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<ApiCacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;
@@ -27,14 +27,14 @@ export type StatusList = TootLike[];
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
+export type FilterOptionDataSource = typeof DATA_SOURCES_FOR_FILTER_OPTIONS[number];
+export type FilterOptionUserData = {
+    [key in FilterOptionDataSource]?: number;
+};
+export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
+}
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
-export interface BooleanFilterOption extends ObjWithTootCount {
-    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]?: number;
-    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]?: number;
-    [TagTootsCacheKey.TRENDING_TAG_TOOTS]?: number;
-    [ScoreName.FAVOURITED_ACCOUNTS]?: number;
-}
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];

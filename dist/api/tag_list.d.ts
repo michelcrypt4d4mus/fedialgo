@@ -1,5 +1,6 @@
 import ObjWithCountList from "./obj_with_counts_list";
 import Toot from "./objects/toot";
+import { TagTootsCacheKey } from "../enums";
 import { type MastodonTag, type ObjWithTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ObjListDataSource);
@@ -14,4 +15,5 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     removeFollowedTags(): Promise<void>;
     removeInvalidTrendingTags(): void;
     removeMutedTags(): Promise<void>;
+    static allTagTootsLists(): Promise<Record<TagTootsCacheKey, TagList>>;
 }

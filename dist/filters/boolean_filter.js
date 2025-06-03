@@ -154,39 +154,20 @@ class BooleanFilter extends toot_filter_1.default {
     isThisSelectionEnabled(optionName) {
         return this.validValues.includes(optionName);
     }
-    // Return the available options sorted by value from highest to lowest
-    // If minValue is set then only return options with a value greater than or equal to minValue
-    // along with any 'validValues' entries that are below that threshold.
-    // optionsSortedByValue(minValue?: number): BooleanFilterOptionList[] {
-    //     let options = this.entriesSortedByValue();
-    //     if (minValue) {
-    //         options = options.filter(([k, v]) => v >= minValue || this.isThisSelectionEnabled(k));
-    //     }
-    //     return options.map(([k, _v]) => k);
-    // }
     // Update the filter with the possible options that can be selected for validValues
-    // TODO: convert to setter
     async setOptions(optionInfo) {
-        this.validValues = this.validValues.filter((v) => v in optionInfo); // Remove options that are no longer valid
         this.optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
-        // Add additional information about the option - participation counts, favourited counts, etc.
+        this.validValues = this.validValues.filter((v) => v in optionInfo); // Remove options that are no longer valid
+        // Populate additional properties on each option - participation counts, favourited counts, etc.
         if (this.title == BooleanFilterName.HASHTAG) {
-            const favouritedTags = (await tag_list_1.default.fromFavourites()).nameToNumTootsDict();
-            const participatedTags = (await tag_list_1.default.fromParticipated()).nameToNumTootsDict();
-            const trendingTags = (await tag_list_1.default.fromTrending()).nameToNumTootsDict();
-            this.optionInfo.objs.forEach((option) => {
-                if (favouritedTags[option.name])
-                    option[enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS] = favouritedTags[option.name] || 0;
-                if (participatedTags[option.name])
-                    option[enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] = participatedTags[option.name] || 0;
-                if (trendingTags[option.name])
-                    option[enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS] = trendingTags[option.name] || 0;
+            const dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
+            Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
+                this.optionInfo.objs.forEach((option) => {
+                    if (tagList.getObj(option.name)) {
+                        option[key] = tagList.getObj(option.name)?.numToots || 0;
+                    }
+                });
             });
-            const optionsToLog = this.optionInfo.filter(option => !!(((option[enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) &&
-                (option[enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0))
-            // + (option[TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0
-            ));
-            this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
         }
         else if (this.title == BooleanFilterName.USER) {
             const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
@@ -195,8 +176,6 @@ class BooleanFilter extends toot_filter_1.default {
                     option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)?.numToots || 0;
                 }
             });
-            // const optionsToLog = this.optionInfo.filter(option => !!option[ScoreName.FAVOURITED_ACCOUNTS]);
-            // this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
         }
     }
     // Add the element to the filters array if it's not already there or remove it if it is

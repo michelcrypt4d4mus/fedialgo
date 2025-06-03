@@ -3,7 +3,7 @@
  * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+exports.DATA_SOURCES_FOR_FILTER_OPTIONS = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
 // Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
 // Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 // This should live in Storage.ts but that creates a circular dependency with config.ts
@@ -93,4 +93,9 @@ var TrendingType;
     TrendingType["TAGS"] = "tags";
 })(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
+// Both filter option property names as well as demo app gradient config keys
+exports.DATA_SOURCES_FOR_FILTER_OPTIONS = [
+    ...Object.values(TagTootsCacheKey),
+    ScoreName.FAVOURITED_ACCOUNTS,
+];
 //# sourceMappingURL=enums.js.map

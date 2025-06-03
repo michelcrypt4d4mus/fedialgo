@@ -89,7 +89,7 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
-export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): FeedFilterSettings {
+export async function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings> {
     const logPrefx = `<updateBooleanFilterOptions()>`
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
     populateMissingFilters(filters);  // Ensure all filters are instantiated
@@ -128,11 +128,10 @@ export function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: T
         });
     });
 
-    // TODO: if there's a validValues element for a filter section that is no longer in the feed
-    //       the user will not be presented with the option to turn it off. This is a bug.
-    Object.entries(tootCounts).forEach(([propertyName, counts]) => {
-        filters.booleanFilters[propertyName as BooleanFilterName].setOptions(counts);
-    });
+    // Build the options for all the boolean filters based on the counts
+    for (const [propertyName, counts] of Object.entries(tootCounts)) {
+        await filters.booleanFilters[propertyName as BooleanFilterName].setOptions(counts);
+    }
 
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => sumValues(counts));

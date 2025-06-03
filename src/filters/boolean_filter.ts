@@ -174,44 +174,22 @@ export default class BooleanFilter extends TootFilter {
         return this.validValues.includes(optionName);
     }
 
-    // Return the available options sorted by value from highest to lowest
-    // If minValue is set then only return options with a value greater than or equal to minValue
-    // along with any 'validValues' entries that are below that threshold.
-    // optionsSortedByValue(minValue?: number): BooleanFilterOptionList[] {
-    //     let options = this.entriesSortedByValue();
-
-    //     if (minValue) {
-    //         options = options.filter(([k, v]) => v >= minValue || this.isThisSelectionEnabled(k));
-    //     }
-
-    //     return options.map(([k, _v]) => k);
-    // }
-
     // Update the filter with the possible options that can be selected for validValues
-    // TODO: convert to setter
     async setOptions(optionInfo: StringNumberDict) {
-        this.validValues = this.validValues.filter((v) => v in optionInfo);  // Remove options that are no longer valid
         this.optionInfo = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
+        this.validValues = this.validValues.filter((v) => v in optionInfo);  // Remove options that are no longer valid
 
-        // Add additional information about the option - participation counts, favourited counts, etc.
+        // Populate additional properties on each option - participation counts, favourited counts, etc.
         if (this.title == BooleanFilterName.HASHTAG) {
-            const favouritedTags = (await TagList.fromFavourites()).nameToNumTootsDict();
-            const participatedTags = (await TagList.fromParticipated()).nameToNumTootsDict();
-            const trendingTags = (await TagList.fromTrending()).nameToNumTootsDict();
+            const dataForTagPropLists = await TagList.allTagTootsLists();
 
-            this.optionInfo.objs.forEach((option) => {
-                if (favouritedTags[option.name]) option[TagTootsCacheKey.FAVOURITED_TAG_TOOTS] = favouritedTags[option.name] || 0;
-                if (participatedTags[option.name]) option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] = participatedTags[option.name] || 0;
-                if (trendingTags[option.name]) option[TagTootsCacheKey.TRENDING_TAG_TOOTS] = trendingTags[option.name] || 0;
+            Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
+                this.optionInfo.objs.forEach((option) => {
+                    if (tagList.getObj(option.name)) {
+                        option[key as TagTootsCacheKey] = tagList.getObj(option.name)?.numToots || 0;
+                    }
+                });
             });
-
-            const optionsToLog = this.optionInfo.filter(option => !!(
-                ((option[TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) &&
-                (option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0))
-                // + (option[TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0
-            ));
-
-            this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
         } else if (this.title == BooleanFilterName.USER) {
             const favouritedAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
 
@@ -219,10 +197,7 @@ export default class BooleanFilter extends TootFilter {
                 if (favouritedAccounts.getObj(option.name)) {
                     option[ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)?.numToots || 0;
                 }
-            })
-
-            // const optionsToLog = this.optionInfo.filter(option => !!option[ScoreName.FAVOURITED_ACCOUNTS]);
-            // this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
+            });
         }
     }
 

@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 # v0.59.0
-* BooleanFilterOptions now contain more information than just the number of toots in the current timeline they match (in particular they now contain enough information to drive the color gradients)
+* `BooleanFilterOption` now contain more information than just the number of toots in the current timeline they match (in particular they now contain enough information to drive the color gradients)
 * (Demo App) Lower `idealNumOptions` to 60
 
 ### v0.58.2

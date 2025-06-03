@@ -82,6 +82,19 @@ class TagList extends obj_with_counts_list_1.default {
     async removeMutedTags() {
         this.removeKeywords(await user_data_1.default.getMutedKeywords());
     }
+    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
+    static async allTagTootsLists() {
+        const tagLists = await Promise.all([
+            TagList.fromFavourites(),
+            TagList.fromParticipated(),
+            TagList.fromTrending(),
+        ]);
+        return {
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
+            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
+        };
+    }
 }
 exports.default = TagList;
 ;

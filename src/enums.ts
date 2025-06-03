@@ -84,3 +84,9 @@ export enum TrendingType {
     STATUSES = "statuses",
     TAGS = "tags"
 };
+
+// Both filter option property names as well as demo app gradient config keys
+export const DATA_SOURCES_FOR_FILTER_OPTIONS = [
+    ...Object.values(TagTootsCacheKey),  // TODO: these are really the wrong cache keys for the use case but it's consistent w/demo app for now
+    ScoreName.FAVOURITED_ACCOUNTS,
+] as const;

@@ -454,7 +454,7 @@ class TheAlgorithm {
         this.feed = await toot_1.default.removeInvalidToots(this.feed, logger);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await toot_1.default.completeToots(this.feed, logger, isDeepInspect);
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
@@ -502,7 +502,7 @@ class TheAlgorithm {
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
         this.logger.log(`<loadCachedData()> loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
@@ -530,7 +530,7 @@ class TheAlgorithm {
         const startedAt = new Date();
         const numTootsBefore = this.feed.length;
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logger);
-        (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         this.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logger.logPrefix);
