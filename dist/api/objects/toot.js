@@ -644,12 +644,13 @@ class Toot {
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
     static async completeToots(toots, logger, isDeepInspect) {
-        let completeToots = [];
-        let tootsToComplete = toots;
-        let startedAt = new Date();
+        logger = logger.tempLogger(`completeToots(isDeepInspect=${isDeepInspect})`);
+        const startedAt = new Date();
         const userData = await api_1.default.instance.getUserData();
         const trendingTags = (await tag_list_1.default.fromTrending()).topObjs();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
+        let completeToots = [];
+        let tootsToComplete = toots;
         // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
         if (isDeepInspect) {
             [completeToots, tootsToComplete] = ((0, collection_helpers_1.split)(toots, (t) => t instanceof Toot && t.isComplete()));
@@ -660,11 +661,11 @@ class Toot {
             return toot;
         }, {
             batchSize: config_1.config.toots.batchCompleteSize,
-            logger: logger.tempLogger(`completeToots(isDeepInspect=${isDeepInspect})`),
+            logger,
             sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
         });
-        let msg = `completeToots(isDeepInspect=${isDeepInspect}) ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
-        tootLogger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
+        const msg = `${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
+        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
         return newCompleteToots.concat(completeToots);
     }
     // Remove dupes by uniquifying on the toot's URI. This is quite fast, no need for telemtry

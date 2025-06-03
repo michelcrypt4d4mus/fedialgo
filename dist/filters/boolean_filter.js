@@ -127,7 +127,7 @@ class BooleanFilter extends toot_filter_1.default {
     // Return true if the toot matches the filter
     isAllowed(toot) {
         // If there's no validValues allow everything
-        if (this.validValues.length === 0)
+        if (!this.validValues.length)
             return true;
         const isMatched = TOOT_MATCHERS[this.title](toot, this.validValues);
         return this.invertSelection ? !isMatched : isMatched;
@@ -141,14 +141,13 @@ class BooleanFilter extends toot_filter_1.default {
         options = options.filter(o => (o.numToots || 0) >= minToots || this.isThisSelectionEnabled(o.name));
         return new boolean_filter_option_list_1.default(options, this.title);
     }
-    // Similar to optionsSortedByValue() but sorts by name instead of numToots
+    // If minToots is set then only return options with a value greater than or equal to minValue
+    // along with any 'validValues' entries that are below that threshold.
     optionsSortedByName(minToots = 0) {
         let options = this.optionInfo.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.name, b.name));
         return this.optionListWithMinToots(options, minToots);
     }
-    // Return the available options sorted by numToots from highest to lowest.
-    // If minToots is set then only return options with a value greater than or equal to minValue
-    // along with any 'validValues' entries that are below that threshold.
+    // Sort options by numToots, then by name
     optionsSortedByValue(minToots = 0) {
         return this.optionListWithMinToots(this.optionInfo.topObjs(), minToots);
     }
@@ -162,7 +161,7 @@ class BooleanFilter extends toot_filter_1.default {
             Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
                 this.optionInfo.objs.forEach((option) => {
                     if (tagList.getObj(option.name)) {
-                        option[key] = tagList.getObj(option.name)?.numToots || 0;
+                        option[key] = tagList.getObj(option.name).numToots || 0;
                     }
                 });
             });
@@ -171,7 +170,7 @@ class BooleanFilter extends toot_filter_1.default {
             const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
             this.optionInfo.objs.forEach((option) => {
                 if (favouritedAccounts.getObj(option.name)) {
-                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)?.numToots || 0;
+                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name).numToots || 0;
                 }
             });
         }
