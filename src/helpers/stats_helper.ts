@@ -9,6 +9,19 @@ import { traceLog } from "./log_helpers";
 import { type MinMaxAvgScore, type ScoresStats, type WeightedScore } from "../types";
 
 
+// Compute stats about the scores of a list of toots
+function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
+    return Object.values(ScoreName).reduce((stats, scoreName) => {
+        stats[scoreName] = {
+            raw: scoreStats(toots, "raw", scoreName, numPercentiles),
+            weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),
+        };
+
+        return stats;
+    }, {} as ScoresStats);
+};
+
+
 // Return an array of objects suitable for use with Recharts
 export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): any[] {
     const stats: any[] = [];
@@ -41,19 +54,6 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
 };
 
 
-// Compute stats about the scores of a list of toots
-function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
-    return Object.values(ScoreName).reduce((stats, scoreName) => {
-        stats[scoreName] = {
-            raw: scoreStats(toots, "raw", scoreName, numPercentiles),
-            weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),
-        };
-
-        return stats;
-    }, {} as ScoresStats);
-}
-
-
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(
     toots: Toot[],
@@ -74,4 +74,4 @@ function scoreStats(
             max: sectionScores.slice(-1)[0],
         };
     });
-}
+};

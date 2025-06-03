@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -85,6 +85,13 @@ function subtractSeconds(date, seconds) {
 }
 exports.subtractSeconds = subtractSeconds;
 ;
+// Return the oldest timestamp we should feed timeline toots until
+function timelineCutoffAt() {
+    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
+    return subtractSeconds(new Date(), timelineLookBackMS);
+}
+exports.timelineCutoffAt = timelineCutoffAt;
+;
 // Generate a string representing a timestamp.
 // (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
 //    => 'Thursday, Sep 1, 2022'
@@ -114,13 +121,6 @@ const timeString = (_timestamp, locale) => {
     return str;
 };
 exports.timeString = timeString;
-// Return the oldest timestamp we should feed timeline toots until
-function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
-}
-exports.timelineCutoffAt = timelineCutoffAt;
-;
 // To the format YYYY-MM-DDTHH:MM:SSZ
 function toISOFormat(date, withMilliseconds) {
     if (!date)

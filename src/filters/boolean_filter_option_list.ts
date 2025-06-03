@@ -4,8 +4,8 @@
 import ObjWithCountList from "../api/obj_with_counts_list";
 import {
     type BooleanFilterOption,
-    type ObjWithTootCount,
     type ObjListDataSource,
+    type ObjWithTootCount,
     type StringNumberDict,
 } from "../types";
 

@@ -75,26 +75,6 @@ export async function batchMap<T>(
 };
 
 
-// Split the array into numChunks OR n chunks of size chunkSize
-export function makeChunks<T>(
-    array: T[],
-    options: {
-        chunkSize?: number,
-        logger?: Logger,
-        numChunks?: number
-    }
-): T[][] {
-    let { chunkSize, logger, numChunks } = options;
-
-    if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
-        throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
-    }
-
-    chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
-    return chunk(array, chunkSize);
-};
-
-
 // Check if the elements of 'array' are as unique as they should be
 export function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void {
     const logPrefix = `[${label}]`;
@@ -245,6 +225,26 @@ export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Reco
         },
         {} as Record<string, T>
     );
+};
+
+
+// Split the array into numChunks OR n chunks of size chunkSize
+export function makeChunks<T>(
+    array: T[],
+    options: {
+        chunkSize?: number,
+        logger?: Logger,
+        numChunks?: number
+    }
+): T[][] {
+    let { chunkSize, logger, numChunks } = options;
+
+    if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
+        throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
+    }
+
+    chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
+    return chunk(array, chunkSize);
 };
 
 

@@ -85,6 +85,13 @@ export function subtractSeconds(date: Date, seconds: number): Date {
 };
 
 
+// Return the oldest timestamp we should feed timeline toots until
+export function timelineCutoffAt(): Date {
+    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
+    return subtractSeconds(new Date(), timelineLookBackMS);
+};
+
+
 // Generate a string representing a timestamp.
 // (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
 //    => 'Thursday, Sep 1, 2022'
@@ -109,13 +116,6 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
     str += ` ${timestamp!.toLocaleTimeString(locale)}`;
     // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
     return str;
-};
-
-
-// Return the oldest timestamp we should feed timeline toots until
-export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
 };
 
 

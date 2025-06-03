@@ -5,6 +5,17 @@ const collection_helpers_1 = require("./collection_helpers");
 const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
 const log_helpers_1 = require("./log_helpers");
+// Compute stats about the scores of a list of toots
+function computeScoreStats(toots, numPercentiles) {
+    return Object.values(enums_1.ScoreName).reduce((stats, scoreName) => {
+        stats[scoreName] = {
+            raw: scoreStats(toots, "raw", scoreName, numPercentiles),
+            weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),
+        };
+        return stats;
+    }, {});
+}
+;
 // Return an array of objects suitable for use with Recharts
 function rechartsDataPoints(toots, numPercentiles = 5) {
     const stats = [];
@@ -44,16 +55,6 @@ function rechartsDataPoints(toots, numPercentiles = 5) {
 }
 exports.rechartsDataPoints = rechartsDataPoints;
 ;
-// Compute stats about the scores of a list of toots
-function computeScoreStats(toots, numPercentiles) {
-    return Object.values(enums_1.ScoreName).reduce((stats, scoreName) => {
-        stats[scoreName] = {
-            raw: scoreStats(toots, "raw", scoreName, numPercentiles),
-            weighted: scoreStats(toots, "weighted", scoreName, numPercentiles),
-        };
-        return stats;
-    }, {});
-}
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(toots, scoreType, scoreName, numPercentiles) {
     const getScoreOfType = (t) => t.getIndividualScore(scoreType, scoreName);
@@ -68,4 +69,5 @@ function scoreStats(toots, scoreType, scoreName, numPercentiles) {
         };
     });
 }
+;
 //# sourceMappingURL=stats_helper.js.map

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.strBytes = exports.traceLog = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
+exports.WaitTime = exports.traceLog = exports.strBytes = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
@@ -35,6 +35,9 @@ async function lockExecution(locker, logger, logPrefix) {
 }
 exports.lockExecution = lockExecution;
 ;
+// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
+const strBytes = (str) => str.length;
+exports.strBytes = strBytes;
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 function traceLog(msg, ...args) {
@@ -49,9 +52,6 @@ function traceLog(msg, ...args) {
 }
 exports.traceLog = traceLog;
 ;
-// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
-const strBytes = (str) => str.length;
-exports.strBytes = strBytes;
 // Helper class for telemetry
 class WaitTime {
     avgMsPerRequest = 0;

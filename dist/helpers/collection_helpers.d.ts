@@ -8,11 +8,6 @@ export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, opt
     logger?: Logger;
     sleepBetweenMS?: number;
 }): Promise<any[]>;
-export declare function makeChunks<T>(array: T[], options: {
-    chunkSize?: number;
-    logger?: Logger;
-    numChunks?: number;
-}): T[][];
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
@@ -24,6 +19,11 @@ export declare function incrementCount(counts: StringNumberDict, k?: CountKey | 
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
+export declare function makeChunks<T>(array: T[], options: {
+    chunkSize?: number;
+    logger?: Logger;
+    numChunks?: number;
+}): T[][];
 export declare function makePercentileChunks<T>(array: T[], fxn: (element: T) => number | undefined, numPercentiles: number): T[][];
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];

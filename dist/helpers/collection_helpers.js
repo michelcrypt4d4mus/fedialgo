@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.makePercentileChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.makeChunks = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -66,17 +66,6 @@ async function batchMap(array, fxn, options) {
     return results;
 }
 exports.batchMap = batchMap;
-;
-// Split the array into numChunks OR n chunks of size chunkSize
-function makeChunks(array, options) {
-    let { chunkSize, logger, numChunks } = options;
-    if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
-        throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
-    }
-    chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
-    return (0, chunk_1.default)(array, chunkSize);
-}
-exports.makeChunks = makeChunks;
 ;
 // Check if the elements of 'array' are as unique as they should be
 function checkUniqueIDs(array, label) {
@@ -204,6 +193,17 @@ function keyByProperty(array, keyFxn) {
     }, {});
 }
 exports.keyByProperty = keyByProperty;
+;
+// Split the array into numChunks OR n chunks of size chunkSize
+function makeChunks(array, options) {
+    let { chunkSize, logger, numChunks } = options;
+    if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
+        throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
+    }
+    chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
+    return (0, chunk_1.default)(array, chunkSize);
+}
+exports.makeChunks = makeChunks;
 ;
 // Sort array by fxn() value & divide into numPercentiles sections
 function makePercentileChunks(array, fxn, numPercentiles) {

@@ -7,7 +7,7 @@ import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
 import { isDebugMode } from '../helpers/environment_helpers';
 import { Logger } from './logger';
-import { TELEMETRY, bracketed, prefixed } from './string_helpers';
+import { prefixed } from './string_helpers';
 import { type ConcurrencyLockRelease } from '../types';
 
 // Log prefixes
@@ -48,6 +48,10 @@ export async function lockExecution(
 };
 
 
+// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
+export const strBytes = (str: string): number => str.length;
+
+
 // Log only if FEDIALGO_DEBUG env var is set to "true"
 // Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
 export function traceLog(msg: string, ...args: any[]): void {
@@ -61,10 +65,6 @@ export function traceLog(msg: string, ...args: any[]): void {
 
     console.debug(msg, ...args);
 };
-
-
-// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
-export const strBytes = (str: string): number => str.length;
 
 
 // Helper class for telemetry
