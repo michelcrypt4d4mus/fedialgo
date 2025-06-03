@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.60.2
 * Rename BooleanFilter.isThisSelectionEnabled() to isOptionEnabled()
 
 ### v0.60.1
