@@ -1,13 +1,14 @@
 # NEXT RELEASE
+* (Demo App) Lower idealNumOptions to 60
 
 ### v0.58.2
 
 ### v0.58.1
 * Add `UserData.favouriteAccounts` property
-* Repair broken audio attachments too
+* Repair broken audio attachments like we do with images and videos
 * Refactor an abstract `ObjWithCountList` class from `TagList` class so we can hold account info
 * (Demo App) Reorder filter section (and make it easily configurable in the future)
-* (Demo App) Fix but with computing gradients at new user login
+* (Demo App) Fix bug with computing gradients at new user login
 
 ## v0.58.0
 * Add `map()` method to `TagList`

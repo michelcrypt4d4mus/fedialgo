@@ -29,6 +29,12 @@ export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
+export interface BooleanFilterOption extends ObjWithTootCount {
+    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]?: number;
+    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]?: number;
+    [TagTootsCacheKey.TRENDING_TAG_TOOTS]?: number;
+    [ScoreName.FAVOURITED_ACCOUNTS]?: number;
+}
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
     numericFilterArgs: NumericFilterArgs[];
@@ -66,12 +72,10 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
-export type ObjListDataSource = (BooleanFilterName | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS | UserDataSource);
-export type UserDataSource = (ScoreName.FAVOURITED_ACCOUNTS | TagTootsCacheKey);
+export type ObjListDataSource = (FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS | UserDataSource);
 export interface ObjWithTootCount extends WithCounts {
     name: string;
 }
-export type NamedObjWithTootCount = ObjWithTootCount | TagWithUsageCounts;
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
     weighted: MinMaxAvgScore[];
@@ -84,7 +88,7 @@ export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;
 };
-export interface TagWithUsageCounts extends mastodon.v1.Tag, WithCounts {
+export interface TagWithUsageCounts extends mastodon.v1.Tag, ObjWithTootCount {
     language?: string;
 }
 export type TootContext = {
@@ -111,6 +115,7 @@ export type TrendingData = {
 };
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type TrendingObj = TrendingWithHistory | Toot;
+export type UserDataSource = (ScoreName.FAVOURITED_ACCOUNTS | TagTootsCacheKey);
 export type WeightedScore = {
     raw: number;
     weighted: number;

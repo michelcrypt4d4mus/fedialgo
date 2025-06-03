@@ -7,18 +7,18 @@ import { isNull, wordRegex } from "../helpers/string_helpers";
 import { Logger } from '../helpers/logger';
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import {
-    type NamedObjWithTootCount,
+    type ObjWithTootCount,
     type ObjListDataSource,
     type ObjNames,
     type StringNumberDict,
 } from "../types";
 
-export type ObjList = ObjWithCountList<NamedObjWithTootCount>;
+export type ObjList = ObjWithCountList<ObjWithTootCount>;
 
 const logger = new Logger("TagList");
 
 
-export default class ObjWithCountList<T extends NamedObjWithTootCount> {
+export default class ObjWithCountList<T extends ObjWithTootCount> {
     source: ObjListDataSource;
     logger: Logger;
     length: number;
@@ -30,13 +30,13 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this.source = label;
-        this.logger = label ? new Logger(label, "TagList") : logger;
+        this.logger = new Logger("ObjWithCountList", label);
     }
 
     // Alternate constructor to create synthetic tags
     static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): ObjList {
         const objs = Object.entries(dict).map(([name, numToots]) => {
-            const obj: NamedObjWithTootCount = { name, numToots, url: "blank" };
+            const obj: ObjWithTootCount = { name, numToots };
             return obj;
         });
 
@@ -60,11 +60,11 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
     }
 
     // Return the tag if it exists in 'tags' array, otherwise undefined.
-    getObj(name: string): NamedObjWithTootCount | undefined {
+    getObj(name: string): ObjWithTootCount | undefined {
         return this.nameDict[name.toLowerCase()];
     }
 
-    map(callback: (obj: T) => any): T[] {
+    map(callback: (obj: T, i?: number) => any): T[] {
         return this.objs.map(callback);
     }
 
@@ -120,13 +120,13 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
 };
 
 
-export function buildObjWithTootCount(name: string, numToots: number): NamedObjWithTootCount {
-    const obj: NamedObjWithTootCount = { name, numToots };
+export function buildObjWithTootCount(name: string, numToots: number): ObjWithTootCount {
+    const obj: ObjWithTootCount = { name, numToots };
     return completeObjWithTootCounts(obj);
 };
 
 
-export function completeObjWithTootCounts(obj: NamedObjWithTootCount): NamedObjWithTootCount {
+export function completeObjWithTootCounts(obj: ObjWithTootCount): ObjWithTootCount {
     obj.name = obj.name.toLowerCase();
     obj.regex ||= wordRegex(obj.name);
     return obj;

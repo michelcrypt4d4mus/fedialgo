@@ -4,13 +4,17 @@
  * (e.g. language, hashtag, type of toot).
  */
 import MastoApi from '../api/api';
-import TagList from '../api/tag_list';
+import BooleanFilterOptionList from './boolean_filter_option_list';
+import ObjWithCountList, { ObjList } from '../api/obj_with_counts_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { alphabetize, wordRegex } from '../helpers/string_helpers';
+import { alphabetize, compareStr, wordRegex } from '../helpers/string_helpers';
 import { config } from '../config';
-import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
-import { type FilterArgs, type StringNumberDict, type TagWithUsageCounts } from "../types";
+import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
+import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
+import TagList from '../api/tag_list';
+import { ScoreName, TagTootsCacheKey } from '../enums';
+import UserData from '../api/user_data';
 
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
@@ -94,25 +98,28 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 };
 
 export interface BooleanFilterArgs extends FilterArgs {
-    optionInfo?: StringNumberDict;  // e.g. counts of toots with this option
+    // TODO: optionInfo is not serialized to storage and that seems like a good thing?
+    // in which case it doesn't have to be here at all.
+    optionInfo?: BooleanFilterOption[];  // e.g. counts of toots with this option
     validValues?: string[];
 };
 
 
 export default class BooleanFilter extends TootFilter {
+    optionInfo: BooleanFilterOptionList;  // e.g. counts of toots with this option
     title: BooleanFilterName
-    optionInfo: StringNumberDict;
-    effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
+    // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
 
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs) {
-        optionInfo ??= {};
+        optionInfo ??= [];
         let description: string;
 
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
-            optionInfo = countValues<TypeFilterName>(Object.values(TypeFilterName));
+            const optionCounts = countValues<TypeFilterName>(Object.values(TypeFilterName));
+            optionInfo = BooleanFilterOptionList.buildFromDict(optionCounts, title).objs;
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
             const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
@@ -121,7 +128,7 @@ export default class BooleanFilter extends TootFilter {
 
         super({ description, invertSelection, title });
         this.title = title as BooleanFilterName
-        this.optionInfo = optionInfo ?? {};
+        this.optionInfo = new BooleanFilterOptionList(optionInfo ?? [], title);
         this.validValues = validValues ?? [];
 
         // The app filter is kind of useless so we mark it as invisible via config option
@@ -129,12 +136,29 @@ export default class BooleanFilter extends TootFilter {
             this.visible = config.gui.isAppFilterVisible;
         }
     }
-    // Return the options as entries arrays sorted by value from highest to lowest
-    entriesSortedByValue(): [string, number][] {
-        return sortKeysByValue(this.optionInfo).reduce((acc, key) => {
-            acc.push([key, this.optionInfo[key]]);
-            return acc;
-        }, [] as [string, number][]);
+
+    // Return the available options sorted by value from highest to lowest
+    // If minValue is set then only return options with a value greater than or equal to minValue
+    // along with any 'validValues' entries that are below that threshold.
+    // optionsSortedByValue(minValue?: number): BooleanFilterOptionList[] {
+    optionsSortedByValue(minValue?: number): BooleanFilterOptionList {
+        let options = this.optionInfo.topObjs();
+
+        if (minValue) {
+            options = options.filter(o => (o.numToots || 0) >= minValue || this.isThisSelectionEnabled(o.name));
+        }
+
+        return new BooleanFilterOptionList(options, this.title);
+    }
+
+    optionsSortedByName(minValue?: number): BooleanFilterOptionList {
+        let options = this.optionInfo.objs.toSorted((a, b) => compareStr(a.name, b.name));
+
+        if (minValue) {
+            options = options.filter(o => (o.numToots || 0) >= minValue || this.isThisSelectionEnabled(o.name));
+        }
+
+        return new BooleanFilterOptionList(options, this.title);
     }
 
     // Return true if the toot matches the filter
@@ -150,46 +174,56 @@ export default class BooleanFilter extends TootFilter {
         return this.validValues.includes(optionName);
     }
 
-    // Return the number of options in the filter
-    numOptions(): number {
-        return Object.keys(this.optionInfo).length;
-    }
-
-    // Convert the optionInfo to a TagList with the counts as numToots
-    optionsAsTagList(): TagList {
-        const tags: TagWithUsageCounts[] = Object.entries(this.optionInfo).map(([name, numToots]) => ({
-            name,
-            numToots,
-            regex: wordRegex(name),  // Create a regex for the tag name
-            url: MastoApi.instance.tagUrl(name),
-        }));
-
-        return new TagList(tags, this.title);
-    }
-
-    // Return the available options sorted alphabetically by name
-    optionsSortedByName(): string[] {
-        return alphabetize(Object.keys(this.optionInfo));
-    }
-
     // Return the available options sorted by value from highest to lowest
     // If minValue is set then only return options with a value greater than or equal to minValue
     // along with any 'validValues' entries that are below that threshold.
-    optionsSortedByValue(minValue?: number): string[] {
-        let options = this.entriesSortedByValue();
+    // optionsSortedByValue(minValue?: number): BooleanFilterOptionList[] {
+    //     let options = this.entriesSortedByValue();
 
-        if (minValue) {
-            options = options.filter(([k, v]) => v >= minValue || this.isThisSelectionEnabled(k));
-        }
+    //     if (minValue) {
+    //         options = options.filter(([k, v]) => v >= minValue || this.isThisSelectionEnabled(k));
+    //     }
 
-        return options.map(([k, _v]) => k);
-    }
+    //     return options.map(([k, _v]) => k);
+    // }
 
     // Update the filter with the possible options that can be selected for validValues
-    setOptions(optionInfo: StringNumberDict) {
-        // Filter out any options that are no longer valid
-        this.validValues = this.validValues.filter((v) => v in optionInfo);
-        this.optionInfo = {...optionInfo}; // TODO: new object ID triggers useMemo() in the demo app, not great
+    // TODO: convert to setter
+    async setOptions(optionInfo: StringNumberDict) {
+        this.validValues = this.validValues.filter((v) => v in optionInfo);  // Remove options that are no longer valid
+        this.optionInfo = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
+
+        // Add additional information about the option - participation counts, favourited counts, etc.
+        if (this.title == BooleanFilterName.HASHTAG) {
+            const favouritedTags = (await TagList.fromFavourites()).nameToNumTootsDict();
+            const participatedTags = (await TagList.fromParticipated()).nameToNumTootsDict();
+            const trendingTags = (await TagList.fromTrending()).nameToNumTootsDict();
+
+            this.optionInfo.objs.forEach((option) => {
+                if (favouritedTags[option.name]) option[TagTootsCacheKey.FAVOURITED_TAG_TOOTS] = favouritedTags[option.name] || 0;
+                if (participatedTags[option.name]) option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] = participatedTags[option.name] || 0;
+                if (trendingTags[option.name]) option[TagTootsCacheKey.TRENDING_TAG_TOOTS] = trendingTags[option.name] || 0;
+            });
+
+            const optionsToLog = this.optionInfo.filter(option => !!(
+                ((option[TagTootsCacheKey.FAVOURITED_TAG_TOOTS] || 0) &&
+                (option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS] || 0))
+                // + (option[TagTootsCacheKey.TRENDING_TAG_TOOTS] || 0)) > 0
+            ));
+
+            this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
+        } else if (this.title == BooleanFilterName.USER) {
+            const favouritedAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
+
+            this.optionInfo.objs.forEach((option) => {
+                if (favouritedAccounts.getObj(option.name)) {
+                    option[ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)?.numToots || 0;
+                }
+            })
+
+            // const optionsToLog = this.optionInfo.filter(option => !!option[ScoreName.FAVOURITED_ACCOUNTS]);
+            // this.logger.trace(`setOptions() built new options:`, optionsToLog.topObjs(100));
+        }
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is

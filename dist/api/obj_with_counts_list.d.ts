@@ -1,7 +1,7 @@
 import { Logger } from '../helpers/logger';
-import { type NamedObjWithTootCount, type ObjListDataSource, type ObjNames, type StringNumberDict } from "../types";
-export type ObjList = ObjWithCountList<NamedObjWithTootCount>;
-export default class ObjWithCountList<T extends NamedObjWithTootCount> {
+import { type ObjWithTootCount, type ObjListDataSource, type ObjNames, type StringNumberDict } from "../types";
+export type ObjList = ObjWithCountList<ObjWithTootCount>;
+export default class ObjWithCountList<T extends ObjWithTootCount> {
     source: ObjListDataSource;
     logger: Logger;
     length: number;
@@ -12,8 +12,8 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
     get objs(): T[];
     set objs(theTags: T[]);
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
-    getObj(name: string): NamedObjWithTootCount | undefined;
-    map(callback: (obj: T) => any): T[];
+    getObj(name: string): ObjWithTootCount | undefined;
+    map(callback: (obj: T, i?: number) => any): T[];
     maxNumAccounts(): number | undefined;
     maxNumToots(): number | undefined;
     nameToNumTootsDict(): StringNumberDict;
@@ -22,5 +22,5 @@ export default class ObjWithCountList<T extends NamedObjWithTootCount> {
     topObjs(maxObjs?: number): T[];
     private objNameDict;
 }
-export declare function buildObjWithTootCount(name: string, numToots: number): NamedObjWithTootCount;
-export declare function completeObjWithTootCounts(obj: NamedObjWithTootCount): NamedObjWithTootCount;
+export declare function buildObjWithTootCount(name: string, numToots: number): ObjWithTootCount;
+export declare function completeObjWithTootCounts(obj: ObjWithTootCount): ObjWithTootCount;

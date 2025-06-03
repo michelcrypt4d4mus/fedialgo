@@ -24,12 +24,12 @@ class ObjWithCountList {
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this.source = label;
-        this.logger = label ? new logger_1.Logger(label, "TagList") : logger;
+        this.logger = new logger_1.Logger("ObjWithCountList", label);
     }
     // Alternate constructor to create synthetic tags
     static buildFromDict(dict, label) {
         const objs = Object.entries(dict).map(([name, numToots]) => {
-            const obj = { name, numToots, url: "blank" };
+            const obj = { name, numToots };
             return obj;
         });
         return new ObjWithCountList(objs, label);

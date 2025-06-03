@@ -1,7 +1,7 @@
-import TagList from '../api/tag_list';
+import BooleanFilterOptionList from './boolean_filter_option_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { type FilterArgs, type StringNumberDict } from "../types";
+import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare enum BooleanFilterName {
     HASHTAG = "hashtag",
@@ -35,24 +35,20 @@ export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends FilterArgs {
-    optionInfo?: StringNumberDict;
+    optionInfo?: BooleanFilterOption[];
     validValues?: string[];
 }
 export default class BooleanFilter extends TootFilter {
+    optionInfo: BooleanFilterOptionList;
     title: BooleanFilterName;
-    optionInfo: StringNumberDict;
-    effectiveOptionInfo: StringNumberDict;
     validValues: string[];
     visible: boolean;
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs);
-    entriesSortedByValue(): [string, number][];
+    optionsSortedByValue(minValue?: number): BooleanFilterOptionList;
+    optionsSortedByName(minValue?: number): BooleanFilterOptionList;
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
-    numOptions(): number;
-    optionsAsTagList(): TagList;
-    optionsSortedByName(): string[];
-    optionsSortedByValue(minValue?: number): string[];
-    setOptions(optionInfo: StringNumberDict): void;
+    setOptions(optionInfo: StringNumberDict): Promise<void>;
     updateValidOptions(element: string, isValidOption: boolean): void;
     toArgs(): BooleanFilterArgs;
 }

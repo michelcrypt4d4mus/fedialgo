@@ -63,12 +63,13 @@ import {
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
+    type BooleanFilterOption,
     type FeedFilterSettings,
     type KeysOfValueType,
     type MastodonInstance,
     type MastodonTag,
     type MinMaxAvgScore,
-    type NamedObjWithTootCount,
+    type ObjWithTootCount,
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -691,12 +692,13 @@ export default TheAlgorithm;
 // Export types and constants needed by apps using this package
 export {
     // Types
+    type BooleanFilterOption,
     type FeedFilterSettings,
     type KeysOfValueType,
     type MastodonInstance,
     type MinMaxAvgScore,
-    type NamedObjWithTootCount,
     type ObjList,
+    type ObjWithTootCount,
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
