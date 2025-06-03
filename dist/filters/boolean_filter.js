@@ -102,7 +102,7 @@ class BooleanFilter extends toot_filter_1.default {
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
     // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
     constructor({ title, invertSelection, optionInfo, validValues }) {
-        optionInfo ??= new obj_with_counts_list_1.default([], title).objs;
+        optionInfo ??= [];
         let description;
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
@@ -126,6 +126,9 @@ class BooleanFilter extends toot_filter_1.default {
     // Return the options as entries arrays sorted by value from highest to lowest
     entriesSortedByValue() {
         return this.optionInfo.topObjs().map((option) => [option.name, option.numToots || 0]); // TODO: numToots is not required in BooleanFilterOption type
+    }
+    objsSortedByValue() {
+        return this.optionInfo.topObjs();
     }
     // Return true if the toot matches the filter
     isAllowed(toot) {

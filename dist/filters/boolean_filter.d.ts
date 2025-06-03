@@ -47,6 +47,7 @@ export default class BooleanFilter extends TootFilter {
     visible: boolean;
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs);
     entriesSortedByValue(): [string, number][];
+    objsSortedByValue(): BooleanFilterOption[];
     isAllowed(toot: Toot): boolean;
     isThisSelectionEnabled(optionName: string): boolean;
     numOptions(): number;

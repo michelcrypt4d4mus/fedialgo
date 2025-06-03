@@ -63,6 +63,7 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     let wasChanged = false;
 
+    // TODO: this might all be irrelevant because an error will be thrown anyways, triggering reset of filters in Storage
     if (filters.booleanFilterArgs) {
         const hasOldFilterArgs = filters.booleanFilterArgs.some(args => {
             const asStringNumberDict = args.optionInfo as unknown as StringNumberDict;

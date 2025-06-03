@@ -109,7 +109,7 @@ export default class BooleanFilter extends TootFilter {
     // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
 
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs) {
-        optionInfo ??= new ObjWithCountList<BooleanFilterOption>([], title).objs;
+        optionInfo ??= [];
         let description: string;
 
         if (title == BooleanFilterName.TYPE) {
@@ -136,6 +136,10 @@ export default class BooleanFilter extends TootFilter {
     // Return the options as entries arrays sorted by value from highest to lowest
     entriesSortedByValue(): [string, number][] {
         return this.optionInfo.topObjs().map((option) => [option.name, option.numToots || 0]);  // TODO: numToots is not required in BooleanFilterOption type
+    }
+
+    objsSortedByValue(): BooleanFilterOption[] {
+        return this.optionInfo.topObjs();
     }
 
     // Return true if the toot matches the filter

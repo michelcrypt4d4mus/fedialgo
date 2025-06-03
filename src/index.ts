@@ -63,6 +63,7 @@ import {
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
+    type BooleanFilterOption,
     type FeedFilterSettings,
     type KeysOfValueType,
     type MastodonInstance,
@@ -691,6 +692,7 @@ export default TheAlgorithm;
 // Export types and constants needed by apps using this package
 export {
     // Types
+    type BooleanFilterOption,
     type FeedFilterSettings,
     type KeysOfValueType,
     type MastodonInstance,

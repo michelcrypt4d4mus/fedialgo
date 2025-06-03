@@ -76,6 +76,7 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Returns true if the filter settings were changed.
 function repairFilterSettings(filters) {
     let wasChanged = false;
+    // TODO: this might all be irrelevant because an error will be thrown anyways, triggering reset of filters in Storage
     if (filters.booleanFilterArgs) {
         const hasOldFilterArgs = filters.booleanFilterArgs.some(args => {
             const asStringNumberDict = args.optionInfo;
