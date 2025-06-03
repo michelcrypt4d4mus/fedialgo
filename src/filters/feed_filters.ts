@@ -182,23 +182,6 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
             filters.booleanFilters[booleanFilterName] = new BooleanFilter({title: booleanFilterName});
             return;
         }
-
-        // TODO: this is a test for a weird bug where firefox wouldn't recognize that a new method existed on BooleanFilter
-        try {
-            filter.isThisSelectionEnabled("dummyOption");
-            // logger.debug(`populateMissingFilters() - Filter "${booleanFilterName}" exists and isThisSelectionEnabled() works`);
-        } catch (e) {
-            logger.error(`populateMissingFilters() - Filter "${booleanFilterName}" existed but failed to call isThisSelectionEnabled()! Overwriting with new object`, e);
-            let args: BooleanFilterArgs = {title: booleanFilterName};
-
-            try {
-                args = filter.toArgs();
-            } catch (e) {
-                logger.error(`populateMissingFilters() - Failed to convert filter "${booleanFilterName}" to args, using default args`, e);
-            }
-
-            filters.booleanFilters[booleanFilterName] = new BooleanFilter(args);
-        }
     });
 };
 
