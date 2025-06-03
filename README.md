@@ -184,6 +184,12 @@ console.log(`Servers used to determine trending data:`, algorithm.mastodonServer
 #### User Data
 The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used the compute the weighting in the timeline can be accessed at `algorithm.userData`. See [`user_data.ts`](src/api/user_data.ts) for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).
 
+There's also a unified method to collect a bunch of information (`fedialgo` configuration, server configuration, user data, filter settings, etc.) with a single call:
+
+```typescript
+const currentState = await algorithm.getCurrentState();
+```
+
 
 ## Package Configuration
 Package configuration options can be found in [`src/config.ts`](src/config.ts). These can't currently be changed via the API though feel free to experiment with your local copy of the repo or ping me if you have a use case for updating some of the configuration variables.
