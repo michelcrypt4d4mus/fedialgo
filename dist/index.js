@@ -281,6 +281,15 @@ class TheAlgorithm {
             this.loadingStatus = null; // TODO: should we restart the data poller?
         }
     }
+    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
+    filterOptionDataSources() {
+        return {
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
+            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
+            [enums_3.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+        };
+    }
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState() {
         return {

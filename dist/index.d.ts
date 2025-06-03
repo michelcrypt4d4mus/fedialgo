@@ -78,6 +78,7 @@ declare class TheAlgorithm {
     triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
     triggerHomeTimelineBackFill(): Promise<void>;
     triggerPullAllUserData(): Promise<void>;
+    filterOptionDataSources(): Record<FilterOptionDataSource, ObjList>;
     getCurrentState(): Promise<Record<string, any>>;
     getRechartsStatsData(numPercentiles?: number): any[];
     getTimeline(): Toot[];

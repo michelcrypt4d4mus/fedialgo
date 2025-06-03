@@ -287,6 +287,16 @@ class TheAlgorithm {
         }
     }
 
+    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
+    filterOptionDataSources(): Record<FilterOptionDataSource, ObjList> {
+        return {
+            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
+            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
+            [ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+        };
+    }
+
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState(): Promise<Record<string, any>> {
         return {
