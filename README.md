@@ -59,11 +59,12 @@ const algorithm = await TheAlgorithm.create({
 ```
 
 ### The `setTimelineInApp` Callback
-You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be called whenever the feed is changed. Specifically the callback will be invoked when:
+You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be invoked whenever the timeline is updated. More specifically it will be invoked when any of these things happen:
 
 * A batch of toots is retrieved from the fediverse and integrated into the timeline
 * You make a call to `algorithm.updateUserWeights()` (see below)
 * You make a call to `algorithm.updateFilters()` (see below)
+* A background data fetch incrementally loads more of the user's historical data (as the algorithm is responsive to the user's history of favourites, retoots, etc. additional data can reorder the feed slightly)
 
 An example involving storing the timeline in a React component's state:
 
@@ -146,7 +147,10 @@ const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 #### Resetting Everything
 You can also wipe the browser storage and reset all variables if needed.
 ```typescript
+// Delete the user's timeline and historical data but preserve the user session
 await algorithm.reset();
+// Wipe EVERYTHING (will force a logout and complete reauthentication)
+await algorithm.reset(true);
 ```
 
 ## `Toot` API
@@ -178,11 +182,11 @@ console.log(`Servers used to determine trending data:`, algorithm.mastodonServer
 ```
 
 #### User Data
-The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used the compute the weighting in the timeline can be accessed at `algorithm.userData`. See [`types.js`](src/types.ts) for info on the data type.
+The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used the compute the weighting in the timeline can be accessed at `algorithm.userData`. See [`user_data.ts`](src/api/user_data.ts) for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).
 
 
 ## Package Configuration
-Package configuration options can be found in [`src/config.ts`](src/config.ts). These can't currently be changed via the API though feel free to experiment with your local copy of the repo.
+Package configuration options can be found in [`src/config.ts`](src/config.ts). These can't currently be changed via the API though feel free to experiment with your local copy of the repo or ping me if you have a use case for updating some of the configuration variables.
 
 
 # Contributing

@@ -368,7 +368,7 @@ class TheAlgorithm {
         await this.finishFeedUpdate(false);
     }
 
-    // Clear everything from browser storage except the user's identity and weightings
+    // Clear everything from browser storage except the user's identity and weightings (unless complete is true).
     async reset(complete: boolean = false): Promise<void> {
         this.logger.warn(`reset() called, clearing all storage...`);
         this.dataPoller && clearInterval(this.dataPoller!);
