@@ -427,7 +427,12 @@ class MastoApi {
             releaseMutex?.(); // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
             return cacheResult?.rows;
         }
-        logger.trace(`Fetching from API w/completedParams:`, completeParams);
+        if (completeParams.minIdForFetch || completeParams.maxIdForFetch) {
+            logger.debug(`Fetching from API w/incremental completedParams:`, completeParams);
+        }
+        else {
+            logger.trace(`Fetching from API w/completedParams:`, completeParams);
+        }
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
         let newRows = [];
