@@ -203,14 +203,14 @@ export default class MastodonServer {
             key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                return uniquifyTrendingObjs<TagWithUsageCounts>(tags, t => (t as TagWithUsageCounts).name);
+                const trendingTagList = new TagList(tags, TagTootsCacheKey.TRENDING_TAG_TOOTS);
+                trendingTagList.removeInvalidTrendingTags();
+                await trendingTagList.removeMutedTags();
+                return uniquifyTrendingObjs(trendingTagList.objs, t => (t as TagWithUsageCounts).name);
             }
         });
 
-        const trendingTagList = new TagList(tags, TagTootsCacheKey.TRENDING_TAG_TOOTS);
-        trendingTagList.removeInvalidTrendingTags();
-        await trendingTagList.removeMutedTags();
-        return trendingTagList;
+        return new TagList(tags, TagTootsCacheKey.TRENDING_TAG_TOOTS);
     }
 
         // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.

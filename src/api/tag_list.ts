@@ -108,7 +108,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     // Remove the configured list of invalid trending tags as well as japanese/korean etc. tags
     removeInvalidTrendingTags(): void {
         this.removeKeywords(config.trending.tags.invalidTags);
-        this.objs = this.objs.filter(tag => (!tag.language || (tag.language == config.locale.language)));
+        this.objs = this.objs.filter(tag => !tag.language || (tag.language == config.locale.language));
     }
 
     // Screen a list of hashtags against the user's server side filters, removing any that are muted.

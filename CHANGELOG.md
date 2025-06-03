@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Completely reset scorers when `reset()` is called
+* Suppress foreign language and muted keywrod trending tags completely
 
 ### v0.60.3
 * Rename `BooleanFilter.validValues()` to `selectedOptions`
