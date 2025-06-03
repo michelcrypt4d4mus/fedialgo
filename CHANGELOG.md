@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.58.2
+
 ### v0.58.1
 * Add `UserData.favouriteAccounts` property
 * Repair broken audio attachments too
