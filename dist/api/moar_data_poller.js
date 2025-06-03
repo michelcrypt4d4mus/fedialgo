@@ -20,13 +20,12 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 exports.moarDataLogger = new logger_1.Logger(exports.GET_MOAR_DATA);
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
-// TODO: Add followed accounts?  for people who follow a lot?
 async function getMoarData() {
     exports.moarDataLogger.log(`triggered by timer...`);
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.moarDataLogger);
     const startedAt = new Date();
+    // TODO: Add followed accounts?  for people who follow > 5,000 users?
     const pollers = [
-        // TODO: followed accounts?
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         api_1.default.instance.getFavouritedToots.bind(api_1.default.instance),
         api_1.default.instance.getNotifications.bind(api_1.default.instance),

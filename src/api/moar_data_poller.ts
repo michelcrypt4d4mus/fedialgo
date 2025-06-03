@@ -19,14 +19,13 @@ export const moarDataLogger = new Logger(GET_MOAR_DATA);
 
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
-// TODO: Add followed accounts?  for people who follow a lot?
 export async function getMoarData(): Promise<boolean> {
     moarDataLogger.log(`triggered by timer...`);
     const releaseMutex = await lockExecution(MOAR_MUTEX, moarDataLogger);
     const startedAt = new Date();
 
+    // TODO: Add followed accounts?  for people who follow > 5,000 users?
     const pollers = [
-        // TODO: followed accounts?
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
         MastoApi.instance.getNotifications.bind(MastoApi.instance),

@@ -135,13 +135,17 @@ Object.entries(algorithm.weightPresets).forEach(([presetName, weights]) => {
 import { BooleanFilterName, ScoreName, Toot, Weights } from "fedialgo";
 
 // Set a filter for only German language toots
-const filters = algorithm.getFilters();
-filters.booleanFilters[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
+algorithm.filters.booleanFilters[BooleanFilterName.LANGUAGE].updateValidOptions("de", true);
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
 
 // Set a filter for only toots with at least 3 replies
-filters.numericFilters[ScoreName.NUM_REPLIES].value = 3;
+algorithm.filters.numericFilters[ScoreName.NUM_REPLIES].value = 3;
 const filteredFeed: Toot[] = algorithm.updateFilters(filters);
+
+// There's also a lot of information available about the options that can be chosen for each filter
+filters.booleanFilters[BooleanFilterName.HASHTAG].optionsInfo.forEach((option) => {
+    console.log(`User has tooted the hashtag "${option.name} ${option[TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]} times");
+});
 ```
 
 #### Resetting Everything

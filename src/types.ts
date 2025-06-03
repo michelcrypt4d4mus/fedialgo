@@ -10,7 +10,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey, FILTER_OPTION_DATA_SOURCES as FILTER_OPTION_DATA_SOURCES } from './enums';
+import { FILTER_OPTION_DATA_SOURCES, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
