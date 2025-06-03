@@ -61,6 +61,12 @@ class UserData {
             api_1.default.instance.getRecentUserToots(),
             api_1.default.instance.getServerSideFilters(),
         ]);
+        // TODO: remove this eventually
+        responses[4].forEach(toot => {
+            if (toot.application) {
+                logger.trace(`Found recent user toot with application set:`, toot);
+            }
+        });
         return this.buildFromData({
             favouritedToots: responses[0],
             followedAccounts: responses[1],

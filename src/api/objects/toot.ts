@@ -33,7 +33,6 @@ import {
 } from "../../helpers/collection_helpers";
 import {
     DEFAULT_FONT_SIZE,
-    MEDIA_FILE_EXTENSIONS,
     MEDIA_TYPES,
     VIDEO_TYPES,
     arrowed,
@@ -43,6 +42,7 @@ import {
     extractDomain,
     htmlToParagraphs,
     htmlToText,
+    isEmptyStr,
     removeDiacritics,
     removeEmojis,
     removeLinks,
@@ -755,6 +755,10 @@ export default class Toot implements TootObj {
                 }
             } else if (!MEDIA_TYPES.includes(media.type)) {
                 repairLogger.warn(`Unknown media of type: '${media.type}' for toot:`, this);
+            }
+
+            if (isEmptyStr(media?.url)) {
+                repairLogger.warn(`Media attachment URL is empty for toot:`, this);
             }
         });
 

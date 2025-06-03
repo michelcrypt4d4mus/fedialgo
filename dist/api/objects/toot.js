@@ -608,6 +608,9 @@ class Toot {
             else if (!string_helpers_1.MEDIA_TYPES.includes(media.type)) {
                 repairLogger.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
+            if ((0, string_helpers_1.isEmptyStr)(media?.url)) {
+                repairLogger.warn(`Media attachment URL is empty for toot:`, this);
+            }
         });
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
         this.mentions.forEach((mention) => {
