@@ -76,6 +76,19 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // Returns true if the filter settings were changed.
 function repairFilterSettings(filters) {
     let wasChanged = false;
+    if (filters.booleanFilterArgs) {
+        const hasOldFilterArgs = filters.booleanFilterArgs.some(args => {
+            const asStringNumberDict = args.optionInfo;
+            const hasOld = (Object.values(asStringNumberDict).some(o => typeof o === "number"));
+            if (hasOld) {
+                logger.warn(`booleanFilterArgs contains numeric options, deleting: ${JSON.stringify(args, null, 4)}`);
+                filters.booleanFilterArgs = buildNewFilterSettings().booleanFilterArgs;
+            }
+            return hasOld;
+        });
+        if (hasOldFilterArgs)
+            return hasOldFilterArgs;
+    }
     // For upgrades of existing users for the rename of booleanFilterArgs
     if ("feedFilterSectionArgs" in filters) {
         logger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);

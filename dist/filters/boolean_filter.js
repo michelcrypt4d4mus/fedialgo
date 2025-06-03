@@ -96,18 +96,18 @@ const TOOT_MATCHERS = {
 };
 ;
 class BooleanFilter extends toot_filter_1.default {
+    optionInfo; // e.g. counts of toots with this option
     title;
-    optionInfo;
     validValues;
     visible = true; // true if the filter should be returned via TheAlgorithm.getFilters()
     // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
     constructor({ title, invertSelection, optionInfo, validValues }) {
-        optionInfo ??= {};
+        optionInfo ??= new obj_with_counts_list_1.default([], title).objs;
         let description;
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
             const optionCounts = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
-            optionInfo = obj_with_counts_list_1.default.buildFromDict(optionCounts, title).nameDict;
+            optionInfo = obj_with_counts_list_1.default.buildFromDict(optionCounts, title).objs;
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
@@ -116,7 +116,7 @@ class BooleanFilter extends toot_filter_1.default {
         }
         super({ description, invertSelection, title });
         this.title = title;
-        this.optionInfo = optionInfo ?? {};
+        this.optionInfo = new obj_with_counts_list_1.default(optionInfo ?? [], title);
         this.validValues = validValues ?? [];
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
@@ -125,10 +125,7 @@ class BooleanFilter extends toot_filter_1.default {
     }
     // Return the options as entries arrays sorted by value from highest to lowest
     entriesSortedByValue() {
-        return (0, collection_helpers_1.sortKeysByValue)(this.optionInfo).reduce((acc, key) => {
-            acc.push([key, this.optionInfo[key]]);
-            return acc;
-        }, []);
+        return this.optionInfo.topObjs().map((option) => [option.name, option.numToots || 0]); // TODO: numToots is not required in BooleanFilterOption type
     }
     // Return true if the toot matches the filter
     isAllowed(toot) {
@@ -174,7 +171,7 @@ class BooleanFilter extends toot_filter_1.default {
     setOptions(optionInfo) {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
-        this.optionInfo = { ...optionInfo }; // TODO: new object ID triggers useMemo() in the demo app, not great
+        this.optionInfo = obj_with_counts_list_1.default.buildFromDict(optionInfo, this.title);
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it

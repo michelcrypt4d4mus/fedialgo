@@ -1,9 +1,10 @@
+import ObjWithCountList from '../api/obj_with_counts_list';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
+export type BooleanFilterOptions = ObjWithCountList<BooleanFilterOption>;
 type TypeFilter = (toot: Toot) => boolean;
-type BooleanFilterOptions = Record<string, BooleanFilterOption>;
 export declare enum BooleanFilterName {
     HASHTAG = "hashtag",
     LANGUAGE = "language",
@@ -36,12 +37,12 @@ export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends FilterArgs {
-    optionInfo?: BooleanFilterOptions;
+    optionInfo?: BooleanFilterOption[];
     validValues?: string[];
 }
 export default class BooleanFilter extends TootFilter {
-    title: BooleanFilterName;
     optionInfo: BooleanFilterOptions;
+    title: BooleanFilterName;
     validValues: string[];
     visible: boolean;
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs);

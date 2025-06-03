@@ -1,6 +1,7 @@
 import { Logger } from '../helpers/logger';
-import { type NamedObjWithTootCount, type ObjListDataSource, type ObjNames, type StringNumberDict } from "../types";
+import { type BooleanFilterOption, type NamedObjWithTootCount, type ObjListDataSource, type ObjNames, type StringNumberDict } from "../types";
 export type ObjList = ObjWithCountList<NamedObjWithTootCount>;
+export type OptionList = ObjWithCountList<BooleanFilterOption>;
 export default class ObjWithCountList<T extends NamedObjWithTootCount> {
     source: ObjListDataSource;
     logger: Logger;

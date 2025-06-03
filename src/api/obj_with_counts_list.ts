@@ -7,6 +7,7 @@ import { isNull, wordRegex } from "../helpers/string_helpers";
 import { Logger } from '../helpers/logger';
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import {
+    type BooleanFilterOption,
     type NamedObjWithTootCount,
     type ObjListDataSource,
     type ObjNames,
@@ -14,6 +15,7 @@ import {
 } from "../types";
 
 export type ObjList = ObjWithCountList<NamedObjWithTootCount>;
+export type OptionList = ObjWithCountList<BooleanFilterOption>;
 
 const logger = new Logger("TagList");
 

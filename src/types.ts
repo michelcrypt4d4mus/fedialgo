@@ -42,6 +42,7 @@ export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 
 export interface BooleanFilterOption extends ObjWithTootCount {
+    // numToots: number;  // TODO: requiring this to exist is a typing error
     score?: number;
     scoreType?: UserDataSource;
 };
@@ -112,7 +113,7 @@ export type MinMaxID = {
 };
 
 export type ObjListDataSource = (
-    BooleanFilterName
+    FilterTitle
   | CacheKey.FEDIVERSE_TRENDING_TAGS
   | ScoreName.FOLLOWED_TAGS
   | UserDataSource

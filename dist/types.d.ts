@@ -70,7 +70,7 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
-export type ObjListDataSource = (BooleanFilterName | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS | UserDataSource);
+export type ObjListDataSource = (FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS | UserDataSource);
 export interface ObjWithTootCount extends WithCounts {
     name: string;
 }

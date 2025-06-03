@@ -13,9 +13,9 @@ import { config } from '../config';
 import { countValues, isValueInStringEnum, sortKeysByValue } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict, type TagWithUsageCounts } from "../types";
 
+export type BooleanFilterOptions = ObjWithCountList<BooleanFilterOption>;
 type TypeFilter = (toot: Toot) => boolean;
 type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
-type BooleanFilterOptions = Record<string, BooleanFilterOption>;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
@@ -96,26 +96,26 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 };
 
 export interface BooleanFilterArgs extends FilterArgs {
-    optionInfo?: BooleanFilterOptions;  // e.g. counts of toots with this option
+    optionInfo?: BooleanFilterOption[];  // e.g. counts of toots with this option
     validValues?: string[];
 };
 
 
 export default class BooleanFilter extends TootFilter {
+    optionInfo: BooleanFilterOptions;  // e.g. counts of toots with this option
     title: BooleanFilterName
-    optionInfo: BooleanFilterOptions;
     validValues: string[];
     visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
     // TODO: effectiveOptionInfo: StringNumberDict = {};  // optionInfo with the counts of toots that match the filter
 
     constructor({ title, invertSelection, optionInfo, validValues }: BooleanFilterArgs) {
-        optionInfo ??= {};
+        optionInfo ??= new ObjWithCountList<BooleanFilterOption>([], title).objs;
         let description: string;
 
         if (title == BooleanFilterName.TYPE) {
             // Set up the default for type filters so something always shows up in the options
             const optionCounts = countValues<TypeFilterName>(Object.values(TypeFilterName));
-            optionInfo = ObjWithCountList.buildFromDict(optionCounts, title).nameDict;
+            optionInfo = ObjWithCountList.buildFromDict(optionCounts, title).objs;
             description = SOURCE_FILTER_DESCRIPTION;
         } else {
             const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
@@ -124,7 +124,7 @@ export default class BooleanFilter extends TootFilter {
 
         super({ description, invertSelection, title });
         this.title = title as BooleanFilterName
-        this.optionInfo = optionInfo ?? {};
+        this.optionInfo = new ObjWithCountList<BooleanFilterOption>(optionInfo ?? [], title);
         this.validValues = validValues ?? [];
 
         // The app filter is kind of useless so we mark it as invisible via config option
@@ -132,12 +132,10 @@ export default class BooleanFilter extends TootFilter {
             this.visible = config.gui.isAppFilterVisible;
         }
     }
+
     // Return the options as entries arrays sorted by value from highest to lowest
     entriesSortedByValue(): [string, number][] {
-        return sortKeysByValue(this.optionInfo).reduce((acc, key) => {
-            acc.push([key, this.optionInfo[key]]);
-            return acc;
-        }, [] as [string, number][]);
+        return this.optionInfo.topObjs().map((option) => [option.name, option.numToots || 0]);  // TODO: numToots is not required in BooleanFilterOption type
     }
 
     // Return true if the toot matches the filter
@@ -192,7 +190,7 @@ export default class BooleanFilter extends TootFilter {
     setOptions(optionInfo: StringNumberDict) {
         // Filter out any options that are no longer valid
         this.validValues = this.validValues.filter((v) => v in optionInfo);
-        this.optionInfo = {...optionInfo}; // TODO: new object ID triggers useMemo() in the demo app, not great
+        this.optionInfo = ObjWithCountList.buildFromDict(optionInfo, this.title);
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is
