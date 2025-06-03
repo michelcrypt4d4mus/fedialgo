@@ -4,6 +4,7 @@ exports.WaitTime = exports.traceLog = exports.strBytes = exports.lockExecution =
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const environment_helpers_1 = require("../helpers/environment_helpers");
+const logger_1 = require("./logger");
 const string_helpers_1 = require("./string_helpers");
 // Log prefixes
 exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
@@ -55,9 +56,17 @@ exports.traceLog = traceLog;
 // Helper class for telemetry
 class WaitTime {
     avgMsPerRequest = 0;
+    logger = new logger_1.Logger("WaitTime");
     milliseconds = 0;
     numRequests = 0;
     startedAt = new Date(); // TODO: this shouldn't really be set yet...
+    ageInSeconds() {
+        if (!this.startedAt) {
+            this.logger.warn(`No startedAt set for WaitTime so can't compute ageInSeconds()`);
+            return undefined;
+        }
+        return (0, time_helpers_1.ageInSeconds)(this.startedAt);
+    }
     ageString() {
         return (0, time_helpers_1.ageString)(this.startedAt);
     }

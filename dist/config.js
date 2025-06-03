@@ -44,6 +44,7 @@ class Config {
         hashtagTootRetrievalDelaySeconds: 1,
         maxConcurrentHashtagRequests: 15,
         maxRecordsForFeatureScoring: 1500,
+        maxSecondsPerPage: 30,
         minutesUntilStaleDefault: 10,
         mutexWarnSeconds: 5,
         timeoutMS: 5000,

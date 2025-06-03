@@ -25,6 +25,7 @@ interface ApiConfig {
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
+    maxSecondsPerPage: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
     timeoutMS: number;
@@ -105,6 +106,7 @@ declare class Config implements ConfigType {
         hashtagTootRetrievalDelaySeconds: number;
         maxConcurrentHashtagRequests: number;
         maxRecordsForFeatureScoring: number;
+        maxSecondsPerPage: number;
         minutesUntilStaleDefault: number;
         mutexWarnSeconds: number;
         timeoutMS: number;

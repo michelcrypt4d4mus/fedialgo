@@ -70,9 +70,19 @@ export function traceLog(msg: string, ...args: any[]): void {
 // Helper class for telemetry
 export class WaitTime {
     avgMsPerRequest: number = 0;
+    logger = new Logger("WaitTime");
     milliseconds: number = 0;
     numRequests: number = 0;
     startedAt: Date = new Date();  // TODO: this shouldn't really be set yet...
+
+    ageInSeconds(): number | undefined {
+        if (!this.startedAt) {
+            this.logger.warn(`No startedAt set for WaitTime so can't compute ageInSeconds()`);
+            return undefined;
+        }
+
+        return ageInSeconds(this.startedAt);
+    }
 
     ageString(): string {
         return ageString(this.startedAt);

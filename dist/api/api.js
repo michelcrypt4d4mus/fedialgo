@@ -90,7 +90,6 @@ class MastoApi {
             mutexes[key] = new async_mutex_1.Mutex();
             return mutexes;
         }, {});
-        apiLogger.log(`MastoApi mutex keys:`, Object.keys(this.mutexes), `\nmutexes:`, this.mutexes);
     }
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
@@ -442,6 +441,7 @@ class MastoApi {
         try {
             for await (const page of fetch(this.buildParams(completeParams))) {
                 this.waitTimes[cacheKey].markEnd(); // telemetry
+                const requestSeconds = this.waitTimes[cacheKey].ageInSeconds() || 0;
                 // the important stuff
                 newRows = newRows.concat(page);
                 pageNumber += 1;
@@ -449,6 +449,10 @@ class MastoApi {
                 const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey].ageString()}`;
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
+                    break;
+                }
+                else if (requestSeconds > config_1.config.api.maxSecondsPerPage) {
+                    logger.warn(`Stopping fetch at page ${pageNumber}, ${recordsSoFar}. Took too long: (${requestSeconds}s)`);
                     break;
                 }
                 else {

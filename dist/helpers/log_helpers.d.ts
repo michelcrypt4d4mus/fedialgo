@@ -9,9 +9,11 @@ export declare const strBytes: (str: string) => number;
 export declare function traceLog(msg: string, ...args: any[]): void;
 export declare class WaitTime {
     avgMsPerRequest: number;
+    logger: Logger;
     milliseconds: number;
     numRequests: number;
     startedAt: Date;
+    ageInSeconds(): number | undefined;
     ageString(): string;
     markStart(): void;
     markEnd(): void;

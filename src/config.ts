@@ -54,6 +54,7 @@ interface ApiConfig {
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
+    maxSecondsPerPage: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
     timeoutMS: number;
@@ -150,6 +151,7 @@ class Config implements ConfigType {
         hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
+        maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
         timeoutMS: 5_000,                       // Timeout for API calls

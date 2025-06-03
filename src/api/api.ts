@@ -142,8 +142,6 @@ export default class MastoApi {
             mutexes[key] = new Mutex();
             return mutexes;
         }, {} as ApiMutex);
-
-        apiLogger.log(`MastoApi mutex keys:`, Object.keys(this.mutexes), `\nmutexes:`, this.mutexes);
     }
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
@@ -541,6 +539,7 @@ export default class MastoApi {
         try {
             for await (const page of fetch(this.buildParams(completeParams))) {
                 this.waitTimes[cacheKey]!.markEnd(); // telemetry
+                const requestSeconds = this.waitTimes[cacheKey]!.ageInSeconds() || 0;
 
                 // the important stuff
                 newRows = newRows.concat(page as T[]);
@@ -550,6 +549,9 @@ export default class MastoApi {
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
+                    break;
+                } else if (requestSeconds > config.api.maxSecondsPerPage) {
+                    logger.warn(`Stopping fetch at page ${pageNumber}, ${recordsSoFar}. Took too long: (${requestSeconds}s)`);
                     break;
                 } else {
                     const msg = `Retrieved page ${pageNumber} (${recordsSoFar})`;
