@@ -14,7 +14,7 @@ import { countValues, isValueInStringEnum } from "../helpers/collection_helpers"
 import { ScoreName, TagTootsCacheKey } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
-type TootMatcher = (toot: Toot, validValues: string[]) => boolean;
+type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
@@ -77,35 +77,35 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
 
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
-    [BooleanFilterName.APP]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().application?.name);
+    [BooleanFilterName.APP]: (toot: Toot, selectedOptions: string[]) => {
+        return selectedOptions.includes(toot.realToot().application?.name);
     },
-    [BooleanFilterName.HASHTAG]: (toot: Toot, validValues: string[]) => {
-        return !!validValues.find((v) => toot.realToot().containsString(v));
+    [BooleanFilterName.HASHTAG]: (toot: Toot, selectedOptions: string[]) => {
+        return !!selectedOptions.find((v) => toot.realToot().containsString(v));
     },
-    [BooleanFilterName.LANGUAGE]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().language || config.locale.defaultLanguage);
+    [BooleanFilterName.LANGUAGE]: (toot: Toot, selectedOptions: string[]) => {
+        return selectedOptions.includes(toot.realToot().language || config.locale.defaultLanguage);
     },
-    [BooleanFilterName.TYPE]: (toot: Toot, validValues: string[]) => {
-        return validValues.some((v) => TYPE_FILTERS[v as TypeFilterName](toot));
+    [BooleanFilterName.TYPE]: (toot: Toot, selectedOptions: string[]) => {
+        return selectedOptions.some((v) => TYPE_FILTERS[v as TypeFilterName](toot));
     },
-    [BooleanFilterName.USER]: (toot: Toot, validValues: string[]) => {
-        return validValues.includes(toot.realToot().account.webfingerURI);
+    [BooleanFilterName.USER]: (toot: Toot, selectedOptions: string[]) => {
+        return selectedOptions.includes(toot.realToot().account.webfingerURI);
     },
 };
 
 export interface BooleanFilterArgs extends FilterArgs {
-    validValues?: string[];
+    selectedOptions?: string[];
 };
 
 
 export default class BooleanFilter extends TootFilter {
     options: BooleanFilterOptionList;  // e.g. counts of toots with this option
+    selectedOptions: string[];         // Which options are selected for use in the filter
     title: BooleanFilterName
-    validValues: string[];
-    visible: boolean = true;  // true if the filter should be returned via TheAlgorithm.getFilters()
+    visible: boolean = true;           // true if the filter should be returned via TheAlgorithm.getFilters()
 
-    constructor({ title, invertSelection, validValues }: BooleanFilterArgs) {
+    constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs) {
         let optionInfo: BooleanFilterOptionList;
         let description: string;
 
@@ -123,7 +123,7 @@ export default class BooleanFilter extends TootFilter {
         super({ description, invertSelection, title });
         this.options = optionInfo;
         this.title = title as BooleanFilterName;
-        this.validValues = validValues ?? [];
+        this.selectedOptions = selectedOptions ?? [];
 
         // The app filter is kind of useless so we mark it as invisible via config option
         if (this.title == BooleanFilterName.APP) {
@@ -133,25 +133,25 @@ export default class BooleanFilter extends TootFilter {
 
     // Return true if the toot matches the filter
     isAllowed(toot: Toot): boolean {
-        // If there's no validValues allow everything
-        if (!this.validValues.length) return true;
-        const isMatched = TOOT_MATCHERS[this.title](toot, this.validValues);
+        // If there's no selectedOptions allow everything
+        if (!this.selectedOptions.length) return true;
+        const isMatched = TOOT_MATCHERS[this.title](toot, this.selectedOptions);
         return this.invertSelection ? !isMatched : isMatched;
     }
 
-    // If the option is in validValues then it's enabled
+    // If the option is in selectedOptions then it's enabled
     isOptionEnabled(optionName: string): boolean {
-        return this.validValues.includes(optionName);
+        return this.selectedOptions.includes(optionName);
     }
 
-    // Return only options that have at least minToots or are in validValues
+    // Return only options that have at least minToots or are in selectedOptions
     optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
         return new BooleanFilterOptionList(options, this.title);
     }
 
     // If minToots is set then only return options with a value greater than or equal to minValue
-    // along with any 'validValues' entries that are below that threshold.
+    // along with any 'selectedOptions' entries that are below that threshold.
     optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
         let options = this.options.objs.toSorted((a, b) => compareStr(a.name, b.name));
         return this.optionListWithMinToots(options, minToots);
@@ -162,10 +162,10 @@ export default class BooleanFilter extends TootFilter {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
 
-    // Update the filter with the possible options that can be selected for validValues
+    // Update the filter with the possible options that can be selected for selectedOptions
     async setOptions(optionInfo: StringNumberDict) {
         this.options = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
-        this.validValues = this.validValues.filter((v) => v in optionInfo);  // Remove options that are no longer valid
+        this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo);  // Remove options that are no longer valid
 
         // Populate additional properties on each option - participation counts, favourited counts, etc.
         if (this.title == BooleanFilterName.HASHTAG) {
@@ -195,24 +195,24 @@ export default class BooleanFilter extends TootFilter {
         this.logger.debug(`Updating options for ${this.title} with ${element} and ${isValidOption}`);
 
         if (isValidOption && !this.isOptionEnabled(element)) {
-            this.validValues.push(element);
+            this.selectedOptions.push(element);
         } else {
             if (!this.isOptionEnabled(element)) {
                 this.logger.warn(`Tried to remove ${element} from ${this.title} but it wasn't there`);
                 return;
             }
 
-            this.validValues.splice(this.validValues.indexOf(element), 1);
+            this.selectedOptions.splice(this.selectedOptions.indexOf(element), 1);
         }
 
         // Remove duplicates; build new Array object to trigger useMemo() in Demo App // TODO: not great
-        this.validValues = [...new Set(this.validValues)];
+        this.selectedOptions = [...new Set(this.selectedOptions)];
     }
 
     // Required for serialization of settings to local storage
     toArgs(): BooleanFilterArgs {
         const filterArgs = super.toArgs() as BooleanFilterArgs;
-        filterArgs.validValues = this.validValues;
+        filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
     }
 };

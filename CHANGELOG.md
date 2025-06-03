@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename BooleanFilter.validValues() to selectedOptions
 
 ### v0.60.2
 * Rename BooleanFilter.isThisSelectionEnabled() to isOptionEnabled()

@@ -35,14 +35,14 @@ export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends FilterArgs {
-    validValues?: string[];
+    selectedOptions?: string[];
 }
 export default class BooleanFilter extends TootFilter {
     options: BooleanFilterOptionList;
+    selectedOptions: string[];
     title: BooleanFilterName;
-    validValues: string[];
     visible: boolean;
-    constructor({ title, invertSelection, validValues }: BooleanFilterArgs);
+    constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
     isAllowed(toot: Toot): boolean;
     isOptionEnabled(optionName: string): boolean;
     optionListWithMinToots(options: BooleanFilterOption[], minToots?: number): BooleanFilterOptionList;
