@@ -56,7 +56,7 @@ class Config {
                 minutesUntilStale: 60,
             },
             [enums_1.CacheKey.FAVOURITED_TOOTS]: {
-                initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
+                initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {

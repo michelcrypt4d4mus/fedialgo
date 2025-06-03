@@ -162,7 +162,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 60,
             },
             [CacheKey.FAVOURITED_TOOTS]: {
-                initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
+                initialMaxRecords: Math.floor(MIN_RECORDS_FOR_FEATURE_SCORING / 2),  // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
             [CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
