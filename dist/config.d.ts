@@ -72,6 +72,7 @@ type TootsConfig = {
     maxAgeInDays: number;
     maxTimelineLength: number;
     saveChangesIntervalSeconds: number;
+    truncateFullTimelineToLength: number;
 };
 type TrendingLinksConfig = {
     numTrendingLinksPerServer: number;
@@ -168,6 +169,7 @@ declare class Config implements ConfigType {
         maxAgeInDays: number;
         maxTimelineLength: number;
         saveChangesIntervalSeconds: number;
+        truncateFullTimelineToLength: number;
     };
     trending: {
         daysToCountTrendingData: number;

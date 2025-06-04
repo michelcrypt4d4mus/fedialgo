@@ -508,9 +508,9 @@ class TheAlgorithm {
     async loadCachedData() {
         this.feed = await Storage_1.default.getCoerced(enums_1.CacheKey.TIMELINE_TOOTS);
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
-            const numToClear = Math.floor(this.feed.length / 3);
-            this.logger.warn(`Loaded ${this.feed.length} toots from cache, clearing bottom scoring ${numToClear}.`);
-            this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, this.feed.length - numToClear, this.logger);
+            const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
+            this.logger.warn(`Timeline cache is full (${this.feed.length}), cutting to ${config_1.config.toots.truncateFullTimelineToLength} toots`);
+            this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, this.logger);
             await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
         }
         this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);

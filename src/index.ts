@@ -568,9 +568,9 @@ class TheAlgorithm {
         this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE_TOOTS);
 
         if (this.feed.length == config.toots.maxTimelineLength) {
-            const numToClear = Math.floor(this.feed.length / 3);
-            this.logger.warn(`Loaded ${this.feed.length} toots from cache, clearing bottom scoring ${numToClear}.`);
-            this.feed = truncateToConfiguredLength(this.feed, this.feed.length - numToClear, this.logger);
+            const numToClear = config.toots.maxTimelineLength - config.toots.truncateFullTimelineToLength;
+            this.logger.warn(`Timeline cache is full (${this.feed.length}), cutting to ${config.toots.truncateFullTimelineToLength} toots`);
+            this.feed = truncateToConfiguredLength(this.feed, config.toots.truncateFullTimelineToLength, this.logger);
             await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
         }
 

@@ -108,6 +108,7 @@ type TootsConfig = {
     maxAgeInDays: number;
     maxTimelineLength: number;
     saveChangesIntervalSeconds: number;
+    truncateFullTimelineToLength: number;
 };
 
 type TrendingLinksConfig = {
@@ -417,6 +418,7 @@ class Config implements ConfigType {
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
         maxTimelineLength: 3_000,               // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
+        truncateFullTimelineToLength: 2_000,    // If on startup the timeline is full, truncate it to this length
     }
 
     trending = {

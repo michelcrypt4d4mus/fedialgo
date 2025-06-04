@@ -302,7 +302,8 @@ class Config {
         completeAfterMinutes: exports.MINUTES_IN_DAY,
         maxAgeInDays: 7,
         maxTimelineLength: 3000,
-        saveChangesIntervalSeconds: 30, // How often to check for updates to toots' numTimesShown
+        saveChangesIntervalSeconds: 30,
+        truncateFullTimelineToLength: 2000, // If on startup the timeline is full, truncate it to this length
     };
     trending = {
         daysToCountTrendingData: 3,
