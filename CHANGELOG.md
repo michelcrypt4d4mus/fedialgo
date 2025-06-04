@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Handle API errors when getting trending/participated/etc. tag toots
 
 ## v0.63.0
 * Add `getApiErrorMsgs()` method to `TheAlgorithm` (and add those messages to the `getCurrentState()` return value)

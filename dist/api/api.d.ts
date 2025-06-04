@@ -36,7 +36,7 @@ export default class MastoApi {
     private constructor();
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
-    getCacheableToots(fetch: () => Promise<mastodon.v1.Status[]>, key: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
+    getCacheableToots(fetch: () => Promise<mastodon.v1.Status[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
     getFavouritedToots(params?: ApiParams): Promise<Toot[]>;
     getFollowedAccounts(params?: ApiParams): Promise<Account[]>;
     getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]>;

@@ -167,20 +167,25 @@ class MastoApi {
     }
     // Generic data getter for things we want to cache but require custom fetch logic.
     // Currently used for the variou hashtag feeds (participated, trending, favourited).
-    async getCacheableToots(fetch, key, maxRecords) {
-        const logger = getLogger(key);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[key], logger);
+    async getCacheableToots(fetch, cacheKey, maxRecords) {
+        const logger = getLogger(cacheKey);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logger);
         const startedAt = new Date();
         try {
-            let toots = await Storage_1.default.getIfNotStale(key);
+            let toots = await Storage_1.default.getIfNotStale(cacheKey);
             if (!toots) {
                 const statuses = await fetch();
                 logger.trace(`Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
-                toots = await toot_1.default.buildToots(statuses, key);
+                toots = await toot_1.default.buildToots(statuses, cacheKey);
                 toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, logger);
-                await Storage_1.default.set(key, toots);
+                await Storage_1.default.set(cacheKey, toots);
             }
             return toots;
+        }
+        catch (err) {
+            // TODO: the hacky cast is because ApiCacheKey is broader than CacheKey
+            this.handleApiError({ cacheKey: cacheKey, logger }, [], startedAt, err);
+            return [];
         }
         finally {
             releaseMutex();
@@ -559,7 +564,9 @@ class MastoApi {
     // and return the appropriate rows and return the appropriate rows in a single array.
     // TODO: handle rate limiting errors
     handleApiError(params, rows, startedAt, err) {
-        const { cacheKey, cacheResult, logger } = params;
+        let { cacheKey, cacheResult, logger } = params;
+        cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
+        logger ??= getLogger(cacheKey, 'handleApiError');
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} After pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.str(msg), { cause: err }));
