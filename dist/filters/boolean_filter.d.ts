@@ -20,7 +20,7 @@ export default class BooleanFilter extends TootFilter {
     optionListWithMinToots(options: BooleanFilterOption[], minToots?: number): BooleanFilterOptionList;
     optionsSortedByName(minToots?: number): BooleanFilterOptionList;
     optionsSortedByValue(minToots?: number): BooleanFilterOptionList;
-    setOptions(optionInfo: StringNumberDict): Promise<void>;
+    setOptions(optionInfo: StringNumberDict, optionProps?: Record<string, BooleanFilterOption>): Promise<void>;
     updateOption(optionName: string, isSelected: boolean): void;
     toArgs(): BooleanFilterArgs;
 }

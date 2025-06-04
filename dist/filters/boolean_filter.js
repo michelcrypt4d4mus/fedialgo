@@ -115,7 +115,7 @@ class BooleanFilter extends toot_filter_1.default {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
     // Update the filter with the possible options that can be selected for selectedOptions
-    async setOptions(optionInfo) {
+    async setOptions(optionInfo, optionProps) {
         this.options = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
         this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo); // Remove options that are no longer valid
         // Populate additional properties on each option - participation counts, favourited counts, etc.
@@ -140,9 +140,13 @@ class BooleanFilter extends toot_filter_1.default {
             const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
             this.options.objs.forEach((option) => {
                 const accountOption = favouritedAccounts.getObj(option.name);
+                const optionProp = optionProps?.[option.name];
                 if (accountOption) {
-                    option.displayName = accountOption.displayName;
+                    option.displayName ??= accountOption.displayName;
                     option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = accountOption.numToots || 0;
+                }
+                if (optionProp) {
+                    option.displayName ??= optionProp.displayName;
                 }
             });
         }

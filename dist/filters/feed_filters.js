@@ -31,10 +31,10 @@ exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.repai
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
-const enums_1 = require("../enums");
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
+const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger_1 = require("../helpers/logger");
@@ -108,10 +108,18 @@ async function updateBooleanFilterOptions(filters, toots) {
         counts[propertyName] = {};
         return counts;
     }, {});
+    const optionProperties = Object.values(enums_1.BooleanFilterName).reduce((objs, propertyName) => {
+        objs[propertyName] = {};
+        return objs;
+    }, {});
     toots.forEach(toot => {
         (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.APP], toot.realToot().application.name);
         (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
         (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
+        optionProperties[enums_1.BooleanFilterName.USER][toot.realToot().account.webfingerURI] ??= {
+            name: toot.realToot().account.webfingerURI,
+            displayName: toot.realToot().account.displayName
+        };
         // Count tags
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
@@ -133,7 +141,7 @@ async function updateBooleanFilterOptions(filters, toots) {
     });
     // Build the options for all the boolean filters based on the counts
     for (const [propertyName, counts] of Object.entries(tootCounts)) {
-        await filters.booleanFilters[propertyName].setOptions(counts);
+        await filters.booleanFilters[propertyName].setOptions(counts, optionProperties[propertyName]);
     }
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));

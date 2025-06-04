@@ -2,11 +2,12 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
-import { BooleanFilterName } from '../enums';
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
+import { BooleanFilterName } from '../enums';
+import { BooleanFilterOption } from "../types";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
@@ -103,10 +104,23 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         {} as Record<BooleanFilterName, StringNumberDict>
     );
 
+    const optionProperties = Object.values(BooleanFilterName).reduce(
+        (objs, propertyName) => {
+            objs[propertyName as BooleanFilterName] = {} as Record<string, any>;
+            return objs;
+        },
+        {} as Record<BooleanFilterName, Record<string, BooleanFilterOption>>
+    );
+
     toots.forEach(toot => {
         incrementCount(tootCounts[BooleanFilterName.APP], toot.realToot().application.name);
         incrementCount(tootCounts[BooleanFilterName.LANGUAGE], toot.realToot().language);
         incrementCount(tootCounts[BooleanFilterName.USER], toot.realToot().account.webfingerURI);
+
+        optionProperties[BooleanFilterName.USER][toot.realToot().account.webfingerURI] ??= {
+            name: toot.realToot().account.webfingerURI,
+            displayName: toot.realToot().account.displayName
+        };
 
         // Count tags
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
@@ -131,7 +145,10 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 
     // Build the options for all the boolean filters based on the counts
     for (const [propertyName, counts] of Object.entries(tootCounts)) {
-        await filters.booleanFilters[propertyName as BooleanFilterName].setOptions(counts);
+        await filters.booleanFilters[propertyName as BooleanFilterName].setOptions(
+            counts,
+            optionProperties[propertyName as BooleanFilterName]
+        );
     }
 
     if (Object.keys(suppressedNonLatinTags).length) {
