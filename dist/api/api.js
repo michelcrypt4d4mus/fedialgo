@@ -569,9 +569,8 @@ class MastoApi {
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        // TODO: i think we can just check for the existence of minMaxId in cacheResult?
-        if (!this.supportsMinMaxId(cacheKey)) {
-            msg += ` Endpoint doesn't support incremental min/max ID.`;
+        if (!cacheResult?.minMaxId) {
+            msg += ` Query didn't use incremental min/max ID.`;
             if (rows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
                 return cachedRows;

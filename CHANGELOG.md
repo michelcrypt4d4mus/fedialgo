@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Persist the state of each filter section's header checkboxes between sessions
 
 # v0.61.0
 * Strip useless params out of `validateParams()` logging of API params

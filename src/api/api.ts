@@ -509,7 +509,6 @@ export default class MastoApi {
     // Check the config for supportsMinMaxId boolean
     private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
-
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
@@ -683,9 +682,8 @@ export default class MastoApi {
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        // TODO: i think we can just check for the existence of minMaxId in cacheResult?
-        if (!this.supportsMinMaxId(cacheKey)) {
-            msg += ` Endpoint doesn't support incremental min/max ID.`;
+        if (!cacheResult?.minMaxId) {
+            msg += ` Query didn't use incremental min/max ID.`;
 
             if (rows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
