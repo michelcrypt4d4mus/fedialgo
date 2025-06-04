@@ -1,8 +1,8 @@
 # NEXT RELEASE
-* Add a `displayName` property to `BooleanFilterOption` and populate it for languages and users
+* Add a `displayName` property to `BooleanFilterOption` (and populate it for languages and accounts)
+* Add sum of reply/favourite/retoot counts to user filter options' `numToots`
 * Add usage counts to language filter options' `numToots`
-* Add reply counts to user filter options' `numToots`
-* Store `BooleanFilterOptionList` in `UserData.favouriteAccounts`
+* Use type `BooleanFilterOptionList` for `UserData.favouriteAccounts`
 * Increase staleness for followed accounts and tags to 12 hours
 * (Demo App) Don't make unnecessary calls to `updateFilters()` when sorting UI's filter options by count etc.
 * (Demo App) Disable Highlights Only switch if Hide Filters is turned on

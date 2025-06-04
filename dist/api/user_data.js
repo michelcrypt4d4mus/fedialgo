@@ -57,8 +57,8 @@ class UserData {
             .map(toot => followedAccountIdMap[toot.inReplyToAccountId])
             .filter(Boolean);
         const accountCounts = account_1.default.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
+        // Fill in zeros for accounts that the user follows but has not favourited or retooted
         data.followedAccounts.forEach((account) => {
-            // Fill in zeros for accounts that the user follows but has not favourited or retooted
             accountCounts[account.webfingerURI] ??= { account, count: 0 };
             accountCounts[account.webfingerURI].isFollowed = true;
         });
