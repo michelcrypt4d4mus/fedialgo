@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.62.2
 * Avoid overzealous language determination for user's own toots
 
 ### v0.62.1
