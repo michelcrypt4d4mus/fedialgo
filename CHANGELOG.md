@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.63.0
 * Add `getApiErrorMsgs()` method to `TheAlgorithm` (and add those messages to the `getCurrentState()` return value)
 * Remove muted/blocked accounts from thread view, pass a source param to `completeProperties()` instead of boolean `isDeepInspect`
 * (Demo App) Display non-fatal errors below control panel, if they exist
