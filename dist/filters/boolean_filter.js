@@ -13,11 +13,11 @@ const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_o
 const api_1 = __importDefault(require("../api/api"));
 const tag_list_1 = __importDefault(require("../api/tag_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
+const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-//import { languageName } from '../helpers/language_helper';
-const enums_1 = require("../enums");
+const language_helper_1 = require("../helpers/language_helper");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
@@ -132,7 +132,7 @@ class BooleanFilter extends toot_filter_1.default {
         else if (this.title == enums_1.BooleanFilterName.LANGUAGE) {
             const userData = await api_1.default.instance.getUserData();
             this.options.objs.forEach((option) => {
-                option.displayName = ''; //languageName(option.name);
+                option.displayName = (0, language_helper_1.languageName)(option.name);
                 option[enums_1.BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
             });
         }

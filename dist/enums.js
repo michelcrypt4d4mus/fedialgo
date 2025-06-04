@@ -93,6 +93,7 @@ var TrendingType;
     TrendingType["TAGS"] = "tags";
 })(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
+// Filters
 var BooleanFilterName;
 (function (BooleanFilterName) {
     BooleanFilterName["HASHTAG"] = "hashtag";

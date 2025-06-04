@@ -9,7 +9,6 @@ import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import AlreadyShownScorer from './scorer/feature/already_shown_scorer';
 import BooleanFilter, {  } from "./filters/boolean_filter";
-import { BooleanFilterName, TypeFilterName } from './enums';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
@@ -43,7 +42,8 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
-import { FILTER_OPTION_DATA_SOURCES } from './helpers/temp_tester';
+import { BooleanFilterName, TypeFilterName } from './enums';
+import { FILTER_OPTION_DATA_SOURCES } from './types';
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -83,7 +83,7 @@ import {
     type Weights,
     type WeightInfoDict,
 } from "./types";
-import { type FilterOptionDataSource } from './helpers/temp_tester';
+import { type FilterOptionDataSource } from './types';
 
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;

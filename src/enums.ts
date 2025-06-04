@@ -85,6 +85,7 @@ export enum TrendingType {
     TAGS = "tags"
 };
 
+
 // Filters
 export enum BooleanFilterName {
     HASHTAG = 'hashtag',

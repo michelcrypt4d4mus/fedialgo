@@ -8,11 +8,11 @@ import MastoApi from '../api/api';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
+import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
-//import { languageName } from '../helpers/language_helper';
-import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
+import { languageName } from '../helpers/language_helper';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
@@ -147,7 +147,7 @@ export default class BooleanFilter extends TootFilter {
             const userData = await MastoApi.instance.getUserData();
 
             this.options.objs.forEach((option) => {
-                option.displayName = '' //languageName(option.name);
+                option.displayName = languageName(option.name);
                 option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
             });
         } else if (this.title == BooleanFilterName.USER) {
