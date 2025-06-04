@@ -341,6 +341,7 @@ class Config implements ConfigType {
         noMauServers: [
             "agora.echelon.pl",
             "amf.didiermary.fr",
+            "bsd.network",
             "bsky.brid.gy",
             "fediverse.one",
             "flipboard.com",

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add bsd.network to noMauServers list
 
 # v0.62.0
 * Add a `displayName` property to `BooleanFilterOption` (and populate it for languages and accounts)
