@@ -138,7 +138,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         logger.debug(`${logPrefx} Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
 
-    Storage.setFilters(filters);  // NOTE: there's no "await" here...
+    await Storage.setFilters(filters);
     logger.trace(`${logPrefx} completed, built filters:`, filters);
     return filters;
 };

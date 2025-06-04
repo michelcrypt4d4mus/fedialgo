@@ -27,6 +27,6 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
             return obj;
         });
 
-        return new ObjWithCountList(objs, label);
+        return new BooleanFilterOptionList(objs, label);
     }
 };

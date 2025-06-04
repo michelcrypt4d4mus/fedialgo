@@ -16,6 +16,7 @@ const toot_filter_1 = __importDefault(require("./toot_filter"));
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const language_helper_1 = require("../helpers/language_helper");
 const enums_1 = require("../enums");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 var BooleanFilterName;
@@ -161,11 +162,20 @@ class BooleanFilter extends toot_filter_1.default {
                 });
             });
         }
+        else if (this.title == BooleanFilterName.LANGUAGE) {
+            const userData = await api_1.default.instance.getUserData();
+            this.options.objs.forEach((option) => {
+                option.displayName = (0, language_helper_1.languageName)(option.name);
+                option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
+            });
+        }
         else if (this.title == BooleanFilterName.USER) {
             const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
             this.options.objs.forEach((option) => {
-                if (favouritedAccounts.getObj(option.name)) {
-                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name).numToots || 0;
+                const accountOption = favouritedAccounts.getObj(option.name);
+                if (accountOption) {
+                    option.displayName = accountOption.displayName;
+                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = accountOption.numToots || 0;
                 }
             });
         }

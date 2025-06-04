@@ -1,10 +1,10 @@
 import { Logger } from '../helpers/logger';
-import { type ObjWithTootCount, type ObjListDataSource, type ObjNames, type StringNumberDict } from "../types";
+import { type ObjWithTootCount, type ObjListDataSource, type StringNumberDict } from "../types";
 export type ObjList = ObjWithCountList<ObjWithTootCount>;
 export default class ObjWithCountList<T extends ObjWithTootCount> {
     logger: Logger;
     length: number;
-    nameDict: ObjNames;
+    nameDict: Record<string, T>;
     source: ObjListDataSource;
     private _objs;
     constructor(objs: T[], label: ObjListDataSource);
@@ -12,7 +12,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     get objs(): T[];
     set objs(theTags: T[]);
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
-    getObj(name: string): ObjWithTootCount | undefined;
+    getObj(name: string): T | undefined;
     map(callback: (obj: T, i?: number) => any): T[];
     maxNumAccounts(): number | undefined;
     maxNumToots(): number | undefined;
@@ -22,5 +22,3 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     topObjs(maxObjs?: number): T[];
     private objNameDict;
 }
-export declare function buildObjWithTootCount(name: string, numToots: number): ObjWithTootCount;
-export declare function completeObjWithTootCounts(obj: ObjWithTootCount): ObjWithTootCount;

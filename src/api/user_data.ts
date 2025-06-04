@@ -5,19 +5,22 @@
 import { mastodon } from "masto";
 
 import Account from "./objects/account";
+// import BooleanFilterOptionList from "../filters/boolean_filter_option_list";
 import MastoApi from "./api";
-import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
-import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
-import Storage from "../Storage";
+// import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
+// import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
 import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
+import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
+import { BooleanFilterName } from "../filters/boolean_filter";
 import { CacheKey, ScoreName, TagTootsCacheKey } from "../enums";
 import { config } from "../config";
 import { addDicts, countValues, sortKeysByValue } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
+    type BooleanFilterOption,
     type StringNumberDict,
     type TagWithUsageCounts
 } from "../types";
@@ -36,14 +39,14 @@ interface UserApiData {
 
 
 export default class UserData {
-    favouriteAccounts: ObjList = new ObjWithCountList([], ScoreName.FAVOURITED_ACCOUNTS);
-    favouritedTags: TagList = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
-    followedAccounts: StringNumberDict = {};  // Don't store the Account objects, just webfingerURI to save memory
-    followedTags: TagList = new TagList([], ScoreName.FOLLOWED_TAGS);
-    languagesPostedIn: StringNumberDict = {};
+    favouriteAccounts = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
+    favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+    followedAccounts: StringNumberDict = {};
+    followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
+    languagesPostedIn: ObjList = new ObjWithCountList([], BooleanFilterName.LANGUAGE);
     mutedAccounts: AccountNames = {};
-    participatedTags: TagList = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
-    preferredLanguage: string = config.locale.defaultLanguage;
+    participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    preferredLanguage = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
 
     // Alternate constructor to build UserData from raw API data
@@ -52,25 +55,34 @@ export default class UserData {
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
-        userData.languagesPostedIn = countValues<Toot>(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
-        userData.preferredLanguage = sortKeysByValue(userData.languagesPostedIn)[0] || config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
+
+        // Language stuff
+        const langCounts = countValues(data.recentToots, (toot) => toot.language);
+        userData.languagesPostedIn = ObjWithCountList.buildFromDict(langCounts, BooleanFilterName.LANGUAGE);
+        userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
 
         // Add up the favourites, retoots, and replies for each account
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
-        const favouritedAccounts = MostFavouritedAccountsScorer.buildFavouritedAccounts(data.favouritedToots);
-        const retootedAccounts = MostRetootedAccountsScorer.buildRetootedAccounts(data.recentToots);
-
+        const retoots = Toot.onlyRetoots(data.recentToots);
+        const faveAccounts = [...retoots, ...data.favouritedToots].map(t => t.account);
+        const faveAccountCounts = Account.countAccountsWithObj(faveAccounts);
         // Fill in zeros for accounts that the user follows but has not favourited or retooted
-        const followedAccountZeros = data.followedAccounts.reduce((zeros, account) => {
-            zeros[account.webfingerURI] = 0;
-            return zeros;
-        }, {} as StringNumberDict);
+        data.followedAccounts.forEach((a) => faveAccountCounts[a.webfingerURI] ??= {account: a, count: 0});
 
-        const accountsDict = addDicts(favouritedAccounts, followedAccountZeros, retootedAccounts);
-        userData.favouriteAccounts = ObjWithCountList.buildFromDict(accountsDict, ScoreName.FAVOURITED_ACCOUNTS);
+        const accountOptions = Object.values(faveAccountCounts).map(accountCount => {
+            const option: BooleanFilterOption = {
+                displayName: accountCount.account.displayName,
+                name: accountCount.account.webfingerURI,
+                numToots: accountCount.count,
+            }
+
+            return option;
+        });
+
+        userData.favouriteAccounts = new ObjWithCountList(accountOptions, ScoreName.FAVOURITED_ACCOUNTS);
         logger.trace("Built from data:", userData);
         return userData;
     }

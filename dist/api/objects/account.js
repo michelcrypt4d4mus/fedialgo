@@ -156,7 +156,17 @@ class Account {
     // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
     static countAccounts(accounts) {
-        return (0, collection_helpers_1.countValues)(accounts, (account) => account.webfingerURI);
+        return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
+            counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
+            return counts;
+        }, {});
+    }
+    static countAccountsWithObj(accounts) {
+        return accounts.reduce((counts, account) => {
+            counts[account.webfingerURI] ??= { account, count: 0 };
+            counts[account.webfingerURI].count += 1;
+            return counts;
+        }, {});
     }
     static logSuspendedAccounts(accounts, logPrefix = 'logSuspendedAccounts()') {
         accounts.filter(a => !!a.suspended).forEach(a => {

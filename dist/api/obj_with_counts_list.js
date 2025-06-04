@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.completeObjWithTootCounts = exports.buildObjWithTootCount = void 0;
 /*
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
@@ -16,7 +15,7 @@ const logger = new logger_1.Logger("TagList");
 class ObjWithCountList {
     logger;
     length;
-    nameDict = {}; // Dict of tag names to tags
+    nameDict = {}; // Dict of obj.names to objs
     source;
     _objs;
     constructor(objs, label) {
@@ -102,17 +101,10 @@ class ObjWithCountList {
 }
 exports.default = ObjWithCountList;
 ;
-function buildObjWithTootCount(name, numToots) {
-    const obj = { name, numToots };
-    return completeObjWithTootCounts(obj);
-}
-exports.buildObjWithTootCount = buildObjWithTootCount;
-;
 function completeObjWithTootCounts(obj) {
     obj.name = obj.name.toLowerCase();
     obj.regex ||= (0, string_helpers_1.wordRegex)(obj.name);
     return obj;
 }
-exports.completeObjWithTootCounts = completeObjWithTootCounts;
 ;
 //# sourceMappingURL=obj_with_counts_list.js.map

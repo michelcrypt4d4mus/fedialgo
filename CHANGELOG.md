@@ -1,4 +1,8 @@
 # NEXT RELEASE
+* Add a displayName property to BooleanFilterOption, add usage counts to language options
+* Store actual Account objects in UserData.favouritedAccounts
+* Increase staleness for followed accounts and tags to 12 hours
+* (Demo App) Don't make unnecessary calls to `updateFilters()` when sorting UI's filter options by count etc.
 
 ### v0.61.1
 * On API error, check whether merge is supported _before_ checking whether cache should be discarded in favor of new rows

@@ -142,6 +142,7 @@ export default class Toot implements TootObj {
     static completeToots(toots: TootLike[], logger: Logger, isDeepInspect: boolean): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], inLogger?: Logger): Toot[];
     static removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]>;
+    static onlyRetoots(toots: Toot[]): Toot[];
     private static uniqFlatMap;
 }
 export declare const tootedAt: (toot: TootLike) => Date;

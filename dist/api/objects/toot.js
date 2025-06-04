@@ -749,9 +749,14 @@ class Toot {
         logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
         return deduped;
     }
+    // Get rid of toots we never want to see again
     static async removeInvalidToots(toots, logger) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
         return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+    }
+    // Filter an array of toots down to just the retoots
+    static onlyRetoots(toots) {
+        return toots.filter(toot => toot.reblog);
     }
     // Return a new array of a toot property collected and uniquified from an array of toots
     // e.g. with two toots having {sources: ["a", "b"]} and {sources: ["b", "c"]} we get ["a", "b", "c"]

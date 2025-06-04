@@ -4,12 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
+// import BooleanFilterOptionList from "../filters/boolean_filter_option_list";
 const api_1 = __importDefault(require("./api"));
-const most_favourited_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_favourited_accounts_scorer"));
-const most_retooted_accounts_scorer_1 = __importDefault(require("../scorer/feature/most_retooted_accounts_scorer"));
-const Storage_1 = __importDefault(require("../Storage"));
+// import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
+// import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
+const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
+const toot_1 = __importDefault(require("./objects/toot"));
+const boolean_filter_1 = require("../filters/boolean_filter");
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -19,9 +22,9 @@ const logger = new logger_1.Logger("UserData");
 class UserData {
     favouriteAccounts = new obj_with_counts_list_1.default([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
-    followedAccounts = {}; // Don't store the Account objects, just webfingerURI to save memory
+    followedAccounts = {};
     followedTags = new tag_list_1.default([], enums_1.ScoreName.FOLLOWED_TAGS);
-    languagesPostedIn = {};
+    languagesPostedIn = new obj_with_counts_list_1.default([], boolean_filter_1.BooleanFilterName.LANGUAGE);
     mutedAccounts = {};
     participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config_1.config.locale.defaultLanguage;
@@ -32,22 +35,29 @@ class UserData {
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);
-        userData.languagesPostedIn = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
-        userData.preferredLanguage = (0, collection_helpers_1.sortKeysByValue)(userData.languagesPostedIn)[0] || config_1.config.locale.defaultLanguage;
         userData.serverSideFilters = data.serverSideFilters;
+        // Language stuff
+        const langCounts = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
+        userData.languagesPostedIn = obj_with_counts_list_1.default.buildFromDict(langCounts, boolean_filter_1.BooleanFilterName.LANGUAGE);
+        userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config_1.config.locale.defaultLanguage;
         // Add up the favourites, retoots, and replies for each account
         // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
-        const favouritedAccounts = most_favourited_accounts_scorer_1.default.buildFavouritedAccounts(data.favouritedToots);
-        const retootedAccounts = most_retooted_accounts_scorer_1.default.buildRetootedAccounts(data.recentToots);
+        const retoots = toot_1.default.onlyRetoots(data.recentToots);
+        const faveAccounts = [...retoots, ...data.favouritedToots].map(t => t.account);
+        const faveAccountCounts = account_1.default.countAccountsWithObj(faveAccounts);
         // Fill in zeros for accounts that the user follows but has not favourited or retooted
-        const followedAccountZeros = data.followedAccounts.reduce((zeros, account) => {
-            zeros[account.webfingerURI] = 0;
-            return zeros;
-        }, {});
-        const accountsDict = (0, collection_helpers_1.addDicts)(favouritedAccounts, followedAccountZeros, retootedAccounts);
-        userData.favouriteAccounts = obj_with_counts_list_1.default.buildFromDict(accountsDict, enums_1.ScoreName.FAVOURITED_ACCOUNTS);
+        data.followedAccounts.forEach((a) => faveAccountCounts[a.webfingerURI] ??= { account: a, count: 0 });
+        const accountOptions = Object.values(faveAccountCounts).map(accountCount => {
+            const option = {
+                displayName: accountCount.account.displayName,
+                name: accountCount.account.webfingerURI,
+                numToots: accountCount.count,
+            };
+            return option;
+        });
+        userData.favouriteAccounts = new obj_with_counts_list_1.default(accountOptions, enums_1.ScoreName.FAVOURITED_ACCOUNTS);
         logger.trace("Built from data:", userData);
         return userData;
     }

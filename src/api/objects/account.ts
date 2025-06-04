@@ -16,6 +16,8 @@ const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month: "short", day: "numeric"};
 
+type AccountCount = Record<string, {account: Account, count: number}>
+
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;
@@ -170,7 +172,21 @@ export default class Account implements AccountObj {
     // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
     public static countAccounts(accounts: Account[]): StringNumberDict {
-        return countValues<Account>(accounts, (account) => account.webfingerURI);
+        return Object.values(this.countAccountsWithObj(accounts)).reduce(
+            (counts, accountWithCount) => {
+                counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
+                return counts;
+            },
+            {} as StringNumberDict
+        );
+    }
+
+    public static countAccountsWithObj(accounts: Account[]): AccountCount {
+        return accounts.reduce((counts, account) => {
+            counts[account.webfingerURI] ??= {account, count: 0};
+            counts[account.webfingerURI].count += 1;
+            return counts;
+        }, {} as AccountCount);
     }
 
     public static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {

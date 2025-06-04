@@ -3,11 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
+exports.languageName = exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
 /*
  * Detecting language etc.
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
+const change_case_1 = require("change-case");
 const tinyld_1 = require("tinyld");
 const math_helper_1 = require("./math_helper");
 const collection_helpers_1 = require("./collection_helpers");
@@ -363,4 +364,6 @@ function detectLangWithTinyLD(text) {
     return buildLangDetectResult(MIN_TINYLD_ACCURACY, (0, tinyld_1.detectAll)(text));
 }
 ;
+const languageName = (code) => exports.LANGUAGE_CODES[code] ? (0, change_case_1.capitalCase)(exports.LANGUAGE_CODES[code]) : code;
+exports.languageName = languageName;
 //# sourceMappingURL=language_helper.js.map

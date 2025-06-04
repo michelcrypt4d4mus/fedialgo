@@ -11,6 +11,7 @@ import TootFilter from "./toot_filter";
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
+import { languageName } from '../helpers/language_helper';
 import { ScoreName, TagTootsCacheKey } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
@@ -173,12 +174,22 @@ export default class BooleanFilter extends TootFilter {
                     }
                 });
             });
+        } else if (this.title == BooleanFilterName.LANGUAGE) {
+            const userData = await MastoApi.instance.getUserData();
+
+            this.options.objs.forEach((option) => {
+                option.displayName = languageName(option.name);
+                option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
+            });
         } else if (this.title == BooleanFilterName.USER) {
             const favouritedAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
 
             this.options.objs.forEach((option) => {
-                if (favouritedAccounts.getObj(option.name)) {
-                    option[ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)!.numToots || 0;
+                const accountOption = favouritedAccounts.getObj(option.name);
+
+                if (accountOption) {
+                    option.displayName = accountOption.displayName;
+                    option[ScoreName.FAVOURITED_ACCOUNTS] = accountOption.numToots || 0;
                 }
             });
         }

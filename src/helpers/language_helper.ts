@@ -2,6 +2,7 @@
  * Detecting language etc.
  */
 import LanguageDetect from 'languagedetect';
+import { capitalCase } from 'change-case';
 import { detectAll } from 'tinyld';
 
 import { isNumber } from "./math_helper";
@@ -401,3 +402,6 @@ function detectLangWithLangDetector(text: string): DetectLangLibraryResult {
 function detectLangWithTinyLD(text: string): DetectLangLibraryResult {
     return buildLangDetectResult(MIN_TINYLD_ACCURACY, detectAll(text));
 };
+
+
+export const languageName = (code: string) => LANGUAGE_CODES[code] ? capitalCase(LANGUAGE_CODES[code]) : code;

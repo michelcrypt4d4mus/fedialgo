@@ -9,7 +9,6 @@ import { sortObjsByProps } from "../helpers/collection_helpers";
 import {
     type ObjWithTootCount,
     type ObjListDataSource,
-    type ObjNames,
     type StringNumberDict,
 } from "../types";
 
@@ -21,7 +20,7 @@ const logger = new Logger("TagList");
 export default class ObjWithCountList<T extends ObjWithTootCount> {
     logger: Logger;
     length: number;
-    nameDict: ObjNames = {};  // Dict of tag names to tags
+    nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: ObjListDataSource;
     private _objs: T[];
 
@@ -60,7 +59,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     }
 
     // Return the tag if it exists in 'tags' array, otherwise undefined.
-    getObj(name: string): ObjWithTootCount | undefined {
+    getObj(name: string): T | undefined {
         return this.nameDict[name.toLowerCase()];
     }
 
@@ -111,22 +110,16 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     }
 
     // Return a dictionary of tag names to tags
-    private objNameDict(): ObjNames {
+    private objNameDict(): Record<string, T> {
         return this.objs.reduce((objNames, obj) => {
             objNames[obj.name] = obj;
             return objNames;
-        }, {} as ObjNames);
+        }, {} as Record<string, T>);
     }
 };
 
 
-export function buildObjWithTootCount(name: string, numToots: number): ObjWithTootCount {
-    const obj: ObjWithTootCount = { name, numToots };
-    return completeObjWithTootCounts(obj);
-};
-
-
-export function completeObjWithTootCounts(obj: ObjWithTootCount): ObjWithTootCount {
+function completeObjWithTootCounts(obj: ObjWithTootCount): ObjWithTootCount {
     obj.name = obj.name.toLowerCase();
     obj.regex ||= wordRegex(obj.name);
     return obj;

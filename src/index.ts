@@ -41,7 +41,8 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
-import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, FILTER_OPTION_DATA_SOURCES } from "./enums";
+import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
+import { FILTER_OPTION_DATA_SOURCES } from "./types";
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -291,10 +292,11 @@ class TheAlgorithm {
     // Note this won't always be completely up to date, but it will be close enough for the UI
     filterOptionDataSources(): Record<FilterOptionDataSource, ObjList> {
         return {
+            [BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
+            [ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
             [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
             [TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
         };
     }
 

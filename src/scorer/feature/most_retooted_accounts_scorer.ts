@@ -22,7 +22,7 @@ export default class MostRetootedAccountsScorer extends AccountScorer {
     };
 
     static buildRetootedAccounts(recentToots: Toot[]): StringNumberDict {
-        const retootedAccounts = recentToots.filter(toot => toot?.reblog).map(toot => toot.reblog!.account);
+        const retootedAccounts = Toot.onlyRetoots(recentToots).map(toot => toot.reblog!.account);
         return Account.countAccounts(retootedAccounts);
     }
 };

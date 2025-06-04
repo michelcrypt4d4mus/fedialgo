@@ -1,9 +1,9 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import { ObjList } from "./obj_with_counts_list";
+import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { type AccountNames, type StringNumberDict, type TagWithUsageCounts } from "../types";
+import { type AccountNames, type BooleanFilterOption, type StringNumberDict, type TagWithUsageCounts } from "../types";
 interface UserApiData {
     favouritedToots: Toot[];
     followedAccounts: Account[];
@@ -13,11 +13,11 @@ interface UserApiData {
     serverSideFilters: mastodon.v2.Filter[];
 }
 export default class UserData {
-    favouriteAccounts: ObjList;
+    favouriteAccounts: ObjWithCountList<BooleanFilterOption>;
     favouritedTags: TagList;
     followedAccounts: StringNumberDict;
     followedTags: TagList;
-    languagesPostedIn: StringNumberDict;
+    languagesPostedIn: ObjList;
     mutedAccounts: AccountNames;
     participatedTags: TagList;
     preferredLanguage: string;

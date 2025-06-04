@@ -30,7 +30,8 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
-import { TagTootsCacheKey, FILTER_OPTION_DATA_SOURCES } from "./enums";
+import { TagTootsCacheKey } from "./enums";
+import { FILTER_OPTION_DATA_SOURCES } from "./types";
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { LANGUAGE_CODES } from './helpers/language_helper';
@@ -71,7 +72,7 @@ declare class TheAlgorithm {
     private dataPoller?;
     private featureScorers;
     private feedScorers;
-    weightedScorers: (MostFavouritedAccountsScorer | MostRetootedAccountsScorer | AlreadyShownScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedAccountsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostRepliedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (AlreadyShownScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedAccountsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     weightInfo: WeightInfoDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

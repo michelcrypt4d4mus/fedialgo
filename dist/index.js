@@ -79,7 +79,8 @@ const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
 Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
-Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return enums_1.FILTER_OPTION_DATA_SOURCES; } });
+const types_1 = require("./types");
+Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return types_1.FILTER_OPTION_DATA_SOURCES; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
@@ -285,10 +286,11 @@ class TheAlgorithm {
     // Note this won't always be completely up to date, but it will be close enough for the UI
     filterOptionDataSources() {
         return {
+            [boolean_filter_1.BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
+            [enums_3.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
             [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [enums_3.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
         };
     }
     // Return an object describing the state of the world. Mostly for debugging.

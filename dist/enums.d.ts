@@ -65,4 +65,3 @@ export declare enum TrendingType {
     STATUSES = "statuses",
     TAGS = "tags"
 }
-export declare const FILTER_OPTION_DATA_SOURCES: readonly [...TagTootsCacheKey[], ScoreName.FAVOURITED_ACCOUNTS];

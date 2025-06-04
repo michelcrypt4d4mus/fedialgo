@@ -182,12 +182,12 @@ class Config implements ConfigType {
             [CacheKey.FOLLOWED_ACCOUNTS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 80,
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
             [CacheKey.FOLLOWED_TAGS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 100,
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
             [CacheKey.HASHTAG_TOOTS]: {
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used

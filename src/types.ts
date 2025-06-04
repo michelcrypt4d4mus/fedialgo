@@ -10,7 +10,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { FILTER_OPTION_DATA_SOURCES, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
+import { CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -41,10 +41,20 @@ export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 
+// These server as both Both filter option property names as well as demo app gradient config keys
+export const FILTER_OPTION_DATA_SOURCES = [
+    ...Object.values(TagTootsCacheKey), // TODO: these are really the wrong cache keys for the use case but it's consistent w/demo app for now
+    BooleanFilterName.LANGUAGE,
+    ScoreName.FAVOURITED_ACCOUNTS,
+] as const;
+
 export type FilterOptionDataSource = typeof FILTER_OPTION_DATA_SOURCES[number];
 type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
+
 // Add FilterOptionDataSource properties to the ObjWithTootCount interface
-export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {};
+export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
+    displayName?: string;
+};
 
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];
