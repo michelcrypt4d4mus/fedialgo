@@ -23,6 +23,7 @@ export default class UserData {
     preferredLanguage: string;
     serverSideFilters: mastodon.v2.Filter[];
     static buildFromData(data: UserApiData): UserData;
+    private static buildFavouriteAccount;
     static build(): Promise<UserData>;
     isDataStale(): Promise<boolean>;
     static getMutedKeywords(): Promise<string[]>;

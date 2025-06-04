@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -190,6 +190,12 @@ function isValueInStringEnum(strEnum) {
     return (value) => enumValues.has(value);
 }
 exports.isValueInStringEnum = isValueInStringEnum;
+;
+// Create a dict from obj.id => obj
+function keyById(array) {
+    return keyByProperty(array, obj => obj.id);
+}
+exports.keyById = keyById;
 ;
 // Build a dictionary from the result of keyFxn() for each object in the array
 function keyByProperty(array, keyFxn) {

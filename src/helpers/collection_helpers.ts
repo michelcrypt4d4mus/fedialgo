@@ -222,6 +222,12 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 
+// Create a dict from obj.id => obj
+export function keyById<T extends MastodonObjWithID>(array: T[]): Record<string, T> {
+    return keyByProperty<T>(array, obj => obj.id);
+};
+
+
 // Build a dictionary from the result of keyFxn() for each object in the array
 export function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T> {
     return array.reduce(

@@ -16,7 +16,7 @@ const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month: "short", day: "numeric"};
 
-type AccountCount = Record<string, {account: Account, count: number}>
+type AccountCount = Record<string, {account: Account, count: number}>;
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
@@ -117,7 +117,7 @@ export default class Account implements AccountObj {
         return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || [], fontSize);
     }
 
-    // Get the account's instance info from the public API (note some servers don't provide this)
+    // Get the account's instance info from the API (note some servers don't provide this)
     async homeInstanceInfo(): Promise<InstanceResponse> {
         const server = new MastodonServer(this.homeserver());
         return await server.fetchServerInfo();
@@ -165,13 +165,13 @@ export default class Account implements AccountObj {
     ////////////////////////////
 
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
-    public static buildAccountNames(accounts: Account[]): AccountNames {
+    static buildAccountNames(accounts: Account[]): AccountNames {
         return keyByProperty<Account>(accounts, acct => acct.webfingerURI);
     }
 
     // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
-    public static countAccounts(accounts: Account[]): StringNumberDict {
+    static countAccounts(accounts: Account[]): StringNumberDict {
         return Object.values(this.countAccountsWithObj(accounts)).reduce(
             (counts, accountWithCount) => {
                 counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
@@ -181,7 +181,7 @@ export default class Account implements AccountObj {
         );
     }
 
-    public static countAccountsWithObj(accounts: Account[]): AccountCount {
+    static countAccountsWithObj(accounts: Account[]): AccountCount {
         return accounts.reduce((counts, account) => {
             counts[account.webfingerURI] ??= {account, count: 0};
             counts[account.webfingerURI].count += 1;
@@ -189,7 +189,7 @@ export default class Account implements AccountObj {
         }, {} as AccountCount);
     }
 
-    public static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
+    static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
         accounts.filter(a => !!a.suspended).forEach(a => {
             console.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
         });

@@ -32,6 +32,7 @@ class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
+        userData.favouriteAccounts = this.buildFavouriteAccount(data);
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_2.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags, enums_2.ScoreName.FOLLOWED_TAGS);
@@ -39,27 +40,34 @@ class UserData {
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_2.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         // Language stuff
-        const langCounts = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
-        userData.languagesPostedIn = obj_with_counts_list_1.default.buildFromDict(langCounts, enums_1.BooleanFilterName.LANGUAGE);
+        const languageUsageCounts = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
+        userData.languagesPostedIn = obj_with_counts_list_1.default.buildFromDict(languageUsageCounts, enums_1.BooleanFilterName.LANGUAGE);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config_1.config.locale.defaultLanguage;
-        // Add up the favourites, retoots, and replies for each account
-        // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
-        const retoots = toot_1.default.onlyRetoots(data.recentToots);
-        const faveAccounts = [...retoots, ...data.favouritedToots].map(t => t.account);
-        const faveAccountCounts = account_1.default.countAccountsWithObj(faveAccounts);
+        logger.trace("Built from data:", userData);
+        return userData;
+    }
+    // Add up the favourites, retoots, and replies for each account
+    static buildFavouriteAccount(data) {
+        const retootsAndFaves = [...toot_1.default.onlyRetoots(data.recentToots), ...data.favouritedToots];
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.account);
+        const followedAccountIdMap = (0, collection_helpers_1.keyById)(data.followedAccounts);
+        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
+        const repliedToAccounts = toot_1.default.onlyReplies(data.recentToots)
+            .map(toot => followedAccountIdMap[toot.inReplyToAccountId])
+            .filter(Boolean);
+        const accountCounts = account_1.default.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
         // Fill in zeros for accounts that the user follows but has not favourited or retooted
-        data.followedAccounts.forEach((a) => faveAccountCounts[a.webfingerURI] ??= { account: a, count: 0 });
-        const accountOptions = Object.values(faveAccountCounts).map(accountCount => {
+        data.followedAccounts.forEach((a) => accountCounts[a.webfingerURI] ??= { account: a, count: 0 });
+        const accountOptions = Object.values(accountCounts).map(accountCount => {
             const option = {
                 displayName: accountCount.account.displayName,
+                displayNameWithEmoji: accountCount.account.displayNameWithEmojis(),
                 name: accountCount.account.webfingerURI,
                 numToots: accountCount.count,
             };
             return option;
         });
-        userData.favouriteAccounts = new obj_with_counts_list_1.default(accountOptions, enums_2.ScoreName.FAVOURITED_ACCOUNTS);
-        logger.trace("Built from data:", userData);
-        return userData;
+        return new obj_with_counts_list_1.default(accountOptions, enums_2.ScoreName.FAVOURITED_ACCOUNTS);
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build() {

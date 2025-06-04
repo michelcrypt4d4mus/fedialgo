@@ -932,6 +932,10 @@ export default class Toot implements TootObj {
         return toots.filter(toot => toot.reblog);
     }
 
+    static onlyReplies(toots: Toot[]): Toot[] {
+        return toots.filter(toot => toot.inReplyToAccountId);
+    }
+
     // Return a new array of a toot property collected and uniquified from an array of toots
     // e.g. with two toots having {sources: ["a", "b"]} and {sources: ["b", "c"]} we get ["a", "b", "c"]
     private static uniqFlatMap<T>(

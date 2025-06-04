@@ -18,6 +18,7 @@ export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Re
 export declare function incrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
+export declare function keyById<T extends MastodonObjWithID>(array: T[]): Record<string, T>;
 export declare function keyByProperty<T>(array: T[], keyFxn: (value: T) => string): Record<string, T>;
 export declare function makeChunks<T>(array: T[], options: {
     chunkSize?: number;

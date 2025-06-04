@@ -16,7 +16,7 @@ import Toot from "./objects/toot";
 import { BooleanFilterName } from '../enums';
 import { CacheKey, ScoreName, TagTootsCacheKey } from "../enums";
 import { config } from "../config";
-import { addDicts, countValues, sortKeysByValue } from "../helpers/collection_helpers";
+import { addDicts, countValues, keyById, sortKeysByValue } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
@@ -52,6 +52,7 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
+        userData.favouriteAccounts = this.buildFavouriteAccount(data);
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
@@ -60,21 +61,32 @@ export default class UserData {
         userData.serverSideFilters = data.serverSideFilters;
 
         // Language stuff
-        const langCounts = countValues(data.recentToots, (toot) => toot.language);
-        userData.languagesPostedIn = ObjWithCountList.buildFromDict(langCounts, BooleanFilterName.LANGUAGE);
+        const languageUsageCounts = countValues(data.recentToots, (toot) => toot.language);
+        userData.languagesPostedIn = ObjWithCountList.buildFromDict(languageUsageCounts, BooleanFilterName.LANGUAGE);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
+        logger.trace("Built from data:", userData);
+        return userData;
+    }
 
-        // Add up the favourites, retoots, and replies for each account
-        // TODO: can't include replies yet bc we don't have the webfingerURI for those accounts, only inReplyToID
-        const retoots = Toot.onlyRetoots(data.recentToots);
-        const faveAccounts = [...retoots, ...data.favouritedToots].map(t => t.account);
-        const faveAccountCounts = Account.countAccountsWithObj(faveAccounts);
+    // Add up the favourites, retoots, and replies for each account
+    private static buildFavouriteAccount(data: UserApiData): ObjWithCountList<BooleanFilterOption> {
+        const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.account);
+        const followedAccountIdMap = keyById(data.followedAccounts);
+
+        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
+        const repliedToAccounts = Toot.onlyReplies(data.recentToots)
+                                      .map(toot => followedAccountIdMap[toot.inReplyToAccountId!])
+                                      .filter(Boolean);
+
+        const accountCounts = Account.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
         // Fill in zeros for accounts that the user follows but has not favourited or retooted
-        data.followedAccounts.forEach((a) => faveAccountCounts[a.webfingerURI] ??= {account: a, count: 0});
+        data.followedAccounts.forEach((a) => accountCounts[a.webfingerURI] ??= {account: a, count: 0});
 
-        const accountOptions = Object.values(faveAccountCounts).map(accountCount => {
+        const accountOptions = Object.values(accountCounts).map(accountCount => {
             const option: BooleanFilterOption = {
                 displayName: accountCount.account.displayName,
+                displayNameWithEmoji: accountCount.account.displayNameWithEmojis(),
                 name: accountCount.account.webfingerURI,
                 numToots: accountCount.count,
             }
@@ -82,9 +94,7 @@ export default class UserData {
             return option;
         });
 
-        userData.favouriteAccounts = new ObjWithCountList(accountOptions, ScoreName.FAVOURITED_ACCOUNTS);
-        logger.trace("Built from data:", userData);
-        return userData;
+        return new ObjWithCountList(accountOptions, ScoreName.FAVOURITED_ACCOUNTS);
     }
 
     // Alternate constructor for the UserData object to build itself from the API (or cache)

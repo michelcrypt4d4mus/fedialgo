@@ -758,6 +758,9 @@ class Toot {
     static onlyRetoots(toots) {
         return toots.filter(toot => toot.reblog);
     }
+    static onlyReplies(toots) {
+        return toots.filter(toot => toot.inReplyToAccountId);
+    }
     // Return a new array of a toot property collected and uniquified from an array of toots
     // e.g. with two toots having {sources: ["a", "b"]} and {sources: ["b", "c"]} we get ["a", "b", "c"]
     static uniqFlatMap(toots, property, uniqFxn) {

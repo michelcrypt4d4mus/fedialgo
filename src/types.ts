@@ -53,6 +53,7 @@ type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
 // Add FilterOptionDataSource properties to the ObjWithTootCount interface
 export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
     displayName?: string;
+    displayNameWithEmoji?: string; // TODO: just testing this
 };
 
 export type FeedFilterSettingsSerialized = {
