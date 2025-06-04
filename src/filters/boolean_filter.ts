@@ -8,47 +8,17 @@ import MastoApi from '../api/api';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
+import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
-import { ScoreName, TagTootsCacheKey } from '../enums';
+import { languageName } from '../helpers/language_helper';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-
-export enum BooleanFilterName {
-    HASHTAG = 'hashtag',
-    LANGUAGE = 'language',
-    TYPE = 'type',
-    USER = 'user',
-    APP = 'app',  // App filter visibility is controlled by Config.isAppFilterVisible
-};
-
-// The values have spaces to make them more usable in the demo app's presentation
-export enum TypeFilterName {
-    AUDIO = 'audio',
-    BOT = 'bot',
-    DIRECT_MESSAGE = 'direct messages',
-    FOLLOWED_ACCOUNTS = 'followed accounts',
-    FOLLOWED_HASHTAGS = 'followed hashtags',
-    IMAGES = 'images',
-    LINKS = 'links',
-    MENTIONS = 'mentions',
-    PARTICIPATED_TAGS = 'participated hashtags',
-    POLLS = 'polls',
-    PRIVATE = 'private',
-    REPLIES = 'replies',
-    RETOOTS = 'retoots',
-    SENSITIVE = 'sensitive',
-    SPOILERED = 'spoilered',
-    TRENDING_LINKS = 'trending links',
-    TRENDING_TAGS = 'trending hashtags',
-    TRENDING_TOOTS = 'trending toots',
-    VIDEOS = 'videos',
-};
 
 export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
@@ -157,8 +127,9 @@ export default class BooleanFilter extends TootFilter {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
 
-    // Update the filter with the possible options that can be selected for selectedOptions
-    async setOptions(optionInfo: StringNumberDict) {
+    // Update the filter with the possible options that can be selected.
+    //   - 'optionProps' is an optional set of properties that should be added to the generated BooleanFilterOptions
+    async setOptions(optionInfo: StringNumberDict, optionProps?: Record<string, BooleanFilterOption>) {
         this.options = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
         this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo);  // Remove options that are no longer valid
 
@@ -173,12 +144,25 @@ export default class BooleanFilter extends TootFilter {
                     }
                 });
             });
-        } else if (this.title == BooleanFilterName.USER) {
-            const favouritedAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
+        } else if (this.title == BooleanFilterName.LANGUAGE) {
+            const userData = await MastoApi.instance.getUserData();
 
             this.options.objs.forEach((option) => {
-                if (favouritedAccounts.getObj(option.name)) {
-                    option[ScoreName.FAVOURITED_ACCOUNTS] = favouritedAccounts.getObj(option.name)!.numToots || 0;
+                option.displayName = languageName(option.name);
+                option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
+            });
+        } else if (this.title == BooleanFilterName.USER) {
+            const favouriteAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
+
+            this.options.objs.forEach((option) => {
+                const optionProp = optionProps?.[option.name];
+                option.displayName ??= optionProp?.displayName;
+                const favouriteAccountProps = favouriteAccounts.getObj(option.name);
+
+                if (favouriteAccountProps) {
+                    // this.logger.trace(`Setting favourite account props for ${option.name}`, favouriteAccountProps);
+                    option[ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+                    option.isFollowed = favouriteAccountProps.isFollowed;
                 }
             });
         }

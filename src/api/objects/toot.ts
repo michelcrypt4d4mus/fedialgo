@@ -20,7 +20,7 @@ import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
 import { repairTag } from "./tag";
-import { TypeFilterName } from "../../filters/boolean_filter";
+import { TypeFilterName } from '../../enums';
 import {
     batchMap,
     filterWithLog,
@@ -921,9 +921,19 @@ export default class Toot implements TootObj {
         return deduped;
     }
 
+    // Get rid of toots we never want to see again
     static async removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]> {
         const serverSideFilters = (await MastoApi.instance.getServerSideFilters()) || [];
         return filterWithLog(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+    }
+
+    // Filter an array of toots down to just the retoots
+    static onlyRetoots(toots: Toot[]): Toot[] {
+        return toots.filter(toot => toot.reblog);
+    }
+
+    static onlyReplies(toots: Toot[]): Toot[] {
+        return toots.filter(toot => toot.inReplyToAccountId);
     }
 
     // Return a new array of a toot property collected and uniquified from an array of toots

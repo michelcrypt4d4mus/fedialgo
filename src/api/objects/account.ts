@@ -8,13 +8,16 @@ import { Type } from "class-transformer";
 import MastoApi from "../api";
 import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
-import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { keyByProperty } from "../../helpers/collection_helpers";
 import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month: "short", day: "numeric"};
+
+// TODO: isFollowed doesn't belong here...
+type AccountCount = Record<string, {account: Account, count: number, isFollowed?: boolean}>;
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
@@ -115,7 +118,7 @@ export default class Account implements AccountObj {
         return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || [], fontSize);
     }
 
-    // Get the account's instance info from the public API (note some servers don't provide this)
+    // Get the account's instance info from the API (note some servers don't provide this)
     async homeInstanceInfo(): Promise<InstanceResponse> {
         const server = new MastodonServer(this.homeserver());
         return await server.fetchServerInfo();
@@ -163,17 +166,31 @@ export default class Account implements AccountObj {
     ////////////////////////////
 
     // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
-    public static buildAccountNames(accounts: Account[]): AccountNames {
+    static buildAccountNames(accounts: Account[]): AccountNames {
         return keyByProperty<Account>(accounts, acct => acct.webfingerURI);
     }
 
     // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
-    public static countAccounts(accounts: Account[]): StringNumberDict {
-        return countValues<Account>(accounts, (account) => account.webfingerURI);
+    static countAccounts(accounts: Account[]): StringNumberDict {
+        return Object.values(this.countAccountsWithObj(accounts)).reduce(
+            (counts, accountWithCount) => {
+                counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
+                return counts;
+            },
+            {} as StringNumberDict
+        );
     }
 
-    public static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
+    static countAccountsWithObj(accounts: Account[]): AccountCount {
+        return accounts.reduce((counts, account) => {
+            counts[account.webfingerURI] ??= {account, count: 0};
+            counts[account.webfingerURI].count += 1;
+            return counts;
+        }, {} as AccountCount);
+    }
+
+    static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
         accounts.filter(a => !!a.suspended).forEach(a => {
             console.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
         });

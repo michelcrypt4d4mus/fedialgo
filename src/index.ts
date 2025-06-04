@@ -8,7 +8,7 @@ import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
 import AlreadyShownScorer from './scorer/feature/already_shown_scorer';
-import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
+import BooleanFilter, {  } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
@@ -41,19 +41,27 @@ import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
-import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, FILTER_OPTION_DATA_SOURCES } from "./enums";
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, SET_LOADING_STATUS, VIDEO_TYPES, arrowed, extractDomain } from './helpers/string_helpers';
+import { FILTER_OPTION_DATA_SOURCES } from './types';
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
-import { LANGUAGE_CODES } from './helpers/language_helper';
 import { Logger } from './helpers/logger';
-import { MediaCategory, TrendingType } from './enums';
-import { NonScoreWeightName, ScoreName } from './enums';
 import { rechartsDataPoints } from "./helpers/stats_helper";
+import {
+    AlgorithmStorageKey,
+    BooleanFilterName,
+    CacheKey,
+    MediaCategory,
+    NonScoreWeightName,
+    ScoreName,
+    TrendingType,
+    TypeFilterName,
+    TagTootsCacheKey
+} from "./enums";
 import {
     computeMinMax,
     isValueInStringEnum,
@@ -65,7 +73,6 @@ import {
 import {
     type BooleanFilterOption,
     type FeedFilterSettings,
-    type FilterOptionDataSource,
     type KeysOfValueType,
     type MastodonInstance,
     type MastodonTag,
@@ -82,6 +89,7 @@ import {
     type Weights,
     type WeightInfoDict,
 } from "./types";
+import { type FilterOptionDataSource } from './types';
 
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
@@ -291,10 +299,11 @@ class TheAlgorithm {
     // Note this won't always be completely up to date, but it will be close enough for the UI
     filterOptionDataSources(): Record<FilterOptionDataSource, ObjList> {
         return {
+            [BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
+            [ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
             [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
             [TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
         };
     }
 
@@ -724,7 +733,6 @@ export {
     FEDIALGO,
     GET_FEED_BUSY_MSG,
     GIFV,
-    LANGUAGE_CODES,
     READY_TO_LOAD_MSG,
     VIDEO_TYPES,
     // Classes

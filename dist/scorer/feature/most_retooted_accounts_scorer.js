@@ -10,6 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
+const toot_1 = __importDefault(require("../../api/objects/toot"));
 const enums_1 = require("../../enums");
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often retoot";
@@ -21,7 +22,7 @@ class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     }
     ;
     static buildRetootedAccounts(recentToots) {
-        const retootedAccounts = recentToots.filter(toot => toot?.reblog).map(toot => toot.reblog.account);
+        const retootedAccounts = toot_1.default.onlyRetoots(recentToots).map(toot => toot.reblog.account);
         return account_1.default.countAccounts(retootedAccounts);
     }
 }

@@ -1,6 +1,11 @@
 import { mastodon } from "masto";
 import { InstanceResponse } from '../mastodon_server';
 import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
+type AccountCount = Record<string, {
+    account: Account;
+    count: number;
+    isFollowed?: boolean;
+}>;
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;
@@ -52,6 +57,7 @@ export default class Account implements AccountObj {
     private buildWebfingerURI;
     static buildAccountNames(accounts: Account[]): AccountNames;
     static countAccounts(accounts: Account[]): StringNumberDict;
+    static countAccountsWithObj(accounts: Account[]): AccountCount;
     static logSuspendedAccounts(accounts: Account[], logPrefix?: string): void;
 }
 export {};

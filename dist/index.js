@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.LANGUAGE_CODES = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
+exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -35,10 +35,8 @@ const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
 const already_shown_scorer_1 = __importDefault(require("./scorer/feature/already_shown_scorer"));
-const boolean_filter_1 = __importStar(require("./filters/boolean_filter"));
+const boolean_filter_1 = __importDefault(require("./filters/boolean_filter"));
 exports.BooleanFilter = boolean_filter_1.default;
-Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return boolean_filter_1.BooleanFilterName; } });
-Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return boolean_filter_1.TypeFilterName; } });
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
@@ -77,9 +75,6 @@ const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
-const enums_1 = require("./enums");
-Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
-Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return enums_1.FILTER_OPTION_DATA_SOURCES; } });
 const log_helpers_1 = require("./helpers/log_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
@@ -88,21 +83,23 @@ Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () 
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+const types_1 = require("./types");
+Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return types_1.FILTER_OPTION_DATA_SOURCES; } });
 const moar_data_poller_1 = require("./api/moar_data_poller");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
 Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: function () { return weight_presets_1.WeightPresetLabel; } });
-const language_helper_1 = require("./helpers/language_helper");
-Object.defineProperty(exports, "LANGUAGE_CODES", { enumerable: true, get: function () { return language_helper_1.LANGUAGE_CODES; } });
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
-const enums_2 = require("./enums");
-Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_2.MediaCategory; } });
-Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_2.TrendingType; } });
-const enums_3 = require("./enums");
-Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_3.NonScoreWeightName; } });
-Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_3.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
+const enums_1 = require("./enums");
+Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return enums_1.BooleanFilterName; } });
+Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_1.MediaCategory; } });
+Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_1.NonScoreWeightName; } });
+Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_1.ScoreName; } });
+Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_1.TrendingType; } });
+Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return enums_1.TypeFilterName; } });
+Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
@@ -192,7 +189,7 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, Object.values(enums_3.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
+    }, Object.values(enums_1.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
         nonScoreWeights[weightName] = Object.assign({}, config_1.config.scoring.nonScoreWeightsConfig[weightName]);
         nonScoreWeights[weightName].minValue = config_1.config.scoring.nonScoreWeightMinValue;
         return nonScoreWeights;
@@ -285,10 +282,11 @@ class TheAlgorithm {
     // Note this won't always be completely up to date, but it will be close enough for the UI
     filterOptionDataSources() {
         return {
+            [enums_1.BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
+            [enums_1.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
             [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [enums_3.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
         };
     }
     // Return an object describing the state of the world. Mostly for debugging.

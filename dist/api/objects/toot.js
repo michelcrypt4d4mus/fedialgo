@@ -32,7 +32,7 @@ const environment_helpers_1 = require("../../helpers/environment_helpers");
 const logger_1 = require("../../helpers/logger");
 const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
-const boolean_filter_1 = require("../../filters/boolean_filter");
+const enums_2 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -220,9 +220,9 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsMsg() {
         let msgs = [
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS),
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.TRENDING_TAGS),
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.PARTICIPATED_TAGS),
+            this.containsTagsOfTypeMsg(enums_2.TypeFilterName.FOLLOWED_HASHTAGS),
+            this.containsTagsOfTypeMsg(enums_2.TypeFilterName.TRENDING_TAGS),
+            this.containsTagsOfTypeMsg(enums_2.TypeFilterName.PARTICIPATED_TAGS),
         ];
         msgs = msgs.filter((msg) => msg);
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
@@ -454,13 +454,13 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
-        if (tagType == boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS) {
+        if (tagType == enums_2.TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
         }
-        else if (tagType == boolean_filter_1.TypeFilterName.PARTICIPATED_TAGS) {
+        else if (tagType == enums_2.TypeFilterName.PARTICIPATED_TAGS) {
             tags = this.participatedTags || [];
         }
-        else if (tagType == boolean_filter_1.TypeFilterName.TRENDING_TAGS) {
+        else if (tagType == enums_2.TypeFilterName.TRENDING_TAGS) {
             tags = this.trendingTags || [];
         }
         else {
@@ -749,9 +749,17 @@ class Toot {
         logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
         return deduped;
     }
+    // Get rid of toots we never want to see again
     static async removeInvalidToots(toots, logger) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
         return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+    }
+    // Filter an array of toots down to just the retoots
+    static onlyRetoots(toots) {
+        return toots.filter(toot => toot.reblog);
+    }
+    static onlyReplies(toots) {
+        return toots.filter(toot => toot.inReplyToAccountId);
     }
     // Return a new array of a toot property collected and uniquified from an array of toots
     // e.g. with two toots having {sources: ["a", "b"]} and {sources: ["b", "c"]} we get ["a", "b", "c"]

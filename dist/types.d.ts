@@ -1,12 +1,12 @@
 import { mastodon } from 'masto';
 import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
 import Account from './api/objects/account';
-import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
+import BooleanFilter, { BooleanFilterArgs } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { FILTER_OPTION_DATA_SOURCES, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
+import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<ApiCacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;
@@ -27,13 +27,17 @@ export type StatusList = TootLike[];
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
+export declare const FILTER_OPTION_DATA_SOURCES: readonly [...TagTootsCacheKey[], BooleanFilterName.LANGUAGE, ScoreName.FAVOURITED_ACCOUNTS];
+export type FilterOptionDataSource = (typeof FILTER_OPTION_DATA_SOURCES)[number];
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
-export type FilterOptionDataSource = typeof FILTER_OPTION_DATA_SOURCES[number];
 type FilterOptionUserData = {
     [key in FilterOptionDataSource]?: number;
 };
 export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
+    displayName?: string;
+    displayNameWithEmoji?: string;
+    isFollowed?: boolean;
 }
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];

@@ -20,8 +20,8 @@ const class_transformer_1 = require("class-transformer");
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const config_1 = require("../../config");
-const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT = { year: "numeric", month: "short", day: "numeric" };
@@ -107,7 +107,7 @@ class Account {
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || [], fontSize);
     }
-    // Get the account's instance info from the public API (note some servers don't provide this)
+    // Get the account's instance info from the API (note some servers don't provide this)
     async homeInstanceInfo() {
         const server = new mastodon_server_1.default(this.homeserver());
         return await server.fetchServerInfo();
@@ -156,7 +156,17 @@ class Account {
     // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
     static countAccounts(accounts) {
-        return (0, collection_helpers_1.countValues)(accounts, (account) => account.webfingerURI);
+        return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
+            counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
+            return counts;
+        }, {});
+    }
+    static countAccountsWithObj(accounts) {
+        return accounts.reduce((counts, account) => {
+            counts[account.webfingerURI] ??= { account, count: 0 };
+            counts[account.webfingerURI].count += 1;
+            return counts;
+        }, {});
     }
     static logSuspendedAccounts(accounts, logPrefix = 'logSuspendedAccounts()') {
         accounts.filter(a => !!a.suspended).forEach(a => {

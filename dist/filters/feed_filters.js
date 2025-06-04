@@ -34,6 +34,7 @@ const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
+const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger_1 = require("../helpers/logger");
@@ -103,14 +104,22 @@ async function updateBooleanFilterOptions(filters, toots) {
     const logPrefx = `<updateBooleanFilterOptions()>`;
     const suppressedNonLatinTags = {};
     populateMissingFilters(filters); // Ensure all filters are instantiated
-    const tootCounts = Object.values(boolean_filter_1.BooleanFilterName).reduce((counts, propertyName) => {
+    const tootCounts = Object.values(enums_1.BooleanFilterName).reduce((counts, propertyName) => {
         counts[propertyName] = {};
         return counts;
     }, {});
+    const optionProperties = Object.values(enums_1.BooleanFilterName).reduce((objs, propertyName) => {
+        objs[propertyName] = {};
+        return objs;
+    }, {});
     toots.forEach(toot => {
-        (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.APP], toot.realToot().application.name);
-        (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
-        (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
+        (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.APP], toot.realToot().application.name);
+        (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
+        (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
+        optionProperties[enums_1.BooleanFilterName.USER][toot.realToot().account.webfingerURI] ??= {
+            displayName: toot.realToot().account.displayName,
+            name: toot.realToot().account.webfingerURI,
+        };
         // Count tags
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
         // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
@@ -121,24 +130,24 @@ async function updateBooleanFilterOptions(filters, toots) {
                 return;
             }
             ;
-            (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.HASHTAG], tag.name);
+            (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.HASHTAG], tag.name);
         });
         // Aggregate counts for each type of toot
         Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
-                (0, collection_helpers_1.incrementCount)(tootCounts[boolean_filter_1.BooleanFilterName.TYPE], name);
+                (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.TYPE], name);
             }
         });
     });
     // Build the options for all the boolean filters based on the counts
     for (const [propertyName, counts] of Object.entries(tootCounts)) {
-        await filters.booleanFilters[propertyName].setOptions(counts);
+        await filters.booleanFilters[propertyName].setOptions(counts, optionProperties[propertyName]);
     }
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
         logger.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
-    Storage_1.default.setFilters(filters); // NOTE: there's no "await" here...
+    await Storage_1.default.setFilters(filters);
     logger.trace(`${logPrefx} completed, built filters:`, filters);
     return filters;
 }
@@ -152,7 +161,7 @@ function updateHashtagCounts(filters, toots) {
     const newTootTagCounts = {};
     logger.log(`${logPrefx} Launched...`);
     const startedAt = Date.now();
-    Object.keys(filters.booleanFilters[boolean_filter_1.BooleanFilterName.HASHTAG].options).forEach((tagName) => {
+    Object.keys(filters.booleanFilters[enums_1.BooleanFilterName.HASHTAG].options).forEach((tagName) => {
         toots.forEach((toot) => {
             if (toot.realToot().containsString(tagName)) {
                 (0, collection_helpers_1.incrementCount)(newTootTagCounts, tagName);
@@ -160,7 +169,7 @@ function updateHashtagCounts(filters, toots) {
         });
     });
     logger.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
-    filters.booleanFilters[boolean_filter_1.BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
+    filters.booleanFilters[enums_1.BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage_1.default.setFilters(filters);
 }
 exports.updateHashtagCounts = updateHashtagCounts;
@@ -171,7 +180,7 @@ function populateMissingFilters(filters) {
     numeric_filter_1.FILTERABLE_SCORES.forEach(scoreName => {
         filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ title: scoreName });
     });
-    Object.values(boolean_filter_1.BooleanFilterName).forEach((booleanFilterName) => {
+    Object.values(enums_1.BooleanFilterName).forEach((booleanFilterName) => {
         const filter = filters.booleanFilters[booleanFilterName];
         if (!filter) {
             logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);

@@ -21,7 +21,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
             const obj = { name, numToots };
             return obj;
         });
-        return new obj_with_counts_list_1.default(objs, label);
+        return new BooleanFilterOptionList(objs, label);
     }
 }
 exports.default = BooleanFilterOptionList;

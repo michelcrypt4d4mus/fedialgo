@@ -65,4 +65,31 @@ export declare enum TrendingType {
     STATUSES = "statuses",
     TAGS = "tags"
 }
-export declare const FILTER_OPTION_DATA_SOURCES: readonly [...TagTootsCacheKey[], ScoreName.FAVOURITED_ACCOUNTS];
+export declare enum BooleanFilterName {
+    HASHTAG = "hashtag",
+    LANGUAGE = "language",
+    TYPE = "type",
+    USER = "user",
+    APP = "app"
+}
+export declare enum TypeFilterName {
+    AUDIO = "audio",
+    BOT = "bot",
+    DIRECT_MESSAGE = "direct messages",
+    FOLLOWED_ACCOUNTS = "followed accounts",
+    FOLLOWED_HASHTAGS = "followed hashtags",
+    IMAGES = "images",
+    LINKS = "links",
+    MENTIONS = "mentions",
+    PARTICIPATED_TAGS = "participated hashtags",
+    POLLS = "polls",
+    PRIVATE = "private",
+    REPLIES = "replies",
+    RETOOTS = "retoots",
+    SENSITIVE = "sensitive",
+    SPOILERED = "spoilered",
+    TRENDING_LINKS = "trending links",
+    TRENDING_TAGS = "trending hashtags",
+    TRENDING_TOOTS = "trending toots",
+    VIDEOS = "videos"
+}
