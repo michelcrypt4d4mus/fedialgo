@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.62.0
 * Add a `displayName` property to `BooleanFilterOption` (and populate it for languages and accounts)
 * Add sum of reply/favourite/retoot counts to user filter options' `numToots`
 * Add usage counts to language filter options' `numToots`
@@ -11,7 +13,7 @@
 * On API error, check whether merge is supported _before_ checking whether cache should be discarded in favor of new rows
 * (Demo App) Persist the state of each filter section's header checkboxes between sessions
 
-# v0.61.0
+## v0.61.0
 * Strip useless params out of `validateParams()` logging of API params
 * (Demo App) Add a "Hide Filter Highlights" checkbox to the main Feed page
 * (Demo App) Preserve the user's checkbox selection states between sessions
