@@ -266,13 +266,19 @@ export function makePercentileChunks<T>(
 
 
 // Remove keys whose value is null or are in the keysToRemove array.
-export function removeKeys<T extends object, K extends keyof T>(obj: T, keysToRemove?: K[]): Partial<T> {
+export function removeKeys<T extends object, K extends keyof T>(
+    obj: T,
+    keysToRemove?: K[],
+    keysToRemoveIfFalse?: K[]
+): Partial<T> {
     const copy = { ...obj };
 
     Object.keys(copy).forEach((k) => {
         const key = k as K;
 
         if ((keysToRemove || []).includes(key) || copy[key] === null || copy[key] === undefined) {
+            delete copy[key];
+        } else if ((keysToRemoveIfFalse || []).includes(key) && copy[key] === false) {
             delete copy[key];
         }
     });

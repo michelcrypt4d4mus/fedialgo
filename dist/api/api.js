@@ -53,7 +53,10 @@ const enums_2 = require("../enums");
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+// Logging
 const LOG_PREFIX = 'API';
+const PARAMS_TO_NOT_LOG = ["breakIf", "fetch", "logger", "processFxn"];
+const PARAMS_TO_NOT_LOG_IF_FALSE = ["skipCache", "skipMutex", "moar"];
 // Loggers prefixed by [API]
 const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
 const apiLogger = getLogger();
@@ -615,7 +618,7 @@ class MastoApi {
         }
         // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
         if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
-            const paramsToLog = (0, collection_helpers_1.removeKeys)(params, ["breakIf", "fetch", "logger", "processFxn"]);
+            const paramsToLog = (0, collection_helpers_1.removeKeys)(params, PARAMS_TO_NOT_LOG, PARAMS_TO_NOT_LOG_IF_FALSE);
             logger.trace(`validateFetchParams() :`, paramsToLog);
         }
     }

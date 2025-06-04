@@ -219,11 +219,14 @@ function makePercentileChunks(array, fxn, numPercentiles) {
 exports.makePercentileChunks = makePercentileChunks;
 ;
 // Remove keys whose value is null or are in the keysToRemove array.
-function removeKeys(obj, keysToRemove) {
+function removeKeys(obj, keysToRemove, keysToRemoveIfFalse) {
     const copy = { ...obj };
     Object.keys(copy).forEach((k) => {
         const key = k;
         if ((keysToRemove || []).includes(key) || copy[key] === null || copy[key] === undefined) {
+            delete copy[key];
+        }
+        else if ((keysToRemoveIfFalse || []).includes(key) && copy[key] === false) {
             delete copy[key];
         }
     });
