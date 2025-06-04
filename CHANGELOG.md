@@ -1,6 +1,8 @@
 # NEXT RELEASE
-* Truncate 1/3rd of the cached timeline toots on startup if the cache is already at max records
-* Add bsd.network to noMauServers list
+
+### v0.62.1
+* At startup, if timeline cache is full truncate it down to `config.toots.truncateFullTimelineToLength` records
+* Add bsd.network to `noMauServers` list
 * Add "mastodon" to the list of tags that can only match as tag names
 
 ## v0.62.0
