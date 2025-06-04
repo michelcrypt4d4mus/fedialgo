@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Truncate 1/3rd of the cached timeline toots on startup if the cache is already at max records
 * Add bsd.network to noMauServers list
+* Add "mastodon" to the list of tags that can only match as tag names
 
 ## v0.62.0
 * Add a `displayName` property to `BooleanFilterOption` (and populate it for languages and accounts)
