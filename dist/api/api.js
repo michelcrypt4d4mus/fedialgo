@@ -569,20 +569,20 @@ class MastoApi {
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (!cacheResult?.minMaxId) {
+        if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            logger.warn(`${msg} Merging cached rows with new rows based on ID`);
+            return [...cachedRows, ...rows];
+        }
+        else if (!cacheResult?.minMaxId) {
             msg += ` Query didn't use incremental min/max ID.`;
             if (rows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
                 return cachedRows;
             }
             else {
-                logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's more of them.`);
+                logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's fewer of them.`);
                 return rows;
             }
-        }
-        else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            logger.warn(`${msg} Merging cached rows with new rows.`);
-            return [...cachedRows, ...rows];
         }
         else {
             logger.error(`Shouldn't be here! All endpoints either support min/max ID or unique IDs: ${msg}`);

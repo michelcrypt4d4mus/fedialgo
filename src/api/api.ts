@@ -11,10 +11,10 @@ import Account from "./objects/account";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import Storage, {
-    type CacheTimestamp,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
     STORAGE_KEYS_WITH_UNIQUE_IDS,
+    type CacheTimestamp,
 } from "../Storage";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { extractDomain } from '../helpers/string_helpers';
@@ -682,19 +682,19 @@ export default class MastoApi {
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (!cacheResult?.minMaxId) {
+        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            logger.warn(`${msg} Merging cached rows with new rows based on ID`);
+            return [...cachedRows, ...rows];
+        } else if (!cacheResult?.minMaxId) {
             msg += ` Query didn't use incremental min/max ID.`;
 
             if (rows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
                 return cachedRows;
             } else {
-                logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's more of them.`);
+                logger.warn(`${msg} Keeping the new rows, discarding cached rows bc there's fewer of them.`);
                 return rows;
             }
-        } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            logger.warn(`${msg} Merging cached rows with new rows.`);
-            return [...cachedRows, ...rows];
         } else {
             logger.error(`Shouldn't be here! All endpoints either support min/max ID or unique IDs: ${msg}`);
             return rows;
