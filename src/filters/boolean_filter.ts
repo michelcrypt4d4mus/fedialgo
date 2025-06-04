@@ -11,45 +11,14 @@ import TootFilter from "./toot_filter";
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
-import { languageName } from '../helpers/language_helper';
-import { ScoreName, TagTootsCacheKey } from '../enums';
+//import { languageName } from '../helpers/language_helper';
+import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
 
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-
-export enum BooleanFilterName {
-    HASHTAG = 'hashtag',
-    LANGUAGE = 'language',
-    TYPE = 'type',
-    USER = 'user',
-    APP = 'app',  // App filter visibility is controlled by Config.isAppFilterVisible
-};
-
-// The values have spaces to make them more usable in the demo app's presentation
-export enum TypeFilterName {
-    AUDIO = 'audio',
-    BOT = 'bot',
-    DIRECT_MESSAGE = 'direct messages',
-    FOLLOWED_ACCOUNTS = 'followed accounts',
-    FOLLOWED_HASHTAGS = 'followed hashtags',
-    IMAGES = 'images',
-    LINKS = 'links',
-    MENTIONS = 'mentions',
-    PARTICIPATED_TAGS = 'participated hashtags',
-    POLLS = 'polls',
-    PRIVATE = 'private',
-    REPLIES = 'replies',
-    RETOOTS = 'retoots',
-    SENSITIVE = 'sensitive',
-    SPOILERED = 'spoilered',
-    TRENDING_LINKS = 'trending links',
-    TRENDING_TAGS = 'trending hashtags',
-    TRENDING_TOOTS = 'trending toots',
-    VIDEOS = 'videos',
-};
 
 export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
@@ -178,7 +147,7 @@ export default class BooleanFilter extends TootFilter {
             const userData = await MastoApi.instance.getUserData();
 
             this.options.objs.forEach((option) => {
-                option.displayName = languageName(option.name);
+                option.displayName = '' //languageName(option.name);
                 option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
             });
         } else if (this.title == BooleanFilterName.USER) {

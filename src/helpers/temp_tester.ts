@@ -1,5 +1,5 @@
 import { TagTootsCacheKey, ScoreName } from '../enums';
-import { BooleanFilterName } from '../filters/boolean_filter';
+import { BooleanFilterName } from '../enums';
 
 
 // These server as both Both filter option property names as well as demo app gradient config keys

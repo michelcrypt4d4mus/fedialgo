@@ -5,7 +5,8 @@ import { mastodon } from 'masto';
 import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
 
 import Account from './api/objects/account';
-import BooleanFilter, { BooleanFilterArgs, BooleanFilterName } from './filters/boolean_filter';
+import BooleanFilter, { BooleanFilterArgs } from './filters/boolean_filter';
+import { BooleanFilterName } from './enums';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';

@@ -8,7 +8,8 @@ import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
 import AlreadyShownScorer from './scorer/feature/already_shown_scorer';
-import BooleanFilter, { BooleanFilterName, TypeFilterName } from "./filters/boolean_filter";
+import BooleanFilter, {  } from "./filters/boolean_filter";
+import { BooleanFilterName, TypeFilterName } from './enums';
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';

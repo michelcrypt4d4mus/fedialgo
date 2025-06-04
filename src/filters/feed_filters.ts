@@ -1,7 +1,8 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
-import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterName, isBooleanFilterName } from "./boolean_filter";
+import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
+import { BooleanFilterName } from '../enums';
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";

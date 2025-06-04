@@ -3,7 +3,7 @@
  * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
 // Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
 // Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 // This should live in Storage.ts but that creates a circular dependency with config.ts
@@ -92,5 +92,38 @@ var TrendingType;
     TrendingType["STATUSES"] = "statuses";
     TrendingType["TAGS"] = "tags";
 })(TrendingType || (exports.TrendingType = TrendingType = {}));
+;
+var BooleanFilterName;
+(function (BooleanFilterName) {
+    BooleanFilterName["HASHTAG"] = "hashtag";
+    BooleanFilterName["LANGUAGE"] = "language";
+    BooleanFilterName["TYPE"] = "type";
+    BooleanFilterName["USER"] = "user";
+    BooleanFilterName["APP"] = "app";
+})(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
+;
+// The values have spaces to make them more usable in the demo app's presentation
+var TypeFilterName;
+(function (TypeFilterName) {
+    TypeFilterName["AUDIO"] = "audio";
+    TypeFilterName["BOT"] = "bot";
+    TypeFilterName["DIRECT_MESSAGE"] = "direct messages";
+    TypeFilterName["FOLLOWED_ACCOUNTS"] = "followed accounts";
+    TypeFilterName["FOLLOWED_HASHTAGS"] = "followed hashtags";
+    TypeFilterName["IMAGES"] = "images";
+    TypeFilterName["LINKS"] = "links";
+    TypeFilterName["MENTIONS"] = "mentions";
+    TypeFilterName["PARTICIPATED_TAGS"] = "participated hashtags";
+    TypeFilterName["POLLS"] = "polls";
+    TypeFilterName["PRIVATE"] = "private";
+    TypeFilterName["REPLIES"] = "replies";
+    TypeFilterName["RETOOTS"] = "retoots";
+    TypeFilterName["SENSITIVE"] = "sensitive";
+    TypeFilterName["SPOILERED"] = "spoilered";
+    TypeFilterName["TRENDING_LINKS"] = "trending links";
+    TypeFilterName["TRENDING_TAGS"] = "trending hashtags";
+    TypeFilterName["TRENDING_TOOTS"] = "trending toots";
+    TypeFilterName["VIDEOS"] = "videos";
+})(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
 //# sourceMappingURL=enums.js.map

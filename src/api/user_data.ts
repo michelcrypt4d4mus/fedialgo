@@ -13,7 +13,7 @@ import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { BooleanFilterName } from "../filters/boolean_filter";
+import { BooleanFilterName } from '../enums';
 import { CacheKey, ScoreName, TagTootsCacheKey } from "../enums";
 import { config } from "../config";
 import { addDicts, countValues, sortKeysByValue } from "../helpers/collection_helpers";

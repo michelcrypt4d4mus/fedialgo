@@ -20,7 +20,7 @@ import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
 import { repairTag } from "./tag";
-import { TypeFilterName } from "../../filters/boolean_filter";
+import { TypeFilterName } from '../../enums';
 import {
     batchMap,
     filterWithLog,

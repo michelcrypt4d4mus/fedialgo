@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.TypeFilterName = exports.BooleanFilterName = void 0;
+exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = void 0;
 /*
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
@@ -16,83 +16,50 @@ const toot_filter_1 = __importDefault(require("./toot_filter"));
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const language_helper_1 = require("../helpers/language_helper");
+//import { languageName } from '../helpers/language_helper';
 const enums_1 = require("../enums");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-var BooleanFilterName;
-(function (BooleanFilterName) {
-    BooleanFilterName["HASHTAG"] = "hashtag";
-    BooleanFilterName["LANGUAGE"] = "language";
-    BooleanFilterName["TYPE"] = "type";
-    BooleanFilterName["USER"] = "user";
-    BooleanFilterName["APP"] = "app";
-})(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
-;
-// The values have spaces to make them more usable in the demo app's presentation
-var TypeFilterName;
-(function (TypeFilterName) {
-    TypeFilterName["AUDIO"] = "audio";
-    TypeFilterName["BOT"] = "bot";
-    TypeFilterName["DIRECT_MESSAGE"] = "direct messages";
-    TypeFilterName["FOLLOWED_ACCOUNTS"] = "followed accounts";
-    TypeFilterName["FOLLOWED_HASHTAGS"] = "followed hashtags";
-    TypeFilterName["IMAGES"] = "images";
-    TypeFilterName["LINKS"] = "links";
-    TypeFilterName["MENTIONS"] = "mentions";
-    TypeFilterName["PARTICIPATED_TAGS"] = "participated hashtags";
-    TypeFilterName["POLLS"] = "polls";
-    TypeFilterName["PRIVATE"] = "private";
-    TypeFilterName["REPLIES"] = "replies";
-    TypeFilterName["RETOOTS"] = "retoots";
-    TypeFilterName["SENSITIVE"] = "sensitive";
-    TypeFilterName["SPOILERED"] = "spoilered";
-    TypeFilterName["TRENDING_LINKS"] = "trending links";
-    TypeFilterName["TRENDING_TAGS"] = "trending hashtags";
-    TypeFilterName["TRENDING_TOOTS"] = "trending toots";
-    TypeFilterName["VIDEOS"] = "videos";
-})(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
-;
-const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(BooleanFilterName)(value);
+const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
-const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(TypeFilterName)(value);
+const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.TypeFilterName)(value);
 exports.isTypeFilterName = isTypeFilterName;
 // Defining a new filter just requires adding a new entry to TYPE_FILTERS
 exports.TYPE_FILTERS = {
-    [TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments?.length,
-    [TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
-    [TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
-    [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
-    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments?.length,
-    [TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
-    [TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
-    [TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
-    [TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
-    [TypeFilterName.PRIVATE]: (toot) => !!toot.realToot().isPrivate(),
-    [TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
-    [TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
-    [TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
-    [TypeFilterName.SPOILERED]: (toot) => !!toot.realToot().spoilerText,
-    [TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
-    [TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot().trendingTags?.length,
-    [TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments?.length,
+    [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments?.length,
+    [enums_1.TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
+    [enums_1.TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
+    [enums_1.TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
+    [enums_1.TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
+    [enums_1.TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments?.length,
+    [enums_1.TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
+    [enums_1.TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
+    [enums_1.TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
+    [enums_1.TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
+    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot().isPrivate(),
+    [enums_1.TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
+    [enums_1.TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
+    [enums_1.TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
+    [enums_1.TypeFilterName.SPOILERED]: (toot) => !!toot.realToot().spoilerText,
+    [enums_1.TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
+    [enums_1.TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot().trendingTags?.length,
+    [enums_1.TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
+    [enums_1.TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments?.length,
 };
 // Defining a new filter category just requires adding a new entry to TYPE_FILTERS
 const TOOT_MATCHERS = {
-    [BooleanFilterName.APP]: (toot, selectedOptions) => {
+    [enums_1.BooleanFilterName.APP]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot().application?.name);
     },
-    [BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
+    [enums_1.BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
         return !!selectedOptions.find((v) => toot.realToot().containsString(v));
     },
-    [BooleanFilterName.LANGUAGE]: (toot, selectedOptions) => {
+    [enums_1.BooleanFilterName.LANGUAGE]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot().language || config_1.config.locale.defaultLanguage);
     },
-    [BooleanFilterName.TYPE]: (toot, selectedOptions) => {
+    [enums_1.BooleanFilterName.TYPE]: (toot, selectedOptions) => {
         return selectedOptions.some((v) => exports.TYPE_FILTERS[v](toot));
     },
-    [BooleanFilterName.USER]: (toot, selectedOptions) => {
+    [enums_1.BooleanFilterName.USER]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot().account.webfingerURI);
     },
 };
@@ -105,13 +72,13 @@ class BooleanFilter extends toot_filter_1.default {
         let optionInfo;
         let description;
         // Set up defaults for type filters so something always shows up in the options // TODO: is this necessary?
-        if (title == BooleanFilterName.TYPE) {
+        if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
-            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(TypeFilterName));
+            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(enums_1.TypeFilterName));
             optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionCounts, title);
         }
         else {
-            const descriptionWord = title == BooleanFilterName.HASHTAG ? "including" : "from";
+            const descriptionWord = title == enums_1.BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
             optionInfo = new boolean_filter_option_list_1.default([], title);
         }
@@ -152,7 +119,7 @@ class BooleanFilter extends toot_filter_1.default {
         this.options = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
         this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo); // Remove options that are no longer valid
         // Populate additional properties on each option - participation counts, favourited counts, etc.
-        if (this.title == BooleanFilterName.HASHTAG) {
+        if (this.title == enums_1.BooleanFilterName.HASHTAG) {
             const dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
             Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
                 this.options.objs.forEach((option) => {
@@ -162,14 +129,14 @@ class BooleanFilter extends toot_filter_1.default {
                 });
             });
         }
-        else if (this.title == BooleanFilterName.LANGUAGE) {
+        else if (this.title == enums_1.BooleanFilterName.LANGUAGE) {
             const userData = await api_1.default.instance.getUserData();
             this.options.objs.forEach((option) => {
-                option.displayName = (0, language_helper_1.languageName)(option.name);
-                option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
+                option.displayName = ''; //languageName(option.name);
+                option[enums_1.BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
             });
         }
-        else if (this.title == BooleanFilterName.USER) {
+        else if (this.title == enums_1.BooleanFilterName.USER) {
             const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
             this.options.objs.forEach((option) => {
                 const accountOption = favouritedAccounts.getObj(option.name);

@@ -35,10 +35,11 @@ const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
 const already_shown_scorer_1 = __importDefault(require("./scorer/feature/already_shown_scorer"));
-const boolean_filter_1 = __importStar(require("./filters/boolean_filter"));
+const boolean_filter_1 = __importDefault(require("./filters/boolean_filter"));
 exports.BooleanFilter = boolean_filter_1.default;
-Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return boolean_filter_1.BooleanFilterName; } });
-Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return boolean_filter_1.TypeFilterName; } });
+const enums_1 = require("./enums");
+Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return enums_1.BooleanFilterName; } });
+Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return enums_1.TypeFilterName; } });
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
 const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
@@ -77,8 +78,8 @@ const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
-const enums_1 = require("./enums");
-Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
+const enums_2 = require("./enums");
+Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_2.TagTootsCacheKey; } });
 const temp_tester_1 = require("./helpers/temp_tester");
 Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return temp_tester_1.FILTER_OPTION_DATA_SOURCES; } });
 const log_helpers_1 = require("./helpers/log_helpers");
@@ -97,12 +98,12 @@ const language_helper_1 = require("./helpers/language_helper");
 Object.defineProperty(exports, "LANGUAGE_CODES", { enumerable: true, get: function () { return language_helper_1.LANGUAGE_CODES; } });
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
-const enums_2 = require("./enums");
-Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_2.MediaCategory; } });
-Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_2.TrendingType; } });
 const enums_3 = require("./enums");
-Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_3.NonScoreWeightName; } });
-Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_3.ScoreName; } });
+Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_3.MediaCategory; } });
+Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_3.TrendingType; } });
+const enums_4 = require("./enums");
+Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_4.NonScoreWeightName; } });
+Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_4.ScoreName; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
@@ -119,7 +120,7 @@ const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
 const EMPTY_TRENDING_DATA = {
     links: [],
-    tags: new tag_list_1.default([], enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
+    tags: new tag_list_1.default([], enums_2.TagTootsCacheKey.TRENDING_TAG_TOOTS),
     servers: {},
     toots: []
 };
@@ -193,7 +194,7 @@ class TheAlgorithm {
     weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
-    }, Object.values(enums_3.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
+    }, Object.values(enums_4.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {
         nonScoreWeights[weightName] = Object.assign({}, config_1.config.scoring.nonScoreWeightsConfig[weightName]);
         nonScoreWeights[weightName].minValue = config_1.config.scoring.nonScoreWeightMinValue;
         return nonScoreWeights;
@@ -235,10 +236,10 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_2.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
+            hashtagToots(enums_2.TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
+            hashtagToots(enums_2.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
+            hashtagToots(enums_2.TagTootsCacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
             api_1.default.instance.getUserData().then((userData) => this.userData = userData),
@@ -286,11 +287,11 @@ class TheAlgorithm {
     // Note this won't always be completely up to date, but it will be close enough for the UI
     filterOptionDataSources() {
         return {
-            [boolean_filter_1.BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
-            [enums_3.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
+            [enums_1.BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
+            [enums_4.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
+            [enums_2.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
+            [enums_2.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
+            [enums_2.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
         };
     }
     // Return an object describing the state of the world. Mostly for debugging.
@@ -370,7 +371,7 @@ class TheAlgorithm {
         scorer_cache_1.default.resetScorers();
         await Storage_1.default.clearAll();
         if (complete) {
-            await Storage_1.default.remove(enums_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
+            await Storage_1.default.remove(enums_2.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
         }
         else {
             await this.loadCachedData();
@@ -510,8 +511,8 @@ class TheAlgorithm {
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
-        this.feed = await Storage_1.default.getCoerced(enums_1.CacheKey.TIMELINE_TOOTS);
-        this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);
+        this.feed = await Storage_1.default.getCoerced(enums_2.CacheKey.TIMELINE_TOOTS);
+        this.homeFeed = await Storage_1.default.getCoerced(enums_2.CacheKey.HOME_TIMELINE_TOOTS);
         this.trendingData = await Storage_1.default.getTrendingData();
         this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
@@ -574,7 +575,7 @@ class TheAlgorithm {
         await this.prepareScorers(); // Make sure the scorers are ready to go
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, this.logger.tempLogger('scoreAndFilterFeed()'));
-        await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
+        await Storage_1.default.set(enums_2.CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
@@ -631,7 +632,7 @@ class TheAlgorithm {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
             this.logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
+            await Storage_1.default.set(enums_2.CacheKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {

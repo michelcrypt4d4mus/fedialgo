@@ -32,7 +32,7 @@ const environment_helpers_1 = require("../../helpers/environment_helpers");
 const logger_1 = require("../../helpers/logger");
 const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
-const boolean_filter_1 = require("../../filters/boolean_filter");
+const enums_2 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -220,9 +220,9 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsMsg() {
         let msgs = [
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS),
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.TRENDING_TAGS),
-            this.containsTagsOfTypeMsg(boolean_filter_1.TypeFilterName.PARTICIPATED_TAGS),
+            this.containsTagsOfTypeMsg(enums_2.TypeFilterName.FOLLOWED_HASHTAGS),
+            this.containsTagsOfTypeMsg(enums_2.TypeFilterName.TRENDING_TAGS),
+            this.containsTagsOfTypeMsg(enums_2.TypeFilterName.PARTICIPATED_TAGS),
         ];
         msgs = msgs.filter((msg) => msg);
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
@@ -454,13 +454,13 @@ class Toot {
     // Generate a string describing the followed and trending tags in the toot
     containsTagsOfTypeMsg(tagType) {
         let tags = [];
-        if (tagType == boolean_filter_1.TypeFilterName.FOLLOWED_HASHTAGS) {
+        if (tagType == enums_2.TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
         }
-        else if (tagType == boolean_filter_1.TypeFilterName.PARTICIPATED_TAGS) {
+        else if (tagType == enums_2.TypeFilterName.PARTICIPATED_TAGS) {
             tags = this.participatedTags || [];
         }
-        else if (tagType == boolean_filter_1.TypeFilterName.TRENDING_TAGS) {
+        else if (tagType == enums_2.TypeFilterName.TRENDING_TAGS) {
             tags = this.trendingTags || [];
         }
         else {
