@@ -1,4 +1,7 @@
 # NEXT RELEASE
+
+### v0.61.1
+* On API error, check whether merge is supported _before_ checking whether cache should be discarded in favor of new rows
 * (Demo App) Persist the state of each filter section's header checkboxes between sessions
 
 # v0.61.0
