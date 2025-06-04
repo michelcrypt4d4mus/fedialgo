@@ -136,7 +136,7 @@ class MastoApi {
                     return true;
                 }
                 oldestTootStr = `oldest toot: ${(0, time_helpers_1.quotedISOFmt)(oldestTootAt)}`;
-                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr}), now build`);
+                logger.debug(`Got ${newStatuses.length} new toots, ${allStatuses.length} total (${oldestTootStr})`);
                 const newToots = await toot_1.default.buildToots(newStatuses, cacheKey);
                 await mergeTootsToFeed(newToots, logger);
                 allNewToots = allNewToots.concat(newToots);

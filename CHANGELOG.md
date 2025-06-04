@@ -1,7 +1,8 @@
 # NEXT RELEASE
+* Truncate 1/3rd of the cached timeline toots on startup if the cache is already at max records
 * Add bsd.network to noMauServers list
 
-# v0.62.0
+## v0.62.0
 * Add a `displayName` property to `BooleanFilterOption` (and populate it for languages and accounts)
 * Add sum of reply/favourite/retoot counts to user filter options' `numToots`
 * Add usage counts to language filter options' `numToots`
