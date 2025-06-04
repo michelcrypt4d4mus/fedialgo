@@ -114,7 +114,8 @@ class BooleanFilter extends toot_filter_1.default {
     optionsSortedByValue(minToots = 0) {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
-    // Update the filter with the possible options that can be selected for selectedOptions
+    // Update the filter with the possible options that can be selected.
+    // 'optionProps' is an optional set of properties that should be added to the generated BooleanFilterOptions
     async setOptions(optionInfo, optionProps) {
         this.options = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
         this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo); // Remove options that are no longer valid
@@ -145,7 +146,7 @@ class BooleanFilter extends toot_filter_1.default {
                     option.displayName ??= accountOption.displayName;
                     option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = accountOption.numToots || 0;
                 }
-                if (optionProp) {
+                else if (optionProp) {
                     option.displayName ??= optionProp.displayName;
                 }
             });
