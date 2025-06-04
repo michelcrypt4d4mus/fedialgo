@@ -12,7 +12,7 @@ import MastoApi from "./api";
 import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
-import Toot from "./objects/toot";
+import Toot, { UNKNOWN } from "./objects/toot";
 import { BooleanFilterName } from '../enums';
 import { CacheKey, ScoreName, TagTootsCacheKey } from "../enums";
 import { config } from "../config";
@@ -116,7 +116,7 @@ export default class UserData {
 
         // TODO: remove this eventually
         responses[4].forEach(toot => {
-            if (toot.application) {
+            if (toot.application && toot.application.name != UNKNOWN) {
                 logger.trace(`Found recent user toot with application set:`, toot);
             }
         })

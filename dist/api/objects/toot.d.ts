@@ -3,6 +3,7 @@ import Account from "./account";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
 import { type AccountLike, type FeedFilterSettings, type MastodonTag, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TrendingLink, type WeightedScore } from "../../types";
+export declare const UNKNOWN = "unknown";
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;
     followedTags?: MastodonTag[];
@@ -139,9 +140,10 @@ export default class Toot implements TootObj {
     private isUsersOwnToot;
     private repair;
     static buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]>;
-    static completeToots(toots: TootLike[], logger: Logger, isDeepInspect: boolean): Promise<Toot[]>;
+    static completeToots(toots: TootLike[], logger: Logger, source?: string): Promise<Toot[]>;
     static dedupeToots(toots: Toot[], inLogger?: Logger): Toot[];
     static removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]>;
+    static removeUsersOwnToots(toots: Toot[], logger: Logger): Toot[];
     static onlyRetoots(toots: Toot[]): Toot[];
     static onlyReplies(toots: Toot[]): Toot[];
     private static uniqFlatMap;

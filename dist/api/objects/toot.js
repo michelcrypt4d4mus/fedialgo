@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = void 0;
 /*
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
@@ -51,10 +51,10 @@ var TootCacheKey;
     TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
 })(TootCacheKey || (TootCacheKey = {}));
 ;
+exports.UNKNOWN = "unknown";
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
-const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
@@ -332,11 +332,7 @@ class Toot {
     // Return false if Toot should be discarded from feed altogether and permanently
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters) {
-        if (this.isUsersOwnToot()) {
-            tootLogger.trace(`Removing fedialgo user's own toot:`, this.describe());
-            return false;
-        }
-        else if (this.reblog?.muted || this.muted) {
+        if (this.reblog?.muted || this.muted) {
             tootLogger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         }
@@ -426,7 +422,13 @@ class Toot {
     // Some properties cannot be repaired and/or set until info about the user is available.
     // Also some properties are very slow - in particular all the tag and trendingLink calcs.
     // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
-    completeProperties(userData, trendingLinks, trendingTags, isDeepInspect) {
+    completeProperties(userData, trendingLinks, trendingTags, source) {
+        if (source) {
+            this.sources ??= [];
+            if (!this.sources.includes(source))
+                this.sources?.push(source);
+        }
+        const isDeepInspect = !source;
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
         if (this.reblog) {
@@ -498,7 +500,8 @@ class Toot {
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
         const text = this.contentStripped();
-        if (this.isUsersOwnToot() || text.length < MIN_CHARS_FOR_LANG_DETECT) {
+        // if (this.isUsersOwnToot() || text.length < MIN_CHARS_FOR_LANG_DETECT) {
+        if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config_1.config.locale.defaultLanguage;
             return;
         }
@@ -524,7 +527,7 @@ class Toot {
             if (this.language?.startsWith(chosenLanguage)) {
                 return;
             }
-            else if (this.language && this.language != UNKNOWN) {
+            else if (this.language && this.language != exports.UNKNOWN) {
                 logTrace(`Using chosenLanguage "${chosenLanguage}" to replace "${this.language}"`);
             }
             this.language = chosenLanguage;
@@ -548,6 +551,11 @@ class Toot {
         else {
             logTrace(`Defaulting language prop to "en"`);
             this.language ??= config_1.config.locale.defaultLanguage;
+        }
+        // If this is the user's own toot and we have a language set, log it
+        // TODO: remove this eventually
+        if (this.isUsersOwnToot() && this.language != config_1.config.locale.defaultLanguage) {
+            repairLogger.warn(`User's own toot language set to "${this.language}"`, langLogObj);
         }
     }
     // Returns true if the toot should be re-completed
@@ -577,8 +585,8 @@ class Toot {
     //   - Repair mediaAttachment types if reparable based on URL file extension
     //   - Repair StatusMention objects for users on home server
     repair() {
-        this.application ??= { name: UNKNOWN };
-        this.application.name ??= UNKNOWN;
+        this.application ??= { name: exports.UNKNOWN };
+        this.application.name ??= exports.UNKNOWN;
         this.tags.forEach(tag_1.repairTag); // Repair Tags
         this.determineLanguage(); // Determine language
         if (this.reblog) {
@@ -591,7 +599,7 @@ class Toot {
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
-            if (media.type == UNKNOWN) {
+            if (media.type == exports.UNKNOWN) {
                 const category = (0, string_helpers_1.determineMediaCategory)(media.remoteUrl);
                 if (category) {
                     repairLogger.trace(`Repaired broken ${category} attachment in toot:`, this);
@@ -624,7 +632,8 @@ class Toot {
     //       Class methods       //
     ///////////////////////////////
     // Build array of new Toot objects from an array of Status objects (or Toots).
-    // Toots returned by this method should have most of their properties set correctly.
+    // Toots returned are sorted by score and should have most of their properties set correctly.
+    //   - skipSort flag means don't sort by score and don't remove the fedialgo user's own toots
     static async buildToots(statuses, source, skipSort) {
         if (!statuses.length)
             return []; // Avoid the data fetching if we don't to build anything
@@ -632,23 +641,23 @@ class Toot {
         const startedAt = new Date();
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
-        let toots = await this.completeToots(statuses, logger, false);
-        // TODO: without the 'if skipSort' this removes users own toots from threads
-        if (!skipSort)
-            toots = await this.removeInvalidToots(toots, logger);
-        toots.forEach((toot) => toot.sources = [source]);
+        let toots = await this.completeToots(statuses, logger, source);
+        toots = await this.removeInvalidToots(toots, logger);
         toots = Toot.dedupeToots(toots, logger);
+        if (!skipSort)
+            toots = this.removeUsersOwnToots(toots, logger); // Don't want to remove user's toots from threads
         // Make a first pass at scoring with whatever scorers are ready to score
         await scorer_1.default.scoreToots(toots, false);
-        // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort)
             toots.sort((a, b) => b.getScore() - a.getScore());
         logger.trace(`${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
     }
     // Fetch all the data we need to set dependent properties and set them on the toots.
-    static async completeToots(toots, logger, isDeepInspect) {
-        logger = logger.tempLogger(`completeToots(isDeepInspect=${isDeepInspect})`);
+    // If 'source' arg is proivded we set it as the Toot.source prop and avoid doing an isDeepInspect completion
+    static async completeToots(toots, logger, source) {
+        logger = logger.tempLogger(`completeToots("${source || 'NO_SOURCE'}")`);
+        const isDeepInspect = !source;
         const startedAt = new Date();
         const userData = await api_1.default.instance.getUserData();
         const trendingTags = (await tag_list_1.default.fromTrending()).topObjs();
@@ -661,7 +670,7 @@ class Toot {
         }
         const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, async (tootLike) => {
             const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-            toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+            toot.completeProperties(userData, trendingLinks, trendingTags, source);
             return toot;
         }, {
             batchSize: config_1.config.toots.batchCompleteSize,
@@ -754,6 +763,12 @@ class Toot {
     static async removeInvalidToots(toots, logger) {
         const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
         return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+    }
+    // Get rid of the user's own toots
+    static removeUsersOwnToots(toots, logger) {
+        const newToots = toots.filter(toot => !toot.isUsersOwnToot());
+        logger.logArrayReduction(toots, newToots, 'Toot', "user's own toots");
+        return newToots;
     }
     // Filter an array of toots down to just the retoots
     static onlyRetoots(toots) {

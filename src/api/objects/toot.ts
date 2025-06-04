@@ -87,10 +87,10 @@ type TootCache = {
 };
 
 
+export const UNKNOWN = "unknown";
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
 const MIN_CHARS_FOR_LANG_DETECT = 8;
-const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
@@ -446,10 +446,7 @@ export default class Toot implements TootObj {
     // Return false if Toot should be discarded from feed altogether and permanently
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean {
-        if (this.isUsersOwnToot()) {
-            tootLogger.trace(`Removing fedialgo user's own toot:`, this.describe());
-            return false;
-        } else if (this.reblog?.muted || this.muted) {
+        if (this.reblog?.muted || this.muted) {
             tootLogger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
             return false;
         } else if (Date.now() < this.tootedAt().getTime()) {
@@ -555,8 +552,14 @@ export default class Toot implements TootObj {
         userData: UserData,
         trendingLinks: TrendingLink[],
         trendingTags: TagWithUsageCounts[],
-        isDeepInspect?: boolean
+        source?: string
     ): void {
+        if (source) {
+            this.sources ??= [];
+            if (!this.sources.includes(source)) this.sources?.push(source);
+        }
+
+        const isDeepInspect = !source;
         this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
 
@@ -636,7 +639,8 @@ export default class Toot implements TootObj {
     private determineLanguage(): void {
         const text = this.contentStripped();
 
-        if (this.isUsersOwnToot() || text.length < MIN_CHARS_FOR_LANG_DETECT) {
+        // if (this.isUsersOwnToot() || text.length < MIN_CHARS_FOR_LANG_DETECT) {
+        if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config.locale.defaultLanguage;
             return;
         }
@@ -693,6 +697,12 @@ export default class Toot implements TootObj {
         } else {
             logTrace(`Defaulting language prop to "en"`);
             this.language ??= config.locale.defaultLanguage;
+        }
+
+        // If this is the user's own toot and we have a language set, log it
+        // TODO: remove this eventually
+        if (this.isUsersOwnToot() && this.language != config.locale.defaultLanguage) {
+            repairLogger.warn(`User's own toot language set to "${this.language}"`, langLogObj);
         }
     }
 
@@ -776,35 +786,34 @@ export default class Toot implements TootObj {
     ///////////////////////////////
 
     // Build array of new Toot objects from an array of Status objects (or Toots).
-    // Toots returned by this method should have most of their properties set correctly.
-    static async buildToots(
-        statuses: TootLike[],
-        source: string,
-        skipSort?: boolean
-    ): Promise<Toot[]> {
+    // Toots returned are sorted by score and should have most of their properties set correctly.
+    //   - skipSort flag means don't sort by score and don't remove the fedialgo user's own toots
+    static async buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]> {
         if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
         const logger = tootLogger.tempLogger(tootLogger.logPrefix, source, `buildToots()`);
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
         // to get the full set of properties set on the Toots.
-        let toots = await this.completeToots(statuses, logger, false);
-        // TODO: without the 'if skipSort' this removes users own toots from threads
-        if (!skipSort) toots = await this.removeInvalidToots(toots, logger);
-        toots.forEach((toot) => toot.sources = [source]);
+        let toots = await this.completeToots(statuses, logger, source);
+        toots = await this.removeInvalidToots(toots, logger);
         toots = Toot.dedupeToots(toots, logger);
+        if (!skipSort) toots = this.removeUsersOwnToots(toots, logger);  // Don't want to remove user's toots from threads
+
         // Make a first pass at scoring with whatever scorers are ready to score
         await Scorer.scoreToots(toots, false);
-        // TODO: Toots are sorted by early score so callers can truncate unpopular toots but seems wrong place for it
         if (!skipSort) toots.sort((a, b) => b.getScore() - a.getScore());
         logger.trace(`${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
 
     // Fetch all the data we need to set dependent properties and set them on the toots.
-    static async completeToots(toots: TootLike[], logger: Logger, isDeepInspect: boolean): Promise<Toot[]> {
-        logger = logger.tempLogger(`completeToots(isDeepInspect=${isDeepInspect})`);
+    // If 'source' arg is proivded we set it as the Toot.source prop and avoid doing an isDeepInspect completion
+    static async completeToots(toots: TootLike[], logger: Logger, source?: string): Promise<Toot[]> {
+        logger = logger.tempLogger(`completeToots("${source || 'NO_SOURCE'}")`);
+        const isDeepInspect = !source;
         const startedAt = new Date();
+
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = (await TagList.fromTrending()).topObjs();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
@@ -820,7 +829,7 @@ export default class Toot implements TootObj {
             tootsToComplete,
             async (tootLike: TootLike) => {
                 const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
-                toot.completeProperties(userData, trendingLinks, trendingTags, isDeepInspect);
+                toot.completeProperties(userData, trendingLinks, trendingTags, source);
                 return toot as Toot;
             },
             {
@@ -926,6 +935,13 @@ export default class Toot implements TootObj {
     static async removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]> {
         const serverSideFilters = (await MastoApi.instance.getServerSideFilters()) || [];
         return filterWithLog(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+    }
+
+    // Get rid of the user's own toots
+    static removeUsersOwnToots(toots: Toot[], logger: Logger): Toot[] {
+        const newToots = toots.filter(toot => !toot.isUsersOwnToot());
+        logger.logArrayReduction(toots, newToots, 'Toot', "user's own toots")
+        return newToots;
     }
 
     // Filter an array of toots down to just the retoots

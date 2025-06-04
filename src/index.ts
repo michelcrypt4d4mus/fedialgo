@@ -374,7 +374,7 @@ class TheAlgorithm {
         this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
         (await MastoApi.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
-        await this.finishFeedUpdate(false);
+        await this.finishFeedUpdate();
     }
 
     // Clear everything from browser storage except the user's identity and weightings (unless complete is true).
@@ -499,15 +499,17 @@ class TheAlgorithm {
     }
 
     // The "load is finished" version of setLoadingStateVariables().
-    private async finishFeedUpdate(isDeepInspect: boolean = true): Promise<void> {
+    private async finishFeedUpdate(): Promise<void> {
         const logger = this.logger.tempLogger(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
-        // Required for refreshing muted accounts  // TODO: this is pretty janky...
+
+        // Required for refreshing muted accounts
+        // TODO: this is pretty janky and the completeToots() call will take a long time if there's a lot of toots to complete
         this.feed = await Toot.removeInvalidToots(this.feed, logger);
 
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
-        await Toot.completeToots(this.feed, logger, isDeepInspect);
+        await Toot.completeToots(this.feed, logger);
         await updateBooleanFilterOptions(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
