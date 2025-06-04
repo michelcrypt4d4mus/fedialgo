@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Avoid overzealous language determination for user's own toots
 
 ### v0.62.1
 * At startup, if timeline cache is full truncate it down to `config.toots.truncateFullTimelineToLength` records

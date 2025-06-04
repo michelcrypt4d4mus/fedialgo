@@ -498,7 +498,7 @@ class Toot {
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
         const text = this.contentStripped();
-        if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
+        if (this.isUsersOwnToot() || text.length < MIN_CHARS_FOR_LANG_DETECT) {
             this.language ??= config_1.config.locale.defaultLanguage;
             return;
         }
