@@ -152,17 +152,16 @@ export default class BooleanFilter extends TootFilter {
                 option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
             });
         } else if (this.title == BooleanFilterName.USER) {
-            const favouritedAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
+            const favouriteAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
 
             this.options.objs.forEach((option) => {
-                const accountOption = favouritedAccounts.getObj(option.name);
                 const optionProp = optionProps?.[option.name];
+                option.displayName ??= optionProp?.displayName;
+                const favouriteAccountProps = favouriteAccounts.getObj(option.name);
 
-                if (accountOption) {
-                    option.displayName ??= accountOption.displayName;
-                    option[ScoreName.FAVOURITED_ACCOUNTS] = accountOption.numToots || 0;
-                } else if (optionProp) {
-                    option.displayName ??= optionProp.displayName;
+                if (favouriteAccountProps) {
+                    option[ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+                    option.isFollowed = favouriteAccountProps.isFollowed;
                 }
             });
         }

@@ -138,16 +138,14 @@ class BooleanFilter extends toot_filter_1.default {
             });
         }
         else if (this.title == enums_1.BooleanFilterName.USER) {
-            const favouritedAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
+            const favouriteAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
             this.options.objs.forEach((option) => {
-                const accountOption = favouritedAccounts.getObj(option.name);
                 const optionProp = optionProps?.[option.name];
-                if (accountOption) {
-                    option.displayName ??= accountOption.displayName;
-                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = accountOption.numToots || 0;
-                }
-                else if (optionProp) {
-                    option.displayName ??= optionProp.displayName;
+                option.displayName ??= optionProp?.displayName;
+                const favouriteAccountProps = favouriteAccounts.getObj(option.name);
+                if (favouriteAccountProps) {
+                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+                    option.isFollowed = favouriteAccountProps.isFollowed;
                 }
             });
         }
