@@ -1,5 +1,8 @@
 # NEXT RELEASE
+
+# v0.61.0
 * Strip useless params out of `validateParams()` logging of API params
+* (Demo App) Add a "Hide Filter Highlights" checkbox to the main Feed page
 * (Demo App) Preserve the user's checkbox selection states between sessions
 * (Demo App) Remove `react-persistent-state` package
 
