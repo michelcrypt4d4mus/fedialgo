@@ -160,6 +160,7 @@ export default class BooleanFilter extends TootFilter {
                 const favouriteAccountProps = favouriteAccounts.getObj(option.name);
 
                 if (favouriteAccountProps) {
+                    this.logger.trace(`Setting favourite account props for ${option.name}`, favouriteAccountProps);
                     option[ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
                     option.isFollowed = favouriteAccountProps.isFollowed;
                 }
