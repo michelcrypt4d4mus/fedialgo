@@ -39,6 +39,7 @@ interface UserApiData {
 
 
 export default class UserData {
+    // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
     favouriteAccounts = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
@@ -80,8 +81,12 @@ export default class UserData {
                                       .filter(Boolean);
 
         const accountCounts = Account.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
-        // Fill in zeros for accounts that the user follows but has not favourited or retooted
-        data.followedAccounts.forEach((a) => accountCounts[a.webfingerURI] ??= {account: a, count: 0});
+
+        data.followedAccounts.forEach((account) => {
+            // Fill in zeros for accounts that the user follows but has not favourited or retooted
+            accountCounts[account.webfingerURI] ??= {account, count: 0};
+            accountCounts[account.webfingerURI].isFollowed = true;
+        });
 
         const accountOptions = Object.values(accountCounts).map(accountCount => {
             const option: BooleanFilterOption = {

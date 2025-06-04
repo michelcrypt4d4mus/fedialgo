@@ -8,15 +8,16 @@ import { Type } from "class-transformer";
 import MastoApi from "../api";
 import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
-import { countValues, keyByProperty } from "../../helpers/collection_helpers";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { keyByProperty } from "../../helpers/collection_helpers";
 import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month: "short", day: "numeric"};
 
-type AccountCount = Record<string, {account: Account, count: number}>;
+// TODO: isFollowed doesn't belong here...
+type AccountCount = Record<string, {account: Account, count: number, isFollowed?: boolean}>;
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;

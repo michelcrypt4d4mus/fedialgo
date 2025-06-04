@@ -20,6 +20,7 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
+    // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
     favouriteAccounts = new obj_with_counts_list_1.default([], enums_2.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_2.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {};
@@ -56,8 +57,11 @@ class UserData {
             .map(toot => followedAccountIdMap[toot.inReplyToAccountId])
             .filter(Boolean);
         const accountCounts = account_1.default.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
-        // Fill in zeros for accounts that the user follows but has not favourited or retooted
-        data.followedAccounts.forEach((a) => accountCounts[a.webfingerURI] ??= { account: a, count: 0 });
+        data.followedAccounts.forEach((account) => {
+            // Fill in zeros for accounts that the user follows but has not favourited or retooted
+            accountCounts[account.webfingerURI] ??= { account, count: 0 };
+            accountCounts[account.webfingerURI].isFollowed = true;
+        });
         const accountOptions = Object.values(accountCounts).map(accountCount => {
             const option = {
                 displayName: accountCount.account.displayName,

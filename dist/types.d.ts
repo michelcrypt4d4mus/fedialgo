@@ -37,6 +37,7 @@ type FilterOptionUserData = {
 export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
     displayName?: string;
     displayNameWithEmoji?: string;
+    isFollowed?: boolean;
 }
 export type FeedFilterSettingsSerialized = {
     booleanFilterArgs: BooleanFilterArgs[];

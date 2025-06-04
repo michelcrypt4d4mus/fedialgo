@@ -4,6 +4,7 @@ import { type AccountLike, type AccountNames, type StringNumberDict } from "../.
 type AccountCount = Record<string, {
     account: Account;
     count: number;
+    isFollowed?: boolean;
 }>;
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
