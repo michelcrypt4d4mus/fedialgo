@@ -527,12 +527,6 @@ export default class MastoApi {
             return cacheResult?.rows;
         }
 
-        if (completeParams.minIdForFetch || completeParams.maxIdForFetch) {
-            logger.debug(`Fetching from API w/incremental completedParams:`, completeParams);
-        } else {
-            logger.trace(`Fetching from API w/completedParams:`, completeParams);
-        }
-
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
         let newRows: T[] = [];
@@ -731,7 +725,12 @@ export default class MastoApi {
         // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
         if (cacheKey != CacheKey.HASHTAG_TOOTS) {
             const paramsToLog = removeKeys(params, PARAMS_TO_NOT_LOG, PARAMS_TO_NOT_LOG_IF_FALSE);
-            logger.trace(`validateFetchParams() :`, paramsToLog);
+
+            if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
+                logger.debug(`Fetching from API w/incremental params:`, paramsToLog);
+            } else {
+                logger.trace(`Fetching from API w/params:`, paramsToLog);
+            }
         }
     }
 

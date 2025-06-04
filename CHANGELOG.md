@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Remove muted/blocked accounts from thread view, pass a source param to completeProperties() instead of boolean isDeepInspect
+* Remove muted/blocked accounts from thread view, pass a source param to `completeProperties()` instead of boolean `isDeepInspect`
 
 ### v0.62.2
 * Avoid overzealous language determination for user's own toots
