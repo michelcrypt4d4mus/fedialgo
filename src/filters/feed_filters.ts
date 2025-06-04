@@ -118,8 +118,8 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         incrementCount(tootCounts[BooleanFilterName.USER], toot.realToot().account.webfingerURI);
 
         optionProperties[BooleanFilterName.USER][toot.realToot().account.webfingerURI] ??= {
+            displayName: toot.realToot().account.displayName,
             name: toot.realToot().account.webfingerURI,
-            displayName: toot.realToot().account.displayName
         };
 
         // Count tags

@@ -117,8 +117,8 @@ async function updateBooleanFilterOptions(filters, toots) {
         (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
         (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
         optionProperties[enums_1.BooleanFilterName.USER][toot.realToot().account.webfingerURI] ??= {
+            displayName: toot.realToot().account.displayName,
             name: toot.realToot().account.webfingerURI,
-            displayName: toot.realToot().account.displayName
         };
         // Count tags
         // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
