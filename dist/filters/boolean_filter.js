@@ -144,7 +144,7 @@ class BooleanFilter extends toot_filter_1.default {
                 option.displayName ??= optionProp?.displayName;
                 const favouriteAccountProps = favouriteAccounts.getObj(option.name);
                 if (favouriteAccountProps) {
-                    this.logger.debug(`Setting favourite account props for ${option.name}`, favouriteAccountProps);
+                    this.logger.trace(`Setting favourite account props for ${option.name}`, favouriteAccountProps);
                     option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
                     option.isFollowed = favouriteAccountProps.isFollowed;
                 }

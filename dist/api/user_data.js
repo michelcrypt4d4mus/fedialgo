@@ -66,6 +66,7 @@ class UserData {
             const option = {
                 displayName: accountCount.account.displayName,
                 displayNameWithEmoji: accountCount.account.displayNameWithEmojis(),
+                isFollowed: accountCount.isFollowed,
                 name: accountCount.account.webfingerURI,
                 numToots: accountCount.count,
             };

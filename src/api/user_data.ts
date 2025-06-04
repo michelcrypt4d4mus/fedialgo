@@ -92,6 +92,7 @@ export default class UserData {
             const option: BooleanFilterOption = {
                 displayName: accountCount.account.displayName,
                 displayNameWithEmoji: accountCount.account.displayNameWithEmojis(),
+                isFollowed: accountCount.isFollowed,
                 name: accountCount.account.webfingerURI,
                 numToots: accountCount.count,
             }
