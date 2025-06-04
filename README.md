@@ -148,8 +148,15 @@ filters.booleanFilters[BooleanFilterName.HASHTAG].options.forEach((option) => {
 });
 ```
 
+#### Errors
+Most minor API errors will be handled silently so that if, for example, fedialgo only gets half of a user's recent toots or whatever that doesn't cause any issues for the client app. If you want to see what, if any, errors were encountered during the scoring process you can see use `getApiErrorMsgs()` to find them.
+
+```typescript
+console.log(`API errors:`, algorithm.getApiErrorMsgs());
+```
+
 #### Resetting Everything
-You can also wipe the browser storage and reset all variables if needed.
+You can wipe the browser storage and reset all variables if needed.
 ```typescript
 // Delete the user's timeline and historical data but preserve the user session
 await algorithm.reset();

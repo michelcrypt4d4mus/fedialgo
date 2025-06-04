@@ -113,6 +113,7 @@ export default class MastoApi {
     static #instance: MastoApi;  // Singleton instance of MastoApi
 
     api: mastodon.rest.Client;
+    apiErrors: Error[] = [];  // Errors encountered while using the API
     homeDomain: string;
     logger: Logger;
     user: Account;
@@ -482,9 +483,10 @@ export default class MastoApi {
 
     reset(): void {
         this.logger.log(`Resetting MastoApi instance...`);
-        this.setSemaphoreConcurrency(config.api.maxConcurrentHashtagRequests);
+        this.apiErrors = [];
         this.userData = undefined;  // Clear the user data cache
         this.waitTimes = {};  // Reset the waiting timer
+        this.setSemaphoreConcurrency(config.api.maxConcurrentHashtagRequests);
     };
 
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
@@ -673,6 +675,7 @@ export default class MastoApi {
         const { cacheKey, cacheResult, logger } = params;
         const cachedRows = cacheResult?.rows || [];
         let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        this.apiErrors.push(new Error(logger.str(msg), {cause: err}));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows

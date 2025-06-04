@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add getApiErrorMsgs() method to TheAlgorithm (and add those messages to the getCurrentState() return value)
 * Remove muted/blocked accounts from thread view, pass a source param to `completeProperties()` instead of boolean `isDeepInspect`
 
 ### v0.62.2

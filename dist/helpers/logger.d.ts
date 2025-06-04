@@ -18,6 +18,6 @@ export declare class Logger {
     tempLogger(...args: string[]): Logger;
     private errorStr;
     private makeErrorMsg;
-    private str;
+    str(msg: string | undefined): string;
     static logBuilder(name: string, ...prefixes: string[]): ((...args: string[]) => Logger);
 }

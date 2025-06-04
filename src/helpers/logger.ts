@@ -128,7 +128,7 @@ export class Logger {
     }
 
     // Concatenate prefix and strings
-    private str(msg: string | undefined): string {
+    str(msg: string | undefined): string {
         return this.logPrefix + (isEmptyStr(msg) ? '' : ` ${msg}`);
     }
 

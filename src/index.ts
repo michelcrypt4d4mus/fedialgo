@@ -307,11 +307,19 @@ class TheAlgorithm {
         };
     }
 
+    // Return a list of API errors encountered during this session (if any)
+    getApiErrorMsgs(): string[] {
+        return MastoApi.instance.apiErrors.map(e => e.message);
+    }
+
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState(): Promise<Record<string, any>> {
         return {
             Algorithm: this.statusDict(),
-            Api: {waitTimes: MastoApi.instance.waitTimes},
+            Api: {
+                errors: this.getApiErrorMsgs(),
+                waitTimes: MastoApi.instance.waitTimes
+            },
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),

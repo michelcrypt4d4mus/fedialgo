@@ -289,11 +289,18 @@ class TheAlgorithm {
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
         };
     }
+    // Return a list of API errors encountered during this session (if any)
+    getApiErrorMsgs() {
+        return api_1.default.instance.apiErrors.map(e => e.message);
+    }
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState() {
         return {
             Algorithm: this.statusDict(),
-            Api: { waitTimes: api_1.default.instance.waitTimes },
+            Api: {
+                errors: this.getApiErrorMsgs(),
+                waitTimes: api_1.default.instance.waitTimes
+            },
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),

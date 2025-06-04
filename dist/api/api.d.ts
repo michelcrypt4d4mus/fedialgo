@@ -21,6 +21,7 @@ interface HomeTimelineParams extends MaxIdParams {
 export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
+    apiErrors: Error[];
     homeDomain: string;
     logger: Logger;
     user: Account;
