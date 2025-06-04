@@ -42,7 +42,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
-import { FILTER_OPTION_DATA_SOURCES } from "./types";
+import { FILTER_OPTION_DATA_SOURCES } from './helpers/temp_tester';
 import { BACKFILL_FEED, PREP_SCORERS, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateHashtagCounts, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -66,7 +66,6 @@ import {
 import {
     type BooleanFilterOption,
     type FeedFilterSettings,
-    type FilterOptionDataSource,
     type KeysOfValueType,
     type MastodonInstance,
     type MastodonTag,
@@ -83,6 +82,7 @@ import {
     type Weights,
     type WeightInfoDict,
 } from "./types";
+import { type FilterOptionDataSource } from './helpers/temp_tester';
 
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;

@@ -7,6 +7,7 @@ import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
 import { CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
+import { type FilterOptionDataSource } from './helpers/temp_tester';
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type ApiMutex = Record<ApiCacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;
@@ -29,8 +30,6 @@ export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
-export declare const FILTER_OPTION_DATA_SOURCES: readonly [...TagTootsCacheKey[], BooleanFilterName.LANGUAGE, ScoreName.FAVOURITED_ACCOUNTS];
-export type FilterOptionDataSource = typeof FILTER_OPTION_DATA_SOURCES[number];
 type FilterOptionUserData = {
     [key in FilterOptionDataSource]?: number;
 };
