@@ -607,15 +607,16 @@ class MastoApi {
     // Check that the params passed to the fetch methods are valid and work together
     validateFetchParams(params) {
         let { cacheKey, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
-        // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
-        if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
-            logger.trace(`(validateFetchParams()) params:`, params);
-        }
         if (moar && (skipCache || maxId)) {
             logger.warn(`skipCache=true AND moar or maxId set!`);
         }
         if (maxIdForFetch && minIdForFetch) {
             this.logger.logAndThrowError(`maxIdForFetch and minIdForFetch can't be used at same time!`, params);
+        }
+        // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
+        if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
+            const paramsToLog = (0, collection_helpers_1.removeKeys)(params, ["breakIf", "fetch", "logger", "processFxn"]);
+            logger.trace(`validateFetchParams() :`, paramsToLog);
         }
     }
     ////////////////////////////

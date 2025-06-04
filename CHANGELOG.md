@@ -1,4 +1,7 @@
 # NEXT RELEASE
+* Strip useless params out of `validateParams()` logging of API params
+* (Demo App) Preserve the user's checkbox selection states between sessions
+* (Demo App) Remove `react-persistent-state` package
 
 ### v0.60.6
 * (Demo App) Fix build

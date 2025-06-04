@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -217,6 +217,19 @@ function makePercentileChunks(array, fxn, numPercentiles) {
     return makeChunks(sortedArray, { numChunks: numPercentiles });
 }
 exports.makePercentileChunks = makePercentileChunks;
+;
+// Remove keys whose value is null or are in the keysToRemove array.
+function removeKeys(obj, keysToRemove) {
+    const copy = { ...obj };
+    Object.keys(copy).forEach((k) => {
+        const key = k;
+        if ((keysToRemove || []).includes(key) || copy[key] === null || copy[key] === undefined) {
+            delete copy[key];
+        }
+    });
+    return copy;
+}
+exports.removeKeys = removeKeys;
 ;
 // Randomize the order of an array
 function shuffle(array) {

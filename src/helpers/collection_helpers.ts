@@ -265,6 +265,22 @@ export function makePercentileChunks<T>(
 };
 
 
+// Remove keys whose value is null or are in the keysToRemove array.
+export function removeKeys<T extends object, K extends keyof T>(obj: T, keysToRemove?: K[]): Partial<T> {
+    const copy = { ...obj };
+
+    Object.keys(copy).forEach((k) => {
+        const key = k as K;
+
+        if ((keysToRemove || []).includes(key) || copy[key] === null || copy[key] === undefined) {
+            delete copy[key];
+        }
+    });
+
+    return copy;
+};
+
+
 // Randomize the order of an array
 export function shuffle<T extends (string | number | object)>(array: T[]): T[] {
     const sortRandom = (a: T, b: T) => hashObject(a).localeCompare(hashObject(b));
