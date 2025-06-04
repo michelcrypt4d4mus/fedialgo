@@ -551,8 +551,7 @@ export default class MastoApi {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
                     break;
                 } else if (requestSeconds > config.api.maxSecondsPerPage) {
-                    logger.warn(`Stopping fetch at page ${pageNumber}, ${recordsSoFar}. Took too long: (${requestSeconds}s)`);
-                    break;
+                    throw new Error(`Stopped fetch at page ${pageNumber}, ${recordsSoFar}. Took too long (${requestSeconds}s)`);
                 } else {
                     const msg = `Retrieved page ${pageNumber} (${recordsSoFar})`;
                     (pageNumber % 5 == 0) ? logger.debug(msg) : logger.trace(msg);
@@ -674,7 +673,7 @@ export default class MastoApi {
     ): T[] {
         const { cacheKey, cacheResult, logger } = params;
         const cachedRows = cacheResult?.rows || [];
-        let msg = `Error: "${err}" after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err} After pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.str(msg), {cause: err}));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
 
