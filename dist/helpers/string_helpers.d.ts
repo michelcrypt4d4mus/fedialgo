@@ -7,7 +7,6 @@ export declare const FEDIALGO = "FediAlgo";
 export declare const NULL = "<<NULL>>";
 export declare const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 export declare const TELEMETRY = "TELEMETRY";
-export declare const NUMBER_REGEX: RegExp;
 export declare const GIFV = "gifv";
 export declare const MEDIA_FILE_EXTENSIONS: Record<MediaCategory, string[]>;
 export declare const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[];

@@ -1,4 +1,5 @@
 import { type StringNumberDict } from "../types";
+type OptionalNumber = number | null | undefined;
 export declare class BytesDict {
     arrays: number;
     booleans: number;
@@ -10,8 +11,9 @@ export declare class BytesDict {
     toDict(): StringNumberDict;
     toBytesStringDict(): Record<string, string>;
 }
-export declare const isNumber: (n: number | null | undefined) => boolean;
-export declare const isNumberOrNumberString: (n: string | number | null | undefined) => boolean;
+export declare const isNumber: (n: OptionalNumber) => boolean;
+export declare const isNumberOrNumberString: (n: string | OptionalNumber) => boolean;
 export declare function sizeFromTextEncoder(obj: object): number;
 export declare function sizeFromBufferByteLength(obj: object): number;
 export declare function sizeOf(obj: any, sizes: BytesDict): number;
+export {};
