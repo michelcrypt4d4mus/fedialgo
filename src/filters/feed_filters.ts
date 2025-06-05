@@ -2,13 +2,11 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
+import BooleanFilterOptionList, { HashtagFilterOptionList, LanguageFilterOptionList, UserFilterOptionList } from "./boolean_filter_option_list";
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import Toot from "../api/objects/toot";
-import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName } from '../enums';
-import { BooleanFilterOption } from "../types";
-import BooleanFilterOptionList, { HashtagFilterOptionList, LanguageFilterOptionList, UserFilterOptionList } from "./boolean_filter_option_list";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
