@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.64.4
+
 ### v0.64.3
 * `BooleanFilterOptionList.maxNumToots` is now a variable not a function
 * Add `isFollowed` to hashtag `BooleanFilterOption`s
