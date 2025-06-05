@@ -6,8 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
 // import BooleanFilterOptionList from "../filters/boolean_filter_option_list";
 const api_1 = __importDefault(require("./api"));
-// import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
-// import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
