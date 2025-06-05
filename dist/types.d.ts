@@ -140,6 +140,9 @@ export type WeightInfo = {
     scorer?: Scorer;
 };
 export type WeightName = ScoreName | NonScoreWeightName;
+export interface WithCreatedAt {
+    createdAt: string | Date;
+}
 export interface WithCounts {
     numAccounts?: number;
     numToots?: number;

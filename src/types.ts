@@ -224,6 +224,10 @@ export type WeightInfo = {
 // Names of all the user adjustable score weightings, both those with a Scorer and those without
 export type WeightName = ScoreName | NonScoreWeightName;
 
+export interface WithCreatedAt {
+    createdAt: string | Date;  // ISO date string
+};
+
 export interface WithCounts {
     numAccounts?: number;
     numToots?: number;

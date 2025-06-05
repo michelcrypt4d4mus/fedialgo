@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add maxCacheRecords option to API endpoints config
 
 ### v0.63.2
 * Call `setFeedInApp()` with empty list as soon as `reset()` is called

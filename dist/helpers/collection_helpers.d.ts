@@ -1,5 +1,5 @@
 import { Logger } from './logger';
-import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, PromisesResults, StringDict, StringNumberDict, Weights } from "../types";
+import { type ApiCacheKey, type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromisesResults, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 export declare function addDicts(...args: StringNumberDict[]): StringNumberDict;
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
@@ -31,6 +31,7 @@ export declare function removeKeys<T extends object, K extends keyof T>(obj: T, 
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];
+export declare function sortObjsByCreatedAt<T extends WithCreatedAt>(array: T[]): T[];
 export declare function split<T>(array: T[], condition: (element: T) => boolean): [T[], T[]];
 export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function sumValues(obj: StringNumberDict | Weights): number;

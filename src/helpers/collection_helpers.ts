@@ -10,17 +10,18 @@ import { isNumber } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
 import {
-    ApiCacheKey,
-    CountKey,
-    MastodonObjWithID,
-    MinMax,
-    MinMaxID,
-    PromiseFulfilledResult,
-    PromiseRejectedResult,
-    PromisesResults,
-    StringDict,
-    StringNumberDict,
-    Weights
+    type ApiCacheKey,
+    type CountKey,
+    type MastodonObjWithID,
+    type MinMax,
+    type MinMaxID,
+    type PromiseFulfilledResult,
+    type PromiseRejectedResult,
+    type PromisesResults,
+    type StringDict,
+    type StringNumberDict,
+    type Weights,
+    type WithCreatedAt,
 } from "../types";
 
 const BATCH_MAP = "batchMap()";
@@ -339,7 +340,7 @@ export function sortKeysByValue(dict: StringNumberDict): string[] {
 
 
 // Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
-// If ascending is true, sort in ascending order (low to high)
+// If ascending is true, sort in ascending order (low to high), otherwise high to low.
 export function sortObjsByProps<T>(
     array: T[],
     prop: keyof T | (keyof T)[],
@@ -380,6 +381,12 @@ export function sortObjsByProps<T>(
 
         return 0;
     });
+};
+
+
+// Sort an array of objects by the createdAt property
+export function sortObjsByCreatedAt<T extends WithCreatedAt>(array: T[]): T[] {
+    return sortObjsByProps<T>(arguments[0], "createdAt");
 };
 
 

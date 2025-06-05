@@ -13,6 +13,7 @@ type ApiRequestDefaults = {
     initialMaxRecords?: number;
     limit?: number;
     lookbackForUpdatesMinutes?: number;
+    maxCacheRecords?: number;
     minutesUntilStale?: number;
     skipCache?: boolean;
     supportsMinMaxId?: boolean;

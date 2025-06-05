@@ -17,14 +17,21 @@ import Storage, {
     type CacheTimestamp,
 } from "../Storage";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { extractDomain } from '../helpers/string_helpers';
 import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
-import { findMinMaxId, getPromiseResults, removeKeys, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
+import { extractDomain } from '../helpers/string_helpers';
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
+import {
+    findMinMaxId,
+    getPromiseResults,
+    removeKeys,
+    sortObjsByCreatedAt,
+    truncateToConfiguredLength,
+    uniquifyByProp
+} from "../helpers/collection_helpers";
 import {
     type ApiCacheKey,
     type ApiMutex,
@@ -35,6 +42,7 @@ import {
     type MinMaxID,
     type StatusList,
     type TootLike,
+    type WithCreatedAt,
 } from "../types";
 
 interface CachedRows<T> extends CacheTimestamp {
@@ -81,6 +89,7 @@ interface FetchParams<T extends MastodonApiObject> extends MaxIdParams {
 // Same as FetchParams but all properties are required and we add 'limit'
 interface FetchParamsWithDefaults<T extends MastodonApiObject> extends Required<FetchParams<T>> {
     limit: number,
+    maxCacheRecords?: number,
 };
 
 // Same as FetchParams but with a few derived fields
@@ -174,7 +183,7 @@ export default class MastoApi {
         } else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = mostRecentTootedAt(homeTimelineToots);
-            const lookbackSeconds = config.api.data[CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes! * 60;
+            const lookbackSeconds = config.api.data[cacheKey]?.lookbackForUpdatesMinutes! * 60;
             cutoffAt = maxTootedAt ? subtractSeconds(maxTootedAt, lookbackSeconds) : timelineCutoffAt();
             cutoffAt = mostRecent(timelineCutoffAt(), cutoffAt)!;
             logger.debug(`maxTootedAt: ${quotedISOFmt(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${quotedISOFmt(cutoffAt)}`);
@@ -544,7 +553,7 @@ export default class MastoApi {
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger);
         const completeParams = await this.addCacheDataToParams<T>({ ...inParams, logger });
-        let { cacheResult, maxRecords } = completeParams;
+        let { cacheResult, maxCacheRecords, maxRecords } = completeParams;
 
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
@@ -601,6 +610,16 @@ export default class MastoApi {
         // (they will be deduped in buildFromApiObjects() if needed)
         if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
             newRows = [...cachedRows, ...newRows];
+        }
+
+        // If we have a maxCacheRecords limit, truncate the new rows to that limit
+        if (maxCacheRecords) {
+            try {
+                logger.warn(`Truncating ${newRows.length} rows to maxCacheRecords=${maxCacheRecords}`);
+                newRows = truncateToConfiguredLength(sortObjsByCreatedAt(newRows as WithCreatedAt[]), maxCacheRecords, logger);
+            } catch (err) {
+                logger.error(`Error truncating new rows to maxCacheRecords=${maxCacheRecords}`, err);
+            }
         }
 
         const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
@@ -803,6 +822,7 @@ function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>
         logger: logger || getLogger(cacheKey),
         maxId: maxId || null,
         maxRecords: maxApiRecords,
+        maxCacheRecords: requestDefaults?.maxCacheRecords,
         moar: moar || false,
         processFxn: params.processFxn || null,
         skipCache: skipCache || false,

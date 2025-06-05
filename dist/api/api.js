@@ -33,14 +33,14 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const Storage_1 = __importStar(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const string_helpers_1 = require("../helpers/string_helpers");
 const enums_1 = require("../enums");
 const config_1 = require("../config");
-const collection_helpers_1 = require("../helpers/collection_helpers");
+const string_helpers_1 = require("../helpers/string_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const enums_2 = require("../enums");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 ;
 ;
@@ -118,7 +118,7 @@ class MastoApi {
         else {
             // Look back additional lookbackForUpdatesMinutes minutes to catch new updates and edits to toots
             const maxTootedAt = (0, toot_1.mostRecentTootedAt)(homeTimelineToots);
-            const lookbackSeconds = config_1.config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes * 60;
+            const lookbackSeconds = config_1.config.api.data[cacheKey]?.lookbackForUpdatesMinutes * 60;
             cutoffAt = maxTootedAt ? (0, time_helpers_1.subtractSeconds)(maxTootedAt, lookbackSeconds) : (0, time_helpers_1.timelineCutoffAt)();
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             logger.debug(`maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
@@ -447,7 +447,7 @@ class MastoApi {
         // Lock mutex before checking cache (unless skipMutex is true)
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logger);
         const completeParams = await this.addCacheDataToParams({ ...inParams, logger });
-        let { cacheResult, maxRecords } = completeParams;
+        let { cacheResult, maxCacheRecords, maxRecords } = completeParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
         if (cacheResult?.rows && !cacheResult.isStale && !moar) {
             releaseMutex?.(); // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
@@ -499,6 +499,16 @@ class MastoApi {
         // (they will be deduped in buildFromApiObjects() if needed)
         if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
             newRows = [...cachedRows, ...newRows];
+        }
+        // If we have a maxCacheRecords limit, truncate the new rows to that limit
+        if (maxCacheRecords) {
+            try {
+                logger.warn(`Truncating ${newRows.length} rows to maxCacheRecords=${maxCacheRecords}`);
+                newRows = (0, collection_helpers_1.truncateToConfiguredLength)((0, collection_helpers_1.sortObjsByCreatedAt)(newRows), maxCacheRecords, logger);
+            }
+            catch (err) {
+                logger.error(`Error truncating new rows to maxCacheRecords=${maxCacheRecords}`, err);
+            }
         }
         const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
         if (processFxn)
@@ -685,6 +695,7 @@ function fillInDefaultParams(params) {
         logger: logger || getLogger(cacheKey),
         maxId: maxId || null,
         maxRecords: maxApiRecords,
+        maxCacheRecords: requestDefaults?.maxCacheRecords,
         moar: moar || false,
         processFxn: params.processFxn || null,
         skipCache: skipCache || false,

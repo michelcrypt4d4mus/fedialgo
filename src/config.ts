@@ -39,6 +39,7 @@ type ApiRequestDefaults = {
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
     limit?: number;                     // Max per page is usually 40
     lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
+    maxCacheRecords?: number;
     minutesUntilStale?: number;         // How long until the data is considered stale
     skipCache?: boolean;                // If true, skip the cache and always make a request
     supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
@@ -206,6 +207,7 @@ class Config implements ConfigType {
             [CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
+                maxCacheRecords: 10_000,
                 minutesUntilStale: 6 * MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },

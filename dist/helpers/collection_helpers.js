@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -273,7 +273,7 @@ function sortKeysByValue(dict) {
 exports.sortKeysByValue = sortKeysByValue;
 ;
 // Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
-// If ascending is true, sort in ascending order (low to high)
+// If ascending is true, sort in ascending order (low to high), otherwise high to low.
 function sortObjsByProps(array, prop, ascending, ignoreCase) {
     ascending ||= false;
     const props = Array.isArray(prop) ? prop : [prop];
@@ -310,6 +310,12 @@ function sortObjsByProps(array, prop, ascending, ignoreCase) {
     });
 }
 exports.sortObjsByProps = sortObjsByProps;
+;
+// Sort an array of objects by the createdAt property
+function sortObjsByCreatedAt(array) {
+    return sortObjsByProps(arguments[0], "createdAt");
+}
+exports.sortObjsByCreatedAt = sortObjsByCreatedAt;
 ;
 // Return a two element array of arrays, the first of which contains all elements that match
 // the condition and the second contains all elements that do not match.
