@@ -1,7 +1,33 @@
+import Account from "../api/objects/account";
 import ObjWithCountList from "../api/obj_with_counts_list";
-import { type BooleanFilterOption, type ObjListDataSource, type StringNumberDict } from "../types";
+import TagList from "../api/tag_list";
+import UserData from "../api/user_data";
+import { BooleanFilterName, TagTootsCacheKey } from "../enums";
+import { type BooleanFilterOption, type StringNumberDict } from "../types";
 export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
-    constructor(options: BooleanFilterOption[], label: ObjListDataSource);
+    constructor(options: BooleanFilterOption[], source: BooleanFilterName);
     filter(predicate: (option: BooleanFilterOption) => boolean): BooleanFilterOptionList;
-    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): BooleanFilterOptionList;
+    static buildFromDict(dict: StringNumberDict, source: BooleanFilterName): BooleanFilterOptionList;
+    incrementCount(name: string, _objProps?: any): void;
+    createOption(name: string, _objProps?: any): BooleanFilterOption;
+    createBasicOption(name: string, displayName?: string): BooleanFilterOption;
+}
+export declare class HashtagFilterOptionList extends BooleanFilterOptionList {
+    dataForTagPropLists: Record<TagTootsCacheKey, TagList>;
+    constructor(options: BooleanFilterOption[]);
+    static create(): Promise<HashtagFilterOptionList>;
+    createOption(name: string): BooleanFilterOption;
+}
+export declare class LanguageFilterOptionList extends BooleanFilterOptionList {
+    userData: UserData;
+    constructor(options: BooleanFilterOption[]);
+    static create(): Promise<LanguageFilterOptionList>;
+    createOption(languageCode: string): BooleanFilterOption;
+}
+export declare class UserFilterOptionList extends BooleanFilterOptionList {
+    userData: UserData;
+    favouriteAccounts: ObjWithCountList<BooleanFilterOption>;
+    constructor(options: BooleanFilterOption[]);
+    static create(): Promise<UserFilterOptionList>;
+    createOption(webfingerURI: string, account: Account): BooleanFilterOption;
 }

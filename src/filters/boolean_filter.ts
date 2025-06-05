@@ -67,13 +67,14 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 
 export interface BooleanFilterArgs extends FilterArgs {
     selectedOptions?: string[];
+    title: BooleanFilterName;
 };
 
 
 export default class BooleanFilter extends TootFilter {
-    options: BooleanFilterOptionList;  // e.g. counts of toots with this option
     selectedOptions: string[];         // Which options are selected for use in the filter
     title: BooleanFilterName
+    private _options: BooleanFilterOptionList;  // e.g. counts of toots with this option
 
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs) {
         let optionInfo: BooleanFilterOptionList;
@@ -91,9 +92,19 @@ export default class BooleanFilter extends TootFilter {
         }
 
         super({ description, invertSelection, title });
-        this.options = optionInfo;
+        this._options = optionInfo;
         this.title = title as BooleanFilterName;
         this.selectedOptions = selectedOptions ?? [];
+    }
+
+    public get options(): BooleanFilterOptionList {
+        return this._options;
+    }
+
+    // Has side effect of mutating the 'tagNames' dict property
+    public set options(optionList: BooleanFilterOptionList) {
+        this._options = optionList;
+        this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));  // Remove options that are no longer valid
     }
 
     // Return true if the toot matches the filter
@@ -125,47 +136,6 @@ export default class BooleanFilter extends TootFilter {
     // Sort options by numToots, then by name
     optionsSortedByValue(minToots: number = 0): BooleanFilterOptionList {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
-    }
-
-    // Update the filter with the possible options that can be selected.
-    //   - 'optionProps' is an optional set of properties that should be added to the generated BooleanFilterOptions
-    async setOptions(optionInfo: StringNumberDict, optionProps?: Record<string, BooleanFilterOption>) {
-        this.options = BooleanFilterOptionList.buildFromDict(optionInfo, this.title);
-        this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo);  // Remove options that are no longer valid
-
-        // Populate additional properties on each option - participation counts, favourited counts, etc.
-        if (this.title == BooleanFilterName.HASHTAG) {
-            const dataForTagPropLists = await TagList.allTagTootsLists();
-
-            Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
-                this.options.objs.forEach((option) => {
-                    if (tagList.getObj(option.name)) {
-                        option[key as TagTootsCacheKey] = tagList.getObj(option.name)!.numToots || 0;
-                    }
-                });
-            });
-        } else if (this.title == BooleanFilterName.LANGUAGE) {
-            const userData = await MastoApi.instance.getUserData();
-
-            this.options.objs.forEach((option) => {
-                option.displayName = languageName(option.name);
-                option[BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
-            });
-        } else if (this.title == BooleanFilterName.USER) {
-            const favouriteAccounts = (await MastoApi.instance.getUserData()).favouriteAccounts;
-
-            this.options.objs.forEach((option) => {
-                const optionProp = optionProps?.[option.name];
-                option.displayName ??= optionProp?.displayName;
-                const favouriteAccountProps = favouriteAccounts.getObj(option.name);
-
-                if (favouriteAccountProps) {
-                    // this.logger.trace(`Setting favourite account props for ${option.name}`, favouriteAccountProps);
-                    option[ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
-                    option.isFollowed = favouriteAccountProps.isFollowed;
-                }
-            });
-        }
     }
 
     // Add the element to the filters array if it's not already there or remove it if it is

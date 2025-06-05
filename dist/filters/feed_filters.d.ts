@@ -5,4 +5,3 @@ export declare function buildFiltersFromArgs(filterArgs: FeedFilterSettings): Fe
 export declare function buildNewFilterSettings(): FeedFilterSettings;
 export declare function repairFilterSettings(filters: FeedFilterSettings): boolean;
 export declare function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings>;
-export declare function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[]): void;

@@ -3,27 +3,120 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Special case of ObjWithCountList for lists of boolean filter options.
- */
+exports.UserFilterOptionList = exports.LanguageFilterOptionList = exports.HashtagFilterOptionList = void 0;
 const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
+const tag_list_1 = __importDefault(require("../api/tag_list"));
+const user_data_1 = __importDefault(require("../api/user_data"));
+const enums_1 = require("../enums");
+const language_helper_1 = require("../helpers/language_helper");
 class BooleanFilterOptionList extends obj_with_counts_list_1.default {
-    constructor(options, label) {
-        super(options, label);
+    constructor(options, source) {
+        super(options, source);
     }
     // Remove elements that don't match the predicate(). Returns a new TagList object
     filter(predicate) {
         return new BooleanFilterOptionList(this.objs.filter(predicate), this.source);
     }
     // Alternate constructor to create synthetic tags
-    static buildFromDict(dict, label) {
+    static buildFromDict(dict, source) {
         const objs = Object.entries(dict).map(([name, numToots]) => {
             const obj = { name, numToots };
             return obj;
         });
-        return new BooleanFilterOptionList(objs, label);
+        return new BooleanFilterOptionList(objs, source);
+    }
+    // Add one to the numToots property of the BooleanFilterOption for the given tag
+    // and decorate with available information about the user's interactions with that tag
+    incrementCount(name, _objProps) {
+        let option = this.nameDict[name] || this.createOption(name, _objProps);
+        option.numToots = (option.numToots || 0) + 1;
+    }
+    // Abstract-ish method, should be overridden
+    createOption(name, _objProps) {
+        return this.createBasicOption(name);
+    }
+    // Create a basic BooleanFilterOption with the given name and add it to the list
+    createBasicOption(name, displayName) {
+        const option = { name, numToots: 0 };
+        if (displayName) {
+            option.displayName = displayName;
+        }
+        this.nameDict[name] = option;
+        this.objs.push(option);
+        return option;
     }
 }
 exports.default = BooleanFilterOptionList;
+;
+class HashtagFilterOptionList extends BooleanFilterOptionList {
+    dataForTagPropLists;
+    constructor(options) {
+        super(options, enums_1.BooleanFilterName.HASHTAG);
+    }
+    // Alternate constructor
+    static async create() {
+        const optionList = new this([]);
+        optionList.dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
+        return optionList;
+    }
+    createOption(name) {
+        const option = this.createBasicOption(name);
+        Object.entries(this.dataForTagPropLists).forEach(([key, tagList]) => {
+            const propertyObj = tagList.getObj(option.name);
+            if (propertyObj) {
+                option[key] = propertyObj.numToots || 0;
+            }
+        });
+        return option;
+    }
+}
+exports.HashtagFilterOptionList = HashtagFilterOptionList;
+;
+class LanguageFilterOptionList extends BooleanFilterOptionList {
+    userData;
+    constructor(options) {
+        super(options, enums_1.BooleanFilterName.LANGUAGE);
+    }
+    // Alternate constructor
+    static async create() {
+        const optionList = new this([]);
+        optionList.userData = await user_data_1.default.build(); // TODO: this only needs the languagePostedIn tag list, not the whole UserData
+        return optionList;
+    }
+    createOption(languageCode) {
+        const option = this.createBasicOption(languageCode, (0, language_helper_1.languageName)(languageCode));
+        const languageUsage = this.userData.languagesPostedIn.getObj(languageCode);
+        if (languageUsage) {
+            option[enums_1.BooleanFilterName.LANGUAGE] = languageUsage.numToots || 0;
+        }
+        return option;
+    }
+}
+exports.LanguageFilterOptionList = LanguageFilterOptionList;
+;
+class UserFilterOptionList extends BooleanFilterOptionList {
+    userData;
+    favouriteAccounts;
+    constructor(options) {
+        super(options, enums_1.BooleanFilterName.USER);
+    }
+    // Alternate constructor
+    static async create() {
+        const optionList = new this([]);
+        optionList.userData = await user_data_1.default.build();
+        optionList.favouriteAccounts = optionList.userData.favouriteAccounts;
+        return optionList;
+    }
+    createOption(webfingerURI, account) {
+        const option = this.createBasicOption(webfingerURI, account.displayName);
+        const favouriteAccountProps = this.favouriteAccounts.getObj(account.webfingerURI);
+        if (favouriteAccountProps) {
+            option.isFollowed = favouriteAccountProps.isFollowed;
+            option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+        }
+        return option;
+    }
+}
+exports.UserFilterOptionList = UserFilterOptionList;
 ;
 //# sourceMappingURL=boolean_filter_option_list.js.map

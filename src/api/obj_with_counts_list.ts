@@ -24,12 +24,12 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     source: ObjListDataSource;
     private _objs: T[];
 
-    constructor(objs: T[], label: ObjListDataSource) {
+    constructor(objs: T[], source: ObjListDataSource) {
         this._objs = objs.map(completeObjWithTootCounts) as T[];
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this.source = label;
-        this.logger = new Logger("ObjWithCountList", label);
+        this.source = source;
+        this.logger = new Logger("ObjWithCountList", source);
     }
 
     // Alternate constructor to create synthetic tags

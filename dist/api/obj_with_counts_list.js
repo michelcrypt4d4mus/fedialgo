@@ -18,12 +18,12 @@ class ObjWithCountList {
     nameDict = {}; // Dict of obj.names to objs
     source;
     _objs;
-    constructor(objs, label) {
+    constructor(objs, source) {
         this._objs = objs.map(completeObjWithTootCounts);
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this.source = label;
-        this.logger = new logger_1.Logger("ObjWithCountList", label);
+        this.source = source;
+        this.logger = new logger_1.Logger("ObjWithCountList", source);
     }
     // Alternate constructor to create synthetic tags
     static buildFromDict(dict, label) {

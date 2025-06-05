@@ -7,7 +7,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     nameDict: Record<string, T>;
     source: ObjListDataSource;
     private _objs;
-    constructor(objs: T[], label: ObjListDataSource);
+    constructor(objs: T[], source: ObjListDataSource);
     static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): ObjList;
     get objs(): T[];
     set objs(theTags: T[]);

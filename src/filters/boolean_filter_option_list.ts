@@ -1,32 +1,150 @@
 /*
  * Special case of ObjWithCountList for lists of boolean filter options.
  */
+import Account from "../api/objects/account";
 import ObjWithCountList from "../api/obj_with_counts_list";
+import TagList from "../api/tag_list";
+import UserData from "../api/user_data";
+import { BooleanFilterName, ScoreName, TagTootsCacheKey } from "../enums";
+import { languageName } from "../helpers/language_helper";
 import {
     type BooleanFilterOption,
     type ObjListDataSource,
     type ObjWithTootCount,
     type StringNumberDict,
+    type TagWithUsageCounts,
 } from "../types";
 
 
 export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
-    constructor(options: BooleanFilterOption[], label: ObjListDataSource) {
-        super(options, label);
+    constructor(options: BooleanFilterOption[], source: BooleanFilterName) {
+        super(options, source);
     }
 
     // Remove elements that don't match the predicate(). Returns a new TagList object
     filter(predicate: (option: BooleanFilterOption) => boolean): BooleanFilterOptionList {
-        return new BooleanFilterOptionList(this.objs.filter(predicate), this.source);
+        return new BooleanFilterOptionList(this.objs.filter(predicate), this.source as BooleanFilterName);
     }
 
     // Alternate constructor to create synthetic tags
-    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): BooleanFilterOptionList {
+    static buildFromDict(dict: StringNumberDict, source: BooleanFilterName): BooleanFilterOptionList {
         const objs: BooleanFilterOption[] = Object.entries(dict).map(([name, numToots]) => {
             const obj: ObjWithTootCount = { name, numToots };
             return obj;
         });
 
-        return new BooleanFilterOptionList(objs, label);
+        return new BooleanFilterOptionList(objs, source);
+    }
+
+    // Add one to the numToots property of the BooleanFilterOption for the given tag
+    // and decorate with available information about the user's interactions with that tag
+    incrementCount(name: string, _objProps?: any): void {
+        let option = this.nameDict[name] || this.createOption(name, _objProps);
+        option.numToots = (option.numToots || 0) + 1;
+    }
+
+    // Abstract-ish method, should be overridden
+    createOption(name: string, _objProps?: any): BooleanFilterOption {
+        return this.createBasicOption(name);
+    }
+
+    // Create a basic BooleanFilterOption with the given name and add it to the list
+    createBasicOption(name: string, displayName?: string): BooleanFilterOption {
+        const option: BooleanFilterOption = { name, numToots: 0 };
+
+        if (displayName) {
+            option.displayName = displayName;
+        }
+
+        this.nameDict[name] = option;
+        this.objs.push(option);
+        return option;
+    }
+};
+
+
+export class HashtagFilterOptionList extends BooleanFilterOptionList {
+    dataForTagPropLists!: Record<TagTootsCacheKey, TagList>;
+
+    constructor(options: BooleanFilterOption[]) {
+        super(options, BooleanFilterName.HASHTAG);
+    }
+
+    // Alternate constructor
+    static async create(): Promise<HashtagFilterOptionList> {
+        const optionList = new this([]);
+        optionList.dataForTagPropLists = await TagList.allTagTootsLists();
+        return optionList;
+    }
+
+    createOption(name: string): BooleanFilterOption {
+        const option = this.createBasicOption(name);
+
+        Object.entries(this.dataForTagPropLists).forEach(([key, tagList]) => {
+            const propertyObj = tagList.getObj(option.name);
+
+            if (propertyObj) {
+                option[key as TagTootsCacheKey] = propertyObj.numToots || 0;
+            }
+        });
+
+        return option;
+    }
+};
+
+
+export class LanguageFilterOptionList extends BooleanFilterOptionList {
+    userData!: UserData;
+
+    constructor(options: BooleanFilterOption[]) {
+        super(options, BooleanFilterName.LANGUAGE);
+    }
+
+    // Alternate constructor
+    static async create(): Promise<LanguageFilterOptionList> {
+        const optionList = new this([]);
+        optionList.userData = await UserData.build();  // TODO: this only needs the languagePostedIn tag list, not the whole UserData
+        return optionList;
+    }
+
+    createOption(languageCode: string): BooleanFilterOption {
+        const option = this.createBasicOption(languageCode, languageName(languageCode));
+        const languageUsage = this.userData.languagesPostedIn.getObj(languageCode);
+
+        if (languageUsage) {
+            option[BooleanFilterName.LANGUAGE] = languageUsage.numToots || 0;
+        }
+
+        return option;
+    }
+};
+
+
+export class UserFilterOptionList extends BooleanFilterOptionList {
+    userData!: UserData;
+    favouriteAccounts!: ObjWithCountList<BooleanFilterOption>;
+
+    constructor(options: BooleanFilterOption[]) {
+        super(options, BooleanFilterName.USER);
+    }
+
+    // Alternate constructor
+    static async create(): Promise<UserFilterOptionList> {
+        const optionList = new this([]);
+        optionList.userData = await UserData.build();
+        optionList.favouriteAccounts = optionList.userData.favouriteAccounts;
+        return optionList;
+    }
+
+    createOption(webfingerURI: string, account: Account): BooleanFilterOption {
+        const option = this.createBasicOption(webfingerURI, account.displayName);
+        const favouriteAccountProps = this.favouriteAccounts.getObj(account.webfingerURI);
+
+        if (favouriteAccountProps) {
+            option.isFollowed = favouriteAccountProps.isFollowed;
+            option[ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+        }
+
+        return option;
     }
 };

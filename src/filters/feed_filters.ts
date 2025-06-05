@@ -8,6 +8,7 @@ import Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName } from '../enums';
 import { BooleanFilterOption } from "../types";
+import BooleanFilterOptionList, { HashtagFilterOptionList, LanguageFilterOptionList, UserFilterOptionList } from "./boolean_filter_option_list";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
@@ -82,7 +83,7 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
         filterLogger.warn(`Repaired invalid filter args:`, filters);
     }
 
-    filters.booleanFilterArgs = validBooleanFilterArgs;
+    filters.booleanFilterArgs = validBooleanFilterArgs as BooleanFilterArgs[];
     filters.numericFilterArgs = validNumericFilterArgs;
     return wasChanged;
 };
@@ -95,28 +96,25 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     populateMissingFilters(filters);  // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
-    const optionCounts = BooleanFilter.buildBooleanFilterDict<StringNumberDict>();
-    const optionProperties = BooleanFilter.buildBooleanFilterDict<Record<string, BooleanFilterOption>>();
+
+    const optionLists = {
+        [BooleanFilterName.APP]: new BooleanFilterOptionList([], BooleanFilterName.APP),
+        [BooleanFilterName.HASHTAG]: await HashtagFilterOptionList.create(),
+        [BooleanFilterName.LANGUAGE]: await LanguageFilterOptionList.create(),
+        [BooleanFilterName.TYPE]: new BooleanFilterOptionList([], BooleanFilterName.TYPE),
+        [BooleanFilterName.USER]: await UserFilterOptionList.create(),
+    }
 
     toots.forEach(toot => {
-        incrementCount(optionCounts[BooleanFilterName.APP], toot.realToot().application.name);
-        incrementCount(optionCounts[BooleanFilterName.LANGUAGE], toot.realToot().language);
-        incrementCount(optionCounts[BooleanFilterName.USER], toot.realToot().account.webfingerURI);
+        optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
+        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!);
+        optionLists[BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, toot.realAccount());
 
         // Aggregate counts for each kind ("type") of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
-                incrementCount(optionCounts[BooleanFilterName.TYPE], name);
+                optionLists[BooleanFilterName.USER].incrementCount(name);
             }
-        });
-
-        // Keep track of fields used to decorate the presentation of user accounts.
-        // Will be merged with the counts based on the 'name' property
-        toot.accounts().forEach((account) => {
-            optionProperties[BooleanFilterName.USER][account.webfingerURI] ??= {
-                displayName: toot.realToot().account.displayName,
-                name: toot.realToot().account.webfingerURI,
-            };
         });
 
         // Count tags // TODO: this only counts actual tags whereas the demo app filters based on
@@ -128,16 +126,15 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
                 suppressedNonLatinTags[tag.language] ??= {};
                 incrementCount(suppressedNonLatinTags[tag.language], tag.name);
             } else {
-                incrementCount(optionCounts[BooleanFilterName.HASHTAG], tag.name);
+                optionLists[BooleanFilterName.HASHTAG].incrementCount(tag.name);
             }
         });
     });
 
     // Build the options for all the boolean filters based on the counts
-    for (const [propertyName, counts] of Object.entries(optionCounts)) {
-        const filter = filters.booleanFilters[propertyName as BooleanFilterName];
-        await filter.setOptions(counts, optionProperties[propertyName as BooleanFilterName]);
-    }
+    Object.entries(optionLists).forEach(([filterName, optionList]) => {
+        filters.booleanFilters[filterName as BooleanFilterName].options = optionList;
+    });
 
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => sumValues(counts));
@@ -153,24 +150,24 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 // We have to rescan the toots to get the tag counts because the tag counts are built with
 // containsTag() whereas the demo app uses containsString() to actually filter.
 // TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
-export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
-    const logPrefx = `<updateHashtagCounts()>`;
-    const newTootTagCounts = {} as StringNumberDict;
-    filterLogger.log(`${logPrefx} Launched...`);
-    const startedAt = Date.now();
+// export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
+//     const logPrefx = `<updateHashtagCounts()>`;
+//     const newTootTagCounts = {} as StringNumberDict;
+//     filterLogger.log(`${logPrefx} Launched...`);
+//     const startedAt = Date.now();
 
-    Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].options).forEach((tagName) => {
-        toots.forEach((toot) => {
-            if (toot.realToot().containsString(tagName)) {
-                incrementCount(newTootTagCounts, tagName);
-            }
-        })
-    });
+//     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].options).forEach((tagName) => {
+//         toots.forEach((toot) => {
+//             if (toot.realToot().containsString(tagName)) {
+//                 incrementCount(newTootTagCounts, tagName);
+//             }
+//         })
+//     });
 
-    filterLogger.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
-    filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
-    Storage.setFilters(filters);
-};
+//     filterLogger.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
+//     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
+//     Storage.setFilters(filters);
+// };
 
 
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
