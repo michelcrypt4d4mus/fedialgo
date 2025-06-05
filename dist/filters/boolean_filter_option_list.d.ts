@@ -8,8 +8,8 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
     constructor(options: BooleanFilterOption[], source: BooleanFilterName);
     filter(predicate: (option: BooleanFilterOption) => boolean): BooleanFilterOptionList;
     static buildFromDict(dict: StringNumberDict, source: BooleanFilterName): BooleanFilterOptionList;
-    incrementCount(name: string, _objProps?: any): void;
-    createOption(name: string, _objProps?: any): BooleanFilterOption;
+    incrementCount(name: string, displayName?: string, obj?: any): void;
+    createOption(name: string, _displayName?: string, _obj?: any): BooleanFilterOption;
     createBasicOption(name: string, displayName?: string): BooleanFilterOption;
 }
 export declare class HashtagFilterOptionList extends BooleanFilterOptionList {
@@ -29,5 +29,5 @@ export declare class UserFilterOptionList extends BooleanFilterOptionList {
     favouriteAccounts: ObjWithCountList<BooleanFilterOption>;
     constructor(options: BooleanFilterOption[]);
     static create(): Promise<UserFilterOptionList>;
-    createOption(webfingerURI: string, account: Account): BooleanFilterOption;
+    createOption(_name: string, _displayName: string, account: Account): BooleanFilterOption;
 }

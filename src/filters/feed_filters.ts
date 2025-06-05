@@ -108,12 +108,12 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     toots.forEach(toot => {
         optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
         optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!);
-        optionLists[BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, toot.realAccount());
+        optionLists[BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, "", toot.realAccount());
 
         // Aggregate counts for each kind ("type") of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
-                optionLists[BooleanFilterName.USER].incrementCount(name);
+                optionLists[BooleanFilterName.TYPE].incrementCount(name);
             }
         });
 

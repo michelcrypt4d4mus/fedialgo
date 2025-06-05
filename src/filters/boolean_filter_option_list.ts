@@ -38,13 +38,13 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
 
     // Add one to the numToots property of the BooleanFilterOption for the given tag
     // and decorate with available information about the user's interactions with that tag
-    incrementCount(name: string, _objProps?: any): void {
-        let option = this.nameDict[name] || this.createOption(name, _objProps);
+    incrementCount(name: string, displayName?: string, obj?: any): void {
+        let option = this.nameDict[name] || this.createOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
     }
 
     // Abstract-ish method, should be overridden
-    createOption(name: string, _objProps?: any): BooleanFilterOption {
+    createOption(name: string, _displayName?: string, _obj?: any): BooleanFilterOption {
         return this.createBasicOption(name);
     }
 
@@ -136,8 +136,8 @@ export class UserFilterOptionList extends BooleanFilterOptionList {
         return optionList;
     }
 
-    createOption(webfingerURI: string, account: Account): BooleanFilterOption {
-        const option = this.createBasicOption(webfingerURI, account.displayName);
+    createOption(_name: string, _displayName: string, account: Account): BooleanFilterOption {
+        const option = this.createBasicOption(account.webfingerURI, account.displayName);
         const favouriteAccountProps = this.favouriteAccounts.getObj(account.webfingerURI);
 
         if (favouriteAccountProps) {

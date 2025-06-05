@@ -114,11 +114,11 @@ async function updateBooleanFilterOptions(filters, toots) {
     toots.forEach(toot => {
         optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
         optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language);
-        optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, toot.realAccount());
+        optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, "", toot.realAccount());
         // Aggregate counts for each kind ("type") of toot
         Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
-                optionLists[enums_1.BooleanFilterName.USER].incrementCount(name);
+                optionLists[enums_1.BooleanFilterName.TYPE].incrementCount(name);
             }
         });
         // Count tags // TODO: this only counts actual tags whereas the demo app filters based on
