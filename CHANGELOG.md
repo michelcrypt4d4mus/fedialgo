@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.64.2
+* (Demo App) Bump `webpack-dev-server` to version 5.22 via `npm audit force`
+
 ### v0.64.1
 * Refactor/clean up language and hashtag filter option building
 
