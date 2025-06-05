@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Handle edge case with error handling where WaitTime object is missing
+
+### v0.63.1
+* Handle edge case with error handling during `MastoApi.reset()` where WaitTime object is missing
 * Use `Promise.allSettled()` to rescue partial results from API calls
 * Handle API errors better when getting trending/participated/etc. tag toots
 
