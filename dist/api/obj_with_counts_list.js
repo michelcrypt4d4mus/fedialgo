@@ -8,9 +8,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * somewhat interchangeably as a dictionary or a sorted list.
  */
 const user_data_1 = __importDefault(require("./user_data"));
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 const logger_1 = require("../helpers/logger");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger = new logger_1.Logger("TagList");
 class ObjWithCountList {
     logger;
@@ -18,20 +18,23 @@ class ObjWithCountList {
     nameDict = {}; // Dict of obj.names to objs
     source;
     _objs;
-    constructor(objs, label) {
+    constructor(objs, source) {
         this._objs = objs.map(completeObjWithTootCounts);
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this.source = label;
-        this.logger = new logger_1.Logger("ObjWithCountList", label);
+        this.source = source;
+        this.logger = new logger_1.Logger("ObjWithCountList", source);
+    }
+    static buildByCountingObjProps(objs, fxn, source) {
+        return this.buildFromDict((0, collection_helpers_1.countValues)(objs, fxn), source);
     }
     // Alternate constructor to create synthetic tags
-    static buildFromDict(dict, label) {
+    static buildFromDict(dict, source) {
         const objs = Object.entries(dict).map(([name, numToots]) => {
             const obj = { name, numToots };
             return obj;
         });
-        return new ObjWithCountList(objs, label);
+        return new ObjWithCountList(objs, source);
     }
     get objs() {
         return this._objs;

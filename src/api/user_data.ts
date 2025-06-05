@@ -7,16 +7,13 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 // import BooleanFilterOptionList from "../filters/boolean_filter_option_list";
 import MastoApi from "./api";
-// import MostFavouritedAccountsScorer from "../scorer/feature/most_favourited_accounts_scorer";
-// import MostRetootedAccountsScorer from "../scorer/feature/most_retooted_accounts_scorer";
 import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
-import Toot, { UNKNOWN } from "./objects/toot";
-import { BooleanFilterName } from '../enums';
-import { CacheKey, ScoreName, TagTootsCacheKey } from "../enums";
+import Toot from "./objects/toot";
+import { BooleanFilterName, CacheKey, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
-import { addDicts, countValues, keyById, sortKeysByValue } from "../helpers/collection_helpers";
+import { keyById } from "../helpers/collection_helpers";
 import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
@@ -62,8 +59,12 @@ export default class UserData {
         userData.serverSideFilters = data.serverSideFilters;
 
         // Language stuff
-        const languageUsageCounts = countValues(data.recentToots, (toot) => toot.language);
-        userData.languagesPostedIn = ObjWithCountList.buildFromDict(languageUsageCounts, BooleanFilterName.LANGUAGE);
+        userData.languagesPostedIn = ObjWithCountList.buildByCountingObjProps(
+            data.recentToots,
+            (toot) => toot.language!,
+            BooleanFilterName.LANGUAGE
+        );
+
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);
         return userData;

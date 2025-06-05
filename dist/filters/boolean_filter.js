@@ -10,14 +10,11 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  * (e.g. language, hashtag, type of toot).
  */
 const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
-const api_1 = __importDefault(require("../api/api"));
-const tag_list_1 = __importDefault(require("../api/tag_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const language_helper_1 = require("../helpers/language_helper");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
@@ -65,33 +62,36 @@ const TOOT_MATCHERS = {
 };
 ;
 class BooleanFilter extends toot_filter_1.default {
-    options; // e.g. counts of toots with this option
     selectedOptions; // Which options are selected for use in the filter
     title;
+    _options; // e.g. counts of toots with this option
+    get options() {
+        return this._options;
+    }
+    // Also removes options that are no longer valid
+    set options(optionList) {
+        this._options = optionList;
+        this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
+    }
     constructor({ title, invertSelection, selectedOptions }) {
-        let optionInfo;
+        let optionInfo = new boolean_filter_option_list_1.default([], title);
         let description;
-        // Set up defaults for type filters so something always shows up in the options // TODO: is this necessary?
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
-            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(enums_1.TypeFilterName));
-            optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionCounts, title);
         }
         else {
             const descriptionWord = title == enums_1.BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
-            optionInfo = new boolean_filter_option_list_1.default([], title);
         }
         super({ description, invertSelection, title });
-        this.options = optionInfo;
+        this._options = optionInfo;
         this.title = title;
         this.selectedOptions = selectedOptions ?? [];
     }
     // Return true if the toot matches the filter
     isAllowed(toot) {
-        // If there's no selectedOptions allow everything
         if (!this.selectedOptions.length)
-            return true;
+            return true; // If there's no selectedOptions allow everything
         const isMatched = TOOT_MATCHERS[this.title](toot, this.selectedOptions);
         return this.invertSelection ? !isMatched : isMatched;
     }
@@ -113,43 +113,6 @@ class BooleanFilter extends toot_filter_1.default {
     // Sort options by numToots, then by name
     optionsSortedByValue(minToots = 0) {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
-    }
-    // Update the filter with the possible options that can be selected.
-    //   - 'optionProps' is an optional set of properties that should be added to the generated BooleanFilterOptions
-    async setOptions(optionInfo, optionProps) {
-        this.options = boolean_filter_option_list_1.default.buildFromDict(optionInfo, this.title);
-        this.selectedOptions = this.selectedOptions.filter((v) => v in optionInfo); // Remove options that are no longer valid
-        // Populate additional properties on each option - participation counts, favourited counts, etc.
-        if (this.title == enums_1.BooleanFilterName.HASHTAG) {
-            const dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
-            Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
-                this.options.objs.forEach((option) => {
-                    if (tagList.getObj(option.name)) {
-                        option[key] = tagList.getObj(option.name).numToots || 0;
-                    }
-                });
-            });
-        }
-        else if (this.title == enums_1.BooleanFilterName.LANGUAGE) {
-            const userData = await api_1.default.instance.getUserData();
-            this.options.objs.forEach((option) => {
-                option.displayName = (0, language_helper_1.languageName)(option.name);
-                option[enums_1.BooleanFilterName.LANGUAGE] = userData.languagesPostedIn.getObj(option.name)?.numToots;
-            });
-        }
-        else if (this.title == enums_1.BooleanFilterName.USER) {
-            const favouriteAccounts = (await api_1.default.instance.getUserData()).favouriteAccounts;
-            this.options.objs.forEach((option) => {
-                const optionProp = optionProps?.[option.name];
-                option.displayName ??= optionProp?.displayName;
-                const favouriteAccountProps = favouriteAccounts.getObj(option.name);
-                if (favouriteAccountProps) {
-                    // this.logger.trace(`Setting favourite account props for ${option.name}`, favouriteAccountProps);
-                    option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
-                    option.isFollowed = favouriteAccountProps.isFollowed;
-                }
-            });
-        }
     }
     // Add the element to the filters array if it's not already there or remove it if it is
     // If isValidOption is false remove the element from the filter instead of adding it
