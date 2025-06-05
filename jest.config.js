@@ -1,3 +1,6 @@
+// import { createJsWithTsEsmPreset } from 'ts-jest/presets/index.js';
+// import { jsWithTs as tsjPreset } from 'ts-jest/presets/index.js';
+
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',

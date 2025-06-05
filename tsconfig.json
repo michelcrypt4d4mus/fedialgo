@@ -8,7 +8,7 @@
         "lib": [
             "ESNext",
         ],
-        "module": "commonjs",
+        "module": "ES2020",
         "moduleResolution": "node",
         "outDir": "dist",
         "sourceMap": true,
