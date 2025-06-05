@@ -137,6 +137,15 @@ class Account {
         return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
     ;
+    // Extract the Account properties that are used in BooleanFilter
+    toBooleanFilterOption() {
+        return {
+            name: this.webfingerURI,
+            displayName: this.displayName,
+            displayNameWithEmoji: this.displayNameWithEmojis(),
+            isFollowed: this.isFollowed,
+        };
+    }
     // On the local server you just get the username so need to add the server domain
     buildWebfingerURI() {
         if (this.acct.includes("@")) {

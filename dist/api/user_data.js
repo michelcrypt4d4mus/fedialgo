@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
-// import BooleanFilterOptionList from "../filters/boolean_filter_option_list";
 const api_1 = __importDefault(require("./api"));
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
 const Storage_1 = __importDefault(require("../Storage"));
@@ -43,33 +42,6 @@ class UserData {
         logger.trace("Built from data:", userData);
         return userData;
     }
-    // Add up the favourites, retoots, and replies for each account
-    static buildFavouriteAccount(data) {
-        const retootsAndFaves = [...toot_1.default.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.account);
-        const followedAccountIdMap = (0, collection_helpers_1.keyById)(data.followedAccounts);
-        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
-        const replies = toot_1.default.onlyReplies(data.recentToots);
-        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId]).filter(Boolean);
-        logger.trace(`Found ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
-        const accountCounts = account_1.default.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
-        // Fill in zeros in accountCounts for accounts that the user follows but has not favourited or retooted
-        data.followedAccounts.forEach((account) => {
-            accountCounts[account.webfingerURI] ??= { account, count: 0 };
-            accountCounts[account.webfingerURI].isFollowed = true;
-        });
-        const accountOptions = Object.values(accountCounts).map(accountCount => {
-            const option = {
-                displayName: accountCount.account.displayName,
-                displayNameWithEmoji: accountCount.account.displayNameWithEmojis(),
-                isFollowed: accountCount.isFollowed,
-                name: accountCount.account.webfingerURI,
-                numToots: accountCount.count,
-            };
-            return option;
-        });
-        return new obj_with_counts_list_1.default(accountOptions, enums_1.ScoreName.FAVOURITED_ACCOUNTS);
-    }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build() {
         const responses = await Promise.all([
@@ -104,6 +76,22 @@ class UserData {
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
         logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
         return keywords;
+    }
+    // Add up the favourites, retoots, and replies for each account
+    static buildFavouriteAccount(data) {
+        const retootsAndFaves = [...toot_1.default.onlyRetoots(data.recentToots), ...data.favouritedToots];
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.realAccount());
+        const followedAccountIdMap = (0, collection_helpers_1.keyById)(data.followedAccounts);
+        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
+        // Currently that's only around 1/3rd of the replies.
+        const replies = toot_1.default.onlyReplies(data.recentToots);
+        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId]).filter(Boolean);
+        logger.trace(`Found ${retootsAndFaves.length} retootsAndFaves, ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
+        const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
+        const favouriteAccountOptions = new obj_with_counts_list_1.default([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
+        favouriteAccountOptions.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+        favouriteAccountOptions.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
+        return favouriteAccountOptions;
     }
 }
 exports.default = UserData;

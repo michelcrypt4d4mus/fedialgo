@@ -10,7 +10,7 @@ import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
-import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
+import { type AccountLike, type AccountNames, type BooleanFilterOption,type StringNumberDict } from "../../types";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
@@ -151,6 +151,16 @@ export default class Account implements AccountObj {
 
         return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     };
+
+    // Extract the Account properties that are used in BooleanFilter
+    toBooleanFilterOption(): BooleanFilterOption {
+        return {
+            name: this.webfingerURI,
+            displayName: this.displayName,
+            displayNameWithEmoji: this.displayNameWithEmojis(),
+            isFollowed: this.isFollowed,
+        };
+    }
 
     // On the local server you just get the username so need to add the server domain
     private buildWebfingerURI(): string {

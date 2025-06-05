@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import { InstanceResponse } from '../mastodon_server';
-import { type AccountLike, type AccountNames, type StringNumberDict } from "../../types";
+import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
 type AccountCount = Record<string, {
     account: Account;
     count: number;
@@ -54,6 +54,7 @@ export default class Account implements AccountObj {
     homeserver(): string;
     homserverURL(): string;
     noteWithAccountInfo(): string;
+    toBooleanFilterOption(): BooleanFilterOption;
     private buildWebfingerURI;
     static buildAccountNames(accounts: Account[]): AccountNames;
     static countAccounts(accounts: Account[]): StringNumberDict;

@@ -7,13 +7,7 @@ import TagList from "../api/tag_list";
 import UserData from "../api/user_data";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from "../enums";
 import { languageName } from "../helpers/language_helper";
-import {
-    type BooleanFilterOption,
-    type ObjListDataSource,
-    type ObjWithTootCount,
-    type StringNumberDict,
-    type TagWithUsageCounts,
-} from "../types";
+import { type BooleanFilterOption } from "../types";
 
 
 export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
@@ -29,7 +23,7 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
     // Add one to the numToots property of the BooleanFilterOption for the given tag
     // and decorate with available information about the user's interactions with that tag
     incrementCount(name: string, displayName?: string, obj?: any): void {
-        const option = this.nameDict[name] || this.createOption(name, displayName, obj);
+        const option = this.getOrCreateOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
     }
 
@@ -49,6 +43,10 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
         this.nameDict[name] = option;
         this.objs.push(option);
         return option;
+    }
+
+    getOrCreateOption(name: string, displayName?: string, obj?: any): BooleanFilterOption {
+        return this.nameDict[name] || this.createOption(name, displayName, obj);
     }
 };
 
