@@ -53,11 +53,11 @@ class UserData {
         const retootAndFaveAccounts = retootsAndFaves.map(t => t.account);
         const followedAccountIdMap = (0, collection_helpers_1.keyById)(data.followedAccounts);
         // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
-        const repliedToAccounts = toot_1.default.onlyReplies(data.recentToots)
-            .map(toot => followedAccountIdMap[toot.inReplyToAccountId])
-            .filter(Boolean);
+        const replies = toot_1.default.onlyReplies(data.recentToots);
+        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId]).filter(Boolean);
+        logger.trace(`Found ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
         const accountCounts = account_1.default.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
-        // Fill in zeros for accounts that the user follows but has not favourited or retooted
+        // Fill in zeros in accountCounts for accounts that the user follows but has not favourited or retooted
         data.followedAccounts.forEach((account) => {
             accountCounts[account.webfingerURI] ??= { account, count: 0 };
             accountCounts[account.webfingerURI].isFollowed = true;
