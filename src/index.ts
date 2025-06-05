@@ -105,12 +105,6 @@ const EMPTY_TRENDING_DATA = {
     toots: []
 };
 
-const LOAD_STARTED_MSGS = [
-    BACKFILL_FEED,
-    PULLING_USER_HISTORY,
-    TRIGGER_FEED,
-];
-
 // Constants
 const REALLY_BIG_NUMBER = 10_000_000_000;
 const PULL_USER_HISTORY_PARAMS = {maxRecords: REALLY_BIG_NUMBER, moar: true};
@@ -228,6 +222,7 @@ class TheAlgorithm {
         this.checkIfLoading();
         if (moreOldToots) return await this.triggerHomeTimelineBackFill();
         if (this.checkIfSkipping()) return;
+        this.markLoadStartedAt();
         this.setLoadingStateVariables(TRIGGER_FEED);
 
         const hashtagToots = async (key: TagTootsCacheKey) => {
@@ -264,6 +259,7 @@ class TheAlgorithm {
     async triggerHomeTimelineBackFill(): Promise<void> {
         this.logger.log(`${arrowed(BACKFILL_FEED)} called, state:`, this.statusDict());
         this.checkIfLoading();
+        this.markLoadStartedAt();
         this.setLoadingStateVariables(BACKFILL_FEED);
         this.homeFeed = await this.getHomeTimeline(true);
         await this.finishFeedUpdate();
@@ -275,6 +271,7 @@ class TheAlgorithm {
         const logPrefix = arrowed(`triggerPullAllUserData()`);
         this.logger.log(`${logPrefix} called, state:`, this.statusDict());
         this.checkIfLoading();
+        this.markLoadStartedAt();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
         this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
 
@@ -613,6 +610,10 @@ class TheAlgorithm {
         (logger || this.logger).logTelemetry(msg, startedAt, 'current state', this.statusDict());
     }
 
+    private markLoadStartedAt(): void {
+        this.loadStartedAt = new Date();
+    }
+
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     private async mergeTootsToFeed(newToots: Toot[], logger: Logger): Promise<void> {
@@ -665,8 +666,6 @@ class TheAlgorithm {
 
     // sets this.loadingStatus to a message indicating the current state of the feed
     private setLoadingStateVariables(logPrefix: string): void {
-        if (LOAD_STARTED_MSGS.includes(logPrefix)) this.loadStartedAt = new Date();
-
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;

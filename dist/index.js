@@ -119,11 +119,6 @@ const EMPTY_TRENDING_DATA = {
     servers: {},
     toots: []
 };
-const LOAD_STARTED_MSGS = [
-    log_helpers_1.BACKFILL_FEED,
-    PULLING_USER_HISTORY,
-    log_helpers_1.TRIGGER_FEED,
-];
 // Constants
 const REALLY_BIG_NUMBER = 10000000000;
 const PULL_USER_HISTORY_PARAMS = { maxRecords: REALLY_BIG_NUMBER, moar: true };
@@ -219,6 +214,7 @@ class TheAlgorithm {
             return await this.triggerHomeTimelineBackFill();
         if (this.checkIfSkipping())
             return;
+        this.markLoadStartedAt();
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         const hashtagToots = async (key) => {
             const tagList = await toots_for_tags_list_1.default.create(key);
@@ -249,6 +245,7 @@ class TheAlgorithm {
     async triggerHomeTimelineBackFill() {
         this.logger.log(`${(0, string_helpers_1.arrowed)(log_helpers_1.BACKFILL_FEED)} called, state:`, this.statusDict());
         this.checkIfLoading();
+        this.markLoadStartedAt();
         this.setLoadingStateVariables(log_helpers_1.BACKFILL_FEED);
         this.homeFeed = await this.getHomeTimeline(true);
         await this.finishFeedUpdate();
@@ -259,6 +256,7 @@ class TheAlgorithm {
         const logPrefix = (0, string_helpers_1.arrowed)(`triggerPullAllUserData()`);
         this.logger.log(`${logPrefix} called, state:`, this.statusDict());
         this.checkIfLoading();
+        this.markLoadStartedAt();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
         this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
         try {
@@ -548,6 +546,9 @@ class TheAlgorithm {
     logTelemetry(msg, startedAt, logger) {
         (logger || this.logger).logTelemetry(msg, startedAt, 'current state', this.statusDict());
     }
+    markLoadStartedAt() {
+        this.loadStartedAt = new Date();
+    }
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     async mergeTootsToFeed(newToots, logger) {
@@ -590,8 +591,6 @@ class TheAlgorithm {
     }
     // sets this.loadingStatus to a message indicating the current state of the feed
     setLoadingStateVariables(logPrefix) {
-        if (LOAD_STARTED_MSGS.includes(logPrefix))
-            this.loadStartedAt = new Date();
         // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
         if (!this.feed.length) {
             this.loadingStatus = INITIAL_LOAD_STATUS;

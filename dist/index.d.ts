@@ -103,6 +103,7 @@ declare class TheAlgorithm {
     private loadCachedData;
     private lockedMergeToFeed;
     private logTelemetry;
+    private markLoadStartedAt;
     private mergeTootsToFeed;
     private prepareScorers;
     private recomputeScorers;
