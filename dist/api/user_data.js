@@ -11,7 +11,6 @@ const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const enums_1 = require("../enums");
-const enums_2 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger_1 = require("../helpers/logger");
@@ -19,24 +18,24 @@ const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
     // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
-    favouriteAccounts = new obj_with_counts_list_1.default([], enums_2.ScoreName.FAVOURITED_ACCOUNTS);
-    favouritedTags = new tag_list_1.default([], enums_2.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+    favouriteAccounts = new obj_with_counts_list_1.default([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
+    favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {};
-    followedTags = new tag_list_1.default([], enums_2.ScoreName.FOLLOWED_TAGS);
+    followedTags = new tag_list_1.default([], enums_1.ScoreName.FOLLOWED_TAGS);
     languagesPostedIn = new obj_with_counts_list_1.default([], enums_1.BooleanFilterName.LANGUAGE);
     mutedAccounts = {};
-    participatedTags = new tag_list_1.default([], enums_2.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = []; // TODO: currently unused, only here for getCurrentState() by client app
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
         userData.favouriteAccounts = this.buildFavouriteAccount(data);
-        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_2.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
-        userData.followedTags = new tag_list_1.default(data.followedTags, enums_2.ScoreName.FOLLOWED_TAGS);
+        userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
-        userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_2.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+        userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         // Language stuff
         userData.languagesPostedIn = obj_with_counts_list_1.default.buildByCountingObjProps(data.recentToots, (toot) => toot.language, enums_1.BooleanFilterName.LANGUAGE);
@@ -69,7 +68,7 @@ class UserData {
             };
             return option;
         });
-        return new obj_with_counts_list_1.default(accountOptions, enums_2.ScoreName.FAVOURITED_ACCOUNTS);
+        return new obj_with_counts_list_1.default(accountOptions, enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     }
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build() {
@@ -93,7 +92,7 @@ class UserData {
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
     async isDataStale() {
-        return await Storage_1.default.isDataStale(enums_2.CacheKey.MUTED_ACCOUNTS);
+        return await Storage_1.default.isDataStale(enums_1.CacheKey.MUTED_ACCOUNTS);
     }
     /////////////////////////////
     //      Static Methods     //
