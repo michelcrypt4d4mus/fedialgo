@@ -101,7 +101,6 @@ exports.repairFilterSettings = repairFilterSettings;
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 async function updateBooleanFilterOptions(filters, toots) {
-    populateMissingFilters(filters); // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const suppressedNonLatinTags = {};
     const optionLists = {
@@ -114,7 +113,7 @@ async function updateBooleanFilterOptions(filters, toots) {
     toots.forEach(toot => {
         optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
         optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language);
-        optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, "", toot.realAccount());
+        optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, undefined, toot.realAccount());
         // Aggregate counts for each kind ("type") of toot
         Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
@@ -125,7 +124,7 @@ async function updateBooleanFilterOptions(filters, toots) {
         // containsString() so the counts don't match. To fix this we'd have to go back over the toots
         // and check for each tag but that is for now too slow.
         toot.realToot().tags.forEach((tag) => {
-            // Suppress non-Latin script tags unless they match the user's locale
+            // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config_1.config.locale.language) {
                 suppressedNonLatinTags[tag.language] ??= {};
                 (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[tag.language], tag.name);
@@ -135,9 +134,11 @@ async function updateBooleanFilterOptions(filters, toots) {
             }
         });
     });
+    populateMissingFilters(filters); // Ensure all filters are instantiated
     // Build the options for all the boolean filters based on the counts
-    Object.entries(optionLists).forEach(([filterName, optionList]) => {
-        filters.booleanFilters[filterName].options = optionList;
+    Object.keys(optionLists).forEach((key) => {
+        const filterName = key;
+        filters.booleanFilters[filterName].options = optionLists[filterName];
     });
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));

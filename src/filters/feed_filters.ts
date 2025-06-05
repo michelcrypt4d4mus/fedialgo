@@ -93,7 +93,6 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 export async function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings> {
-    populateMissingFilters(filters);  // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
@@ -108,7 +107,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     toots.forEach(toot => {
         optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
         optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!);
-        optionLists[BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, "", toot.realAccount());
+        optionLists[BooleanFilterName.USER].incrementCount(toot.realAccount().webfingerURI, undefined, toot.realAccount());
 
         // Aggregate counts for each kind ("type") of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
@@ -121,7 +120,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         // containsString() so the counts don't match. To fix this we'd have to go back over the toots
         // and check for each tag but that is for now too slow.
         toot.realToot().tags.forEach((tag) => {
-            // Suppress non-Latin script tags unless they match the user's locale
+            // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config.locale.language) {
                 suppressedNonLatinTags[tag.language] ??= {};
                 incrementCount(suppressedNonLatinTags[tag.language], tag.name);
@@ -131,9 +130,12 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         });
     });
 
+    populateMissingFilters(filters);  // Ensure all filters are instantiated
+
     // Build the options for all the boolean filters based on the counts
-    Object.entries(optionLists).forEach(([filterName, optionList]) => {
-        filters.booleanFilters[filterName as BooleanFilterName].options = optionList;
+    Object.keys(optionLists).forEach((key) => {
+        const filterName = key as BooleanFilterName;
+        filters.booleanFilters[filterName].options = optionLists[filterName];
     });
 
     if (Object.keys(suppressedNonLatinTags).length) {
