@@ -16,7 +16,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
     getObj(name: string): T | undefined;
     map(callback: (obj: T, i?: number) => any): T[];
-    maxNumAccounts(): number | undefined;
+    maxValue(propertyName: keyof T): number | undefined;
     nameToNumTootsDict(): StringNumberDict;
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void;
     removeKeywords(keywords: string[]): void;

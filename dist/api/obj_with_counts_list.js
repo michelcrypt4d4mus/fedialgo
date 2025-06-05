@@ -31,8 +31,7 @@ class ObjWithCountList {
         this._objs = theTags;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        const numTootsValues = this.objs.map(t => t.numToots).filter((n) => (0, math_helper_1.isNumber)(n));
-        this._maxNumToots = numTootsValues.length ? Math.max(...numTootsValues) : undefined;
+        this._maxNumToots = this.maxValue("numToots");
     }
     constructor(objs, source) {
         this._objs = objs.map(completeObjWithTootCounts);
@@ -56,10 +55,10 @@ class ObjWithCountList {
     map(callback) {
         return this.objs.map(callback);
     }
-    // Find the maximum numAccounts property in objs
-    maxNumAccounts() {
-        const objsNumAccounts = this.objs.map(t => t.numAccounts).filter(n => !(0, string_helpers_1.isNull)(n) && !isNaN(n));
-        return objsNumAccounts.length ? Math.max(...objsNumAccounts) : undefined;
+    // Get the maximum value for a given key across the objs array
+    maxValue(propertyName) {
+        const values = this.objs.map(obj => obj[propertyName]).filter(n => (0, math_helper_1.isNumber)(n));
+        return values.length ? Math.max(...values) : undefined;
     }
     // Returns a dict of tag names to numToots, which is (for now) what is used by BooleanFilter
     nameToNumTootsDict() {

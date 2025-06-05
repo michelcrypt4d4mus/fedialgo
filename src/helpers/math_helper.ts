@@ -40,7 +40,7 @@ export class BytesDict {
 
 
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
-export const isNumber = (n: OptionalNumber) => typeof n == "number" ? !isNaN(n) && isFinite(n) : false;
+export const isNumber = (n: any) => typeof n == "number" ? !isNaN(n) && isFinite(n) : false;
 // Same as isNumber() but accepts a numerical string as well
 export const isNumberOrNumberString = (n: string | OptionalNumber) => typeof n == "string" ? NUMBER_REGEX.test(n) : isNumber(n);
 
