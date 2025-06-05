@@ -25,7 +25,7 @@ export default class UserData {
     static buildFromData(data: UserApiData): UserData;
     static build(): Promise<UserData>;
     isDataStale(): Promise<boolean>;
+    private populateFavouriteAccounts;
     static getMutedKeywords(): Promise<string[]>;
-    private static buildFavouriteAccount;
 }
 export {};

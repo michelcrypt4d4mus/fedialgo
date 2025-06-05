@@ -9,7 +9,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     static fromFollowedTags(): Promise<TagList>;
     static fromParticipated(): Promise<TagList>;
     static fromTrending(): Promise<TagList>;
-    static fromUsageCounts(toots: Toot[], label: ObjListDataSource): TagList;
+    static fromUsageCounts(toots: Toot[], source: ObjListDataSource): TagList;
     getTag(tag: string | MastodonTag): ObjWithTootCount | undefined;
     removeFollowedAndMutedTags(): Promise<void>;
     removeFollowedTags(): Promise<void>;

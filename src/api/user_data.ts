@@ -20,6 +20,7 @@ import {
     type StringNumberDict,
     type TagWithUsageCounts
 } from "../types";
+import { languageName } from "../helpers/language_helper";
 
 const logger = new Logger("UserData");
 
@@ -49,21 +50,14 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
-        userData.favouriteAccounts = this.buildFavouriteAccount(data);
+        userData.populateFavouriteAccounts(data);
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
-
-        // Language stuff
-        userData.languagesPostedIn = ObjWithCountList.buildByCountingObjProps(
-            data.recentToots,
-            (toot) => toot.language!,
-            BooleanFilterName.LANGUAGE
-        );
-
+        userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);
         return userData;
@@ -96,6 +90,24 @@ export default class UserData {
         return await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
     }
 
+    // Add up the favourites, retoots, and replies for each account
+    private populateFavouriteAccounts(data: UserApiData): void {
+        const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.realAccount());
+        const followedAccountIdMap = keyById(data.followedAccounts);
+
+        // TODO: Replies are imperfect, we only have inReplyToAccountId to work with. IDing ~1/3rd of the replies.
+        // Currently that's only around 1/3rd of the replies.
+        const replies = Toot.onlyReplies(data.recentToots);
+        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId!]).filter(Boolean);
+        logger.trace(`Found ${retootsAndFaves.length} retootsAndFaves, ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
+        const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
+
+        // Add all followed accounts, but with numToots = undefined
+        this.favouriteAccounts.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
+        this.favouriteAccounts.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+    }
+
     /////////////////////////////
     //      Static Methods     //
     /////////////////////////////
@@ -108,24 +120,15 @@ export default class UserData {
         logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
         return keywords;
     }
+};
 
-    // Add up the favourites, retoots, and replies for each account
-    private static buildFavouriteAccount(data: UserApiData): ObjWithCountList<BooleanFilterOption> {
-        const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.realAccount());
-        const followedAccountIdMap = keyById(data.followedAccounts);
 
-        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
-        // Currently that's only around 1/3rd of the replies.
-        const replies = Toot.onlyReplies(data.recentToots);
-        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId!]).filter(Boolean);
-        logger.trace(`Found ${retootsAndFaves.length} retootsAndFaves, ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
-        const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
-        const favouriteAccountOptions = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
-        favouriteAccountOptions.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
-
-        // Add any missing followed accounts, but with numToots = undefined
-        favouriteAccountOptions.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
-        return favouriteAccountOptions;
+// extract information for language BoooleanFilterOption
+function tootLanguageOption (toot: Toot): BooleanFilterOption {
+    if (!toot.language) {
+        logger.warn("Toot has no language set, using default language instead", toot);
+        toot.language = config.locale.defaultLanguage;
     }
+
+    return {name: toot.language!, displayName: languageName(toot.language!)}
 };

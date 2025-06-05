@@ -42,22 +42,16 @@ class TagList extends obj_with_counts_list_1.default {
         return trendingTagList;
     }
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
-    // # of times the tag appears in 'toots'.
-    static fromUsageCounts(toots, label) {
+    // # of times the tag appears in array of Toot objects.
+    static fromUsageCounts(toots, source) {
         // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
         let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
         const isRetooter = (retootsPct > config_1.config.participatedTags.minPctToCountRetoots);
-        const tagsWithUsageCounts = toots.reduce((tagCounts, toot) => {
-            toot = isRetooter ? toot.realToot() : toot;
-            toot.tags.forEach((tag) => {
-                const newTag = Object.assign({}, tag);
-                newTag.numToots ??= 0;
-                tagCounts[tag.name] ??= newTag;
-                tagCounts[tag.name].numToots += 1;
-            });
-            return tagCounts;
-        }, {});
-        return new this(Object.values(tagsWithUsageCounts), label);
+        toots = isRetooter ? toots.map(toot => toot.realToot()) : toots;
+        const tagList = new TagList([], source);
+        const tags = toots.flatMap(toot => toot.tags);
+        tagList.populateByCountingProps(tags, (tag) => tag);
+        return tagList;
     }
     // Return the tag if it exists in 'tags' array, otherwise undefined.
     getTag(tag) {
