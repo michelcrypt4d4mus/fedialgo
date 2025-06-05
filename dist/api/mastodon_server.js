@@ -55,6 +55,7 @@ class MastodonServer {
             return await this.fetch(MastodonServer.v2Url(INSTANCE));
         }
         catch (error) {
+            // TODO: we shouldn't have to catch this error here because zipPromises() will take care of it
             this.logger.warn(`${logPrefix} Error for server '${this.domain}'`, error);
             return null;
         }

@@ -207,7 +207,7 @@ export default class Storage {
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
-            logger.trace(`No data found, returning null`);
+            logger.deep(`No data found, returning null`);
             return null;
         };
 
