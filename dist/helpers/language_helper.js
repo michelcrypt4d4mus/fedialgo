@@ -324,7 +324,7 @@ exports.detectLanguage = detectLanguage;
 // meant for non Latin scripts like japanese, korean, etc.
 function detectHashtagLanguage(tagName) {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
-        if (regex.test(tagName) && !(0, math_helper_1.isNumber)(tagName)) {
+        if (regex.test(tagName) && !(0, math_helper_1.isNumberOrNumberString)(tagName)) {
             return language;
         }
     }

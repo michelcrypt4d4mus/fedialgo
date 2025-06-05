@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.isNumber = exports.BytesDict = void 0;
+exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.isNumberOrNumberString = exports.isNumber = exports.BytesDict = void 0;
 /*
  * Math and numbers.
  */
@@ -36,10 +36,7 @@ exports.BytesDict = BytesDict;
 ;
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
 const isNumber = (n) => {
-    if (typeof n === "string") {
-        return string_helpers_1.NUMBER_REGEX.test(n);
-    }
-    else if (typeof n != "number") {
+    if (typeof n != "number") {
         return false;
     }
     else {
@@ -47,6 +44,12 @@ const isNumber = (n) => {
     }
 };
 exports.isNumber = isNumber;
+// Same as isNumber() but accepts a numerical string as well
+const isNumberOrNumberString = (n) => {
+    return (typeof n === "string") ? string_helpers_1.NUMBER_REGEX.test(n) : (0, exports.isNumber)(n);
+};
+exports.isNumberOrNumberString = isNumberOrNumberString;
+// Use TextEncoder to get the byte length of an object
 function sizeFromTextEncoder(obj) {
     try {
         return new TextEncoder().encode(JSON.stringify(obj)).length;
@@ -58,6 +61,7 @@ function sizeFromTextEncoder(obj) {
 }
 exports.sizeFromTextEncoder = sizeFromTextEncoder;
 ;
+// Use Buffer to get the byte length of an object
 function sizeFromBufferByteLength(obj) {
     try {
         return Buffer.byteLength(JSON.stringify(obj), 'utf8');

@@ -5,7 +5,7 @@ import LanguageDetect from 'languagedetect';
 import { capitalCase } from 'change-case';
 import { detectAll } from 'tinyld';
 
-import { isNumber } from "./math_helper";
+import { isNumberOrNumberString } from "./math_helper";
 import { swapKeysAndValues } from './collection_helpers';
 import { type StringDict, type StringSet } from '../types';
 
@@ -359,7 +359,7 @@ export function detectLanguage(text: string): LanguageDetectInfo {
 // meant for non Latin scripts like japanese, korean, etc.
 export function detectHashtagLanguage(tagName: string): string | undefined {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
-        if (regex.test(tagName) && !isNumber(tagName)) {
+        if (regex.test(tagName) && !isNumberOrNumberString(tagName)) {
             return language;
         }
     };

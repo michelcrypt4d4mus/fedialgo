@@ -12,8 +12,8 @@ const toot_1 = __importDefault(require("./objects/toot"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const logger_1 = require("../helpers/logger");
 const language_helper_1 = require("../helpers/language_helper");
+const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {

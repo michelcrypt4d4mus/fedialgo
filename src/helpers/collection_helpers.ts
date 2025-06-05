@@ -6,7 +6,7 @@ import chunk from 'lodash/chunk';
 import { compareStr, hashObject, isNull } from "./string_helpers";
 import { config } from "../config";
 import { isAccessTokenRevokedError } from '../api/api';
-import { isNumber } from "./math_helper";
+import { isNumber, isNumberOrNumberString } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
 import {
@@ -169,7 +169,7 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null {
     }
 
     const idVals = array.map(e => e.id);
-    const isNumberArray = idVals.every(isNumber);
+    const isNumberArray = idVals.every(isNumberOrNumberString);
 
     if (idVals.some((id) => id === null || id === undefined)) {
         console.warn(`[findMinMaxId()] called with null IDs:`, idVals);

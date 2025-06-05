@@ -6,7 +6,7 @@
 ### v0.64.1
 * Refactor/clean up language and hashtag filter option building
 
-# v0.64.0
+## v0.64.0
 * Add `maxCacheRecords` option to API endpoints config
 * Refactor decoration of filter options into various `BooleanFilterOptionList` subclasses
 
@@ -14,13 +14,13 @@
 * Call `setFeedInApp()` with empty list as soon as `reset()` is called
 
 ### v0.63.1
-* Handle edge case with error handling during `MastoApi.reset()` where WaitTime object is missing
+* Fix edge case with error handling during `MastoApi.reset()` where `WaitTime` object is missing
 * Use `Promise.allSettled()` to rescue partial results from API calls
 * Handle API errors better when getting trending/participated/etc. tag toots
 
 ## v0.63.0
 * Add `getApiErrorMsgs()` method to `TheAlgorithm` (and add those messages to the `getCurrentState()` return value)
-* Remove muted/blocked accounts from thread view, pass a source param to `completeProperties()` instead of boolean `isDeepInspect`
+* (Demo App) Remove muted/blocked accounts from thread view, pass a source param to `completeProperties()` instead of boolean `isDeepInspect`
 * (Demo App) Display non-fatal errors below control panel when they happen
 
 ### v0.62.2

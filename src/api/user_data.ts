@@ -13,6 +13,7 @@ import Toot from "./objects/toot";
 import { BooleanFilterName, CacheKey, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
 import { keyById } from "../helpers/collection_helpers";
+import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
@@ -20,7 +21,6 @@ import {
     type StringNumberDict,
     type TagWithUsageCounts
 } from "../types";
-import { languageName } from "../helpers/language_helper";
 
 const logger = new Logger("UserData");
 

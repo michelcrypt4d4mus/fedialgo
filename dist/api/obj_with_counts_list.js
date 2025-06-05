@@ -8,33 +8,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * somewhat interchangeably as a dictionary or a sorted list.
  */
 const user_data_1 = __importDefault(require("./user_data"));
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+const math_helper_1 = require("../helpers/math_helper");
 const logger_1 = require("../helpers/logger");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger = new logger_1.Logger("TagList");
 class ObjWithCountList {
     logger;
     length;
     nameDict = {}; // Dict of obj.names to objs
     source;
+    _maxNumToots; // Cached max numToots value, if it exists
     _objs;
-    constructor(objs, source) {
-        this._objs = objs.map(completeObjWithTootCounts);
-        this.length = this._objs.length;
-        this.nameDict = this.objNameDict();
-        this.source = source;
-        this.logger = new logger_1.Logger("ObjWithCountList", source);
-    }
-    static buildByCountingObjProps(objs, fxn, source) {
-        return this.buildFromDict((0, collection_helpers_1.countValues)(objs, fxn), source);
-    }
-    // Alternate constructor to create synthetic tags
-    static buildFromDict(dict, source) {
-        const objs = Object.entries(dict).map(([name, numToots]) => {
-            const obj = { name, numToots };
-            return obj;
-        });
-        return new ObjWithCountList(objs, source);
+    get maxNumToots() {
+        return this._maxNumToots;
     }
     get objs() {
         return this._objs;
@@ -44,6 +31,15 @@ class ObjWithCountList {
         this._objs = theTags;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
+        const numTootsValues = this.objs.map(t => t.numToots).filter((n) => (0, math_helper_1.isNumber)(n));
+        this._maxNumToots = numTootsValues.length ? Math.max(...numTootsValues) : undefined;
+    }
+    constructor(objs, source) {
+        this._objs = objs.map(completeObjWithTootCounts);
+        this.length = this._objs.length;
+        this.nameDict = this.objNameDict();
+        this.source = source;
+        this.logger = new logger_1.Logger("ObjWithCountList", source);
     }
     // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
     addObjs(objs) {
@@ -65,11 +61,6 @@ class ObjWithCountList {
         const objsNumAccounts = this.objs.map(t => t.numAccounts).filter(n => !(0, string_helpers_1.isNull)(n) && !isNaN(n));
         return objsNumAccounts.length ? Math.max(...objsNumAccounts) : undefined;
     }
-    // Find the maximum numToots property in objs
-    maxNumToots() {
-        const tagsNumToots = this.objs.map(t => t.numToots).filter(n => !(0, string_helpers_1.isNull)(n) && !isNaN(n));
-        return tagsNumToots.length ? Math.max(...tagsNumToots) : undefined;
-    }
     // Returns a dict of tag names to numToots, which is (for now) what is used by BooleanFilter
     nameToNumTootsDict() {
         return this.objs.reduce((dict, tag) => {
@@ -78,6 +69,7 @@ class ObjWithCountList {
         }, {});
     }
     // Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+    // Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
     populateByCountingProps(objs, propExtractor) {
         this.logger.trace(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
         const options = objs.reduce((optionDict, obj) => {

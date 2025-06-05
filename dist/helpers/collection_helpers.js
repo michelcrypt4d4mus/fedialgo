@@ -131,7 +131,7 @@ function findMinMaxId(array) {
         return null;
     }
     const idVals = array.map(e => e.id);
-    const isNumberArray = idVals.every(math_helper_1.isNumber);
+    const isNumberArray = idVals.every(math_helper_1.isNumberOrNumberString);
     if (idVals.some((id) => id === null || id === undefined)) {
         console.warn(`[findMinMaxId()] called with null IDs:`, idVals);
         return null;

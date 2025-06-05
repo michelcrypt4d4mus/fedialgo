@@ -14,6 +14,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
         super(options, source);
     }
     // Remove elements that don't match the predicate(). Returns a new TagList object
+    // Have to overload this because of typescript's broken alternate constructor handling
     filter(predicate) {
         return new BooleanFilterOptionList(this.objs.filter(predicate), this.source);
     }
@@ -29,7 +30,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
     }
     // Create a basic BooleanFilterOption with the given name and add it to the list
     createBasicOption(name, displayName) {
-        const option = { name, numToots: 0 };
+        const option = { name };
         if (displayName) {
             option.displayName = displayName;
         }

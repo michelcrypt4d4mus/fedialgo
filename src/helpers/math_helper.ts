@@ -37,10 +37,8 @@ export class BytesDict {
 
 
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
-export const isNumber = (n: string | number): boolean => {
-    if (typeof n === "string") {
-        return NUMBER_REGEX.test(n);
-    } else if (typeof n != "number") {
+export const isNumber = (n: number | null | undefined): boolean => {
+    if (typeof n != "number") {
         return false;
     } else {
         return !isNaN(n) && isFinite(n);
@@ -48,6 +46,13 @@ export const isNumber = (n: string | number): boolean => {
 };
 
 
+// Same as isNumber() but accepts a numerical string as well
+export const isNumberOrNumberString = (n: string | number | null | undefined): boolean => {
+    return (typeof n === "string") ? NUMBER_REGEX.test(n) : isNumber(n);
+};
+
+
+// Use TextEncoder to get the byte length of an object
 export function sizeFromTextEncoder(obj: object): number {
     try {
         return new TextEncoder().encode(JSON.stringify(obj)).length;
@@ -57,6 +62,8 @@ export function sizeFromTextEncoder(obj: object): number {
     }
 };
 
+
+// Use Buffer to get the byte length of an object
 export function sizeFromBufferByteLength(obj: object): number {
     try {
         return Buffer.byteLength(JSON.stringify(obj), 'utf8');
