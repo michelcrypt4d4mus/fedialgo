@@ -20,7 +20,6 @@ export const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 export const TELEMETRY = 'TELEMETRY';
 
 // Regexes
-export const NUMBER_REGEX = /^[\d.]+$/;
 const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const HAHSTAG_REGEX = /#\w+/g;

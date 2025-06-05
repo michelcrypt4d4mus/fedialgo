@@ -1,11 +1,14 @@
 /*
  * Math and numbers.
  */
-import { NUMBER_REGEX, byteString, isNull } from "./string_helpers";
+import { byteString, isNull, isString } from "./string_helpers";
 import { strBytes } from "./log_helpers";
 import { sumArray } from "./collection_helpers";
 import { type StringNumberDict } from "../types";
 
+type OptionalNumber = number | null | undefined;
+
+const NUMBER_REGEX = /^[\d.]+$/;
 
 // For use with sizeOf() to try to see internals of object size.
 // There's duplication of byte count here - arrays and objects include the other types
@@ -37,19 +40,9 @@ export class BytesDict {
 
 
 // Returns true if it's a digits striing or if it's a number besides NaN or Infinity
-export const isNumber = (n: number | null | undefined): boolean => {
-    if (typeof n != "number") {
-        return false;
-    } else {
-        return !isNaN(n) && isFinite(n);
-    }
-};
-
-
+export const isNumber = (n: OptionalNumber) => typeof n == "number" ? !isNaN(n) && isFinite(n) : false;
 // Same as isNumber() but accepts a numerical string as well
-export const isNumberOrNumberString = (n: string | number | null | undefined): boolean => {
-    return (typeof n === "string") ? NUMBER_REGEX.test(n) : isNumber(n);
-};
+export const isNumberOrNumberString = (n: string | OptionalNumber) => typeof n == "string" ? NUMBER_REGEX.test(n) : isNumber(n);
 
 
 // Use TextEncoder to get the byte length of an object
