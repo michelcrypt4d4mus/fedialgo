@@ -6,7 +6,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ObjListDataSource);
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     static fromFavourites(): Promise<TagList>;
-    static fromFollowedTags(): Promise<TagList>;
+    static fromFollowedTags(tags?: TagWithUsageCounts[]): Promise<TagList>;
     static fromParticipated(): Promise<TagList>;
     static fromTrending(): Promise<TagList>;
     static fromUsageCounts(toots: Toot[], source: ObjListDataSource): TagList;

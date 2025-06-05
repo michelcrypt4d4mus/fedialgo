@@ -28,8 +28,9 @@ class TagList extends obj_with_counts_list_1.default {
         return TagList.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     }
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
-    static async fromFollowedTags() {
-        return new TagList(await api_1.default.instance.getFollowedTags(), enums_1.ScoreName.FOLLOWED_TAGS);
+    static async fromFollowedTags(tags) {
+        tags ||= await api_1.default.instance.getFollowedTags();
+        return new TagList(tags, enums_1.ScoreName.FOLLOWED_TAGS);
     }
     // Tags the user has posted in
     static async fromParticipated() {

@@ -14,6 +14,7 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
 }
 export declare class HashtagFilterOptionList extends BooleanFilterOptionList {
     dataForTagPropLists: Record<TagTootsCacheKey, TagList>;
+    userData: UserData;
     constructor(options: BooleanFilterOption[]);
     static create(): Promise<HashtagFilterOptionList>;
     createOption(name: string): BooleanFilterOption;

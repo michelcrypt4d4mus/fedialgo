@@ -39,11 +39,9 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     }
 
     // Tags the user follows  // TODO: could look for tags in the accounts they follow too
-    static async fromFollowedTags(): Promise<TagList> {
-        return new TagList(
-            await MastoApi.instance.getFollowedTags(),
-            ScoreName.FOLLOWED_TAGS
-        );
+    static async fromFollowedTags(tags?: TagWithUsageCounts[]): Promise<TagList> {
+        tags ||= await MastoApi.instance.getFollowedTags();
+        return new TagList(tags, ScoreName.FOLLOWED_TAGS);
     }
 
     // Tags the user has posted in

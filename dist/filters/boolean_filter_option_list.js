@@ -47,6 +47,7 @@ exports.default = BooleanFilterOptionList;
 // BooleanFilterOptionList to create and decorate hashtag filter options.
 class HashtagFilterOptionList extends BooleanFilterOptionList {
     dataForTagPropLists;
+    userData;
     constructor(options) {
         super(options, enums_1.BooleanFilterName.HASHTAG);
     }
@@ -54,6 +55,7 @@ class HashtagFilterOptionList extends BooleanFilterOptionList {
     static async create() {
         const optionList = new this([]);
         optionList.dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
+        optionList.userData = await user_data_1.default.build(); // TODO: we only need the followedTags list, not the whole UserData
         return optionList;
     }
     createOption(name) {
@@ -64,6 +66,9 @@ class HashtagFilterOptionList extends BooleanFilterOptionList {
                 option[key] = propertyObj.numToots || 0;
             }
         });
+        if (this.userData.followedTags.getObj(option.name)) {
+            option.isFollowed = true;
+        }
         return option;
     }
 }

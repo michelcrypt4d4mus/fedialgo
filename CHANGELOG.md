@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * `BooleanFilterOptionList.maxNumToots` is now a variable not a function
+* Add isFollowed to hashtag BooleanFilterOptions
 
 ### v0.64.2
 * (Demo App) Bump `webpack-dev-server` to version 5.22 via `npm audit force`
