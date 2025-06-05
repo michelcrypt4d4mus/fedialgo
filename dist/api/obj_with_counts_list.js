@@ -45,11 +45,9 @@ class ObjWithCountList {
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
     }
-    // Only add objects we don't already have in the list
+    // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
     addObjs(objs) {
-        const initialLength = this.objs.length;
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
-        this.logger.debug(`addObjs() - Added ${this.objs.length - initialLength} new objects to the list (total: ${this.objs.length})`);
     }
     // Remove elements that don't match the predicate(). Returns a new ObjWithCountList object
     filter(predicate) {
@@ -81,12 +79,11 @@ class ObjWithCountList {
     }
     // Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
     populateByCountingProps(objs, propExtractor) {
-        this.logger.debug(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
+        this.logger.trace(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
         const options = objs.reduce((optionDict, obj) => {
             const extractedProps = propExtractor(obj);
             optionDict[extractedProps.name] ??= extractedProps;
             optionDict[extractedProps.name].numToots = (optionDict[extractedProps.name].numToots || 0) + 1;
-            this.logger.trace(`populateByCountingProps() - Counted ${extractedProps.name} (numToots=${optionDict[extractedProps.name].numToots})`);
             return optionDict;
         }, {});
         this.objs = Object.values(options);

@@ -123,6 +123,8 @@ export default class UserData {
         const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
         const favouriteAccountOptions = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
         favouriteAccountOptions.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+
+        // Add any missing followed accounts, but with numToots = undefined
         favouriteAccountOptions.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
         return favouriteAccountOptions;
     }

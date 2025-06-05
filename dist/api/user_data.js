@@ -90,6 +90,7 @@ class UserData {
         const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
         const favouriteAccountOptions = new obj_with_counts_list_1.default([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
         favouriteAccountOptions.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+        // Add any missing followed accounts, but with numToots = undefined
         favouriteAccountOptions.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
         return favouriteAccountOptions;
     }
