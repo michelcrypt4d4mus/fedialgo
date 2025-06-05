@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.64.1
+* Refactor/clean up language and hashtag filter option building
+
 # v0.64.0
 * Add `maxCacheRecords` option to API endpoints config
 * Refactor decoration of filter options into various `BooleanFilterOptionList` subclasses
