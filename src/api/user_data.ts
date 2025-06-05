@@ -114,13 +114,6 @@ export default class UserData {
             MastoApi.instance.getServerSideFilters(),
         ]);
 
-        // TODO: remove this eventually
-        responses[4].forEach(toot => {
-            if (toot.application && toot.application.name != UNKNOWN && toot.application.name != "Web") {
-                logger.trace(`Found recent user toot with application set:`, toot);
-            }
-        })
-
         return this.buildFromData({
             favouritedToots: responses[0],
             followedAccounts: responses[1],

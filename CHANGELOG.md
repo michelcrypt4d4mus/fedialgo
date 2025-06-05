@@ -1,6 +1,6 @@
 # NEXT RELEASE
 * Use `Promise.allSettled()` to rescue partial results from API calls
-* Handle API errors when getting trending/participated/etc. tag toots
+* Handle API errors better when getting trending/participated/etc. tag toots
 
 ## v0.63.0
 * Add `getApiErrorMsgs()` method to `TheAlgorithm` (and add those messages to the `getCurrentState()` return value)
