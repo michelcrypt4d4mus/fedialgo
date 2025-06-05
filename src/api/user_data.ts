@@ -104,7 +104,17 @@ export default class UserData {
         const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
 
         // Add all followed accounts, but with numToots = undefined
-        this.favouriteAccounts.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
+        this.favouriteAccounts.addObjs(data.followedAccounts.map(account => {
+            const option = account.toBooleanFilterOption();
+
+            if (!option.isFollowed) {
+                logger.warn("populateFavouriteAccounts() followed account is not marked as followed:", account);
+                option.isFollowed = true;  // Mark as followed
+            }
+
+            return option;
+        }));
+
         this.favouriteAccounts.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
     }
 
