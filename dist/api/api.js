@@ -501,7 +501,7 @@ class MastoApi {
             newRows = [...cachedRows, ...newRows];
         }
         // If we have a maxCacheRecords limit, truncate the new rows to that limit
-        if (maxCacheRecords) {
+        if (maxCacheRecords && newRows.length > maxCacheRecords) {
             try {
                 logger.warn(`Truncating ${newRows.length} rows to maxCacheRecords=${maxCacheRecords}`);
                 newRows = (0, collection_helpers_1.truncateToConfiguredLength)((0, collection_helpers_1.sortObjsByCreatedAt)(newRows), maxCacheRecords, logger);

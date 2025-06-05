@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Don't trigger unnecessarsy maxCacheRecords truncation calls
 
 ### v0.64.5
 * (Demo App) Followed hashtags use same color scheme as followed users
