@@ -77,16 +77,24 @@ class UserData {
         const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId]).filter(Boolean);
         logger.trace(`Found ${retootsAndFaves.length} retootsAndFaves, ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
         const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
-        // Add all followed accounts, but with numToots = undefined
-        this.favouriteAccounts.addObjs(data.followedAccounts.map(account => {
+        this.favouriteAccounts.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+        // Find the followed accounts that don't exist yet as options. Has side effect of mutating isFollowed property
+        const optionsToAdd = data.followedAccounts.filter((account) => {
             const option = account.toBooleanFilterOption();
+            const existingOption = this.favouriteAccounts.getObj(option.name);
             if (!option.isFollowed) {
                 logger.warn("populateFavouriteAccounts() followed account is not marked as followed:", account);
-                option.isFollowed = true; // Mark as followed
+                option.isFollowed = true;
             }
-            return option;
-        }));
-        this.favouriteAccounts.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+            if (existingOption) {
+                existingOption.isFollowed = option.isFollowed;
+                return false;
+            }
+            else {
+                return true;
+            }
+        });
+        this.favouriteAccounts.addObjs(optionsToAdd.map(account => account.toBooleanFilterOption()));
     }
     /////////////////////////////
     //      Static Methods     //
