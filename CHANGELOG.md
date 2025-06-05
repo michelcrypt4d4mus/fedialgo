@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Add maxCacheRecords option to API endpoints config
+* Add `maxCacheRecords` option to API endpoints config
+* Refactor decoration of filter options into various BooleanFilterOptionList subclasses
 
 ### v0.63.2
 * Call `setFeedInApp()` with empty list as soon as `reset()` is called
