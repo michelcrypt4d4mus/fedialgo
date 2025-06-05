@@ -17,18 +17,10 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
     filter(predicate) {
         return new BooleanFilterOptionList(this.objs.filter(predicate), this.source);
     }
-    // Alternate constructor to create synthetic tags
-    static buildFromDict(dict, source) {
-        const objs = Object.entries(dict).map(([name, numToots]) => {
-            const obj = { name, numToots };
-            return obj;
-        });
-        return new BooleanFilterOptionList(objs, source);
-    }
     // Add one to the numToots property of the BooleanFilterOption for the given tag
     // and decorate with available information about the user's interactions with that tag
     incrementCount(name, displayName, obj) {
-        let option = this.nameDict[name] || this.createOption(name, displayName, obj);
+        const option = this.nameDict[name] || this.createOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
     }
     // Overridden in subclasses for custom option creation/decoration

@@ -26,20 +26,10 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
         return new BooleanFilterOptionList(this.objs.filter(predicate), this.source as BooleanFilterName);
     }
 
-    // Alternate constructor to create synthetic tags
-    static buildFromDict(dict: StringNumberDict, source: BooleanFilterName): BooleanFilterOptionList {
-        const objs: BooleanFilterOption[] = Object.entries(dict).map(([name, numToots]) => {
-            const obj: ObjWithTootCount = { name, numToots };
-            return obj;
-        });
-
-        return new BooleanFilterOptionList(objs, source);
-    }
-
     // Add one to the numToots property of the BooleanFilterOption for the given tag
     // and decorate with available information about the user's interactions with that tag
     incrementCount(name: string, displayName?: string, obj?: any): void {
-        let option = this.nameDict[name] || this.createOption(name, displayName, obj);
+        const option = this.nameDict[name] || this.createOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
     }
 

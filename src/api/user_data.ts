@@ -62,8 +62,12 @@ export default class UserData {
         userData.serverSideFilters = data.serverSideFilters;
 
         // Language stuff
-        const languageUsageCounts = countValues(data.recentToots, (toot) => toot.language);
-        userData.languagesPostedIn = ObjWithCountList.buildFromDict(languageUsageCounts, BooleanFilterName.LANGUAGE);
+        userData.languagesPostedIn = ObjWithCountList.buildByCountingObjProps(
+            data.recentToots,
+            (toot) => toot.language!,
+            BooleanFilterName.LANGUAGE
+        );
+
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);
         return userData;

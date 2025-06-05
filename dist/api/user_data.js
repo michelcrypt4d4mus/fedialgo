@@ -41,8 +41,7 @@ class UserData {
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_2.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         // Language stuff
-        const languageUsageCounts = (0, collection_helpers_1.countValues)(data.recentToots, (toot) => toot.language);
-        userData.languagesPostedIn = obj_with_counts_list_1.default.buildFromDict(languageUsageCounts, enums_1.BooleanFilterName.LANGUAGE);
+        userData.languagesPostedIn = obj_with_counts_list_1.default.buildByCountingObjProps(data.recentToots, (toot) => toot.language, enums_1.BooleanFilterName.LANGUAGE);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config_1.config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);
         return userData;

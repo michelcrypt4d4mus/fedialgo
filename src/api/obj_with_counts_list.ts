@@ -3,9 +3,9 @@
  * somewhat interchangeably as a dictionary or a sorted list.
  */
 import UserData from "./user_data";
+import { countValues, sortObjsByProps } from "../helpers/collection_helpers";
 import { isNull, wordRegex } from "../helpers/string_helpers";
 import { Logger } from '../helpers/logger';
-import { sortObjsByProps } from "../helpers/collection_helpers";
 import {
     type ObjWithTootCount,
     type ObjListDataSource,
@@ -32,14 +32,18 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
         this.logger = new Logger("ObjWithCountList", source);
     }
 
+    static buildByCountingObjProps<U>(objs: U[], fxn: (obj: U) => string, source: ObjListDataSource): ObjList {
+        return this.buildFromDict(countValues(objs, fxn), source);
+    }
+
     // Alternate constructor to create synthetic tags
-    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): ObjList {
+    static buildFromDict(dict: StringNumberDict, source: ObjListDataSource): ObjList {
         const objs = Object.entries(dict).map(([name, numToots]) => {
             const obj: ObjWithTootCount = { name, numToots };
             return obj;
         });
 
-        return new ObjWithCountList(objs, label);
+        return new ObjWithCountList(objs, source);
     }
 
     public get objs(): T[] {

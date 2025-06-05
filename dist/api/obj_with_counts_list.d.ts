@@ -8,7 +8,8 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     source: ObjListDataSource;
     private _objs;
     constructor(objs: T[], source: ObjListDataSource);
-    static buildFromDict(dict: StringNumberDict, label: ObjListDataSource): ObjList;
+    static buildByCountingObjProps<U>(objs: U[], fxn: (obj: U) => string, source: ObjListDataSource): ObjList;
+    static buildFromDict(dict: StringNumberDict, source: ObjListDataSource): ObjList;
     get objs(): T[];
     set objs(theTags: T[]);
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
