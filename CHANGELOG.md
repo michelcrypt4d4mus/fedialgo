@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use `Promise.allSettled()` to rescue partial results from API calls
 * Handle API errors when getting trending/participated/etc. tag toots
 
 ## v0.63.0

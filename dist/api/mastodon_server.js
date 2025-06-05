@@ -283,7 +283,7 @@ class MastodonServer {
     }
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers(domains, fxn) {
-        return await (0, collection_helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)));
+        return await (0, collection_helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
     }
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
     static async callForTopServers(fxn) {

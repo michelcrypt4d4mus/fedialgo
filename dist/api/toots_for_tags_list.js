@@ -67,10 +67,10 @@ class TootsForTagsList {
         return await api_1.default.instance.getCacheableToots(async () => {
             const tags = this.topTags();
             this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
-            const tagToots = await Promise.all(tags.map(async (tag) => {
-                return await api_1.default.instance.getStatusesForTag(tag, this.logger, this.config.numTootsPerTag);
-            }));
-            return tagToots.flat();
+            const results = await (0, collection_helpers_1.zipPromises)(tags.map(tag => tag.name), async (tagName) => {
+                return await api_1.default.instance.getStatusesForTag(tagName, this.logger, this.config.numTootsPerTag);
+            }, this.logger);
+            return Object.values(results).flat();
         }, this.cacheKey, this.config.maxToots);
     }
     ;

@@ -116,7 +116,7 @@ export default class UserData {
 
         // TODO: remove this eventually
         responses[4].forEach(toot => {
-            if (toot.application && toot.application.name != UNKNOWN) {
+            if (toot.application && toot.application.name != UNKNOWN && toot.application.name != "Web") {
                 logger.trace(`Found recent user toot with application set:`, toot);
             }
         })

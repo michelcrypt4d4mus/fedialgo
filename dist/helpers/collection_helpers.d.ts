@@ -1,5 +1,5 @@
-import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
 import { Logger } from './logger';
+import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, PromisesResults, StringDict, StringNumberDict, Weights } from "../types";
 export declare function addDicts(...args: StringNumberDict[]): StringNumberDict;
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;
@@ -14,6 +14,7 @@ export declare function countValues<T>(items: T[], getKey?: (item: T) => string 
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logger: Logger, reason: string, // Describe why things were filtered
 objType?: string): T[];
 export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null;
+export declare function getPromiseResults<T>(promises: Promise<T>[]): Promise<PromisesResults<T>>;
 export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
 export declare function incrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
@@ -39,4 +40,4 @@ export declare function truncateToConfiguredLength(array: any[], maxRecords: num
 export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;
 export declare function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[];
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;
-export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>): Promise<Record<string, T>>;
+export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>, logger?: Logger): Promise<Record<string, T>>;

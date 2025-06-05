@@ -367,7 +367,7 @@ export default class MastodonServer {
         domains: string[],
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
-        return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)));
+        return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
     }
 
     // Call 'fxn' for all the top servers and return a dict keyed by server domain

@@ -5,7 +5,7 @@ import UserData from "./user_data";
 import { CacheKey } from "../enums";
 import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
-import { type ApiCacheKey, type ConcurrencyLockRelease, type MastodonTag } from "../types";
+import { type ApiCacheKey, type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
 interface ApiParams {
     logger?: Logger;
     maxRecords?: number;
@@ -36,7 +36,7 @@ export default class MastoApi {
     private constructor();
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
     getBlockedAccounts(): Promise<Account[]>;
-    getCacheableToots(fetch: () => Promise<mastodon.v1.Status[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
+    getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
     getFavouritedToots(params?: ApiParams): Promise<Toot[]>;
     getFollowedAccounts(params?: ApiParams): Promise<Account[]>;
     getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]>;
@@ -44,9 +44,9 @@ export default class MastoApi {
     getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
     getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
-    getStatusesForTag(tag: MastodonTag, logger: Logger, numToots?: number): Promise<mastodon.v1.Status[]>;
+    getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]>;
     getUserData(): Promise<UserData>;
-    hashtagTimelineToots(tag: MastodonTag, logger: Logger, maxRecords?: number): Promise<Toot[]>;
+    hashtagTimelineToots(tagName: string, logger: Logger, maxRecords?: number): Promise<Toot[]>;
     instanceInfo(): Promise<mastodon.v2.Instance>;
     lockAllMutexes(): Promise<ConcurrencyLockRelease[]>;
     resolveToot(toot: Toot): Promise<Toot>;

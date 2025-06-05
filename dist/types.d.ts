@@ -79,6 +79,18 @@ export type ObjListDataSource = (FilterOptionDataSource | FilterTitle | CacheKey
 export interface ObjWithTootCount extends WithCounts {
     name: string;
 }
+export interface PromiseFulfilledResult<T> {
+    status: "fulfilled";
+    value: T;
+}
+export interface PromiseRejectedResult {
+    status: "rejected";
+    reason: any;
+}
+export type PromisesResults<T> = {
+    fulfilled: T[];
+    rejectedReasons: any[];
+};
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
     weighted: MinMaxAvgScore[];

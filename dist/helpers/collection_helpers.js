@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
 const chunk_1 = __importDefault(require("lodash/chunk"));
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
+const api_1 = require("../api/api");
 const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
@@ -152,6 +153,15 @@ function findMinMaxId(array) {
     };
 }
 exports.findMinMaxId = findMinMaxId;
+;
+async function getPromiseResults(promises) {
+    const results = await Promise.allSettled(promises);
+    return {
+        fulfilled: results.filter(r => r.status == "fulfilled").map(r => r.value),
+        rejectedReasons: results.filter(r => r.status == "rejected").map(r => r.reason),
+    };
+}
+exports.getPromiseResults = getPromiseResults;
 ;
 // TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
 function groupBy(array, makeKey) {
@@ -384,8 +394,24 @@ function zipArrays(array1, array2) {
 exports.zipArrays = zipArrays;
 ;
 // Run a list of promises in parallel and return a dict of the results keyed by the input
-async function zipPromises(args, promiser) {
-    return zipArrays(args, await Promise.all(args.map(promiser)));
+// Raises error on isAccessTokenRevokedError(), otherwise just logs a warning and moves on
+async function zipPromises(args, promiser, logger) {
+    const allResults = zipArrays(args, await Promise.allSettled(args.map(promiser)));
+    logger ||= new logger_1.Logger(`zipPromises`);
+    return Object.entries(allResults).reduce((results, [arg, result]) => {
+        if (result.status == "fulfilled") {
+            results[arg] = result.value;
+        }
+        else {
+            if ((0, api_1.isAccessTokenRevokedError)(result.reason)) {
+                throw result.reason;
+            }
+            else {
+                logger.warn(`Failure on argument "${arg}":`, result.reason);
+            }
+        }
+        return results;
+    }, {});
 }
 exports.zipPromises = zipPromises;
 ;

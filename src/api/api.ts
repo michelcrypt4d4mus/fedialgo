@@ -20,7 +20,7 @@ import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt 
 import { extractDomain } from '../helpers/string_helpers';
 import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
-import { findMinMaxId, removeKeys, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
+import { findMinMaxId, getPromiseResults, removeKeys, truncateToConfiguredLength, uniquifyByProp } from "../helpers/collection_helpers";
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
@@ -34,6 +34,7 @@ import {
     type MastodonTag,
     type MinMaxID,
     type StatusList,
+    type TootLike,
 } from "../types";
 
 interface CachedRows<T> extends CacheTimestamp {
@@ -231,7 +232,7 @@ export default class MastoApi {
     // Generic data getter for things we want to cache but require custom fetch logic.
     // Currently used for the variou hashtag feeds (participated, trending, favourited).
     async getCacheableToots(
-        fetch: () => Promise<mastodon.v1.Status[]>,
+        fetchStatuses: () => Promise<TootLike[]>,
         cacheKey: ApiCacheKey,
         maxRecords: number,
     ): Promise<Toot[]> {
@@ -243,7 +244,7 @@ export default class MastoApi {
             let toots = await Storage.getIfNotStale<Toot[]>(cacheKey);
 
             if (!toots) {
-                const statuses = await fetch();
+                const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Statuses ${ageString(startedAt)}`);
                 toots = await Toot.buildToots(statuses, cacheKey);
                 toots = truncateToConfiguredLength(toots, maxRecords, logger);
@@ -357,17 +358,27 @@ export default class MastoApi {
 
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
-    async getStatusesForTag(tag: MastodonTag, logger: Logger, numToots?: number): Promise<mastodon.v1.Status[]> {
+    async getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]> {
         numToots ||= config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
 
-        const tagToots = await Promise.all([
-            this.searchForToots(tag.name, logger.tempLogger('search'), numToots),
-            this.hashtagTimelineToots(tag, logger.tempLogger('timeline'), numToots),
+        const results = await getPromiseResults<TootLike[]>([
+            this.searchForToots(tagName, logger.tempLogger('search'), numToots),
+            this.hashtagTimelineToots(tagName, logger.tempLogger('timeline'), numToots),
         ]);
 
-        const toots = tagToots.flat();
-        let msg = `search endpoint got ${tagToots[0].length} toots, hashtag timeline got ${tagToots[1].length}`;
+        if (results.rejectedReasons.length) {
+            const accessRevokedError = results.rejectedReasons.find(e => isAccessTokenRevokedError(e));
+
+            if (accessRevokedError) {
+                throw accessRevokedError;
+            } else {
+                this.apiErrors.push(new Error(`Error getting toots for "#${tagName}"`, {cause: results.rejectedReasons}));
+            }
+        }
+
+        const toots = results.fulfilled.flat();
+        let msg = `search endpoint got ${results.fulfilled[0].length} toots, hashtag timeline got ${results.fulfilled[1].length}`;
         msg += ` ${ageString(startedAt)} (total ${toots.length}, oldest=${quotedISOFmt(earliestTootedAt(toots))}`;
         logger.trace(`${msg}, newest=${quotedISOFmt(mostRecentTootedAt(toots))})`);
         return toots;
@@ -388,14 +399,14 @@ export default class MastoApi {
     // Concurrency is managed by a semaphore in this method, not the normal mutexes.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could maybe use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async hashtagTimelineToots(tag: MastodonTag, logger: Logger, maxRecords?: number): Promise<Toot[]> {
+    async hashtagTimelineToots(tagName: string, logger: Logger, maxRecords?: number): Promise<Toot[]> {
         maxRecords = maxRecords || config.api.defaultRecordsPerPage;
         const releaseSemaphore = await lockExecution(this.requestSemphore, logger);
         const startedAt = new Date();
 
         try {
             const toots = await this.getApiRecords<mastodon.v1.Status>({
-                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
+                fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 cacheKey: CacheKey.HASHTAG_TOOTS,  // This CacheKey is just for log prefixes + signaling how to serialize
                 logger,
                 maxRecords,
@@ -410,7 +421,7 @@ export default class MastoApi {
             return toots as Toot[];
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
-            return [];
+            throw (e);
         } finally {
             releaseSemaphore();
         }
@@ -479,7 +490,7 @@ export default class MastoApi {
             return statuses;
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
-            return [];
+            throw (e);
         } finally {
             releaseSemaphore();
         }

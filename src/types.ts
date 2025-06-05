@@ -133,6 +133,15 @@ export interface ObjWithTootCount extends WithCounts {
     name: string;
 };
 
+// Unfortunately these types, returned by Promise.allSettled(), are not exported anywhere so we're manually recreating...
+export interface PromiseFulfilledResult<T> {status: "fulfilled", value: T};
+export interface PromiseRejectedResult {status: "rejected", reason: any};
+
+export type PromisesResults<T> = {
+    fulfilled: T[],
+    rejectedReasons: any[],
+};
+
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
     weighted: MinMaxAvgScore[];

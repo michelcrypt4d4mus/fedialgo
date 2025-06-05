@@ -5,10 +5,23 @@ import chunk from 'lodash/chunk';
 
 import { compareStr, hashObject, isNull } from "./string_helpers";
 import { config } from "../config";
-import { ApiCacheKey, CountKey, MastodonObjWithID, MinMax, MinMaxID, StringDict, StringNumberDict, Weights } from "../types";
+import { isAccessTokenRevokedError } from '../api/api';
 import { isNumber } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
+import {
+    ApiCacheKey,
+    CountKey,
+    MastodonObjWithID,
+    MinMax,
+    MinMaxID,
+    PromiseFulfilledResult,
+    PromiseRejectedResult,
+    PromisesResults,
+    StringDict,
+    StringNumberDict,
+    Weights
+} from "../types";
 
 const BATCH_MAP = "batchMap()";
 
@@ -178,6 +191,16 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null {
         min: sortedIDs[0].toString(),
         max: sortedIDs.slice(-1)[0].toString()
     };
+};
+
+
+export async function getPromiseResults<T>(promises: Promise<T>[]): Promise<PromisesResults<T>> {
+    const results = await Promise.allSettled(promises);
+
+    return {
+        fulfilled: (results.filter(r => r.status == "fulfilled") as PromiseFulfilledResult<T>[]).map(r => r.value),
+        rejectedReasons: (results.filter(r => r.status == "rejected") as PromiseRejectedResult[]).map(r => r.reason),
+    }
 };
 
 
@@ -448,9 +471,29 @@ export function zipArrays<T>(array1: string[], array2: T[]): Record<string, T> {
 
 
 // Run a list of promises in parallel and return a dict of the results keyed by the input
+// Raises error on isAccessTokenRevokedError(), otherwise just logs a warning and moves on
 export async function zipPromises<T>(
     args: string[],
-    promiser: (s: string) => Promise<T>
+    promiser: (s: string) => Promise<T>,
+    logger?: Logger
 ): Promise<Record<string, T>> {
-    return zipArrays(args, await Promise.all(args.map(promiser)));
+    const allResults = zipArrays(args, await Promise.allSettled(args.map(promiser)));
+    logger ||= new Logger(`zipPromises`);
+
+    return Object.entries(allResults).reduce(
+        (results, [arg, result]) => {
+            if (result.status == "fulfilled") {
+                results[arg] = result.value;
+            } else {
+                if (isAccessTokenRevokedError(result.reason)) {
+                    throw result.reason;
+                } else {
+                    logger!.warn(`Failure on argument "${arg}":`, result.reason)
+                }
+            }
+
+            return results;
+        },
+        {} as Record<string, T>
+    );
 };

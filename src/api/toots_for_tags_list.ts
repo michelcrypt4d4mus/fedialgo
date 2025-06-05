@@ -8,7 +8,7 @@ import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { tagInfoStr } from "./objects/tag";
 import { TagTootsCacheKey } from "../enums";
-import { truncateToConfiguredLength } from "../helpers/collection_helpers";
+import { truncateToConfiguredLength, zipPromises } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
 type TagTootsBuildConfig = {
@@ -80,17 +80,19 @@ export default class TootsForTagsList {
                 const tags = this.topTags();
                 this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
 
-                const tagToots = await Promise.all(
-                    tags.map(async (tag) => {
+                const results = await zipPromises(
+                    tags.map(tag => tag.name),
+                    async (tagName) => {
                         return await MastoApi.instance.getStatusesForTag(
-                            tag,
+                            tagName,
                             this.logger,
                             this.config.numTootsPerTag
                         );
-                    }
-                ));
+                    },
+                    this.logger
+                );
 
-                return tagToots.flat();
+                return Object.values(results).flat();
             },
             this.cacheKey,
             this.config.maxToots,

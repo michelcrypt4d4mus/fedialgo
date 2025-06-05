@@ -167,14 +167,14 @@ class MastoApi {
     }
     // Generic data getter for things we want to cache but require custom fetch logic.
     // Currently used for the variou hashtag feeds (participated, trending, favourited).
-    async getCacheableToots(fetch, cacheKey, maxRecords) {
+    async getCacheableToots(fetchStatuses, cacheKey, maxRecords) {
         const logger = getLogger(cacheKey);
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mutexes[cacheKey], logger);
         const startedAt = new Date();
         try {
             let toots = await Storage_1.default.getIfNotStale(cacheKey);
             if (!toots) {
-                const statuses = await fetch();
+                const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
                 toots = await toot_1.default.buildToots(statuses, cacheKey);
                 toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, logger);
@@ -278,15 +278,24 @@ class MastoApi {
     ;
     // Get latest toots for a given tag using both the Search API and tag timeline API.
     // The two APIs give results with surprising little overlap (~80% of toots are unique)
-    async getStatusesForTag(tag, logger, numToots) {
+    async getStatusesForTag(tagName, logger, numToots) {
         numToots ||= config_1.config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
-        const tagToots = await Promise.all([
-            this.searchForToots(tag.name, logger.tempLogger('search'), numToots),
-            this.hashtagTimelineToots(tag, logger.tempLogger('timeline'), numToots),
+        const results = await (0, collection_helpers_1.getPromiseResults)([
+            this.searchForToots(tagName, logger.tempLogger('search'), numToots),
+            this.hashtagTimelineToots(tagName, logger.tempLogger('timeline'), numToots),
         ]);
-        const toots = tagToots.flat();
-        let msg = `search endpoint got ${tagToots[0].length} toots, hashtag timeline got ${tagToots[1].length}`;
+        if (results.rejectedReasons.length) {
+            const accessRevokedError = results.rejectedReasons.find(e => isAccessTokenRevokedError(e));
+            if (accessRevokedError) {
+                throw accessRevokedError;
+            }
+            else {
+                this.apiErrors.push(new Error(`Error getting toots for "#${tagName}"`, { cause: results.rejectedReasons }));
+            }
+        }
+        const toots = results.fulfilled.flat();
+        let msg = `search endpoint got ${results.fulfilled[0].length} toots, hashtag timeline got ${results.fulfilled[1].length}`;
         msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (total ${toots.length}, oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}`;
         logger.trace(`${msg}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))})`);
         return toots;
@@ -304,13 +313,13 @@ class MastoApi {
     // Concurrency is managed by a semaphore in this method, not the normal mutexes.
     // See https://docs.joinmastodon.org/methods/timelines/#tag
     // TODO: we could maybe use the min_id param to avoid redundancy and extra work reprocessing the same toots
-    async hashtagTimelineToots(tag, logger, maxRecords) {
+    async hashtagTimelineToots(tagName, logger, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
         const startedAt = new Date();
         try {
             const toots = await this.getApiRecords({
-                fetch: this.api.v1.timelines.tag.$select(tag.name).list,
+                fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 cacheKey: enums_1.CacheKey.HASHTAG_TOOTS,
                 logger,
                 maxRecords,
@@ -325,7 +334,7 @@ class MastoApi {
         }
         catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
-            return [];
+            throw (e);
         }
         finally {
             releaseSemaphore();
@@ -389,7 +398,7 @@ class MastoApi {
         }
         catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
-            return [];
+            throw (e);
         }
         finally {
             releaseSemaphore();
