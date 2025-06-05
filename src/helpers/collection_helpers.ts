@@ -195,6 +195,7 @@ export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null {
 };
 
 
+// Collate the fulfilled and rejected results given by Promise.allSettled() into an easier to handle format
 export async function getPromiseResults<T>(promises: Promise<T>[]): Promise<PromisesResults<T>> {
     const results = await Promise.allSettled(promises);
 

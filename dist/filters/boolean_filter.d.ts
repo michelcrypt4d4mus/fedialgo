@@ -23,5 +23,6 @@ export default class BooleanFilter extends TootFilter {
     setOptions(optionInfo: StringNumberDict, optionProps?: Record<string, BooleanFilterOption>): Promise<void>;
     updateOption(optionName: string, isSelected: boolean): void;
     toArgs(): BooleanFilterArgs;
+    static buildBooleanFilterDict<T extends Record<string, number | BooleanFilterOption>>(): Record<BooleanFilterName, T>;
 }
 export {};

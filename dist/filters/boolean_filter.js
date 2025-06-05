@@ -174,6 +174,13 @@ class BooleanFilter extends toot_filter_1.default {
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
     }
+    // Build an empty of dict of dicts with an entry for each BooleanFilterName
+    static buildBooleanFilterDict() {
+        return Object.values(enums_1.BooleanFilterName).reduce((dict, filterName) => {
+            dict[filterName] = {};
+            return dict;
+        }, {});
+    }
 }
 exports.default = BooleanFilter;
 ;

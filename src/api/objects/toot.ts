@@ -132,6 +132,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 };
 
 interface TootObj extends SerializableToot {
+    accounts: () => Account[];
     ageInHours: () => number;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
@@ -275,6 +276,12 @@ export default class Toot implements TootObj {
         }
 
         return tootObj;
+    }
+
+    // Array with the author of the toot and (if it exists) the account that retooted it
+    accounts(): Account[] {
+        const accounts = [this.account];
+        return this.reblog?.account ? accounts.concat(this.reblog.account) : accounts;
     }
 
     // Time since this toot was sent in hours

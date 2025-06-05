@@ -22,6 +22,7 @@ export interface SerializableToot extends mastodon.v1.Status {
     videoAttachments?: mastodon.v1.MediaAttachment[];
 }
 interface TootObj extends SerializableToot {
+    accounts: () => Account[];
     ageInHours: () => number;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
@@ -97,6 +98,7 @@ export default class Toot implements TootObj {
     videoAttachments: mastodon.v1.MediaAttachment[];
     private contentCache;
     static build(toot: SerializableToot): Toot;
+    accounts(): Account[];
     ageInHours(): number;
     attachmentType(): MediaCategory | undefined;
     containsString(str: string): boolean;

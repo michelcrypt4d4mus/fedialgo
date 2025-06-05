@@ -184,6 +184,11 @@ class Toot {
         }
         return tootObj;
     }
+    // Array with the author of the toot and (if it exists) the account that retooted it
+    accounts() {
+        const accounts = [this.account];
+        return this.reblog?.account ? accounts.concat(this.reblog.account) : accounts;
+    }
     // Time since this toot was sent in hours
     ageInHours() {
         return (0, time_helpers_1.ageInHours)(this.tootedAt());

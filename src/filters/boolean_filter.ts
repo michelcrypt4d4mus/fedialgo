@@ -194,4 +194,15 @@ export default class BooleanFilter extends TootFilter {
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
     }
+
+    // Build an empty of dict of dicts with an entry for each BooleanFilterName
+    static buildBooleanFilterDict<T extends Record<string, number | BooleanFilterOption>>(): Record<BooleanFilterName, T> {
+        return Object.values(BooleanFilterName).reduce(
+            (dict, filterName) => {
+                dict[filterName] = {} as T;
+                return dict;
+            },
+            {} as Record<BooleanFilterName, T>
+        );
+    }
 };

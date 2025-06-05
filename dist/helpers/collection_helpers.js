@@ -154,6 +154,7 @@ function findMinMaxId(array) {
 }
 exports.findMinMaxId = findMinMaxId;
 ;
+// Collate the fulfilled and rejected results given by Promise.allSettled() into an easier to handle format
 async function getPromiseResults(promises) {
     const results = await Promise.allSettled(promises);
     return {

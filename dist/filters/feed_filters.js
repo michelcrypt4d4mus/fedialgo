@@ -44,7 +44,7 @@ exports.DEFAULT_FILTERS = {
     numericFilterArgs: [],
     numericFilters: {},
 };
-const logger = new logger_1.Logger('feed_filters.ts');
+const filterLogger = new logger_1.Logger('feed_filters.ts');
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
 function buildFiltersFromArgs(filterArgs) {
@@ -57,7 +57,7 @@ function buildFiltersFromArgs(filterArgs) {
         return filters;
     }, {});
     populateMissingFilters(filterArgs);
-    logger.trace(`buildFiltersFromArgs() result:`, filterArgs);
+    filterLogger.trace(`buildFiltersFromArgs() result:`, filterArgs);
     return filterArgs;
 }
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
@@ -68,7 +68,7 @@ function buildNewFilterSettings() {
     // Stringify and parse to get a deep copy of the default filters
     const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
     populateMissingFilters(filters);
-    logger.trace(`buildNewFilterSettings() result:`, filters);
+    filterLogger.trace(`buildNewFilterSettings() result:`, filters);
     return filters;
 }
 exports.buildNewFilterSettings = buildNewFilterSettings;
@@ -79,7 +79,7 @@ function repairFilterSettings(filters) {
     let wasChanged = false;
     // For upgrades of existing users for the rename of booleanFilterArgs
     if ("feedFilterSectionArgs" in filters) {
-        logger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
+        filterLogger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
         filters.booleanFilterArgs = filters.feedFilterSectionArgs;
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
@@ -89,7 +89,7 @@ function repairFilterSettings(filters) {
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
     if (wasChanged) {
-        logger.warn(`Repaired invalid filter args:`, filters);
+        filterLogger.warn(`Repaired invalid filter args:`, filters);
     }
     filters.booleanFilterArgs = validBooleanFilterArgs;
     filters.numericFilterArgs = validNumericFilterArgs;
@@ -101,54 +101,54 @@ exports.repairFilterSettings = repairFilterSettings;
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 async function updateBooleanFilterOptions(filters, toots) {
-    const logPrefx = `<updateBooleanFilterOptions()>`;
-    const suppressedNonLatinTags = {};
     populateMissingFilters(filters); // Ensure all filters are instantiated
-    const tootCounts = Object.values(enums_1.BooleanFilterName).reduce((counts, propertyName) => {
-        counts[propertyName] = {};
-        return counts;
-    }, {});
-    const optionProperties = Object.values(enums_1.BooleanFilterName).reduce((objs, propertyName) => {
-        objs[propertyName] = {};
-        return objs;
-    }, {});
+    const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
+    const suppressedNonLatinTags = {};
+    const optionCounts = boolean_filter_1.default.buildBooleanFilterDict();
+    const optionProperties = boolean_filter_1.default.buildBooleanFilterDict();
     toots.forEach(toot => {
-        (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.APP], toot.realToot().application.name);
-        (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
-        (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
-        optionProperties[enums_1.BooleanFilterName.USER][toot.realToot().account.webfingerURI] ??= {
-            displayName: toot.realToot().account.displayName,
-            name: toot.realToot().account.webfingerURI,
-        };
-        // Count tags
-        // TODO: this only counts actual tags whereas the demo app filters based on containsString() so
-        // the counts don't match. To fix this we'd have to go back over the toots and check for each tag
+        (0, collection_helpers_1.incrementCount)(optionCounts[enums_1.BooleanFilterName.APP], toot.realToot().application.name);
+        (0, collection_helpers_1.incrementCount)(optionCounts[enums_1.BooleanFilterName.LANGUAGE], toot.realToot().language);
+        (0, collection_helpers_1.incrementCount)(optionCounts[enums_1.BooleanFilterName.USER], toot.realToot().account.webfingerURI);
+        // Aggregate counts for each kind ("type") of toot
+        Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
+            if (typeFilter(toot)) {
+                (0, collection_helpers_1.incrementCount)(optionCounts[enums_1.BooleanFilterName.TYPE], name);
+            }
+        });
+        // Keep track of fields used to decorate the presentation of user accounts.
+        // Will be merged with the counts based on the 'name' property
+        toot.accounts().forEach((account) => {
+            optionProperties[enums_1.BooleanFilterName.USER][account.webfingerURI] ??= {
+                displayName: toot.realToot().account.displayName,
+                name: toot.realToot().account.webfingerURI,
+            };
+        });
+        // Count tags // TODO: this only counts actual tags whereas the demo app filters based on
+        // containsString() so the counts don't match. To fix this we'd have to go back over the toots
+        // and check for each tag but that is for now too slow.
         toot.realToot().tags.forEach((tag) => {
+            // Suppress non-Latin script tags unless they match the user's locale
             if (tag.language && tag.language != config_1.config.locale.language) {
                 suppressedNonLatinTags[tag.language] ??= {};
                 (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[tag.language], tag.name);
-                return;
             }
-            ;
-            (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.HASHTAG], tag.name);
-        });
-        // Aggregate counts for each type of toot
-        Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
-            if (typeFilter(toot)) {
-                (0, collection_helpers_1.incrementCount)(tootCounts[enums_1.BooleanFilterName.TYPE], name);
+            else {
+                (0, collection_helpers_1.incrementCount)(optionCounts[enums_1.BooleanFilterName.HASHTAG], tag.name);
             }
         });
     });
     // Build the options for all the boolean filters based on the counts
-    for (const [propertyName, counts] of Object.entries(tootCounts)) {
-        await filters.booleanFilters[propertyName].setOptions(counts, optionProperties[propertyName]);
+    for (const [propertyName, counts] of Object.entries(optionCounts)) {
+        const filter = filters.booleanFilters[propertyName];
+        await filter.setOptions(counts, optionProperties[propertyName]);
     }
     if (Object.keys(suppressedNonLatinTags).length) {
         const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
-        logger.debug(`${logPrefx} Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
+        logger.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
     }
     await Storage_1.default.setFilters(filters);
-    logger.trace(`${logPrefx} completed, built filters:`, filters);
+    logger.trace(`Completed, built filters:`, filters);
     return filters;
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
@@ -159,7 +159,7 @@ exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 function updateHashtagCounts(filters, toots) {
     const logPrefx = `<updateHashtagCounts()>`;
     const newTootTagCounts = {};
-    logger.log(`${logPrefx} Launched...`);
+    filterLogger.log(`${logPrefx} Launched...`);
     const startedAt = Date.now();
     Object.keys(filters.booleanFilters[enums_1.BooleanFilterName.HASHTAG].options).forEach((tagName) => {
         toots.forEach((toot) => {
@@ -168,7 +168,7 @@ function updateHashtagCounts(filters, toots) {
             }
         });
     });
-    logger.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
+    filterLogger.log(`${logPrefx} Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
     filters.booleanFilters[enums_1.BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
     Storage_1.default.setFilters(filters);
 }
@@ -183,7 +183,7 @@ function populateMissingFilters(filters) {
     Object.values(enums_1.BooleanFilterName).forEach((booleanFilterName) => {
         const filter = filters.booleanFilters[booleanFilterName];
         if (!filter) {
-            logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
+            filterLogger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
             filters.booleanFilters[booleanFilterName] = new boolean_filter_1.default({ title: booleanFilterName });
             return;
         }
@@ -194,7 +194,7 @@ function populateMissingFilters(filters) {
 function removeInvalidFilterArgs(args, titleValidator) {
     const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => titleValidator(arg.title));
     if (invalidArgs.length > 0) {
-        logger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+        filterLogger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
     }
     return validArgs;
 }
