@@ -96,6 +96,8 @@ interface HomeTimelineParams extends MaxIdParams {
 
 type FetchParamName = keyof FetchParamsWithCacheData<any>;
 
+// constants
+const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
@@ -143,9 +145,10 @@ export default class MastoApi {
         this.user = user;
         this.homeDomain = extractDomain(user.url);
         this.logger = getLogger();
+        this.reset();
 
         // Initialize mutexes for each StorageKey
-        this.mutexes = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)].reduce((mutexes, key) => {
+        this.mutexes = ALL_CACHE_KEYS.reduce((mutexes, key) => {
             mutexes[key] = new Mutex();
             return mutexes;
         }, {} as ApiMutex);
@@ -496,12 +499,17 @@ export default class MastoApi {
         }
     }
 
+    // Called on instantiation and also when we are trying to reset state of the world
     reset(): void {
-        this.logger.log(`Resetting MastoApi instance...`);
+        if (this.mutexes) this.logger.log(`Resetting MastoApi instance...`);
         this.apiErrors = [];
         this.userData = undefined;  // Clear the user data cache
-        this.waitTimes = {};  // Reset the waiting timer
         this.setSemaphoreConcurrency(config.api.maxConcurrentHashtagRequests);
+
+        this.waitTimes = ALL_CACHE_KEYS.reduce((waitTimes, key) => {
+            waitTimes[key] = new WaitTime();
+            return waitTimes;
+        }, {} as {[key in ApiCacheKey]: WaitTime});
     };
 
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource
@@ -547,11 +555,12 @@ export default class MastoApi {
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
         let newRows: T[] = [];
-        // Telemetry stuff that should be removed eventually
-        this.waitTimes[cacheKey] ??= new WaitTime();
-        this.waitTimes[cacheKey]!.markStart();
 
         try {
+            // Telemetry stuff that should be removed eventually
+            this.waitTimes[cacheKey] ||= new WaitTime();
+            this.waitTimes[cacheKey]!.markStart();
+
             for await (const page of fetch(this.buildParams(completeParams))) {
                 this.waitTimes[cacheKey]!.markEnd(); // telemetry
                 const requestSeconds = this.waitTimes[cacheKey]!.ageInSeconds() || 0;
@@ -576,6 +585,12 @@ export default class MastoApi {
                 this.waitTimes[cacheKey]!.markStart();
             }
         } catch (e) {
+            if (!this.waitTimes[cacheKey]) {
+                logger.warn(`waitTimes[${cacheKey}] is undefined!`);
+                this.waitTimes[cacheKey] = new WaitTime();
+                this.waitTimes[cacheKey]!.markStart();
+            }
+
             newRows = this.handleApiError<T>(completeParams, newRows, this.waitTimes[cacheKey]!.startedAt, e);
             cachedRows = [];  // Set cachedRows to empty because hanldeApiError() already handled the merge
         } finally {
