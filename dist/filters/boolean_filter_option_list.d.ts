@@ -10,6 +10,7 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
     incrementCount(name: string, displayName?: string, obj?: any): void;
     createOption(name: string, _displayName?: string, _obj?: any): BooleanFilterOption;
     createBasicOption(name: string, displayName?: string): BooleanFilterOption;
+    getOrCreateOption(name: string, displayName?: string, obj?: any): BooleanFilterOption;
 }
 export declare class HashtagFilterOptionList extends BooleanFilterOptionList {
     dataForTagPropLists: Record<TagTootsCacheKey, TagList>;

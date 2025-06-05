@@ -12,12 +12,14 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     static buildFromDict(dict: StringNumberDict, source: ObjListDataSource): ObjList;
     get objs(): T[];
     set objs(theTags: T[]);
+    addObjs(objs: T[]): void;
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
     getObj(name: string): T | undefined;
     map(callback: (obj: T, i?: number) => any): T[];
     maxNumAccounts(): number | undefined;
     maxNumToots(): number | undefined;
     nameToNumTootsDict(): StringNumberDict;
+    populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void;
     removeKeywords(keywords: string[]): void;
     removeMutedTags(): Promise<void>;
     topObjs(maxObjs?: number): T[];

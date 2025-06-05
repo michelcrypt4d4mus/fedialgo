@@ -20,7 +20,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
     // Add one to the numToots property of the BooleanFilterOption for the given tag
     // and decorate with available information about the user's interactions with that tag
     incrementCount(name, displayName, obj) {
-        const option = this.nameDict[name] || this.createOption(name, displayName, obj);
+        const option = this.getOrCreateOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
     }
     // Overridden in subclasses for custom option creation/decoration
@@ -36,6 +36,9 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
         this.nameDict[name] = option;
         this.objs.push(option);
         return option;
+    }
+    getOrCreateOption(name, displayName, obj) {
+        return this.nameDict[name] || this.createOption(name, displayName, obj);
     }
 }
 exports.default = BooleanFilterOptionList;

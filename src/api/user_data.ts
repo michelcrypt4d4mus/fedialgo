@@ -5,7 +5,6 @@
 import { mastodon } from "masto";
 
 import Account from "./objects/account";
-// import BooleanFilterOptionList from "../filters/boolean_filter_option_list";
 import MastoApi from "./api";
 import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
@@ -70,39 +69,6 @@ export default class UserData {
         return userData;
     }
 
-    // Add up the favourites, retoots, and replies for each account
-    private static buildFavouriteAccount(data: UserApiData): ObjWithCountList<BooleanFilterOption> {
-        const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.account);
-        const followedAccountIdMap = keyById(data.followedAccounts);
-
-        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
-        const replies = Toot.onlyReplies(data.recentToots);
-        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId!]).filter(Boolean);
-        logger.trace(`Found ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
-        const accountCounts = Account.countAccountsWithObj([...repliedToAccounts, ...retootAndFaveAccounts]);
-
-        // Fill in zeros in accountCounts for accounts that the user follows but has not favourited or retooted
-        data.followedAccounts.forEach((account) => {
-            accountCounts[account.webfingerURI] ??= {account, count: 0};
-            accountCounts[account.webfingerURI].isFollowed = true;
-        });
-
-        const accountOptions = Object.values(accountCounts).map(accountCount => {
-            const option: BooleanFilterOption = {
-                displayName: accountCount.account.displayName,
-                displayNameWithEmoji: accountCount.account.displayNameWithEmojis(),
-                isFollowed: accountCount.isFollowed,
-                name: accountCount.account.webfingerURI,
-                numToots: accountCount.count,
-            }
-
-            return option;
-        });
-
-        return new ObjWithCountList(accountOptions, ScoreName.FAVOURITED_ACCOUNTS);
-    }
-
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build(): Promise<UserData> {
         const responses = await Promise.all([
@@ -141,5 +107,23 @@ export default class UserData {
         keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
         logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
         return keywords;
+    }
+
+    // Add up the favourites, retoots, and replies for each account
+    private static buildFavouriteAccount(data: UserApiData): ObjWithCountList<BooleanFilterOption> {
+        const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.realAccount());
+        const followedAccountIdMap = keyById(data.followedAccounts);
+
+        // TODO: Replies are imperfect - we're only checking followed accts bc we only have account ID to work with
+        // Currently that's only around 1/3rd of the replies.
+        const replies = Toot.onlyReplies(data.recentToots);
+        const repliedToAccounts = replies.map(toot => followedAccountIdMap[toot.inReplyToAccountId!]).filter(Boolean);
+        logger.trace(`Found ${retootsAndFaves.length} retootsAndFaves, ${repliedToAccounts.length} replied toots' accounts (of ${replies.length} replies)`);
+        const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
+        const favouriteAccountOptions = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
+        favouriteAccountOptions.populateByCountingProps(favouredAccounts, account => account.toBooleanFilterOption());
+        favouriteAccountOptions.addObjs(data.followedAccounts.map(account => account.toBooleanFilterOption()));
+        return favouriteAccountOptions;
     }
 };
