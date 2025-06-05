@@ -31,7 +31,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
         let option = this.nameDict[name] || this.createOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
     }
-    // Abstract-ish method, should be overridden
+    // Overridden in subclasses for custom option creation/decoration
     createOption(name, _displayName, _obj) {
         return this.createBasicOption(name);
     }
@@ -48,6 +48,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
 }
 exports.default = BooleanFilterOptionList;
 ;
+// BooleanFilterOptionList to create and decorate hashtag filter options.
 class HashtagFilterOptionList extends BooleanFilterOptionList {
     dataForTagPropLists;
     constructor(options) {
@@ -72,12 +73,12 @@ class HashtagFilterOptionList extends BooleanFilterOptionList {
 }
 exports.HashtagFilterOptionList = HashtagFilterOptionList;
 ;
+// BooleanFilterOptionList to create and decorate language filter options.
 class LanguageFilterOptionList extends BooleanFilterOptionList {
     userData;
     constructor(options) {
         super(options, enums_1.BooleanFilterName.LANGUAGE);
     }
-    // Alternate constructor
     static async create() {
         const optionList = new this([]);
         optionList.userData = await user_data_1.default.build(); // TODO: this only needs the languagePostedIn tag list, not the whole UserData
@@ -94,22 +95,20 @@ class LanguageFilterOptionList extends BooleanFilterOptionList {
 }
 exports.LanguageFilterOptionList = LanguageFilterOptionList;
 ;
+// BooleanFilterOptionList to create and decorate user filter options.
 class UserFilterOptionList extends BooleanFilterOptionList {
     userData;
-    favouriteAccounts;
     constructor(options) {
         super(options, enums_1.BooleanFilterName.USER);
     }
-    // Alternate constructor
     static async create() {
         const optionList = new this([]);
         optionList.userData = await user_data_1.default.build();
-        optionList.favouriteAccounts = optionList.userData.favouriteAccounts;
         return optionList;
     }
     createOption(_name, _displayName, account) {
         const option = this.createBasicOption(account.webfingerURI, account.displayName);
-        const favouriteAccountProps = this.favouriteAccounts.getObj(account.webfingerURI);
+        const favouriteAccountProps = this.userData.favouriteAccounts.getObj(account.webfingerURI);
         if (favouriteAccountProps) {
             option.isFollowed = favouriteAccountProps.isFollowed;
             option[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;

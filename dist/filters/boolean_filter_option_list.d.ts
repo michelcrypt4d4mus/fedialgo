@@ -26,7 +26,6 @@ export declare class LanguageFilterOptionList extends BooleanFilterOptionList {
 }
 export declare class UserFilterOptionList extends BooleanFilterOptionList {
     userData: UserData;
-    favouriteAccounts: ObjWithCountList<BooleanFilterOption>;
     constructor(options: BooleanFilterOption[]);
     static create(): Promise<UserFilterOptionList>;
     createOption(_name: string, _displayName: string, account: Account): BooleanFilterOption;

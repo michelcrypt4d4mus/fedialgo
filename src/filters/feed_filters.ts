@@ -97,7 +97,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
-    const optionLists = {
+    const optionLists: Record<BooleanFilterName, BooleanFilterOptionList> = {
         [BooleanFilterName.APP]: new BooleanFilterOptionList([], BooleanFilterName.APP),
         [BooleanFilterName.HASHTAG]: await HashtagFilterOptionList.create(),
         [BooleanFilterName.LANGUAGE]: await LanguageFilterOptionList.create(),

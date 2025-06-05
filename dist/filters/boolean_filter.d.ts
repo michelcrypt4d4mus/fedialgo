@@ -15,9 +15,9 @@ export default class BooleanFilter extends TootFilter {
     selectedOptions: string[];
     title: BooleanFilterName;
     private _options;
-    constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
     get options(): BooleanFilterOptionList;
     set options(optionList: BooleanFilterOptionList);
+    constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
     isAllowed(toot: Toot): boolean;
     isOptionEnabled(optionName: string): boolean;
     optionListWithMinToots(options: BooleanFilterOption[], minToots?: number): BooleanFilterOptionList;

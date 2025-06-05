@@ -65,38 +65,33 @@ class BooleanFilter extends toot_filter_1.default {
     selectedOptions; // Which options are selected for use in the filter
     title;
     _options; // e.g. counts of toots with this option
+    get options() {
+        return this._options;
+    }
+    // Also removes options that are no longer valid
+    set options(optionList) {
+        this._options = optionList;
+        this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
+    }
     constructor({ title, invertSelection, selectedOptions }) {
-        let optionInfo;
+        let optionInfo = new boolean_filter_option_list_1.default([], title);
         let description;
-        // Set up defaults for type filters so something always shows up in the options // TODO: is this necessary?
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
-            const optionCounts = (0, collection_helpers_1.countValues)(Object.values(enums_1.TypeFilterName));
-            optionInfo = boolean_filter_option_list_1.default.buildFromDict(optionCounts, title);
         }
         else {
             const descriptionWord = title == enums_1.BooleanFilterName.HASHTAG ? "including" : "from";
             description = `Show only toots ${descriptionWord} these ${title}s`;
-            optionInfo = new boolean_filter_option_list_1.default([], title);
         }
         super({ description, invertSelection, title });
         this._options = optionInfo;
         this.title = title;
         this.selectedOptions = selectedOptions ?? [];
     }
-    get options() {
-        return this._options;
-    }
-    // Has side effect of mutating the 'tagNames' dict property
-    set options(optionList) {
-        this._options = optionList;
-        this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v)); // Remove options that are no longer valid
-    }
     // Return true if the toot matches the filter
     isAllowed(toot) {
-        // If there's no selectedOptions allow everything
         if (!this.selectedOptions.length)
-            return true;
+            return true; // If there's no selectedOptions allow everything
         const isMatched = TOOT_MATCHERS[this.title](toot, this.selectedOptions);
         return this.invertSelection ? !isMatched : isMatched;
     }

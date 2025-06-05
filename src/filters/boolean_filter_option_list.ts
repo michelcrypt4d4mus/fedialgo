@@ -43,7 +43,7 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
         option.numToots = (option.numToots || 0) + 1;
     }
 
-    // Abstract-ish method, should be overridden
+    // Overridden in subclasses for custom option creation/decoration
     createOption(name: string, _displayName?: string, _obj?: any): BooleanFilterOption {
         return this.createBasicOption(name);
     }
@@ -63,6 +63,7 @@ export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFil
 };
 
 
+// BooleanFilterOptionList to create and decorate hashtag filter options.
 export class HashtagFilterOptionList extends BooleanFilterOptionList {
     dataForTagPropLists!: Record<TagTootsCacheKey, TagList>;
 
@@ -93,6 +94,7 @@ export class HashtagFilterOptionList extends BooleanFilterOptionList {
 };
 
 
+// BooleanFilterOptionList to create and decorate language filter options.
 export class LanguageFilterOptionList extends BooleanFilterOptionList {
     userData!: UserData;
 
@@ -100,7 +102,6 @@ export class LanguageFilterOptionList extends BooleanFilterOptionList {
         super(options, BooleanFilterName.LANGUAGE);
     }
 
-    // Alternate constructor
     static async create(): Promise<LanguageFilterOptionList> {
         const optionList = new this([]);
         optionList.userData = await UserData.build();  // TODO: this only needs the languagePostedIn tag list, not the whole UserData
@@ -120,25 +121,23 @@ export class LanguageFilterOptionList extends BooleanFilterOptionList {
 };
 
 
+// BooleanFilterOptionList to create and decorate user filter options.
 export class UserFilterOptionList extends BooleanFilterOptionList {
     userData!: UserData;
-    favouriteAccounts!: ObjWithCountList<BooleanFilterOption>;
 
     constructor(options: BooleanFilterOption[]) {
         super(options, BooleanFilterName.USER);
     }
 
-    // Alternate constructor
     static async create(): Promise<UserFilterOptionList> {
         const optionList = new this([]);
         optionList.userData = await UserData.build();
-        optionList.favouriteAccounts = optionList.userData.favouriteAccounts;
         return optionList;
     }
 
     createOption(_name: string, _displayName: string, account: Account): BooleanFilterOption {
         const option = this.createBasicOption(account.webfingerURI, account.displayName);
-        const favouriteAccountProps = this.favouriteAccounts.getObj(account.webfingerURI);
+        const favouriteAccountProps = this.userData.favouriteAccounts.getObj(account.webfingerURI);
 
         if (favouriteAccountProps) {
             option.isFollowed = favouriteAccountProps.isFollowed;
