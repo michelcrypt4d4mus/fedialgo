@@ -1,8 +1,9 @@
 # NEXT RELEASE
 
-### v0.64.4
+### v0.64.5
+* (Demo App) Followed hashtags use same color scheme as followed users
 
-### v0.64.3
+### v0.64.4
 * `BooleanFilterOptionList.maxNumToots` is now a variable not a function
 * Add `isFollowed` to hashtag `BooleanFilterOption`s
 * Add `maxValue(property)` to `BooleanFilterOptionList`
