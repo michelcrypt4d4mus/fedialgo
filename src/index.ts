@@ -397,6 +397,7 @@ class TheAlgorithm {
         this.loadStartedAt = null;
         this.numTriggers = 0;
         this.feed = [];
+        this.setTimelineInApp([]);
 
         // Call other classes' reset methods
         MastoApi.instance.reset();

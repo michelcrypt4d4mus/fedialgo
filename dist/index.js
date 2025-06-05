@@ -368,6 +368,7 @@ class TheAlgorithm {
         this.loadStartedAt = null;
         this.numTriggers = 0;
         this.feed = [];
+        this.setTimelineInApp([]);
         // Call other classes' reset methods
         api_1.default.instance.reset();
         scorer_cache_1.default.resetScorers();

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Call setFeedInApp() with empty list as soon as reset() is called
 
 ### v0.63.1
 * Handle edge case with error handling during `MastoApi.reset()` where WaitTime object is missing
