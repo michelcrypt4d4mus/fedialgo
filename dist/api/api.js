@@ -449,9 +449,9 @@ class MastoApi {
         const completeParams = await this.addCacheDataToParams({ ...inParams, logger });
         let { cacheResult, maxCacheRecords, maxRecords } = completeParams;
         // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
-        if (cacheResult?.rows && !cacheResult.isStale && !moar) {
+        if (this.shouldReturnCachedRows(completeParams)) {
             releaseMutex?.(); // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
-            return cacheResult?.rows;
+            return cacheResult.rows;
         }
         let cachedRows = cacheResult?.rows || [];
         let pageNumber = 0;
@@ -641,6 +641,11 @@ class MastoApi {
             return objects;
         }
     }
+    // Returns true if the cache is fresh and we don't need to fetch more data
+    shouldReturnCachedRows(params) {
+        const { cacheResult, moar } = params;
+        return cacheResult?.rows && !cacheResult.isStale && !moar;
+    }
     // Check that the params passed to the fetch methods are valid and work together
     validateFetchParams(params) {
         let { cacheKey, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
@@ -653,11 +658,14 @@ class MastoApi {
         // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
         if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
             const paramsToLog = (0, collection_helpers_1.removeKeys)(params, PARAMS_TO_NOT_LOG, PARAMS_TO_NOT_LOG_IF_FALSE);
-            if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
-                logger.debug(`Fetching from API w/incremental params:`, paramsToLog);
+            if (this.shouldReturnCachedRows(params)) {
+                logger.trace(`Returning cached rows w/params:`, paramsToLog);
+            }
+            else if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
+                logger.debug(`Incremental fetch from API to update cache:`, paramsToLog);
             }
             else {
-                logger.trace(`Fetching from API w/params:`, paramsToLog);
+                logger.trace(`Fetching new data from API w/params:`, paramsToLog);
             }
         }
     }

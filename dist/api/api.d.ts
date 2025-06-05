@@ -62,6 +62,7 @@ export default class MastoApi {
     private getCachedRows;
     private handleApiError;
     private buildFromApiObjects;
+    private shouldReturnCachedRows;
     private validateFetchParams;
     static throwIfAccessTokenRevoked(logger: Logger, error: unknown, msg: string): void;
     static throwSanitizedRateLimitError(error: unknown, msg: string): void;
