@@ -103,13 +103,8 @@ exports.repairFilterSettings = repairFilterSettings;
 async function updateBooleanFilterOptions(filters, toots) {
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const suppressedNonLatinTags = {};
-    const optionLists = {
-        [enums_1.BooleanFilterName.APP]: new boolean_filter_option_list_1.default([], enums_1.BooleanFilterName.APP),
-        [enums_1.BooleanFilterName.HASHTAG]: await boolean_filter_option_list_1.HashtagFilterOptionList.create(),
-        [enums_1.BooleanFilterName.LANGUAGE]: await boolean_filter_option_list_1.LanguageFilterOptionList.create(),
-        [enums_1.BooleanFilterName.TYPE]: new boolean_filter_option_list_1.default([], enums_1.BooleanFilterName.TYPE),
-        [enums_1.BooleanFilterName.USER]: await boolean_filter_option_list_1.UserFilterOptionList.create(),
-    };
+    const optionLists = await buildNewOptionLists();
+    populateMissingFilters(filters); // Ensure all filters are instantiated
     toots.forEach(toot => {
         optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
         optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language);
@@ -134,7 +129,6 @@ async function updateBooleanFilterOptions(filters, toots) {
             }
         });
     });
-    populateMissingFilters(filters); // Ensure all filters are instantiated
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
         const filterName = key;
@@ -169,6 +163,22 @@ exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
+// Construct empty BooleanFilterOptionLists for use in the derivation of filter options from a set of toots
+async function buildNewOptionLists() {
+    const optionListsWithData = await Promise.all([
+        boolean_filter_option_list_1.HashtagFilterOptionList.create(),
+        boolean_filter_option_list_1.LanguageFilterOptionList.create(),
+        boolean_filter_option_list_1.UserFilterOptionList.create(),
+    ]);
+    return {
+        [enums_1.BooleanFilterName.APP]: new boolean_filter_option_list_1.default([], enums_1.BooleanFilterName.APP),
+        [enums_1.BooleanFilterName.HASHTAG]: optionListsWithData[0],
+        [enums_1.BooleanFilterName.LANGUAGE]: optionListsWithData[1],
+        [enums_1.BooleanFilterName.TYPE]: new boolean_filter_option_list_1.default([], enums_1.BooleanFilterName.TYPE),
+        [enums_1.BooleanFilterName.USER]: optionListsWithData[2],
+    };
+}
+;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {

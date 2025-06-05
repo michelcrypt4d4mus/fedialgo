@@ -93,14 +93,8 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 export async function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings> {
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
-
-    const optionLists: Record<BooleanFilterName, BooleanFilterOptionList> = {
-        [BooleanFilterName.APP]: new BooleanFilterOptionList([], BooleanFilterName.APP),
-        [BooleanFilterName.HASHTAG]: await HashtagFilterOptionList.create(),
-        [BooleanFilterName.LANGUAGE]: await LanguageFilterOptionList.create(),
-        [BooleanFilterName.TYPE]: new BooleanFilterOptionList([], BooleanFilterName.TYPE),
-        [BooleanFilterName.USER]: await UserFilterOptionList.create(),
-    }
+    const optionLists = await buildNewOptionLists();
+    populateMissingFilters(filters);  // Ensure all filters are instantiated
 
     toots.forEach(toot => {
         optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
@@ -127,8 +121,6 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
             }
         });
     });
-
-    populateMissingFilters(filters);  // Ensure all filters are instantiated
 
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
@@ -168,6 +160,24 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
+
+
+// Construct empty BooleanFilterOptionLists for use in the derivation of filter options from a set of toots
+async function buildNewOptionLists(): Promise<Record<BooleanFilterName, BooleanFilterOptionList>> {
+    const optionListsWithData = await Promise.all([
+        HashtagFilterOptionList.create(),
+        LanguageFilterOptionList.create(),
+        UserFilterOptionList.create(),
+    ]);
+
+    return {
+        [BooleanFilterName.APP]: new BooleanFilterOptionList([], BooleanFilterName.APP),
+        [BooleanFilterName.HASHTAG]: optionListsWithData[0],
+        [BooleanFilterName.LANGUAGE]: optionListsWithData[1],
+        [BooleanFilterName.TYPE]: new BooleanFilterOptionList([], BooleanFilterName.TYPE),
+        [BooleanFilterName.USER]: optionListsWithData[2],
+    };
+};
 
 
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
