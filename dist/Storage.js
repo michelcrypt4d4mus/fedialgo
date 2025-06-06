@@ -269,7 +269,6 @@ class Storage {
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
         storedData[enums_1.AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
-        logger.log(`Loaded user identity:`, storedData[enums_1.AlgorithmStorageKey.USER]);
         let totalBytes = 0;
         const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
@@ -281,7 +280,6 @@ class Storage {
                     bytes: sizeInBytes,
                     bytesStr: (0, string_helpers_1.byteString)(sizeInBytes),
                     sizeOfByType: sizes.toBytesStringDict(),
-                    // sizeFromBufferByteLength: sizeFromBufferByteLength(value),
                     sizeFromTextEncoder: (0, math_helper_1.sizeFromTextEncoder)(value),
                 };
                 if (Array.isArray(value)) {
@@ -319,7 +317,7 @@ class Storage {
                 await this.setIdentity(user);
             }
             else {
-                logger.logAndThrowError(`No user identity found! Cannot build key for ${key}`);
+                logger.logAndThrowError(`No user identity found and failed to build key for "${key}"`);
             }
         }
         return `${user.id}_${key}`;

@@ -302,7 +302,6 @@ export default class Storage {
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as CacheKey)));
         const storedData = await zipPromises(keys, async (k) => localForage.getItem(k));
         storedData[AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
-        logger.log(`Loaded user identity:`, storedData[AlgorithmStorageKey.USER]);
         let totalBytes = 0;
 
         const storageInfo = Object.entries(storedData).reduce(
@@ -317,7 +316,6 @@ export default class Storage {
                         bytes: sizeInBytes,
                         bytesStr: byteString(sizeInBytes),
                         sizeOfByType: sizes.toBytesStringDict(),  // kind of janky way to find out what % of storage is numbers, strings, etc.
-                        // sizeFromBufferByteLength: sizeFromBufferByteLength(value),
                         sizeFromTextEncoder: sizeFromTextEncoder(value),
                     }
 
@@ -360,7 +358,7 @@ export default class Storage {
                 user = MastoApi.instance.user;
                 await this.setIdentity(user);
             } else {
-                logger.logAndThrowError(`No user identity found! Cannot build key for ${key}`);
+                logger.logAndThrowError(`No user identity found and failed to build key for "${key}"`);
             }
         }
 
