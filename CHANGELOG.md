@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.65.0
 * Add `triggerMoarData()` method to TheAlgorithm
 * Don't trigger unnecessarsy `maxCacheRecords` truncation calls
 * Explicitly mark loadStartedAt instead of relying on message passing to setLoadingState()
