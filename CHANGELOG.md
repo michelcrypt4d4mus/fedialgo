@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.66.1
 * Set time decay to 0 for TOTAL_CHAOS weight preset
 
 # v0.66.0
