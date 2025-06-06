@@ -28,7 +28,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
-const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("../api/tag_list"));
@@ -107,7 +106,7 @@ async function updateBooleanFilterOptions(filters, toots) {
     const suppressedNonLatinTags = {};
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
-        lists[filterName] = new boolean_filter_option_list_1.default([], filterName);
+        lists[filterName] = new boolean_filter_1.BooleanFilterOptionList([], filterName);
         return lists;
     }, {});
     const decorateHashtag = (tagOption) => {

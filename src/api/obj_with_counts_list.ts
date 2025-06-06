@@ -59,7 +59,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
 
     // Remove elements that don't match the predicate(). Returns a new ObjWithCountList object
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T> {
-        return new ObjWithCountList(this.objs.filter(predicate), this.source);
+        return new ObjWithCountList<T>(this.objs.filter(predicate), this.source);
     }
 
     // Return the tag if it exists in 'tags' array, otherwise undefined.

@@ -1,9 +1,11 @@
-import BooleanFilterOptionList from './boolean_filter_option_list';
+import ObjWithCountList from '../api/obj_with_counts_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
 import { type BooleanFilterOption, type FilterArgs } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
+export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
+}
 export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;

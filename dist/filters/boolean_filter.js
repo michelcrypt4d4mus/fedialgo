@@ -3,19 +3,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = void 0;
+exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.BooleanFilterOptionList = void 0;
 /*
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
+const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
+class BooleanFilterOptionList extends obj_with_counts_list_1.default {
+}
+exports.BooleanFilterOptionList = BooleanFilterOptionList;
+;
 const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
 const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.TypeFilterName)(value);
@@ -74,7 +78,7 @@ class BooleanFilter extends toot_filter_1.default {
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
     constructor({ title, invertSelection, selectedOptions }) {
-        let optionInfo = new boolean_filter_option_list_1.default([], title);
+        let optionInfo = new obj_with_counts_list_1.default([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -102,7 +106,7 @@ class BooleanFilter extends toot_filter_1.default {
     // Return only options that have at least minToots or are in selectedOptions
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new boolean_filter_option_list_1.default(options, this.title);
+        return new BooleanFilterOptionList(options, this.title);
     }
     // If minToots is set then only return options with a value greater than or equal to minValue
     // along with any 'selectedOptions' entries that are below that threshold.

@@ -2,8 +2,7 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import Account from "../api/objects/account";
-import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
-import BooleanFilterOptionList from "./boolean_filter_option_list";
+import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterOptionList, isBooleanFilterName } from "./boolean_filter";
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import TagList from "../api/tag_list";

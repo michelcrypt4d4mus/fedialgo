@@ -3,23 +3,21 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import BooleanFilterOptionList from './boolean_filter_option_list';
-import MastoApi from '../api/api';
-import TagList from '../api/tag_list';
+import ObjWithCountList from '../api/obj_with_counts_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
+import { BooleanFilterName, TypeFilterName } from '../enums';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
-import { countValues, isValueInStringEnum } from "../helpers/collection_helpers";
-import { languageName } from '../helpers/language_helper';
-import { type BooleanFilterOption, type FilterArgs, type StringNumberDict } from "../types";
+import { isValueInStringEnum } from "../helpers/collection_helpers";
+import { type BooleanFilterOption, type FilterArgs } from "../types";
 
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
+export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
 export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
@@ -74,7 +72,7 @@ export interface BooleanFilterArgs extends FilterArgs {
 export default class BooleanFilter extends TootFilter {
     selectedOptions: string[];         // Which options are selected for use in the filter
     title: BooleanFilterName
-    private _options: BooleanFilterOptionList;  // e.g. counts of toots with this option
+    private _options: ObjWithCountList<BooleanFilterOption>;  // e.g. counts of toots with this option
 
     public get options(): BooleanFilterOptionList {
         return this._options;
@@ -87,7 +85,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs) {
-        let optionInfo = new BooleanFilterOptionList([], title);
+        let optionInfo = new ObjWithCountList<BooleanFilterOption>([], title);
         let description: string;
 
         if (title == BooleanFilterName.TYPE) {
