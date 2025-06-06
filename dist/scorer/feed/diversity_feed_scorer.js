@@ -25,7 +25,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed);
         const accountsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
         const trendingTagsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
-        // Count how many times each account and each trending tag have in the feed
+        // Count how many times each account and each trending tag are seen in the feed
         sortedToots.forEach((toot) => {
             toot.withRetoot().forEach((t) => accountsInFeed.incrementCount(t.account.webfingerURI));
             // Penalties for trending tags are similar to those for accounts but we base the max penalty

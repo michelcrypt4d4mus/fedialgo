@@ -8,7 +8,7 @@ import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
 import { incrementCount } from "../../helpers/collection_helpers";
 import { ScoreName } from '../../enums';
-import { ObjWithTootCount, type StringNumberDict } from "../../types";
+import { type ObjWithTootCount, type StringNumberDict } from "../../types";
 
 interface PenalizedObj extends ObjWithTootCount {
     numSeen?: number;  // How many of this object have been seen during the scoring process
@@ -31,7 +31,7 @@ export default class DiversityFeedScorer extends FeedScorer {
         const accountsInFeed = new ObjWithCountList<PenalizedObj>([], ScoreName.DIVERSITY);
         const trendingTagsInFeed = new ObjWithCountList<PenalizedObj>([], ScoreName.DIVERSITY);
 
-        // Count how many times each account and each trending tag have in the feed
+        // Count how many times each account and each trending tag are seen in the feed
         sortedToots.forEach((toot) => {
             toot.withRetoot().forEach((t) => accountsInFeed.incrementCount(t.account.webfingerURI));
 
