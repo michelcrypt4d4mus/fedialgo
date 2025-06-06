@@ -1,6 +1,6 @@
 # NEXT RELEASE
-* Add an AuthorFollowerScorer
-* Rename Toot object realAccount() to author()
+* Add an `AuthorFollowerScorer`
+* Rename `Toot` object's `realAccount()` to `author()`
 
 ### v0.65.2
 * (Demo App) Don't show `OAUTH_ERROR_MSG` on network errors
