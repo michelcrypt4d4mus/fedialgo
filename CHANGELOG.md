@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Much cleaner, decorator based approach to building options for BooleanFilterOptionList
+* Much cleaner, decorator based approach to building options for `BooleanFilterOptionList`
 
 ### v0.66.1
 * Set time decay to 0 for `TOTAL_CHAOS` weight preset
