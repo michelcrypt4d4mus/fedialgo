@@ -5,7 +5,7 @@
 * Don't trigger unnecessarsy `maxCacheRecords` truncation calls
 * Explicitly mark loadStartedAt instead of relying on message passing to `setLoadingState()`
 * (Demo App) Add button/link to trigger pulling the next batch of historical user data to tune the algorithm
-* (Demo App) Use last load times computed within React instead of those provided by TheAlgorithm
+* (Demo App) Use last load times computed within React instead of those provided by `TheAlgorithm`
 
 ### v0.64.5
 * (Demo App) Followed hashtags use same color scheme as followed users

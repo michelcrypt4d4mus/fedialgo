@@ -21,7 +21,7 @@ type ApiRequestDefaults = {
 type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
 interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
-    data: ApiDataConfig;
+    data: Readonly<ApiDataConfig>;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
@@ -33,14 +33,11 @@ interface ApiConfig {
 }
 type FediverseConfig = {
     defaultServers: string[];
-    foreignLanguageServers: Record<string, string[]>;
+    foreignLanguageServers: Readonly<Record<string, string[]>>;
     minServerMAU: number;
     noMauServers: string[];
     noTrendingLinksServers: string[];
     numServersToCheck: number;
-};
-type GuiConfig = {
-    isAppFilterVisible: boolean;
 };
 type LocaleConfig = {
     country: string;
@@ -55,7 +52,7 @@ type ScoringConfig = {
     excessiveTags: number;
     excessiveTagsPenalty: number;
     nonScoreWeightMinValue: number;
-    nonScoreWeightsConfig: NonScoreWeightInfoDict;
+    nonScoreWeightsConfig: Readonly<NonScoreWeightInfoDict>;
     minTrendingTagTootsForPenalty: number;
     scoringBatchSize: number;
     timeDecayExponent: number;
@@ -86,20 +83,19 @@ type TrendingTootsConfig = {
 };
 type TrendingConfig = {
     daysToCountTrendingData: number;
-    links: TrendingLinksConfig;
-    tags: TrendingTagsConfig;
-    toots: TrendingTootsConfig;
+    links: Readonly<TrendingLinksConfig>;
+    tags: Readonly<TrendingTagsConfig>;
+    toots: Readonly<TrendingTootsConfig>;
 };
 interface ConfigType {
-    api: ApiConfig;
-    favouritedTags: TagTootsConfig;
-    fediverse: FediverseConfig;
-    gui: GuiConfig;
-    locale: LocaleConfig;
-    participatedTags: ParticipatedTagsConfig;
-    scoring: ScoringConfig;
-    toots: TootsConfig;
-    trending: TrendingConfig;
+    api: Readonly<ApiConfig>;
+    favouritedTags: Readonly<TagTootsConfig>;
+    fediverse: Readonly<FediverseConfig>;
+    locale: Readonly<LocaleConfig>;
+    participatedTags: Readonly<ParticipatedTagsConfig>;
+    scoring: Readonly<ScoringConfig>;
+    toots: Readonly<TootsConfig>;
+    trending: Readonly<TrendingConfig>;
 }
 declare class Config implements ConfigType {
     api: {
@@ -127,9 +123,6 @@ declare class Config implements ConfigType {
         foreignLanguageServers: Record<string, string[]>;
         noMauServers: string[];
         noTrendingLinksServers: string[];
-    };
-    gui: {
-        isAppFilterVisible: boolean;
     };
     locale: {
         country: string;

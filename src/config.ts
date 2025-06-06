@@ -50,7 +50,7 @@ type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
 // See Config object for comments explaining these and other values
 interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
-    data: ApiDataConfig;
+    data: Readonly<ApiDataConfig>;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
@@ -63,15 +63,11 @@ interface ApiConfig {
 
 type FediverseConfig = {
     defaultServers: string[];
-    foreignLanguageServers: Record<string, string[]>;
+    foreignLanguageServers: Readonly<Record<string, string[]>>;
     minServerMAU: number;
     noMauServers: string[];
     noTrendingLinksServers: string[];
     numServersToCheck: number;
-};
-
-type GuiConfig = {
-    isAppFilterVisible: boolean;
 };
 
 type LocaleConfig = {
@@ -89,7 +85,7 @@ type ScoringConfig = {
     excessiveTags: number;
     excessiveTagsPenalty: number;
     nonScoreWeightMinValue: number;
-    nonScoreWeightsConfig: NonScoreWeightInfoDict;
+    nonScoreWeightsConfig: Readonly<NonScoreWeightInfoDict>;
     minTrendingTagTootsForPenalty: number,
     scoringBatchSize: number;
     timeDecayExponent: number;
@@ -126,22 +122,21 @@ type TrendingTootsConfig = {
 
 type TrendingConfig = {
     daysToCountTrendingData: number;
-    links: TrendingLinksConfig;
-    tags: TrendingTagsConfig;
-    toots: TrendingTootsConfig;
+    links: Readonly<TrendingLinksConfig>;
+    tags: Readonly<TrendingTagsConfig>;
+    toots: Readonly<TrendingTootsConfig>;
 };
 
 // See Config for comments explaining these values
 interface ConfigType {
-    api: ApiConfig;
-    favouritedTags: TagTootsConfig,
-    fediverse: FediverseConfig;
-    gui: GuiConfig;
-    locale: LocaleConfig;
-    participatedTags: ParticipatedTagsConfig;
-    scoring: ScoringConfig;
-    toots: TootsConfig;
-    trending: TrendingConfig;
+    api: Readonly<ApiConfig>;
+    favouritedTags: Readonly<TagTootsConfig>,
+    fediverse: Readonly<FediverseConfig>;
+    locale: Readonly<LocaleConfig>;
+    participatedTags: Readonly<ParticipatedTagsConfig>;
+    scoring: Readonly<ScoringConfig>;
+    toots: Readonly<TootsConfig>;
+    trending: Readonly<TrendingConfig>;
 };
 
 
@@ -363,10 +358,6 @@ class Config implements ConfigType {
             "med-mastodon.com",
             "toot.io",
         ],
-    }
-
-    gui = {
-        isAppFilterVisible: false,              // 99% of toots don't have the app field set so don't show the filter section
     }
 
     locale = {

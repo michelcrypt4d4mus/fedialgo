@@ -253,9 +253,6 @@ class Config {
             "toot.io",
         ],
     };
-    gui = {
-        isAppFilterVisible: false, // 99% of toots don't have the app field set so don't show the filter section
-    };
     locale = {
         country: DEFAULT_COUNTRY,
         defaultLanguage: DEFAULT_LANGUAGE,
