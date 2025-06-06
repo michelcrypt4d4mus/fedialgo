@@ -76,6 +76,7 @@ declare class TheAlgorithm {
     private constructor();
     triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
     triggerHomeTimelineBackFill(): Promise<void>;
+    triggerMoarData(): Promise<void>;
     triggerPullAllUserData(): Promise<void>;
     filterOptionDataSources(): Record<FilterOptionDataSource, ObjList>;
     getApiErrorMsgs(): string[];
@@ -110,6 +111,7 @@ declare class TheAlgorithm {
     private scoreAndFilterFeed;
     private setLoadingStateVariables;
     private statusDict;
+    private enableMoarDataBackgroundPoller;
     updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;

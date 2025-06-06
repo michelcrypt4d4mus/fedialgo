@@ -250,6 +250,31 @@ class TheAlgorithm {
         this.homeFeed = await this.getHomeTimeline(true);
         await this.finishFeedUpdate();
     }
+    // Manually trigger that which is on an interval by default
+    // TODO: use a real mutex
+    async triggerMoarData() {
+        this.checkIfLoading();
+        this.loadingStatus = `Triggering moar data fetching...`;
+        let shouldReenablePoller = false;
+        if (this.dataPoller) {
+            moar_data_poller_1.moarDataLogger.log(`Disabling current data poller...`);
+            this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
+            this.dataPoller = undefined;
+            shouldReenablePoller = true;
+        }
+        try {
+            const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
+        }
+        catch (error) {
+            api_1.default.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
+        }
+        finally {
+            // reenable when finished
+            if (shouldReenablePoller)
+                this.enableMoarDataBackgroundPoller();
+            this.loadingStatus = null;
+        }
+    }
     // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
     // Use with caution!
     async triggerPullAllUserData() {
@@ -492,19 +517,11 @@ class TheAlgorithm {
         });
     }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
+    // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage
     launchBackgroundPoller() {
-        if (this.dataPoller) {
-            moar_data_poller_1.moarDataLogger.log(`data poller already exists, not starting another one`);
-            return;
-        }
-        this.dataPoller = setInterval(async () => {
-            const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
-            await this.recomputeScorers(); // Force scorers to recompute data, rescore the feed
-            if (!shouldContinue) {
-                moar_data_poller_1.moarDataLogger.log(`stopping data poller...`);
-                this.dataPoller && clearInterval(this.dataPoller);
-            }
-        }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
+        this.enableMoarDataBackgroundPoller();
+        // The cache updater writes the current state of the feed to storage every few seconds
+        // to capture changes to the alreadyShown state of toots.
         if (this.cacheUpdater) {
             moar_data_poller_1.moarDataLogger.log(`cacheUpdater already exists, not starting another one`);
             return;
@@ -628,6 +645,20 @@ class TheAlgorithm {
             loadingStatus: this.loadingStatus,
             minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
         };
+    }
+    enableMoarDataBackgroundPoller() {
+        if (this.dataPoller) {
+            moar_data_poller_1.moarDataLogger.log(`Data poller already exists, not starting another one`);
+            return;
+        }
+        this.dataPoller = setInterval(async () => {
+            const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
+            await this.recomputeScorers(); // Force scorers to recompute data, rescore the feed
+            if (!shouldContinue) {
+                moar_data_poller_1.moarDataLogger.log(`stopping data poller...`);
+                this.dataPoller && clearInterval(this.dataPoller);
+            }
+        }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
     }
     // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
     async updateTootCache() {
