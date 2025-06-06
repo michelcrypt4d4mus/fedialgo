@@ -314,6 +314,21 @@ export function makePercentileChunks<T>(
 };
 
 
+// Simple wrapper around Array.reduce() that returns a StringNumberDict
+export function reduceToCounts<T>(
+    objs: T[],
+    updateCounts: (accumulator: StringNumberDict, obj: T) => void
+): StringNumberDict {
+    return objs.reduce(
+        (counts, obj: T) => {
+            updateCounts(counts, obj);
+            return counts;
+        },
+        {} as StringNumberDict
+    );
+};
+
+
 // Remove keys whose value is null or are in the keysToRemove array.
 export function removeKeys<T extends object, K extends keyof T>(
     obj: T,

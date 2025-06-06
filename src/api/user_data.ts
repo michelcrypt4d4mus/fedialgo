@@ -147,5 +147,8 @@ function tootLanguageOption (toot: Toot): BooleanFilterOption {
         toot.language = config.locale.defaultLanguage;
     }
 
-    return {name: toot.language!, displayName: languageName(toot.language!)}
+    return {
+        displayName: languageName(toot.language!),
+        name: toot.language!
+    };
 };

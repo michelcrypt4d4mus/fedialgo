@@ -25,7 +25,8 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
         super(tags.map(repairTag), label);
     }
 
-    // Remove elements that don't match the predicate(). Returns a new TagList object
+    // Remove elements that don't match the predicate(). Returns a new TagList object.
+    // Really only exists because typescript is weird about alternate constructors with generics.
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
         return new TagList(this.objs.filter(predicate), this.source);
     }

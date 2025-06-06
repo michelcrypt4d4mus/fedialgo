@@ -27,9 +27,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         const trendingTagsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
         // Count how many times each account and each trending tag have in the feed
         sortedToots.forEach((toot) => {
-            toot.withRetoot().forEach((t) => {
-                accountsInFeed.incrementCount(t.account.webfingerURI);
-            });
+            toot.withRetoot().forEach((t) => accountsInFeed.incrementCount(t.account.webfingerURI));
             // Penalties for trending tags are similar to those for accounts but we base the max penalty
             // on the TrendingTag's numAccounts property (the fediverse-wide number of accounts using that tag)
             toot.realToot().trendingTags.forEach((tag) => {
@@ -42,11 +40,11 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         this.logger.trace(`tagsEncountered:`, trendingTagsInFeed);
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
-        return sortedToots.reduce((scores, toot) => {
+        return sortedToots.reduce((tootScores, toot) => {
             toot.withRetoot().forEach((t) => {
                 const accountTally = accountsInFeed.getObj(t.account.webfingerURI);
                 accountTally.numSeen = (accountTally.numSeen || 0) + 1;
-                (0, collection_helpers_1.incrementCount)(scores, toot.uri, this.computePenalty(accountTally));
+                (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, this.computePenalty(accountTally));
             });
             // Additional penalties for trending tags
             (toot.realToot().trendingTags || []).forEach((tag) => {
@@ -54,10 +52,10 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 trendingTagTally.numSeen = (trendingTagTally.numSeen || 0) + 1;
                 // Don't apply penalty to followed or most receent minTrendingTagTootsForPenalty toots in feed
                 if (!toot.isFollowed() && (trendingTagTally.numSeen <= trendingTagTally.numToPenalize)) {
-                    (0, collection_helpers_1.incrementCount)(scores, toot.uri, this.computePenalty(trendingTagTally));
+                    (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, this.computePenalty(trendingTagTally));
                 }
             });
-            return scores;
+            return tootScores;
         }, {});
     }
     async _score(toot) {

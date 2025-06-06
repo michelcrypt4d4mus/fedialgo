@@ -28,6 +28,7 @@ export declare function makeChunks<T>(array: T[], options: {
     numChunks?: number;
 }): T[][];
 export declare function makePercentileChunks<T>(array: T[], fxn: (element: T) => number | undefined, numPercentiles: number): T[][];
+export declare function reduceToCounts<T>(objs: T[], updateCounts: (accumulator: StringNumberDict, obj: T) => void): StringNumberDict;
 export declare function removeKeys<T extends object, K extends keyof T>(obj: T, keysToRemove?: K[], keysToRemoveIfFalse?: K[]): Partial<T>;
 export declare function shuffle<T extends (string | number | object)>(array: T[]): T[];
 export declare function sortKeysByValue(dict: StringNumberDict): string[];

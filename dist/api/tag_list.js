@@ -19,7 +19,8 @@ class TagList extends obj_with_counts_list_1.default {
     constructor(tags, label) {
         super(tags.map(tag_1.repairTag), label);
     }
-    // Remove elements that don't match the predicate(). Returns a new TagList object
+    // Remove elements that don't match the predicate(). Returns a new TagList object.
+    // Really only exists because typescript is weird about alternate constructors with generics.
     filter(predicate) {
         return new TagList(this.objs.filter(predicate), this.source);
     }

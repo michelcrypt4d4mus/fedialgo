@@ -116,7 +116,10 @@ function tootLanguageOption(toot) {
         logger.warn("Toot has no language set, using default language instead", toot);
         toot.language = config_1.config.locale.defaultLanguage;
     }
-    return { name: toot.language, displayName: (0, language_helper_1.languageName)(toot.language) };
+    return {
+        displayName: (0, language_helper_1.languageName)(toot.language),
+        name: toot.language
+    };
 }
 ;
 //# sourceMappingURL=user_data.js.map
