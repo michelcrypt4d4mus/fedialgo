@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Let class-transformer deserialize arrays directly
+
+### v0.65.1
+* Let `class-transformer` deserialize arrays directly
 * Add cache summary to `getCurrentState()`'s storage info
 
 ## v0.65.0
