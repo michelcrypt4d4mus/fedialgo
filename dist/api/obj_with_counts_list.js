@@ -52,18 +52,17 @@ class ObjWithCountList {
     getObj(name) {
         return this.nameDict[name.toLowerCase()];
     }
-    // Add one to the numToots property of the BooleanFilterOption for the given tag
-    // and decorate with available information about the user's interactions with that tag
-    incrementCount(name) {
-        const option = this.nameDict[name] || this.createObj(name);
+    // Increment numToots for the given name. If no obj with 'name' exists create a new one
+    // and call the decorator function on the new function if provided.
+    incrementCount(name, newObjDecorator) {
+        let option = this.nameDict[name];
+        if (!option) {
+            option = { name, numToots: 0 };
+            this.nameDict[name] = option;
+            this.objs.push(option);
+            newObjDecorator?.(option);
+        }
         option.numToots = (option.numToots || 0) + 1;
-        return option;
-    }
-    // Overridden in subclasses for custom option creation/decoration
-    createObj(name) {
-        const option = { name };
-        this.nameDict[name] = option;
-        this.objs.push(option);
         return option;
     }
     map(callback) {

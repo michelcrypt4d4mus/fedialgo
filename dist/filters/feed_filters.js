@@ -27,17 +27,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
-/*
- * Helpers for building and serializing a complete set of FeedFilterSettings.
- */
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
+const boolean_filter_option_list_1 = __importDefault(require("./boolean_filter_option_list"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
+const tag_list_1 = __importDefault(require("../api/tag_list"));
+const user_data_1 = __importDefault(require("../api/user_data"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
-const boolean_filter_option_list_1 = __importStar(require("./boolean_filter_option_list"));
 exports.DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {},
@@ -102,13 +102,45 @@ exports.repairFilterSettings = repairFilterSettings;
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 async function updateBooleanFilterOptions(filters, toots) {
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
+    const dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
+    const userData = await user_data_1.default.build(); // Get user data for language and tag counts
     const suppressedNonLatinTags = {};
-    const optionLists = await buildNewOptionLists();
     populateMissingFilters(filters); // Ensure all filters are instantiated
+    const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
+        lists[filterName] = new boolean_filter_option_list_1.default([], filterName);
+        return lists;
+    }, {});
+    const decorateHashtag = (tagOption) => {
+        Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
+            const propertyObj = tagList.getObj(tagOption.name);
+            if (propertyObj) {
+                tagOption[key] = propertyObj.numToots || 0;
+            }
+        });
+        if (userData.followedTags.getObj(tagOption.name)) {
+            tagOption.isFollowed = true;
+        }
+    };
+    const decorateLanguage = (languageOption) => {
+        languageOption.displayName = (0, language_helper_1.languageName)(languageOption.name);
+        const languageUsage = userData.languagesPostedIn.getObj(languageOption.name);
+        if (languageUsage) {
+            languageOption[enums_1.BooleanFilterName.LANGUAGE] = languageUsage.numToots || 0;
+        }
+    };
+    const decorateAccount = (accountOption, account) => {
+        accountOption.displayName = account.displayName;
+        const favouriteAccountProps = userData.favouriteAccounts.getObj(accountOption.name);
+        if (favouriteAccountProps) {
+            accountOption.isFollowed = favouriteAccountProps.isFollowed;
+            accountOption[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+        }
+    };
     toots.forEach(toot => {
         optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
-        optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language);
-        optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, undefined, toot.author());
+        optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language, decorateLanguage);
+        const decorateThisAccount = (option) => decorateAccount(option, toot.author());
+        optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, decorateThisAccount);
         // Aggregate counts for each kind ("type") of toot
         Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {
@@ -125,7 +157,7 @@ async function updateBooleanFilterOptions(filters, toots) {
                 (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[tag.language], tag.name);
             }
             else {
-                optionLists[enums_1.BooleanFilterName.HASHTAG].incrementCount(tag.name);
+                optionLists[enums_1.BooleanFilterName.HASHTAG].incrementCount(tag.name, decorateHashtag);
             }
         });
     });
@@ -163,22 +195,6 @@ exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
-// Construct empty BooleanFilterOptionLists for use in the derivation of filter options from a set of toots
-async function buildNewOptionLists() {
-    const optionListsWithData = await Promise.all([
-        boolean_filter_option_list_1.HashtagFilterOptionList.create(),
-        boolean_filter_option_list_1.LanguageFilterOptionList.create(),
-        boolean_filter_option_list_1.UserFilterOptionList.create(),
-    ]);
-    return {
-        [enums_1.BooleanFilterName.APP]: new boolean_filter_option_list_1.default([], enums_1.BooleanFilterName.APP),
-        [enums_1.BooleanFilterName.HASHTAG]: optionListsWithData[0],
-        [enums_1.BooleanFilterName.LANGUAGE]: optionListsWithData[1],
-        [enums_1.BooleanFilterName.TYPE]: new boolean_filter_option_list_1.default([], enums_1.BooleanFilterName.TYPE),
-        [enums_1.BooleanFilterName.USER]: optionListsWithData[2],
-    };
-}
-;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {

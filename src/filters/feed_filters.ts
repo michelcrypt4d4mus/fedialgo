@@ -1,20 +1,21 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
+import Account from "../api/objects/account";
 import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
+import BooleanFilterOptionList from "./boolean_filter_option_list";
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
+import TagList from "../api/tag_list";
 import Toot from "../api/objects/toot";
-import { BooleanFilterName } from '../enums';
+import UserData from "../api/user_data";
+import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
+import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
-import BooleanFilterOptionList, {
-    HashtagFilterOptionList,
-    LanguageFilterOptionList,
-    UserFilterOptionList
-} from "./boolean_filter_option_list";
 import {
+    BooleanFilterOption,
     type BooleanFilters,
     type FeedFilterSettings,
     type FilterArgs,
@@ -29,6 +30,8 @@ export const DEFAULT_FILTERS = {
     numericFilterArgs: [],
     numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
+
+type FilterOptions = Record<BooleanFilterName, BooleanFilterOptionList>;
 
 const filterLogger = new Logger('feed_filters.ts');
 
@@ -96,14 +99,54 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 export async function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings> {
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
+    const dataForTagPropLists = await TagList.allTagTootsLists();
+    const userData = await UserData.build();  // Get user data for language and tag counts
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
-    const optionLists = await buildNewOptionLists();
     populateMissingFilters(filters);  // Ensure all filters are instantiated
+
+    const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
+        lists[filterName] = new BooleanFilterOptionList([], filterName as BooleanFilterName);
+        return lists;
+    }, {} as FilterOptions);
+
+    const decorateHashtag = (tagOption: BooleanFilterOption): void => {
+        Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
+            const propertyObj = tagList.getObj(tagOption.name);
+
+            if (propertyObj) {
+                tagOption[key as TagTootsCacheKey] = propertyObj.numToots || 0;
+            }
+        });
+
+        if (userData.followedTags.getObj(tagOption.name)) {
+            tagOption.isFollowed = true;
+        }
+    };
+
+    const decorateLanguage = (languageOption: BooleanFilterOption): void => {
+        languageOption.displayName = languageName(languageOption.name);
+        const languageUsage = userData.languagesPostedIn.getObj(languageOption.name);
+
+        if (languageUsage) {
+            languageOption[BooleanFilterName.LANGUAGE] = languageUsage.numToots || 0;
+        }
+    };
+
+    const decorateAccount = (accountOption: BooleanFilterOption, account: Account): void => {
+        accountOption.displayName = account.displayName;
+        const favouriteAccountProps = userData.favouriteAccounts.getObj(accountOption.name);
+
+        if (favouriteAccountProps) {
+            accountOption.isFollowed = favouriteAccountProps.isFollowed;
+            accountOption[ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+        }
+    };
 
     toots.forEach(toot => {
         optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
-        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!);
-        optionLists[BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, undefined, toot.author());
+        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!, decorateLanguage);
+        const decorateThisAccount = (option: BooleanFilterOption) => decorateAccount(option, toot.author());
+        optionLists[BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, decorateThisAccount);
 
         // Aggregate counts for each kind ("type") of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
@@ -121,7 +164,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
                 suppressedNonLatinTags[tag.language] ??= {};
                 incrementCount(suppressedNonLatinTags[tag.language], tag.name);
             } else {
-                optionLists[BooleanFilterName.HASHTAG].incrementCount(tag.name);
+                optionLists[BooleanFilterName.HASHTAG].incrementCount(tag.name, decorateHashtag);
             }
         });
     });
@@ -164,24 +207,6 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
-
-
-// Construct empty BooleanFilterOptionLists for use in the derivation of filter options from a set of toots
-async function buildNewOptionLists(): Promise<Record<BooleanFilterName, BooleanFilterOptionList>> {
-    const optionListsWithData = await Promise.all([
-        HashtagFilterOptionList.create(),
-        LanguageFilterOptionList.create(),
-        UserFilterOptionList.create(),
-    ]);
-
-    return {
-        [BooleanFilterName.APP]: new BooleanFilterOptionList([], BooleanFilterName.APP),
-        [BooleanFilterName.HASHTAG]: optionListsWithData[0],
-        [BooleanFilterName.LANGUAGE]: optionListsWithData[1],
-        [BooleanFilterName.TYPE]: new BooleanFilterOptionList([], BooleanFilterName.TYPE),
-        [BooleanFilterName.USER]: optionListsWithData[2],
-    };
-};
 
 
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed

@@ -17,8 +17,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     addObjs(objs: T[]): void;
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
     getObj(name: string): T | undefined;
-    incrementCount(name: string): T;
-    createObj(name: string): T;
+    incrementCount(name: string, newObjDecorator?: (obj: T) => void): T;
     map(callback: (obj: T, i?: number) => any): T[];
     maxValue(propertyName: keyof T): number | undefined;
     nameToNumTootsDict(): StringNumberDict;
