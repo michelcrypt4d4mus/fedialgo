@@ -13,6 +13,7 @@ var WeightPresetLabel;
     WeightPresetLabel["DEFAULT"] = "Default";
     WeightPresetLabel["FRIENDS"] = "Friends";
     WeightPresetLabel["PICTURES"] = "Pictures";
+    WeightPresetLabel["TOTAL_CHAOS"] = "Total Chaos";
     WeightPresetLabel["TRENDING"] = "Trending";
 })(WeightPresetLabel || (exports.WeightPresetLabel = WeightPresetLabel = {}));
 ;
@@ -89,6 +90,14 @@ exports.WEIGHT_PRESETS = {
         [enums_1.ScoreName.IMAGE_ATTACHMENTS]: 5.0,
         [enums_1.ScoreName.VIDEO_ATTACHMENTS]: 5.0,
     },
+    [WeightPresetLabel.TOTAL_CHAOS]: Object.values(enums_1.ScoreName).reduce((preset, scoreName) => {
+        preset[scoreName] = scoreName == enums_1.ScoreName.CHAOS ? 100 : 0;
+        return preset;
+    }, {
+        [enums_1.NonScoreWeightName.TIME_DECAY]: 9.99,
+        [enums_1.NonScoreWeightName.TRENDING]: 0,
+        [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 0,
+    }),
     [WeightPresetLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
         [enums_1.NonScoreWeightName.TRENDING]: 0.5,

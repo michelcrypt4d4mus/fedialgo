@@ -3,7 +3,7 @@
  */
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { NonScoreWeightName, ScoreName } from '../enums';
-import { type Weights } from "../types";
+import { type Weights, type WeightName } from "../types";
 
 export enum WeightPresetLabel {
     CHRONOLOGICAL = 'Chronological',
@@ -11,6 +11,7 @@ export enum WeightPresetLabel {
     DEFAULT = 'Default',
     FRIENDS = 'Friends',
     PICTURES = 'Pictures',
+    TOTAL_CHAOS = 'Total Chaos',
     TRENDING = 'Trending',
 };
 
@@ -98,6 +99,18 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [ScoreName.IMAGE_ATTACHMENTS]: 5.0,
         [ScoreName.VIDEO_ATTACHMENTS]: 5.0,
     },
+
+    [WeightPresetLabel.TOTAL_CHAOS]: Object.values(ScoreName).reduce(
+        (preset, scoreName) => {
+            preset[scoreName] = scoreName == ScoreName.CHAOS ? 100 : 0;
+            return preset;
+        },
+        {
+            [NonScoreWeightName.TIME_DECAY]: 9.99,
+            [NonScoreWeightName.TRENDING]: 0,
+            [NonScoreWeightName.OUTLIER_DAMPENER]: 0,
+        } as Weights
+    ),
 
     [WeightPresetLabel.TRENDING]: {
         ...DEFAULT_WEIGHTS,

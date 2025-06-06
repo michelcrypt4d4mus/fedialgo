@@ -5,6 +5,7 @@ export declare enum WeightPresetLabel {
     DEFAULT = "Default",
     FRIENDS = "Friends",
     PICTURES = "Pictures",
+    TOTAL_CHAOS = "Total Chaos",
     TRENDING = "Trending"
 }
 export type WeightPresets = Record<WeightPresetLabel, Weights>;
