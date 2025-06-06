@@ -802,7 +802,7 @@ export default class Toot implements TootObj {
     //   - skipSort flag means don't sort by score and don't remove the fedialgo user's own toots
     static async buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]> {
         if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
-        const logger = tootLogger.tempLogger(tootLogger.logPrefix, source, `buildToots()`);
+        const logger = tootLogger.tempLogger(source, `buildToots()`);
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
