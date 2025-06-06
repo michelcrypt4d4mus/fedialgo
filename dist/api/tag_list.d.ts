@@ -1,9 +1,9 @@
-import ObjWithCountList from "./obj_with_counts_list";
+import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
 import { TagTootsCacheKey } from "../enums";
 import { type MastodonTag, type ObjWithTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
-    constructor(tags: TagWithUsageCounts[], label: ObjListDataSource);
+    constructor(tags: TagWithUsageCounts[], label: ListSource);
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     static fromFavourites(): Promise<TagList>;
     static fromFollowedTags(tags?: TagWithUsageCounts[]): Promise<TagList>;

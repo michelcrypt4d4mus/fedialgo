@@ -6,4 +6,5 @@ export default class DiversityFeedScorer extends FeedScorer {
     constructor();
     extractScoringData(feed: Toot[]): StringNumberDict;
     _score(toot: Toot): Promise<number>;
+    private computePenalty;
 }

@@ -23,6 +23,7 @@ class BooleanFilterOptionList extends obj_with_counts_list_1.default {
     incrementCount(name, displayName, obj) {
         const option = this.nameDict[name] || this.createOption(name, displayName, obj);
         option.numToots = (option.numToots || 0) + 1;
+        return option;
     }
     // Overridden in subclasses for custom option creation/decoration
     createOption(name, _displayName, _obj) {

@@ -12,8 +12,10 @@ import {
     type ObjListDataSource,
     type StringNumberDict,
 } from "../types";
+import { ScoreName } from "../enums";
 
 export type ObjList = ObjWithCountList<ObjWithTootCount>;
+export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this sucks
 
 const logger = new Logger("TagList");
 
@@ -22,7 +24,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     logger: Logger;
     length: number;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
-    source: ObjListDataSource;
+    source: ListSource;
     private _maxNumToots?: number; // Cached max numToots value, if it exists
     private _objs: T[];
 
@@ -42,7 +44,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
         this._maxNumToots = this.maxValue("numToots");
     }
 
-    constructor(objs: T[], source: ObjListDataSource) {
+    constructor(objs: T[], source: ListSource) {
         this._objs = objs.map(completeObjWithTootCounts) as T[];
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
@@ -63,6 +65,22 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     // Return the tag if it exists in 'tags' array, otherwise undefined.
     getObj(name: string): T | undefined {
         return this.nameDict[name.toLowerCase()];
+    }
+
+    // Add one to the numToots property of the BooleanFilterOption for the given tag
+    // and decorate with available information about the user's interactions with that tag
+    incrementCount(name: string): T {
+        const option = this.nameDict[name] || this.createObj(name);
+        option.numToots = (option.numToots || 0) + 1;
+        return option;
+    }
+
+    // Overridden in subclasses for custom option creation/decoration
+    createObj(name: string): T {
+        const option: T = { name } as T;
+        this.nameDict[name] = option as T;
+        this.objs.push(option);
+        return option;
     }
 
     map(callback: (obj: T, i?: number) => any): T[] {

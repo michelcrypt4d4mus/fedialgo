@@ -3,7 +3,7 @@
  */
 import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
-import ObjWithCountList from "./obj_with_counts_list";
+import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
 import { config } from "../config";
@@ -21,7 +21,7 @@ const logger = new Logger("TagList");
 
 
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
-    constructor(tags: TagWithUsageCounts[], label: ObjListDataSource) {
+    constructor(tags: TagWithUsageCounts[], label: ListSource) {
         super(tags.map(repairTag), label);
     }
 
