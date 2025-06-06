@@ -159,6 +159,7 @@ interface TootObj extends SerializableToot {
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
     tootedAt: () => Date;
+    withRetoot: () => Toot[];
 };
 
 
@@ -280,8 +281,7 @@ export default class Toot implements TootObj {
 
     // Array with the author of the toot and (if it exists) the account that retooted it
     accounts(): Account[] {
-        const accounts = [this.account];
-        return this.reblog?.account ? accounts.concat(this.reblog.account) : accounts;
+        return this.withRetoot().map((toot) => toot.account);
     }
 
     // Time since this toot was sent in hours
@@ -534,6 +534,11 @@ export default class Toot implements TootObj {
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt(): Date {
         return new Date(this.createdAt);
+    }
+
+    // Returns the toot and the retoot, if it exists, as an array.
+    withRetoot(): Toot[] {
+        return [this, ...(this.reblog ? [this.reblog] : [])];
     }
 
     //////////////////////////////

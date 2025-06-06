@@ -186,8 +186,7 @@ class Toot {
     }
     // Array with the author of the toot and (if it exists) the account that retooted it
     accounts() {
-        const accounts = [this.account];
-        return this.reblog?.account ? accounts.concat(this.reblog.account) : accounts;
+        return this.withRetoot().map((toot) => toot.account);
     }
     // Time since this toot was sent in hours
     ageInHours() {
@@ -410,6 +409,10 @@ class Toot {
     // TODO: this maybe needs to take into consideration reblogsBy??
     tootedAt() {
         return new Date(this.createdAt);
+    }
+    // Returns the toot and the retoot, if it exists, as an array.
+    withRetoot() {
+        return [this, ...(this.reblog ? [this.reblog] : [])];
     }
     //////////////////////////////
     //     Private methods      //

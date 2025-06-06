@@ -49,6 +49,7 @@ interface TootObj extends SerializableToot {
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
     tootedAt: () => Date;
+    withRetoot: () => Toot[];
 }
 export default class Toot implements TootObj {
     id: string;
@@ -130,6 +131,7 @@ export default class Toot implements TootObj {
     resolve(): Promise<Toot>;
     resolveID(): Promise<string>;
     tootedAt(): Date;
+    withRetoot(): Toot[];
     private addEmojiHtmlTags;
     private attachmentsOfType;
     private completeProperties;

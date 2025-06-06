@@ -9,13 +9,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const enums_1 = require("../../enums");
 class AlreadyShownScorer extends feature_scorer_1.default {
-    description = 'Disfavour toots marked as already seen';
+    description = 'Favour toots marked as already seen';
     constructor() {
         super(enums_1.ScoreName.ALREADY_SHOWN);
     }
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot) {
-        return -1 * ((toot.numTimesShown || 0) + (toot.reblog?.numTimesShown || 0));
+        return (toot.numTimesShown || 0) + (toot.reblog?.numTimesShown || 0);
     }
 }
 exports.default = AlreadyShownScorer;

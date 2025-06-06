@@ -156,7 +156,7 @@ export default abstract class Scorer {
                     const scorerScore = weightedScore;
                     const outlierExponent = 1 / outlierDampener;
 
-                    // Diversity scores are negative so we temporarily flip the sign to get the root
+                    // TODO: scores should not be negative but this is staying here for now
                     if (scorerScore >= 0) {
                         weightedScore = Math.pow(scorerScore, outlierExponent);
                     } else {

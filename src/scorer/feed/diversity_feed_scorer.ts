@@ -5,13 +5,13 @@
 import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
-import { decrementCount, incrementCount } from "../../helpers/collection_helpers";
+import { decrementCount, divideDicts, incrementCount, subtractConstant } from "../../helpers/collection_helpers";
 import { ScoreName } from '../../enums';
 import { type StringNumberDict } from "../../types";
 
 
 export default class DiversityFeedScorer extends FeedScorer {
-    description = "Disfavour accounts that are tooting a lot right now";
+    description = "Favour accounts that are tooting a lot right now";
 
     constructor() {
         super(ScoreName.DIVERSITY);
@@ -23,7 +23,8 @@ export default class DiversityFeedScorer extends FeedScorer {
         const tootsPerAccount: StringNumberDict = {}
         const trendingTagTootsInFeedCount: StringNumberDict = {};
         const trendingTagPenalty: StringNumberDict = {};
-        const tootsWithTagScoredSoFar: StringNumberDict = {};
+        const tagsEncounteredCount: StringNumberDict = {};
+        // const tootsWithTagPenaltyCount: StringNumberDict = {};
 
         // Collate the overall score for each account. The penalty for frequent tooters decreases by 1 per toot.
         // and also a penalty for trending tags, which is the number of toots in the feed that have used the tag
@@ -32,52 +33,47 @@ export default class DiversityFeedScorer extends FeedScorer {
             incrementCount(tootsPerAccount, toot.account.webfingerURI);
             if (toot.reblog) incrementCount(tootsPerAccount, toot.reblog.account.webfingerURI);
 
-            if (!toot.realToot().trendingTags) {
-                console.warn(`No trending tags for toot:`, toot);
-            } else {
-                toot.realToot().trendingTags!.forEach((tag) => {
-                    incrementCount(trendingTagTootsInFeedCount, tag.name);
-                    // Set trendingTagPenalty[tag.name] to the max tag.numAccounts value we find
-                    trendingTagPenalty[tag.name] = Math.max(tag.numAccounts || 0, trendingTagPenalty[tag.name] || 0);
-                    tootsWithTagScoredSoFar[tag.name] = 0;
-                });
-            }
+            toot.realToot().trendingTags!.forEach((tag) => {
+                incrementCount(trendingTagTootsInFeedCount, tag.name);
+                // Set trendingTagPenalty[tag.name] to the max tag.numAccounts value we find
+                trendingTagPenalty[tag.name] = Math.max(tag.numAccounts || 0, trendingTagPenalty[tag.name] || 0);
+                // Initialize tagsEncounteredCount[tag.name] to 0
+                tagsEncounteredCount[tag.name] = 0;
+            });
         });
 
-        // Build a dict of tagName => penaltyIncrement
-        const trendingTagIncrement = Object.entries(trendingTagPenalty).reduce(
-            (increments, [tagName, trendingNumAccountsVal]) => {
-                increments[tagName] = trendingNumAccountsVal / (trendingTagTootsInFeedCount[tagName] || 1);
-                return increments;
-            }, {} as StringNumberDict
-        );
-
+        const trendingTagIncrement = divideDicts(trendingTagPenalty, trendingTagTootsInFeedCount);
+        const numPenalizedToots = subtractConstant(trendingTagTootsInFeedCount, config.scoring.minTrendingTagTootsForPenalty);
         this.logger.trace(`trendingTagIncrements:`, trendingTagIncrement);
+
+        // Add the current value of tootsPerAccount to the score for each toot then decrement that count
+        // so it's lower the next time the account is encountered.
+        const addToTootScore = (tootScores: StringNumberDict, toot: Toot | null | undefined): void => {
+            const webfingerURI = toot?.account?.webfingerURI;
+            if (!webfingerURI) return;
+            decrementCount(tootsPerAccount, webfingerURI);
+            incrementCount(tootScores, toot.uri, tootsPerAccount[webfingerURI] || 0);
+        }
 
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce(
             (scores, toot) => {
-                decrementCount(tootsPerAccount, toot.account.webfingerURI);
-                scores[toot.uri] = -1 * (tootsPerAccount[toot.account.webfingerURI] || 0);
+                addToTootScore(scores, toot);
+                addToTootScore(scores, toot.reblog);
 
-                if (toot.reblog) {
-                    decrementCount(tootsPerAccount, toot.reblog.account.webfingerURI);
-                    scores[toot.uri] -= (tootsPerAccount[toot.reblog.account.webfingerURI] || 0);
-                }
-
+                // Additional penalties for trending tags
                 (toot.realToot().trendingTags || []).forEach((tag) => {
-                    // Always decrement the penalty for the tag
-                    incrementCount(tootsWithTagScoredSoFar, tag.name);
+                    incrementCount(tagsEncounteredCount, tag.name);
+                    // trendingTagPenalty starts out containing the max penalty and we decrement it each time encountered
                     decrementCount(trendingTagPenalty, tag.name, trendingTagIncrement[tag.name]);
+                    // Don't apply trending tag penalty if the toot is followed by the user
+                    if (toot.isFollowed()) return;
                     // const logStr = `penalty: -${trendingTagPenalty[tag.name]}, increment: ${trendingTagIncrement[tag.name]}, scored so far: ${tootsWithTagScoredSoFar[tag.name]} for toot ${toot.realToot().describe()}`;
 
-                    if (toot.account.isFollowed || toot.reblog?.account.isFollowed) {
-                        // if (toot.trendingTags?.length) traceLog(`${this.logPrefix()} Not penalizing followed toot:`, toot.realToot().describe());
-                    } else if (tootsWithTagScoredSoFar[tag.name] > config.scoring.minTrendingTagTootsForPenalty) {
-                        // TODO: this suddenly applies a massive penalty to the first toot beyond the threshold
-                        // ...but only apply the penalty after MIN_TRENDING_TAGS_FOR_PENALTY toots have been passed over
-                        scores[toot.uri] -= trendingTagPenalty[tag.name] || 0;
+                    // Don't apply trending tag penalty to the most recent minTrendingTagTootsForPenalty toots with this tag
+                    if (tagsEncounteredCount[tag.name] <= numPenalizedToots[tag.name]) {
+                        scores[toot.uri] += trendingTagPenalty[tag.name] || 0;
                         // traceLog(`${this.logPrefix()} TrendingTag '#${tag.name}' ${logStr}`);
                     } else {
                         // traceLog(`${this.logPrefix()} TrendingTag PASSING OVER '#${tag.name}' ${logStr}`);
@@ -93,12 +89,12 @@ export default class DiversityFeedScorer extends FeedScorer {
     async _score(toot: Toot) {
         const score = this.scoreData[toot.uri] || 0;
 
-        if (score > 0) {
+        if (score < 0) {
             // Deal with floating point noise resulting in mildly posivitive scores
-            if (score < 0.2) {
+            if (score > -0.2) {
                 this.scoreData[toot.uri] = 0;
             } else {
-                console.warn(`Got positive diversity score of ${score.toFixed(2)} for toot: ${toot.describe()}:`, toot);
+                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.describe()}:`, toot);
             }
 
             return 0;

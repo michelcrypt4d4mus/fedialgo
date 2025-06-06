@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.divideDicts = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.atLeastValues = exports.addDicts = void 0;
 /*
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  */
@@ -105,6 +105,22 @@ function countValues(items, getKey = (item) => item, countNulls) {
 }
 exports.countValues = countValues;
 ;
+// Divide the values of dict1 by the values of dict2, returning a new dict.
+function divideDicts(dict1, dict2) {
+    const result = {};
+    const logger = new logger_1.Logger("divideDicts()");
+    Object.keys(dict1).forEach((key) => {
+        if (dict2[key]) {
+            result[key] = dict1[key] / dict2[key];
+        }
+        else {
+            logger.warn(`divideDicts() - key "${key}" had value "${dict2[key]}", skipping division`);
+            result[key] = 0;
+        }
+    });
+    return result;
+}
+exports.divideDicts = divideDicts;
 // Basic collection filter but logs the numebr of elements removed
 function filterWithLog(array, filterFxn, logger, reason, // Describe why things were filtered
 objType) {
@@ -327,6 +343,12 @@ function split(array, condition) {
     ];
 }
 exports.split = split;
+;
+// Subtract a constant from all values in a dict
+function subtractConstant(dict, constant) {
+    return Object.fromEntries(Object.entries(dict).map(([k, v]) => [k, v - constant]));
+}
+exports.subtractConstant = subtractConstant;
 ;
 // Sum the elements of an array
 function sumArray(arr) {

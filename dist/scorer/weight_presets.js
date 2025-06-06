@@ -24,10 +24,10 @@ exports.DEFAULT_WEIGHTS = {
     [enums_1.NonScoreWeightName.TRENDING]: 0.15,
     [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
-    [enums_1.ScoreName.ALREADY_SHOWN]: 5,
+    [enums_1.ScoreName.ALREADY_SHOWN]: -5,
     [enums_1.ScoreName.AUTHOR_FOLLOWERS]: -0.1,
     [enums_1.ScoreName.CHAOS]: 1.0,
-    [enums_1.ScoreName.DIVERSITY]: 2.0,
+    [enums_1.ScoreName.DIVERSITY]: -2.0,
     [enums_1.ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
     [enums_1.ScoreName.FAVOURITED_TAGS]: 0.1,
     [enums_1.ScoreName.FOLLOWED_ACCOUNTS]: 1.5,

@@ -137,6 +137,24 @@ export function countValues<T>(
 };
 
 
+// Divide the values of dict1 by the values of dict2, returning a new dict.
+export function divideDicts(dict1: StringNumberDict, dict2: StringNumberDict): StringNumberDict {
+    const result: StringNumberDict = {};
+    const logger = new Logger("divideDicts()");
+
+    Object.keys(dict1).forEach((key) => {
+        if (dict2[key]) {
+            result[key] = dict1[key] / dict2[key];
+        } else {
+            logger.warn(`divideDicts() - key "${key}" had value "${dict2[key]}", skipping division`);
+            result[key] = 0;
+        }
+    });
+
+    return result;
+}
+
+
 // Basic collection filter but logs the numebr of elements removed
 export function filterWithLog<T>(
     array: T[],
@@ -398,6 +416,14 @@ export function split<T>(array: T[], condition: (element: T) => boolean): [T[], 
         array.filter((element) => condition(element)),
         array.filter((element) => !condition(element)),
     ];
+};
+
+
+// Subtract a constant from all values in a dict
+export function subtractConstant(dict: StringNumberDict, constant: number): StringNumberDict {
+    return Object.fromEntries(
+        Object.entries(dict).map(([k, v]) => [k, v - constant])
+    );
 };
 
 

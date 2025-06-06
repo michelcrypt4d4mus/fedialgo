@@ -7,7 +7,7 @@ import { ScoreName } from '../../enums';
 
 
 export default class AlreadyShownScorer extends FeatureScorer {
-    description = 'Disfavour toots marked as already seen';
+    description = 'Favour toots marked as already seen';
 
     constructor() {
         super(ScoreName.ALREADY_SHOWN);
@@ -15,6 +15,6 @@ export default class AlreadyShownScorer extends FeatureScorer {
 
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot: Toot) {
-        return -1 * ((toot.numTimesShown || 0) + (toot.reblog?.numTimesShown || 0));
+        return (toot.numTimesShown || 0) + (toot.reblog?.numTimesShown || 0);
     }
 };

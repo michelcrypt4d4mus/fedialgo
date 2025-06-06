@@ -24,10 +24,10 @@ export const DEFAULT_WEIGHTS: Weights = {
     [NonScoreWeightName.TRENDING]: 0.15,
     [NonScoreWeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
-    [ScoreName.ALREADY_SHOWN]: 5,
+    [ScoreName.ALREADY_SHOWN]: -5,
     [ScoreName.AUTHOR_FOLLOWERS]: -0.1,
     [ScoreName.CHAOS]: 1.0,
-    [ScoreName.DIVERSITY]: 2.0,
+    [ScoreName.DIVERSITY]: -2.0,
     [ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
     [ScoreName.FAVOURITED_TAGS]: 0.1,
     [ScoreName.FOLLOWED_ACCOUNTS]: 1.5,

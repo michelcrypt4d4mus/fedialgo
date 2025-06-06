@@ -1,6 +1,9 @@
 # NEXT RELEASE
 * Add an `AuthorFollowerScorer`
+* Fix bug where `DiversityFeedScorer` was penalizing new toots with trending tags more than old toots with trending tags
+* Flip default sign on scores returned by penalty scorers: they now just return positive values like other scorers, but the default weights sign is flipped to negative
 * Rename `Toot` object's `realAccount()` to `author()`
+* Add a `withRetoot()` method to `Toot`
 
 ### v0.65.2
 * (Demo App) Don't show `OAUTH_ERROR_MSG` on network errors

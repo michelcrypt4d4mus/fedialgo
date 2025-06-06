@@ -11,6 +11,7 @@ export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, opt
 export declare function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void;
 export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
+export declare function divideDicts(dict1: StringNumberDict, dict2: StringNumberDict): StringNumberDict;
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logger: Logger, reason: string, // Describe why things were filtered
 objType?: string): T[];
 export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null;
@@ -33,6 +34,7 @@ export declare function sortKeysByValue(dict: StringNumberDict): string[];
 export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];
 export declare function sortObjsByCreatedAt<T extends WithCreatedAt>(array: T[]): T[];
 export declare function split<T>(array: T[], condition: (element: T) => boolean): [T[], T[]];
+export declare function subtractConstant(dict: StringNumberDict, constant: number): StringNumberDict;
 export declare function sumArray(arr: (number | null | undefined)[]): number;
 export declare function sumValues(obj: StringNumberDict | Weights): number;
 export declare function swapKeysAndValues<T extends StringDict>(dict: T): StringDict;
