@@ -218,17 +218,13 @@ class TheAlgorithm {
 
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(moreOldToots?: boolean): Promise<void> {
-        this.logger.log(`<${TRIGGER_FEED}> called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        const logger = this.logger.tempLogger(TRIGGER_FEED);
+        logger.log(`called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
         if (moreOldToots) return await this.triggerHomeTimelineBackFill();
         if (this.checkIfSkipping()) return;
         this.markLoadStartedAt();
         this.setLoadingStateVariables(TRIGGER_FEED);
-
-        const hashtagToots = async (key: TagTootsCacheKey) => {
-            const tagList = await TootsForTagsList.create(key);
-            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
-        };
 
         let dataLoads: Promise<any>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
@@ -237,6 +233,11 @@ class TheAlgorithm {
 
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await sleep(config.api.hashtagTootRetrievalDelaySeconds * 1000);  // TODO: do we really need to do this sleeping?
+
+        const hashtagToots = async (key: TagTootsCacheKey) => {
+            const tagList = await TootsForTagsList.create(key);
+            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+        };
 
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)),
@@ -251,7 +252,7 @@ class TheAlgorithm {
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
-        this.logger.trace(`${arrowed(TRIGGER_FEED)} FINISHED promises, allResults:`, allResults);
+        logger.trace(`FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
     }
 

@@ -208,7 +208,8 @@ class TheAlgorithm {
     }
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(moreOldToots) {
-        this.logger.log(`<${log_helpers_1.TRIGGER_FEED}> called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        const logger = this.logger.tempLogger(log_helpers_1.TRIGGER_FEED);
+        logger.log(`called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
         if (moreOldToots)
             return await this.triggerHomeTimelineBackFill();
@@ -216,16 +217,16 @@ class TheAlgorithm {
             return;
         this.markLoadStartedAt();
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
-        const hashtagToots = async (key) => {
-            const tagList = await toots_for_tags_list_1.default.create(key);
-            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
-        };
         let dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
             this.prepareScorers(),
         ];
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
+        const hashtagToots = async (key) => {
+            const tagList = await toots_for_tags_list_1.default.create(key);
+            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+        };
         dataLoads = dataLoads.concat([
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
             hashtagToots(enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
@@ -238,7 +239,7 @@ class TheAlgorithm {
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
-        this.logger.trace(`${(0, string_helpers_1.arrowed)(log_helpers_1.TRIGGER_FEED)} FINISHED promises, allResults:`, allResults);
+        logger.trace(`FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
     }
     // Trigger the loading of additional toots, farther back on the home timeline
