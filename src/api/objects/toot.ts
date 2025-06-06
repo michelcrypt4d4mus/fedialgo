@@ -929,11 +929,8 @@ export default class Toot implements TootObj {
             const mostRecent = mostRecentToot(toots)! as Toot;
 
             // Skip logging this in production
-            if (!isProduction) {
-                // Log when we are collating retoots and toots with the same realURI()
-                if (uniquify(toots.map(t => t.uri))!.length > 1) {
-                    logger.trace(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
-                }
+            if (!isProduction && uniquify(toots.map(t => t.uri))!.length > 1) {
+                logger.deep(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
             }
 
             return mostRecent;

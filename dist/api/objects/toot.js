@@ -756,11 +756,8 @@ class Toot {
         const deduped = Object.values(tootsByURI).map((toots) => {
             const mostRecent = (0, exports.mostRecentToot)(toots);
             // Skip logging this in production
-            if (!environment_helpers_1.isProduction) {
-                // Log when we are collating retoots and toots with the same realURI()
-                if ((0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
-                    logger.trace(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
-                }
+            if (!environment_helpers_1.isProduction && (0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
+                logger.deep(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
             }
             return mostRecent;
         });
