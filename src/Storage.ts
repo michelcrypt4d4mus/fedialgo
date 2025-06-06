@@ -367,20 +367,9 @@ export default class Storage {
 
     private static deserialize(key: StorageKey, value: StorableObj): StorableObj {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            // Calling the plainToInstance with arrays as argument directly may or may not have caused an issue
-            if (Array.isArray(value)) {
-                return value.map((t) => plainToInstance(Account, t));
-            } else {
-                logger.warn(`Expected array of accounts at key "${key}", but got:`, value);
-                return plainToInstance(Account, value);
-            }
+            return plainToInstance(Account, value);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            if (Array.isArray(value)) {
-                return value.map((t) => plainToInstance(Toot, t));
-            } else {
-                logger.warn(`Expected array of toots at key "${key}", but got:`, value);
-                return plainToInstance(Toot, value);
-            }
+            return plainToInstance(Toot, value);
         } else {
             return value;
         }
