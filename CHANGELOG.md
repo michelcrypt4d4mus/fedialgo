@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.65.2
+* (Demo App) Don't show `OAUTH_ERROR_MSG` on network errors
+
 ### v0.65.1
 * Let `class-transformer` deserialize arrays directly
 * Add cache summary to `getCurrentState()`'s storage info
@@ -7,7 +10,7 @@
 ## v0.65.0
 * Add `triggerMoarData()` method to TheAlgorithm
 * Don't trigger unnecessarsy `maxCacheRecords` truncation calls
-* Explicitly mark loadStartedAt instead of relying on message passing to `setLoadingState()`
+* Explicitly mark `loadStartedAt` instead of relying on message passing to `setLoadingState()`
 * (Demo App) Add button/link to trigger pulling the next batch of historical user data to tune the algorithm
 * (Demo App) Use last load times computed within React instead of those provided by `TheAlgorithm`
 
