@@ -42,17 +42,15 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce((tootScores, toot) => {
             toot.withRetoot().forEach((t) => {
-                const accountTally = accountsInFeed.getObj(t.account.webfingerURI);
-                accountTally.numSeen = (accountTally.numSeen || 0) + 1;
-                (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, this.computePenalty(accountTally));
+                const penalty = this.computePenalty(accountsInFeed, t.account.webfingerURI);
+                (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, penalty);
             });
             // Additional penalties for trending tags
             (toot.realToot().trendingTags || []).forEach((tag) => {
-                const trendingTagTally = trendingTagsInFeed.getObj(tag.name);
-                trendingTagTally.numSeen = (trendingTagTally.numSeen || 0) + 1;
-                // Don't apply penalty to followed or most receent minTrendingTagTootsForPenalty toots in feed
-                if (!toot.isFollowed() && (trendingTagTally.numSeen <= trendingTagTally.numToPenalize)) {
-                    (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, this.computePenalty(trendingTagTally));
+                const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
+                // Don't apply penalty to followed accounts/tags
+                if (!toot.isFollowed()) {
+                    (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, penalty);
                 }
             });
             return tootScores;
@@ -73,8 +71,16 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         return score;
     }
     // The more often we see an object, the less we want to penalize it
-    computePenalty(obj) {
-        return (obj.numToots - obj.numSeen) * (obj.penaltyIncrement || 1);
+    computePenalty(penalizedObjs, name) {
+        const obj = penalizedObjs.getObj(name);
+        obj.numSeen = (obj.numSeen || 0) + 1;
+        // Don't penalize if we've already dispensed enough penalties
+        if (obj.numToPenalize && obj.numSeen > obj.numToPenalize) {
+            return 0;
+        }
+        else {
+            return (obj.numToots - obj.numSeen) * (obj.penaltyIncrement || 1);
+        }
     }
 }
 exports.default = DiversityFeedScorer;

@@ -52,19 +52,17 @@ export default class DiversityFeedScorer extends FeedScorer {
         return sortedToots.reduce(
             (tootScores, toot) => {
                 toot.withRetoot().forEach((t) => {
-                    const accountTally = accountsInFeed.getObj(t.account.webfingerURI)!;
-                    accountTally.numSeen = (accountTally.numSeen || 0) + 1;
-                    incrementCount(tootScores, toot.uri, this.computePenalty(accountTally));
+                    const penalty = this.computePenalty(accountsInFeed, t.account.webfingerURI);
+                    incrementCount(tootScores, toot.uri, penalty);
                 });
 
                 // Additional penalties for trending tags
                 (toot.realToot().trendingTags || []).forEach((tag) => {
-                    const trendingTagTally = trendingTagsInFeed.getObj(tag.name)!;
-                    trendingTagTally.numSeen = (trendingTagTally.numSeen || 0) + 1;
+                    const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
 
-                    // Don't apply penalty to followed or most receent minTrendingTagTootsForPenalty toots in feed
-                    if (!toot.isFollowed() && (trendingTagTally.numSeen <= trendingTagTally.numToPenalize!)) {
-                        incrementCount(tootScores, toot.uri, this.computePenalty(trendingTagTally));
+                    // Don't apply penalty to followed accounts/tags
+                    if (!toot.isFollowed()) {
+                        incrementCount(tootScores, toot.uri, penalty);
                     }
                 })
 
@@ -92,7 +90,15 @@ export default class DiversityFeedScorer extends FeedScorer {
     }
 
     // The more often we see an object, the less we want to penalize it
-    private computePenalty(obj: PenalizedObj): number {
-        return (obj.numToots! - obj.numSeen!) * (obj.penaltyIncrement || 1);
+    private computePenalty(penalizedObjs: ObjWithCountList<PenalizedObj>, name: string): number {
+        const obj = penalizedObjs.getObj(name)!;
+        obj.numSeen = (obj.numSeen || 0) + 1;
+
+        // Don't penalize if we've already dispensed enough penalties
+        if (obj.numToPenalize && obj.numSeen > obj.numToPenalize) {
+            return 0;
+        } else {
+            return (obj.numToots! - obj.numSeen!) * (obj.penaltyIncrement || 1);
+        }
     }
 };
