@@ -1,9 +1,9 @@
 # NEXT RELEASE
 
-# v0.65.0
+## v0.65.0
 * Add `triggerMoarData()` method to TheAlgorithm
 * Don't trigger unnecessarsy `maxCacheRecords` truncation calls
-* Explicitly mark loadStartedAt instead of relying on message passing to setLoadingState()
+* Explicitly mark loadStartedAt instead of relying on message passing to `setLoadingState()`
 * (Demo App) Add button/link to trigger pulling the next batch of historical user data to tune the algorithm
 * (Demo App) Use last load times computed within React instead of those provided by TheAlgorithm
 
@@ -123,7 +123,7 @@
 ### v0.57.1
 * Fully separate `TagTootsCacheKey` enum elements from `CacheKey` enum
 
-# v0.57.0
+## v0.57.0
 * Add `favouritedTags` property to `UserData` object
 * Export `TagTootsCacheKey` type
 * (Demo App) Add cyan color gradient for user's favourited hashtags in the hashtag filter view
@@ -138,7 +138,7 @@
 ### v0.56.1 - v0.56.3
 * Use `Logger`s instead of `logPrefix` args everywhere
 
-# v0.56.0
+## v0.56.0
 * Refactor main `MastoApi` method method into a few easier to follow pieces
 * Fix bug where scorers were not resetting their state when `reset()` was called and all other data was reset
 * Uniquify `Notification` objects from the API against the cache as they arrive to avoid the build up of dupes
@@ -152,7 +152,7 @@
 * (Demo App) Better error handling/formatting, esp. in `ReplyModal`
 * (Demo App) Fix small bug with bootstrapping the minTootsSlider
 
-# v0.55.0
+## v0.55.0
 * Add `entriesSortedByValue()`, `optionsSortedByValue()`, `optionsSortedByName()`, and `numOptions()` methods to `BooleanFilter`
 * Export `TagList` class
 * (Demo App) Make the minTootsSlider's initial value flexible to try to show the newly configured `idealNumOptions`
@@ -312,7 +312,7 @@
 ### v0.50.1
 * (Demo App) Fix bug where new tab opened when trying to open the raw `Toot` JSON modal
 
-# v0.50.0
+## v0.50.0
 * (Demo App) Add ability to reply to toots inside the app
 * (Demo App) Pre-emptively resolve the toot ID as it appears on screen to speed up future interactions
 * (Demo App) Add experimental feature to completely wipe the app so as to deal with OAuth errors
