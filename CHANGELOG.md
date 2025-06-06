@@ -1,6 +1,8 @@
 # NEXT RELEASE
+
+### v0.66.2
 * Much cleaner, decorator based approach to building options for `BooleanFilterOptionList`
-* (Demo App) Show loading spinner immediately upon clicking "clear all data
+* (Demo App) Show loading spinner immediately upon clicking "clear all data"
 
 ### v0.66.1
 * Set time decay to 0 for `TOTAL_CHAOS` weight preset
