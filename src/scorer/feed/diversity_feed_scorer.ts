@@ -6,11 +6,11 @@ import FeedScorer from "../feed_scorer";
 import ObjWithCountList from "../../api/obj_with_counts_list";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
-import { decrementCount, divideDicts, incrementCount, subtractConstant } from "../../helpers/collection_helpers";
+import { incrementCount } from "../../helpers/collection_helpers";
 import { ScoreName } from '../../enums';
 import { ObjWithTootCount, type StringNumberDict } from "../../types";
 
-interface EnounteredObjWithTootCount extends ObjWithTootCount {
+interface PenalizedObj extends ObjWithTootCount {
     numSeen?: number;  // How many of this object have been seen during the scoring process
     numToPenalize?: number;
     penaltyIncrement?: number;
@@ -24,25 +24,26 @@ export default class DiversityFeedScorer extends FeedScorer {
         super(ScoreName.DIVERSITY);
     }
 
-    // Count toots by account (but negative instead of positive count)
+    // Compute a score for each toot in the feed based on how many times the account has tooted
+    // and which trending tags it contains.
     extractScoringData(feed: Toot[]): StringNumberDict {
         const sortedToots = sortByCreatedAt(feed) as Toot[];
-        const accountsInFeed = new ObjWithCountList<EnounteredObjWithTootCount>([], ScoreName.DIVERSITY);
-        const trendingTagsInFeed = new ObjWithCountList<EnounteredObjWithTootCount>([], ScoreName.DIVERSITY);
+        const accountsInFeed = new ObjWithCountList<PenalizedObj>([], ScoreName.DIVERSITY);
+        const trendingTagsInFeed = new ObjWithCountList<PenalizedObj>([], ScoreName.DIVERSITY);
 
         // Count how many times each account and each trending tag have in the feed
         sortedToots.forEach((toot) => {
             toot.withRetoot().forEach((t) => {
-                const accountTally = accountsInFeed.incrementCount(t.account.webfingerURI);
-                accountTally.penaltyIncrement = 1;
+                accountsInFeed.incrementCount(t.account.webfingerURI);
             });
 
+            // Penalties for trending tags are similar to those for accounts but we base the max penalty
+            // on the TrendingTag's numAccounts property (the fediverse-wide number of accounts using that tag)
             toot.realToot().trendingTags!.forEach((tag) => {
-                const trendingTagTally = trendingTagsInFeed.incrementCount(tag.name);
-                // Find the max numAccounts value for the tag across all toots
-                trendingTagTally.numAccounts = Math.max(tag.numAccounts || 0, trendingTagTally.numAccounts || 0);
-                trendingTagTally.penaltyIncrement = trendingTagTally.numAccounts / trendingTagTally.numToots!;
-                trendingTagTally.numToPenalize = trendingTagTally.numToots! - config.scoring.minTrendingTagTootsForPenalty;
+                const penalizedTag = trendingTagsInFeed.incrementCount(tag.name);
+                penalizedTag.numAccounts = Math.max(tag.numAccounts || 0, penalizedTag.numAccounts || 0);
+                penalizedTag.penaltyIncrement = penalizedTag.numAccounts / penalizedTag.numToots!;
+                penalizedTag.numToPenalize = penalizedTag.numToots! - config.scoring.minTrendingTagTootsForPenalty;
             });
         });
 
@@ -55,7 +56,7 @@ export default class DiversityFeedScorer extends FeedScorer {
                 toot.withRetoot().forEach((t) => {
                     const accountTally = accountsInFeed.getObj(t.account.webfingerURI)!;
                     accountTally.numSeen = (accountTally.numSeen || 0) + 1;
-                    incrementCount(scores, t.uri, this.computePenalty(accountTally));
+                    incrementCount(scores, toot.uri, this.computePenalty(accountTally));
                 });
 
                 // Additional penalties for trending tags
@@ -93,7 +94,7 @@ export default class DiversityFeedScorer extends FeedScorer {
     }
 
     // The more often we see an object, the less we want to penalize it
-    private computePenalty(obj: EnounteredObjWithTootCount): number {
-        return (obj.numToots! - obj.numSeen!) * obj.penaltyIncrement!
+    private computePenalty(obj: PenalizedObj): number {
+        return (obj.numToots! - obj.numSeen!) * (obj.penaltyIncrement || 1);
     }
 };

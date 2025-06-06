@@ -19,7 +19,8 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     constructor() {
         super(enums_1.ScoreName.DIVERSITY);
     }
-    // Count toots by account (but negative instead of positive count)
+    // Compute a score for each toot in the feed based on how many times the account has tooted
+    // and which trending tags it contains.
     extractScoringData(feed) {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed);
         const accountsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
@@ -27,15 +28,15 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         // Count how many times each account and each trending tag have in the feed
         sortedToots.forEach((toot) => {
             toot.withRetoot().forEach((t) => {
-                const accountTally = accountsInFeed.incrementCount(t.account.webfingerURI);
-                accountTally.penaltyIncrement = 1;
+                accountsInFeed.incrementCount(t.account.webfingerURI);
             });
+            // Penalties for trending tags are similar to those for accounts but we base the max penalty
+            // on the TrendingTag's numAccounts property (the fediverse-wide number of accounts using that tag)
             toot.realToot().trendingTags.forEach((tag) => {
-                const trendingTagTally = trendingTagsInFeed.incrementCount(tag.name);
-                // Find the max numAccounts value for the tag across all toots
-                trendingTagTally.numAccounts = Math.max(tag.numAccounts || 0, trendingTagTally.numAccounts || 0);
-                trendingTagTally.penaltyIncrement = trendingTagTally.numAccounts / trendingTagTally.numToots;
-                trendingTagTally.numToPenalize = trendingTagTally.numToots - config_1.config.scoring.minTrendingTagTootsForPenalty;
+                const penalizedTag = trendingTagsInFeed.incrementCount(tag.name);
+                penalizedTag.numAccounts = Math.max(tag.numAccounts || 0, penalizedTag.numAccounts || 0);
+                penalizedTag.penaltyIncrement = penalizedTag.numAccounts / penalizedTag.numToots;
+                penalizedTag.numToPenalize = penalizedTag.numToots - config_1.config.scoring.minTrendingTagTootsForPenalty;
             });
         });
         this.logger.trace(`tagsEncountered:`, trendingTagsInFeed);
@@ -45,7 +46,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
             toot.withRetoot().forEach((t) => {
                 const accountTally = accountsInFeed.getObj(t.account.webfingerURI);
                 accountTally.numSeen = (accountTally.numSeen || 0) + 1;
-                (0, collection_helpers_1.incrementCount)(scores, t.uri, this.computePenalty(accountTally));
+                (0, collection_helpers_1.incrementCount)(scores, toot.uri, this.computePenalty(accountTally));
             });
             // Additional penalties for trending tags
             (toot.realToot().trendingTags || []).forEach((tag) => {
@@ -75,7 +76,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     }
     // The more often we see an object, the less we want to penalize it
     computePenalty(obj) {
-        return (obj.numToots - obj.numSeen) * obj.penaltyIncrement;
+        return (obj.numToots - obj.numSeen) * (obj.penaltyIncrement || 1);
     }
 }
 exports.default = DiversityFeedScorer;
