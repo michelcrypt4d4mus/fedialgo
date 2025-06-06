@@ -31,13 +31,13 @@ exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buil
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
-const boolean_filter_option_list_1 = __importStar(require("./boolean_filter_option_list"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const logger_1 = require("../helpers/logger");
+const boolean_filter_option_list_1 = __importStar(require("./boolean_filter_option_list"));
 exports.DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {},

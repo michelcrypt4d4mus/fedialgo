@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Add cache summary to getCurrentState()'s Storage info
+* Add cache summary to `getCurrentState()`'s storage info
 
 ## v0.65.0
 * Add `triggerMoarData()` method to TheAlgorithm
