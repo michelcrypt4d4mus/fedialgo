@@ -40,17 +40,17 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
 const logger = new Logger("TootsForTagsList");
 
 
-export default class TootsForTagsList {
+export default class TagsForFetchingToots {
     cacheKey: TagTootsCacheKey;
     config: TagTootsConfig;
     logger: Logger;
     tagList: TagList;
 
     // Alternate constructor
-    static async create(cacheKey: TagTootsCacheKey): Promise<TootsForTagsList> {
+    static async create(cacheKey: TagTootsCacheKey): Promise<TagsForFetchingToots> {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
-        const tagsForTootsList = new TootsForTagsList(cacheKey, tagList, tootsConfig.config);
+        const tagsForTootsList = new TagsForFetchingToots(cacheKey, tagList, tootsConfig.config);
         await tagsForTootsList.removeUnwantedTags();
         return tagsForTootsList;
     }
@@ -110,7 +110,7 @@ export default class TootsForTagsList {
 
     // Create then immediately fetch toots for the tags
     static async getTootsFor(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
-        const tagList = await TootsForTagsList.create(cacheKey);
+        const tagList = await TagsForFetchingToots.create(cacheKey);
         return await tagList.getToots();
     }
 };

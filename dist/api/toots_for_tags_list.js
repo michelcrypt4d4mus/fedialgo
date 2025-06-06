@@ -34,7 +34,7 @@ const HASHTAG_TOOTS_CONFIG = {
     }
 };
 const logger = new logger_1.Logger("TootsForTagsList");
-class TootsForTagsList {
+class TagsForFetchingToots {
     cacheKey;
     config;
     logger;
@@ -43,7 +43,7 @@ class TootsForTagsList {
     static async create(cacheKey) {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
-        const tagsForTootsList = new TootsForTagsList(cacheKey, tagList, tootsConfig.config);
+        const tagsForTootsList = new TagsForFetchingToots(cacheKey, tagList, tootsConfig.config);
         await tagsForTootsList.removeUnwantedTags();
         return tagsForTootsList;
     }
@@ -84,10 +84,10 @@ class TootsForTagsList {
     }
     // Create then immediately fetch toots for the tags
     static async getTootsFor(cacheKey) {
-        const tagList = await TootsForTagsList.create(cacheKey);
+        const tagList = await TagsForFetchingToots.create(cacheKey);
         return await tagList.getToots();
     }
 }
-exports.default = TootsForTagsList;
+exports.default = TagsForFetchingToots;
 ;
 //# sourceMappingURL=toots_for_tags_list.js.map

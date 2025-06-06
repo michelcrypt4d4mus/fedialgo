@@ -35,7 +35,7 @@ import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
-import TootsForTagsList from "./api/toots_for_tags_list";
+import TagsForFetchingToots from "./api/toots_for_tags_list";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
@@ -237,7 +237,7 @@ class TheAlgorithm {
         await sleep(config.api.hashtagTootRetrievalDelaySeconds * 1000);  // TODO: do we really need to do this sleeping?
 
         const hashtagToots = async (key: TagTootsCacheKey) => {
-            const tagList = await TootsForTagsList.create(key);
+            const tagList = await TagsForFetchingToots.create(key);
             return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
 
