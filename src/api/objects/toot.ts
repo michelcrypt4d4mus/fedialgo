@@ -134,6 +134,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 interface TootObj extends SerializableToot {
     accounts: () => Account[];
     ageInHours: () => number;
+    author: () => Account;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: TagWithUsageCounts, fullScan?: boolean) => boolean;
@@ -153,7 +154,6 @@ interface TootObj extends SerializableToot {
     isTrending: () => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     popularity: () => number;
-    realAccount: () => Account;
     realToot: () => Toot;
     realURI: () => string;
     resolve: () => Promise<Toot>;
@@ -301,6 +301,11 @@ export default class Toot implements TootObj {
         }
     }
 
+    // Return the account that posted this toot, not the account that reblogged it
+    author(): Account {
+        return this.realToot().account;
+    }
+
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str: string): boolean {
         return wordRegex(str).test(this.contentWithCard());
@@ -358,7 +363,7 @@ export default class Toot implements TootObj {
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
-            content = `<${capitalCase(mediaType)} post by ${this.realAccount().describe()}>`;
+            content = `<${capitalCase(mediaType)} post by ${this.author().describe()}>`;
         } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
@@ -454,7 +459,7 @@ export default class Toot implements TootObj {
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean {
         if (this.reblog?.muted || this.muted) {
-            tootLogger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
+            tootLogger.trace(`Removing toot from muted account (${this.author().describe()}):`, this);
             return false;
         } else if (Date.now() < this.tootedAt().getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
@@ -487,11 +492,6 @@ export default class Toot implements TootObj {
         return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]);
     }
 
-    // Return the account that posted this toot, not the account that reblogged it
-    realAccount(): Account {
-        return this.realToot().account;
-    }
-
     // Return the toot that was reblogged if it's a reblog, otherwise return this toot
     realToot(): Toot {
         return this.reblog ?? this;
@@ -509,7 +509,7 @@ export default class Toot implements TootObj {
 
     // Return the webfinger URIs of the accounts mentioned in the toot + the author
     replyMentions(): string[] {
-        return [this.realAccount().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(at);
+        return [this.author().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(at);
     }
 
      // Get Status obj for toot from user's home server so the property URLs point to the home sever.
@@ -567,7 +567,7 @@ export default class Toot implements TootObj {
         }
 
         const isDeepInspect = !source;
-        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
+        this.muted ||= (this.author().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
 
         if (this.reblog) {

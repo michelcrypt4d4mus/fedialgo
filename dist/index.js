@@ -35,6 +35,7 @@ const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
 const already_shown_scorer_1 = __importDefault(require("./scorer/feature/already_shown_scorer"));
+const author_followers_scorer_1 = __importDefault(require("./scorer/feature/author_followers_scorer"));
 const boolean_filter_1 = __importDefault(require("./filters/boolean_filter"));
 exports.BooleanFilter = boolean_filter_1.default;
 const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
@@ -153,6 +154,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     featureScorers = [
         new already_shown_scorer_1.default(),
+        new author_followers_scorer_1.default(),
         new chaos_scorer_1.default(),
         new favourited_tags_scorer_1.default(),
         new followed_accounts_scorer_1.default(),

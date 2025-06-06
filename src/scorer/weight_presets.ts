@@ -25,6 +25,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [NonScoreWeightName.OUTLIER_DAMPENER]: 1.6,
     // Weighted scores
     [ScoreName.ALREADY_SHOWN]: 5,
+    [ScoreName.AUTHOR_FOLLOWERS]: -0.1,
     [ScoreName.CHAOS]: 1.0,
     [ScoreName.DIVERSITY]: 2.0,
     [ScoreName.FAVOURITED_ACCOUNTS]: 1.0,

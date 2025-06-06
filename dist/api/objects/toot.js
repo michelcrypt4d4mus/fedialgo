@@ -206,6 +206,10 @@ class Toot {
             return enums_1.MediaCategory.AUDIO;
         }
     }
+    // Return the account that posted this toot, not the account that reblogged it
+    author() {
+        return this.realToot().account;
+    }
     // True if toot contains 'str' in the tags, the content, or the link preview card description
     containsString(str) {
         return (0, string_helpers_1.wordRegex)(str).test(this.contentWithCard());
@@ -256,7 +260,7 @@ class Toot {
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
-            content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.realAccount().describe()}>`;
+            content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.author().describe()}>`;
         }
         else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -338,7 +342,7 @@ class Toot {
     // Note that this is very different from being temporarily filtered out of the visible feed
     isValidForFeed(serverSideFilters) {
         if (this.reblog?.muted || this.muted) {
-            tootLogger.trace(`Removing toot from muted account (${this.realAccount().describe()}):`, this);
+            tootLogger.trace(`Removing toot from muted account (${this.author().describe()}):`, this);
             return false;
         }
         else if (Date.now() < this.tootedAt().getTime()) {
@@ -369,10 +373,6 @@ class Toot {
     popularity() {
         return (0, collection_helpers_1.sumArray)([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]);
     }
-    // Return the account that posted this toot, not the account that reblogged it
-    realAccount() {
-        return this.realToot().account;
-    }
     // Return the toot that was reblogged if it's a reblog, otherwise return this toot
     realToot() {
         return this.reblog ?? this;
@@ -387,7 +387,7 @@ class Toot {
     }
     // Return the webfinger URIs of the accounts mentioned in the toot + the author
     replyMentions() {
-        return [this.realAccount().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(string_helpers_1.at);
+        return [this.author().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(string_helpers_1.at);
     }
     // Get Status obj for toot from user's home server so the property URLs point to the home sever.
     async resolve() {
@@ -434,7 +434,7 @@ class Toot {
                 this.sources?.push(source);
         }
         const isDeepInspect = !source;
-        this.muted ||= (this.realAccount().webfingerURI in userData.mutedAccounts);
+        this.muted ||= (this.author().webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);

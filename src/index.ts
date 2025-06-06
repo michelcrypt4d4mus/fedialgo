@@ -8,6 +8,7 @@ import { Mutex } from 'async-mutex';
 
 import Account from './api/objects/account';
 import AlreadyShownScorer from './scorer/feature/already_shown_scorer';
+import AuthorFollowersScorer from './scorer/feature/author_followers_scorer';
 import BooleanFilter, {  } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
@@ -150,6 +151,7 @@ class TheAlgorithm {
     // These can score a toot without knowing about the rest of the toots in the feed
     private featureScorers = [
         new AlreadyShownScorer(),
+        new AuthorFollowersScorer(),
         new ChaosScorer(),
         new FavouritedTagsScorer(),
         new FollowedAccountsScorer(),

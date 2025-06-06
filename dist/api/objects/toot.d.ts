@@ -24,6 +24,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 interface TootObj extends SerializableToot {
     accounts: () => Account[];
     ageInHours: () => number;
+    author: () => Account;
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: TagWithUsageCounts, fullScan?: boolean) => boolean;
@@ -43,7 +44,6 @@ interface TootObj extends SerializableToot {
     isTrending: () => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     popularity: () => number;
-    realAccount: () => Account;
     realToot: () => Toot;
     realURI: () => string;
     resolve: () => Promise<Toot>;
@@ -101,6 +101,7 @@ export default class Toot implements TootObj {
     accounts(): Account[];
     ageInHours(): number;
     attachmentType(): MediaCategory | undefined;
+    author(): Account;
     containsString(str: string): boolean;
     containsTag(tag: TagWithUsageCounts, fullScan?: boolean): boolean;
     containsTagsMsg(): string | undefined;
@@ -122,7 +123,6 @@ export default class Toot implements TootObj {
     isTrending(): boolean;
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean;
     popularity(): number;
-    realAccount(): Account;
     realToot(): Toot;
     realURI(): string;
     realURL(): string;

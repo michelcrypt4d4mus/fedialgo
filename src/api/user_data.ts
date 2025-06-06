@@ -93,7 +93,7 @@ export default class UserData {
     // Add up the favourites, retoots, and replies for each account
     private populateFavouriteAccounts(data: UserApiData): void {
         const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.realAccount());
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.author());
         const followedAccountIdMap = keyById(data.followedAccounts);
 
         // TODO: Replies are imperfect, we only have inReplyToAccountId to work with. IDing ~1/3rd of the replies.

@@ -33,6 +33,7 @@ export declare enum NonScoreWeightName {
 }
 export declare enum ScoreName {
     ALREADY_SHOWN = "AlreadyShown",
+    AUTHOR_FOLLOWERS = "AuthorFollowers",
     CHAOS = "Chaos",
     DIVERSITY = "Diversity",
     FAVOURITED_ACCOUNTS = "FavouritedAccounts",

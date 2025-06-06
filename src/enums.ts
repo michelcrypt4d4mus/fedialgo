@@ -48,6 +48,7 @@ export enum NonScoreWeightName {
 // There's a scorer for each of these ScoreNames
 export enum ScoreName {
     ALREADY_SHOWN = 'AlreadyShown',
+    AUTHOR_FOLLOWERS = 'AuthorFollowers',
     CHAOS = 'Chaos',
     DIVERSITY = 'Diversity',
     FAVOURITED_ACCOUNTS = 'FavouritedAccounts',

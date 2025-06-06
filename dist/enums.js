@@ -54,6 +54,7 @@ var NonScoreWeightName;
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
+    ScoreName["AUTHOR_FOLLOWERS"] = "AuthorFollowers";
     ScoreName["CHAOS"] = "Chaos";
     ScoreName["DIVERSITY"] = "Diversity";
     ScoreName["FAVOURITED_ACCOUNTS"] = "FavouritedAccounts";

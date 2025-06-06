@@ -69,7 +69,7 @@ class UserData {
     // Add up the favourites, retoots, and replies for each account
     populateFavouriteAccounts(data) {
         const retootsAndFaves = [...toot_1.default.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.realAccount());
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.author());
         const followedAccountIdMap = (0, collection_helpers_1.keyById)(data.followedAccounts);
         // TODO: Replies are imperfect, we only have inReplyToAccountId to work with. IDing ~1/3rd of the replies.
         // Currently that's only around 1/3rd of the replies.
