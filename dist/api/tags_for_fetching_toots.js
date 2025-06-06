@@ -90,4 +90,4 @@ class TagsForFetchingToots {
 }
 exports.default = TagsForFetchingToots;
 ;
-//# sourceMappingURL=toots_for_tags_list.js.map
+//# sourceMappingURL=tags_for_fetching_toots.js.map

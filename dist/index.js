@@ -68,7 +68,7 @@ const tag_list_1 = __importDefault(require("./api/tag_list"));
 exports.TagList = tag_list_1.default;
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
-const toots_for_tags_list_1 = __importDefault(require("./api/toots_for_tags_list"));
+const tags_for_fetching_toots_1 = __importDefault(require("./api/tags_for_fetching_toots"));
 const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
@@ -226,7 +226,7 @@ class TheAlgorithm {
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
         const hashtagToots = async (key) => {
-            const tagList = await toots_for_tags_list_1.default.create(key);
+            const tagList = await tags_for_fetching_toots_1.default.create(key);
             return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
         dataLoads = dataLoads.concat([
