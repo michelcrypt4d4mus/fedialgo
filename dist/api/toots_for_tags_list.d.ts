@@ -12,7 +12,7 @@ export default class TootsForTagsList {
     static create(cacheKey: TagTootsCacheKey): Promise<TootsForTagsList>;
     private constructor();
     getToots(): Promise<Toot[]>;
+    private removeUnwantedTags;
     topTags(numTags?: number): TagWithUsageCounts[];
     static getTootsFor(cacheKey: TagTootsCacheKey): Promise<Toot[]>;
-    static removeUnwantedTags(tagList: TagList, tootsConfig: TagTootsConfig): Promise<void>;
 }

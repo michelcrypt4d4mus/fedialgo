@@ -55,9 +55,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
 
     // Trending tags across the fediverse, but stripped of any followed or muted tags
     static async fromTrending(): Promise<TagList> {
-        const trendingTagList = await MastodonServer.fediverseTrendingTags();
-        await trendingTagList.removeFollowedTags();
-        return trendingTagList;
+        return await MastodonServer.fediverseTrendingTags();
     }
 
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the

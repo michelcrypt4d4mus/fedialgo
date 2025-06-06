@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Don't strip out followed hashtags from the trending tag list if they aren't being used to fetch toots for those tag
 
 ### v0.66.2
 * Much cleaner, decorator based approach to building options for `BooleanFilterOptionList`

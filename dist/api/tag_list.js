@@ -39,9 +39,7 @@ class TagList extends obj_with_counts_list_1.default {
     }
     // Trending tags across the fediverse, but stripped of any followed or muted tags
     static async fromTrending() {
-        const trendingTagList = await mastodon_server_1.default.fediverseTrendingTags();
-        await trendingTagList.removeFollowedTags();
-        return trendingTagList;
+        return await mastodon_server_1.default.fediverseTrendingTags();
     }
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
     // # of times the tag appears in array of Toot objects.
