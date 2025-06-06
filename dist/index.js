@@ -318,6 +318,13 @@ class TheAlgorithm {
     }
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState() {
+        const storageInfo = await Storage_1.default.storedObjsInfo();
+        const storageSummary = Object.entries(storageInfo).reduce((summary, [key, value]) => {
+            if (key.startsWith(api_1.default.instance.user.id) && value?.numElements) {
+                summary[key.split('_')[1] + 'NumRows'] = value.numElements;
+            }
+            return summary; // Only include storage for this user
+        }, {});
         return {
             Algorithm: this.statusDict(),
             Api: {
@@ -327,7 +334,10 @@ class TheAlgorithm {
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
-            Storage: await Storage_1.default.storedObjsInfo(),
+            Storage: {
+                detailedInfo: storageInfo,
+                summary: storageSummary,
+            },
             Trending: this.trendingData,
             UserData: await api_1.default.instance.getUserData(),
         };

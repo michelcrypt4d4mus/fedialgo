@@ -336,6 +336,19 @@ class TheAlgorithm {
 
     // Return an object describing the state of the world. Mostly for debugging.
     async getCurrentState(): Promise<Record<string, any>> {
+        const storageInfo = await Storage.storedObjsInfo();
+
+        const storageSummary = Object.entries(storageInfo).reduce(
+            (summary, [key, value]) => {
+                if (key.startsWith(MastoApi.instance.user.id) && value?.numElements) {
+                    summary[key.split('_')[1] + 'NumRows'] = value.numElements;
+                }
+
+                return summary;  // Only include storage for this user
+            },
+            {} as StringNumberDict
+        );
+
         return {
             Algorithm: this.statusDict(),
             Api: {
@@ -345,7 +358,10 @@ class TheAlgorithm {
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
-            Storage: await Storage.storedObjsInfo(),
+            Storage: {
+                detailedInfo: storageInfo,
+                summary: storageSummary,
+            },
             Trending: this.trendingData,
             UserData: await MastoApi.instance.getUserData(),
         };
