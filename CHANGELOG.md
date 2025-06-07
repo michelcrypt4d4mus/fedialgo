@@ -16,7 +16,7 @@
 ### v0.66.1
 * Set time decay to 0 for `TOTAL_CHAOS` weight preset
 
-# v0.66.0
+## v0.66.0
 * Add an `AuthorFollowerScorer`
 * Fix bug where `DiversityFeedScorer` was penalizing new toots with trending tags more than old toots with trending tags
 * Flip default sign on scores returned by penalty scorers: they now just return positive values like other scorers, but the default weights sign is flipped to negative

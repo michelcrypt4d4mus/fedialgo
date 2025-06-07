@@ -14,6 +14,5 @@ export default class TagsForFetchingToots {
     getToots(): Promise<Toot[]>;
     private removeUnwantedTags;
     topTags(numTags?: number): TagWithUsageCounts[];
-    static getTootsFor(cacheKey: TagTootsCacheKey): Promise<Toot[]>;
     static rawTagLists(): Promise<Record<TagTootsCacheKey, TagList>>;
 }

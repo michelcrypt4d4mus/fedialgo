@@ -84,11 +84,6 @@ class TagsForFetchingToots {
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagInfoStr)(t)}`).join("\n"));
         return tags;
     }
-    // Create then immediately fetch toots for the tags
-    static async getTootsFor(cacheKey) {
-        const tagList = await TagsForFetchingToots.create(cacheKey);
-        return await tagList.getToots();
-    }
     // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
     static async rawTagLists() {
         const tagLists = await Promise.all([
