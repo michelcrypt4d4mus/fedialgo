@@ -33,7 +33,7 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
         config: config.participatedTags,
     },
     [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
-        buildTagList: async () => MastodonServer.fediverseTrendingTags(),
+        buildTagList: async () => await MastodonServer.fediverseTrendingTags(),
         config: config.trending.tags,
     }
 };
