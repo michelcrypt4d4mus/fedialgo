@@ -38,8 +38,6 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
     }
 };
 
-const logger = new Logger("TootsForTagsList");
-
 
 export default class TagsForFetchingToots {
     cacheKey: TagTootsCacheKey;

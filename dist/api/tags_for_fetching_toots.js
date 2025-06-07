@@ -34,7 +34,6 @@ const HASHTAG_TOOTS_CONFIG = {
         config: config_1.config.trending.tags,
     }
 };
-const logger = new logger_1.Logger("TootsForTagsList");
 class TagsForFetchingToots {
     cacheKey;
     config;
