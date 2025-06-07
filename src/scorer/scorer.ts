@@ -160,6 +160,7 @@ export default abstract class Scorer {
                     if (scorerScore >= 0) {
                         weightedScore = Math.pow(scorerScore, outlierExponent);
                     } else {
+                        scoreLogger.warn(`Negative score detected for ${scorer.name} (${scorerScore})`);
                         weightedScore = -1 * Math.pow(-1 * scorerScore, outlierExponent);
                     }
                 }

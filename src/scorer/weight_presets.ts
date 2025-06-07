@@ -3,7 +3,7 @@
  */
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { NonScoreWeightName, ScoreName } from '../enums';
-import { type Weights, type WeightName } from "../types";
+import { type Weights } from "../types";
 
 export enum WeightPresetLabel {
     CHRONOLOGICAL = 'Chronological',
@@ -15,7 +15,7 @@ export enum WeightPresetLabel {
     TRENDING = 'Trending',
 };
 
-export type WeightPresets = Record<WeightPresetLabel, Weights>;
+export type WeightPresets = Record<WeightPresetLabel, Readonly<Weights>>;
 export const isWeightPresetLabel = (value: string) => isValueInStringEnum(WeightPresetLabel)(value);
 
 
