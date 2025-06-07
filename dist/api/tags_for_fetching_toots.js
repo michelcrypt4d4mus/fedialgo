@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Helper class for fetching toots for a list of tags, e.g. trending or particiapted tags.
  */
 const api_1 = __importDefault(require("./api"));
+const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
@@ -29,7 +30,7 @@ const HASHTAG_TOOTS_CONFIG = {
         config: config_1.config.participatedTags,
     },
     [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
-        buildTagList: tag_list_1.default.fromTrending,
+        buildTagList: mastodon_server_1.default.fediverseTrendingTags,
         config: config_1.config.trending.tags,
     }
 };
@@ -72,7 +73,8 @@ class TagsForFetchingToots {
         this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
         if (this.cacheKey != enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS) {
-            this.tagList.removeKeywords((await tag_list_1.default.fromTrending()).objs.map(t => t.name));
+            const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
+            this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
     }
     // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
@@ -81,6 +83,19 @@ class TagsForFetchingToots {
         const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topObjs(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagInfoStr)(t)}`).join("\n"));
         return tags;
+    }
+    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
+    static async rawTagLists() {
+        const tagLists = await Promise.all([
+            tag_list_1.default.fromFavourites(),
+            tag_list_1.default.fromParticipated(),
+            mastodon_server_1.default.fediverseTrendingTags(),
+        ]);
+        return {
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
+            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
+        };
     }
     // Create then immediately fetch toots for the tags
     static async getTootsFor(cacheKey) {

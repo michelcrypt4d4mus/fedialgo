@@ -83,8 +83,9 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
         return option;
     }
 
-    map(callback: (obj: T, i?: number) => any): T[] {
-        return this.objs.map(callback);
+    // Standard map function that applies a callback to each object in the objs array
+    map<U>(callback: (obj: T, i?: number) => U): U[] {
+        return this.objs.map((obj, i) => callback(obj, i));
     }
 
     // Get the maximum value for a given key across the objs array

@@ -23,7 +23,6 @@ const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const scorer_1 = __importDefault(require("../../scorer/scorer"));
-const tag_list_1 = __importDefault(require("../tag_list"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
@@ -668,7 +667,7 @@ class Toot {
         const isDeepInspect = !source;
         const startedAt = new Date();
         const userData = await api_1.default.instance.getUserData();
-        const trendingTags = (await tag_list_1.default.fromTrending()).topObjs();
+        const trendingTags = (await mastodon_server_1.default.fediverseTrendingTags()).topObjs();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
         let completeToots = [];
         let tootsToComplete = toots;

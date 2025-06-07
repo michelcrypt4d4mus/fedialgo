@@ -30,7 +30,7 @@ exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buil
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
-const tag_list_1 = __importDefault(require("../api/tag_list"));
+const tags_for_fetching_toots_1 = __importDefault(require("../api/tags_for_fetching_toots"));
 const user_data_1 = __importDefault(require("../api/user_data"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
@@ -100,17 +100,17 @@ exports.repairFilterSettings = repairFilterSettings;
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 async function updateBooleanFilterOptions(filters, toots) {
+    populateMissingFilters(filters); // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
-    const dataForTagPropLists = await tag_list_1.default.allTagTootsLists();
+    const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
     const userData = await user_data_1.default.build(); // Get user data for language and tag counts
     const suppressedNonLatinTags = {};
-    populateMissingFilters(filters); // Ensure all filters are instantiated
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new boolean_filter_1.BooleanFilterOptionList([], filterName);
         return lists;
     }, {});
     const decorateHashtag = (tagOption) => {
-        Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
+        Object.entries(tagLists).forEach(([key, tagList]) => {
             const propertyObj = tagList.getObj(tagOption.name);
             if (propertyObj) {
                 tagOption[key] = propertyObj.numToots || 0;
@@ -136,10 +136,10 @@ async function updateBooleanFilterOptions(filters, toots) {
         }
     };
     toots.forEach(toot => {
-        optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
-        optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language, decorateLanguage);
         const decorateThisAccount = (option) => decorateAccount(option, toot.author());
         optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, decorateThisAccount);
+        optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
+        optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language, decorateLanguage);
         // Aggregate counts for each kind ("type") of toot
         Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {
             if (typeFilter(toot)) {

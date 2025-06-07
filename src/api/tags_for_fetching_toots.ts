@@ -2,6 +2,7 @@
  * Helper class for fetching toots for a list of tags, e.g. trending or particiapted tags.
  */
 import MastoApi from "./api";
+import MastodonServer from "./mastodon_server";
 import Toot from "./objects/toot";
 import TagList from "./tag_list";
 import { config, TagTootsConfig } from "../config";
@@ -32,7 +33,7 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
         config: config.participatedTags,
     },
     [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
-        buildTagList: TagList.fromTrending,
+        buildTagList: MastodonServer.fediverseTrendingTags,
         config: config.trending.tags,
     }
 };
@@ -96,7 +97,8 @@ export default class TagsForFetchingToots {
         this.tagList.removeKeywords(this.config.invalidTags || []);
 
         if (this.cacheKey != TagTootsCacheKey.TRENDING_TAG_TOOTS) {
-            this.tagList.removeKeywords((await TagList.fromTrending()).objs.map(t => t.name));
+            const trendingTags = await MastodonServer.fediverseTrendingTags();
+            this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
     }
 
@@ -106,6 +108,21 @@ export default class TagsForFetchingToots {
         const tags = truncateToConfiguredLength(this.tagList.topObjs(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagInfoStr(t)}`).join("\n"));
         return tags;
+    }
+
+    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
+    static async rawTagLists(): Promise<Record<TagTootsCacheKey, TagList>> {
+        const tagLists = await Promise.all([
+            TagList.fromFavourites(),
+            TagList.fromParticipated(),
+            MastodonServer.fediverseTrendingTags(),
+        ]);
+
+        return {
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
+            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
+            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
+        };
     }
 
     // Create then immediately fetch toots for the tags

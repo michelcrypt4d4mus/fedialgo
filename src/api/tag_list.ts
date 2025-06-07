@@ -39,7 +39,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
         );
     }
 
-    // Tags the user follows  // TODO: could look for tags in the accounts they follow too
+    // Tags the user follows
     static async fromFollowedTags(tags?: TagWithUsageCounts[]): Promise<TagList> {
         tags ||= await MastoApi.instance.getFollowedTags();
         return new TagList(tags, ScoreName.FOLLOWED_TAGS);
@@ -51,11 +51,6 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
             await MastoApi.instance.getRecentUserToots(),
             TagTootsCacheKey.FAVOURITED_TAG_TOOTS
         );
-    }
-
-    // Trending tags across the fediverse, but stripped of any followed or muted tags
-    static async fromTrending(): Promise<TagList> {
-        return await MastodonServer.fediverseTrendingTags();
     }
 
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
@@ -98,20 +93,5 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     // Screen a list of hashtags against the user's server side filters, removing any that are muted.
     async removeMutedTags(): Promise<void> {
         this.removeKeywords(await UserData.getMutedKeywords());
-    }
-
-    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
-    static async allTagTootsLists(): Promise<Record<TagTootsCacheKey, TagList>> {
-        const tagLists = await Promise.all([
-            TagList.fromFavourites(),
-            TagList.fromParticipated(),
-            TagList.fromTrending(),
-        ]);
-
-        return {
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
-            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
-        };
     }
 };

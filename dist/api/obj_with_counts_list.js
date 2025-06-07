@@ -65,8 +65,9 @@ class ObjWithCountList {
         option.numToots = (option.numToots || 0) + 1;
         return option;
     }
+    // Standard map function that applies a callback to each object in the objs array
     map(callback) {
-        return this.objs.map(callback);
+        return this.objs.map((obj, i) => callback(obj, i));
     }
     // Get the maximum value for a given key across the objs array
     maxValue(propertyName) {

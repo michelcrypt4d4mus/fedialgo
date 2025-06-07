@@ -6,6 +6,7 @@ import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterOptionList
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import TagList from "../api/tag_list";
+import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
 import UserData from "../api/user_data";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
@@ -97,11 +98,11 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 export async function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings> {
+    populateMissingFilters(filters);  // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
-    const dataForTagPropLists = await TagList.allTagTootsLists();
+    const tagLists = await TagsForFetchingToots.rawTagLists();
     const userData = await UserData.build();  // Get user data for language and tag counts
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
-    populateMissingFilters(filters);  // Ensure all filters are instantiated
 
     const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new BooleanFilterOptionList([], filterName as BooleanFilterName);
@@ -109,7 +110,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     }, {} as FilterOptions);
 
     const decorateHashtag = (tagOption: BooleanFilterOption): void => {
-        Object.entries(dataForTagPropLists).forEach(([key, tagList]) => {
+        Object.entries(tagLists).forEach(([key, tagList]) => {
             const propertyObj = tagList.getObj(tagOption.name);
 
             if (propertyObj) {
@@ -142,10 +143,10 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     };
 
     toots.forEach(toot => {
-        optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
-        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!, decorateLanguage);
         const decorateThisAccount = (option: BooleanFilterOption) => decorateAccount(option, toot.author());
         optionLists[BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, decorateThisAccount);
+        optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
+        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!, decorateLanguage);
 
         // Aggregate counts for each kind ("type") of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {

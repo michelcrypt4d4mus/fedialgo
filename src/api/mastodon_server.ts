@@ -249,11 +249,11 @@ export default class MastodonServer {
     // Collect all three kinds of trending data (links, tags, toots) in one call
     static async getTrendingData(): Promise<TrendingData> {
         // TODO: would this be parallelized even without Promise.all?
-        const [links, tags, servers, toots] = await Promise.all([
+        const [links, tags, toots, servers] = await Promise.all([
             this.fediverseTrendingLinks(),
-            TagList.fromTrending(),
-            this.getMastodonInstancesInfo(),
+            this.fediverseTrendingTags(),
             this.fediverseTrendingToots(),
+            this.getMastodonInstancesInfo(),
         ]);
 
         return { links, servers, tags, toots };
