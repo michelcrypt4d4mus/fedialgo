@@ -201,6 +201,7 @@ class TheAlgorithm {
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         config.setLocale(params.locale);
+        await MastoApi.init(params.api, params.user as Account);
         const user = Account.build(params.user);
         await Storage.logAppOpen(user);
 
@@ -208,7 +209,6 @@ class TheAlgorithm {
         const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
         ScorerCache.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
-        await MastoApi.init(params.api, params.user as Account);
         return algo;
     }
 

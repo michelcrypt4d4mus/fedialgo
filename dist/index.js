@@ -195,13 +195,13 @@ class TheAlgorithm {
     // Publicly callable constructor() that instantiates the class and loads the feed from storage.
     static async create(params) {
         config_1.config.setLocale(params.locale);
+        await api_1.default.init(params.api, params.user);
         const user = account_1.default.build(params.user);
         await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
         scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
-        await api_1.default.init(params.api, params.user);
         return algo;
     }
     constructor(params) {
