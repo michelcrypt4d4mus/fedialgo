@@ -18,23 +18,23 @@ class TagList extends obj_with_counts_list_1.default {
     constructor(tags, label) {
         super(tags.map(tag_1.repairTag), label);
     }
-    // Remove elements that don't match the predicate(). Returns a new TagList object.
-    // Really only exists because typescript is weird about alternate constructors with generics.
-    filter(predicate) {
-        return new TagList(this.objs.filter(predicate), this.source);
-    }
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites() {
         return TagList.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     }
-    // Tags the user follows
+    // Alternate constructor for tags the user follows
     static async fromFollowedTags(tags) {
         tags ||= await api_1.default.instance.getFollowedTags();
         return new TagList(tags, enums_1.ScoreName.FOLLOWED_TAGS);
     }
-    // Tags the user has posted in
+    // Alternate constructor for tags the user has posted in
     static async fromParticipated() {
-        return TagList.fromUsageCounts(await api_1.default.instance.getRecentUserToots(), enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+        return TagList.fromUsageCounts(await api_1.default.instance.getRecentUserToots(), enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    }
+    // Remove elements that don't match the predicate(). Returns a new TagList object.
+    // Really only exists because typescript is weird about alternate constructors with generics.
+    filter(predicate) {
+        return new TagList(this.objs.filter(predicate), this.source);
     }
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
     // # of times the tag appears in array of Toot objects.

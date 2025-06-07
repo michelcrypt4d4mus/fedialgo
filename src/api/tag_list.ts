@@ -25,12 +25,6 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
         super(tags.map(repairTag), label);
     }
 
-    // Remove elements that don't match the predicate(). Returns a new TagList object.
-    // Really only exists because typescript is weird about alternate constructors with generics.
-    filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
-        return new TagList(this.objs.filter(predicate), this.source);
-    }
-
     // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
     static async fromFavourites(): Promise<TagList> {
         return TagList.fromUsageCounts(
@@ -39,18 +33,24 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
         );
     }
 
-    // Tags the user follows
+    // Alternate constructor for tags the user follows
     static async fromFollowedTags(tags?: TagWithUsageCounts[]): Promise<TagList> {
         tags ||= await MastoApi.instance.getFollowedTags();
         return new TagList(tags, ScoreName.FOLLOWED_TAGS);
     }
 
-    // Tags the user has posted in
+    // Alternate constructor for tags the user has posted in
     static async fromParticipated(): Promise<TagList> {
         return TagList.fromUsageCounts(
             await MastoApi.instance.getRecentUserToots(),
-            TagTootsCacheKey.FAVOURITED_TAG_TOOTS
+            TagTootsCacheKey.PARTICIPATED_TAG_TOOTS
         );
+    }
+
+    // Remove elements that don't match the predicate(). Returns a new TagList object.
+    // Really only exists because typescript is weird about alternate constructors with generics.
+    filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
+        return new TagList(this.objs.filter(predicate), this.source);
     }
 
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
