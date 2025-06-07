@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Fix source in TagList.fromParticipated()
+
+### v0.66.5
+* Fix source in `TagList.fromParticipated()`
 
 ### v0.66.4
 * Apply the `TRENDING` multiplier even to followed toots
