@@ -1,6 +1,7 @@
 # NEXT RELEASE
 
-# v0.67.0
+## v0.67.0
+* Add switches in the hashtag filter section to enable / disable for kind of colored highlighting
 
 ### v0.66.6
 * (Demo App) Fix column spacing in trending tags section
