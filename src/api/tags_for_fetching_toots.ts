@@ -110,7 +110,13 @@ export default class TagsForFetchingToots {
         return tags;
     }
 
-    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
+    // Create then immediately fetch toots for the tags
+    static async getTootsFor(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
+        const tagList = await TagsForFetchingToots.create(cacheKey);
+        return await tagList.getToots();
+    }
+
+    // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
     static async rawTagLists(): Promise<Record<TagTootsCacheKey, TagList>> {
         const tagLists = await Promise.all([
             TagList.fromFavourites(),
@@ -125,9 +131,4 @@ export default class TagsForFetchingToots {
         };
     }
 
-    // Create then immediately fetch toots for the tags
-    static async getTootsFor(cacheKey: TagTootsCacheKey): Promise<Toot[]> {
-        const tagList = await TagsForFetchingToots.create(cacheKey);
-        return await tagList.getToots();
-    }
 };

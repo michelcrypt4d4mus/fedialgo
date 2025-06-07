@@ -84,7 +84,12 @@ class TagsForFetchingToots {
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagInfoStr)(t)}`).join("\n"));
         return tags;
     }
-    // Return the tag lists used to search for toots (participated/trending/favourited) in their raw unfiltered form
+    // Create then immediately fetch toots for the tags
+    static async getTootsFor(cacheKey) {
+        const tagList = await TagsForFetchingToots.create(cacheKey);
+        return await tagList.getToots();
+    }
+    // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
     static async rawTagLists() {
         const tagLists = await Promise.all([
             tag_list_1.default.fromFavourites(),
@@ -96,11 +101,6 @@ class TagsForFetchingToots {
             [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
         };
-    }
-    // Create then immediately fetch toots for the tags
-    static async getTootsFor(cacheKey) {
-        const tagList = await TagsForFetchingToots.create(cacheKey);
-        return await tagList.getToots();
     }
 }
 exports.default = TagsForFetchingToots;
