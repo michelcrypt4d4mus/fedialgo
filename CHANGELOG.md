@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+# v0.67.0
+
 ### v0.66.6
 * (Demo App) Fix column spacing in trending tags section
 
