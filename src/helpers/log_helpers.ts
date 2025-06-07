@@ -11,9 +11,9 @@ import { prefixed } from './string_helpers';
 import { type ConcurrencyLockRelease } from '../types';
 
 // Log prefixes
-export const BACKFILL_FEED = "triggerHomeTimelineBackFill()";
-export const PREP_SCORERS = "prepareScorers()";
-export const TRIGGER_FEED = "triggerFeedUpdate()";
+export const BACKFILL_FEED = "triggerHomeTimelineBackFill";
+export const PREP_SCORERS = "prepareScorers";
+export const TRIGGER_FEED = "triggerFeedUpdate";
 
 
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock

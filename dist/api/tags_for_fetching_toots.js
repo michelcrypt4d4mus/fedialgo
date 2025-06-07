@@ -30,7 +30,7 @@ const HASHTAG_TOOTS_CONFIG = {
         config: config_1.config.participatedTags,
     },
     [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
-        buildTagList: mastodon_server_1.default.fediverseTrendingTags,
+        buildTagList: async () => mastodon_server_1.default.fediverseTrendingTags(),
         config: config_1.config.trending.tags,
     }
 };

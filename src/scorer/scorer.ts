@@ -129,40 +129,38 @@ export default abstract class Scorer {
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
         const realToot = toot.realToot();
-        const userWeights = await Storage.getWeights();
+        // Do the scoring
+        const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Find non scorer weights
+        const userWeights = await Storage.getWeights();
         const getWeight = (weightKey: WeightName) => userWeights[weightKey] ?? DEFAULT_WEIGHTS[weightKey];
-        const outlierDampener = getWeight(NonScoreWeightName.OUTLIER_DAMPENER);
         const timeDecayWeight = getWeight(NonScoreWeightName.TIME_DECAY) / 10;  // Divide by 10 to make it more user friendly
         const trendingMultiplier = getWeight(NonScoreWeightName.TRENDING);
-        // Do scoring
-        const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
+        let outlierDampener = getWeight(NonScoreWeightName.OUTLIER_DAMPENER);
+
+        if (outlierDampener <= 0) {
+            scoreLogger.warn(`Outlier dampener is ${outlierDampener} but should not be less than 0! Using 1 instead.`);
+            outlierDampener = 1;  // Prevent division by zero
+        }
 
         // Compute a weighted score a toot based by multiplying the value of each numerical property
         // by the user's chosen weighting for that property (the one configured with the GUI sliders).
         const scores: TootScores = scorers.reduce(
             (scoreDict, scorer, i) => {
                 const rawScore = rawestScores[i] || 0;
+                const outlierExponent = 1 / outlierDampener;
                 let weightedScore = rawScore * (userWeights[scorer.name] ?? 0);
 
-                // Apply the TRENDING modifier but only to toots that are not from followed accounts or tags
-                if (realToot.isTrending() && (!realToot.isFollowed() || TRENDING_WEIGHTS.includes(scorer.name))) {
+                // Apply the TRENDING modifier
+                if (TRENDING_WEIGHTS.includes(scorer.name)) {
                     weightedScore *= trendingMultiplier;
                 }
 
                 // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.
-                // TODO: outlierDampener is always greater than 0...
-                if (outlierDampener > 0) {
-                    const scorerScore = weightedScore;
-                    const outlierExponent = 1 / outlierDampener;
-
-                    // TODO: scores should not be negative but this is staying here for now
-                    if (scorerScore >= 0) {
-                        weightedScore = Math.pow(scorerScore, outlierExponent);
-                    } else {
-                        scoreLogger.warn(`Negative score detected for ${scorer.name} (${scorerScore})`);
-                        weightedScore = -1 * Math.pow(-1 * scorerScore, outlierExponent);
-                    }
+                if (weightedScore >= 0) {
+                    weightedScore = Math.pow(weightedScore, outlierExponent);
+                } else {
+                    weightedScore = -1 * Math.pow(-1 * weightedScore, outlierExponent);
                 }
 
                 scoreDict[scorer.name] = {

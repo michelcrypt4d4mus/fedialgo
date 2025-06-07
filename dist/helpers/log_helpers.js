@@ -7,9 +7,9 @@ const environment_helpers_1 = require("../helpers/environment_helpers");
 const logger_1 = require("./logger");
 const string_helpers_1 = require("./string_helpers");
 // Log prefixes
-exports.BACKFILL_FEED = "triggerHomeTimelineBackFill()";
-exports.PREP_SCORERS = "prepareScorers()";
-exports.TRIGGER_FEED = "triggerFeedUpdate()";
+exports.BACKFILL_FEED = "triggerHomeTimelineBackFill";
+exports.PREP_SCORERS = "prepareScorers";
+exports.TRIGGER_FEED = "triggerFeedUpdate";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
 async function lockExecution(locker, logger, logPrefix) {
     const startedAt = new Date();

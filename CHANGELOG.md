@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Apply the TRENDING multiplier even to followed toots
 
 ### v0.66.3
 * Don't strip out followed hashtags from the trending tag list if they aren't being used to fetch toots for those tag
