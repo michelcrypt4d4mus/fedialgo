@@ -14,6 +14,7 @@ interface AccountObj extends mastodon.v1.Account {
     homeserver?: () => string;
     homserverURL?: () => string;
     isFollowed?: boolean;
+    isFollower?: boolean;
     noteWithAccountInfo?: () => string;
     webfingerURI: string;
 }
@@ -45,6 +46,7 @@ export default class Account implements AccountObj {
     limited?: boolean | null;
     roles: mastodon.v1.Account["roles"];
     isFollowed: boolean;
+    isFollower: boolean;
     webfingerURI: string;
     static build(account: AccountLike): Account;
     describe(): string;

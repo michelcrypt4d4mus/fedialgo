@@ -2,13 +2,17 @@
  * Background polling to try to get more user data for the scoring algorithm
  * after things have died down from the intitial load.
  */
+import { mastodon } from 'masto';
 import { Mutex } from 'async-mutex';
 
-import MastoApi from "../api/api";
+import MastoApi, { ApiParams } from "../api/api";
 import { ageString } from '../helpers/time_helpers';
 import { config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
+import { type MastodonApiObject } from '../types';
+
+type Poller = (params?: ApiParams) => Promise<MastodonApiObject[]>;
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
@@ -25,12 +29,18 @@ export async function getMoarData(): Promise<boolean> {
     const startedAt = new Date();
 
     // TODO: Add followed accounts?  for people who follow > 5,000 users?
-    const pollers = [
+    let pollers: Poller[] = [
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
         MastoApi.instance.getNotifications.bind(MastoApi.instance),
         MastoApi.instance.getRecentUserToots.bind(MastoApi.instance),
-    ];
+    ].filter(Boolean);  // Remove nulls
+
+    if (config.api.pullFollowers) {
+        pollers = pollers.concat([
+            MastoApi.instance.getFollowers.bind(MastoApi.instance),
+        ]);
+    }
 
     try {
         // Call without moar boolean to check how big the cache is

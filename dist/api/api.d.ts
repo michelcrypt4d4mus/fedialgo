@@ -6,7 +6,7 @@ import { CacheKey } from "../enums";
 import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { type ApiCacheKey, type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
-interface ApiParams {
+export interface ApiParams {
     logger?: Logger;
     maxRecords?: number;
     moar?: boolean;
@@ -40,6 +40,7 @@ export default class MastoApi {
     getFavouritedToots(params?: ApiParams): Promise<Toot[]>;
     getFollowedAccounts(params?: ApiParams): Promise<Account[]>;
     getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]>;
+    getFollowers(params?: ApiParams): Promise<Account[]>;
     getMutedAccounts(params?: ApiParams): Promise<Account[]>;
     getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
     getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;

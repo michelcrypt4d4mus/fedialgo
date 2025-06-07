@@ -59,7 +59,7 @@ interface MinMaxIDParams {
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
 //   - skipCache: if true, don't use cached data
-interface ApiParams {
+export interface ApiParams {
     logger?: Logger,  // Optional logger to use for logging API calls
     maxRecords?: number,
     moar?: boolean,
@@ -301,6 +301,18 @@ export default class MastoApi {
             processFxn: (tag) => repairTag(tag),
             ...(params || {})
         }) as mastodon.v1.Tag[];
+    }
+
+    async getFollowers(params?: ApiParams): Promise<Account[]> {
+        const followers = await this.getApiRecords<mastodon.v1.Account>({
+            fetch: this.api.v1.accounts.$select(this.user.id).followers.list,
+            cacheKey: CacheKey.FOLLOWERS,
+            processFxn: (account) => (account as Account).isFollower = true,
+            ...(params || {})
+        }) as Account[];
+
+        this.logger.tempLogger(CacheKey.FOLLOWERS).log(`${followers.length} followers for ${this.user.acct}`, followers);
+        return followers;
     }
 
     // Get all muted accounts (including accounts that are fully blocked)

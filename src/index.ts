@@ -254,7 +254,12 @@ class TheAlgorithm {
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
-        logger.trace(`FINISHED promises, allResults:`, allResults);
+        logger.deep(`FINISHED promises, allResults:`, allResults);
+
+        if (config.api.pullFollowers) {
+            MastoApi.instance.getFollowers(PULL_USER_HISTORY_PARAMS);
+        }
+
         await this.finishFeedUpdate();
     }
 
@@ -283,7 +288,7 @@ class TheAlgorithm {
         }
 
         try {
-            const shouldContinue = await getMoarData();
+            const _shouldContinue = await getMoarData();
         } catch (error) {
             MastoApi.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         } finally {
@@ -306,6 +311,7 @@ class TheAlgorithm {
         try {
             const _allResults = await Promise.all([
                 MastoApi.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
+                MastoApi.instance.getFollowers(PULL_USER_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
                 MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),

@@ -10,6 +10,7 @@ export declare const SECONDS_IN_WEEK: number;
 export declare const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export declare const MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 type ApiRequestDefaults = {
+    allowBackgroundLoad?: boolean;
     initialMaxRecords?: number;
     limit?: number;
     lookbackForUpdatesMinutes?: number;
@@ -29,6 +30,7 @@ interface ApiConfig {
     maxSecondsPerPage: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
+    pullFollowers: boolean;
     timeoutMS: number;
 }
 type FediverseConfig = {
@@ -88,7 +90,7 @@ type TrendingConfig = {
     toots: Readonly<TrendingTootsConfig>;
 };
 interface ConfigType {
-    api: Readonly<ApiConfig>;
+    api: ApiConfig;
     favouritedTags: Readonly<TagTootsConfig>;
     fediverse: Readonly<FediverseConfig>;
     locale: Readonly<LocaleConfig>;
@@ -107,6 +109,7 @@ declare class Config implements ConfigType {
         maxSecondsPerPage: number;
         minutesUntilStaleDefault: number;
         mutexWarnSeconds: number;
+        pullFollowers: boolean;
         timeoutMS: number;
         data: ApiDataConfig;
     };

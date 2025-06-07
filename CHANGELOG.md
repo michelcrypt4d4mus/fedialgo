@@ -1,7 +1,8 @@
 # NEXT RELEASE
+* Add getFollowers() to MastoApi; add configuration variable config.api.pullFollowers to turn on/off follower retrieval
 
 ## v0.67.0
-* Add switches in the hashtag filter section to enable / disable for kind of colored highlighting
+* Add switches in the hashtag filter section to enable / disable each kind of hashtag colored highlighting (participated/favourited/trending)
 
 ### v0.66.6
 * (Demo App) Fix column spacing in trending tags section

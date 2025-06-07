@@ -17,6 +17,7 @@ var CacheKey;
     CacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
     CacheKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     CacheKey["FOLLOWED_TAGS"] = "FollowedTags";
+    CacheKey["FOLLOWERS"] = "Followers";
     CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
     CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
     CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";

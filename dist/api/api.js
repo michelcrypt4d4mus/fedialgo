@@ -221,6 +221,16 @@ class MastoApi {
             ...(params || {})
         });
     }
+    async getFollowers(params) {
+        const followers = await this.getApiRecords({
+            fetch: this.api.v1.accounts.$select(this.user.id).followers.list,
+            cacheKey: enums_1.CacheKey.FOLLOWERS,
+            processFxn: (account) => account.isFollower = true,
+            ...(params || {})
+        });
+        this.logger.tempLogger(enums_1.CacheKey.FOLLOWERS).log(`${followers.length} followers for ${this.user.acct}`, followers);
+        return followers;
+    }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts(params) {
         const mutedAccounts = await this.getApiRecords({

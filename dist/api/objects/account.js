@@ -58,6 +58,7 @@ class Account {
     roles = []; // TODO: not sure default is a good idea
     // Fedialgo extension fields
     isFollowed; // Is this account followed by the user?
+    isFollower; // Is this account following the user?
     webfingerURI;
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account) {
@@ -92,6 +93,7 @@ class Account {
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields
         accountObj.isFollowed = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
+        accountObj.isFollower = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }

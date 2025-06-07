@@ -7,6 +7,7 @@ export declare enum CacheKey {
     FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
+    FOLLOWERS = "Followers",
     HASHTAG_TOOTS = "HashtagToots",
     HOME_TIMELINE_TOOTS = "HomeTimelineToots",
     MUTED_ACCOUNTS = "MutedAccounts",

@@ -27,6 +27,7 @@ interface AccountObj extends mastodon.v1.Account {
     homeserver?: () => string;
     homserverURL?: () => string;
     isFollowed?: boolean;
+    isFollower?: boolean;
     noteWithAccountInfo?: () => string;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
@@ -64,6 +65,7 @@ export default class Account implements AccountObj {
     roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
     // Fedialgo extension fields
     isFollowed!: boolean;  // Is this account followed by the user?
+    isFollower!: boolean;  // Is this account following the user?
     webfingerURI!: string;
 
     // Alternate constructor because class-transformer doesn't work with constructor arguments
@@ -99,6 +101,7 @@ export default class Account implements AccountObj {
         accountObj.roles = account.roles || [];
         // Fedialgo extension fields
         accountObj.isFollowed = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
+        accountObj.isFollower = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }

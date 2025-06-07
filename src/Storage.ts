@@ -60,7 +60,7 @@ export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
 ).concat(Object.values(TagTootsCacheKey));
 
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
-    (keys, [k, v]) => k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys,
+    (keys, [k, v]) => k == CacheKey.FOLLOWERS || k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys,
     [] as StorageKey[]
 );;
 

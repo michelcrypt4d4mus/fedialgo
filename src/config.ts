@@ -1,6 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
+import { pull } from "lodash";
 import { CacheKey, NonScoreWeightName, TagTootsCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { Logger } from "./helpers/logger";
@@ -36,6 +37,7 @@ const LOG_PREFIX = "Config";
 const logger = new Logger(LOG_PREFIX);
 
 type ApiRequestDefaults = {
+    allowBackgroundLoad?: boolean;      // If true, this endpoint will return the cache immediately and then load more data in the background
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
     limit?: number;                     // Max per page is usually 40
     lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
@@ -58,6 +60,7 @@ interface ApiConfig {
     maxSecondsPerPage: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
+    pullFollowers: boolean;
     timeoutMS: number;
 };
 
@@ -129,7 +132,7 @@ type TrendingConfig = {
 
 // See Config for comments explaining these values
 interface ConfigType {
-    api: Readonly<ApiConfig>;
+    api: ApiConfig;
     favouritedTags: Readonly<TagTootsConfig>,
     fediverse: Readonly<FediverseConfig>;
     locale: Readonly<LocaleConfig>;
@@ -151,6 +154,7 @@ class Config implements ConfigType {
         maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
+        pullFollowers: false,                   // If true, pull followers on initial load
         timeoutMS: 5_000,                       // Timeout for API calls
         data: {                                 // See comments on ApiDataConfig for explanations of these values
             [CacheKey.BLOCKED_ACCOUNTS]: {
@@ -177,6 +181,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.FOLLOWED_ACCOUNTS]: {
+                allowBackgroundLoad: true,
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 80,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
@@ -185,6 +190,11 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 100,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
+            },
+            [CacheKey.FOLLOWERS]: {
+                initialMaxRecords: 2_000,
+                limit: 80,
+                minutesUntilStale: 72 * MINUTES_IN_HOUR,
             },
             [CacheKey.HASHTAG_TOOTS]: {
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -508,6 +518,7 @@ if (isDebugMode) {
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 60;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 60;
     config.api.maxRecordsForFeatureScoring = 2_500;
+    config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;
 };

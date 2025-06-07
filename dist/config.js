@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_CACHE_KEYS = void 0;
-/*
- * Centralized location for non-user configurable settings.
- */
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const logger_1 = require("./helpers/logger");
@@ -47,6 +44,7 @@ class Config {
         maxSecondsPerPage: 30,
         minutesUntilStaleDefault: 10,
         mutexWarnSeconds: 5,
+        pullFollowers: false,
         timeoutMS: 5000,
         data: {
             [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
@@ -73,6 +71,7 @@ class Config {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
+                allowBackgroundLoad: true,
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 80,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
@@ -81,6 +80,11 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 100,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.CacheKey.FOLLOWERS]: {
+                initialMaxRecords: 2000,
+                limit: 80,
+                minutesUntilStale: 72 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.HASHTAG_TOOTS]: {
             // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -391,6 +395,7 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 60;
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 60;
     config.api.maxRecordsForFeatureScoring = 2500;
+    config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;
 }

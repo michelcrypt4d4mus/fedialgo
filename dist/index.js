@@ -241,7 +241,10 @@ class TheAlgorithm {
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
-        logger.trace(`FINISHED promises, allResults:`, allResults);
+        logger.deep(`FINISHED promises, allResults:`, allResults);
+        if (config_1.config.api.pullFollowers) {
+            api_1.default.instance.getFollowers(PULL_USER_HISTORY_PARAMS);
+        }
         await this.finishFeedUpdate();
     }
     // Trigger the loading of additional toots, farther back on the home timeline
@@ -266,7 +269,7 @@ class TheAlgorithm {
             shouldReenablePoller = true;
         }
         try {
-            const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
+            const _shouldContinue = await (0, moar_data_poller_1.getMoarData)();
         }
         catch (error) {
             api_1.default.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
@@ -290,6 +293,7 @@ class TheAlgorithm {
         try {
             const _allResults = await Promise.all([
                 api_1.default.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
+                api_1.default.instance.getFollowers(PULL_USER_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
                 api_1.default.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
