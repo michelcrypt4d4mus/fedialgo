@@ -3,15 +3,19 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
+import MastoApi from '../api/api';
+import MastodonServer from '../api/mastodon_server';
 import ObjWithCountList from '../api/obj_with_counts_list';
+import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { BooleanFilterName, TypeFilterName } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { isValueInStringEnum } from "../helpers/collection_helpers";
-import { type BooleanFilterOption, type FilterArgs } from "../types";
+import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
+type FilterOptionDataSources = Record<FilterOptionDataSource, ObjWithCountList<BooleanFilterOption> | TagList>;
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
@@ -156,6 +160,21 @@ export default class BooleanFilter extends TootFilter {
         const filterArgs = super.toArgs() as BooleanFilterArgs;
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
+    }
+
+    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
+    // Note this won't always be completely up to date, but it will be close enough for the UI
+    // TODO: currently unused
+    static async filterOptionDataSources(): Promise<FilterOptionDataSources> {
+        const userData = await MastoApi.instance.getUserData();
+
+        return {
+            [BooleanFilterName.LANGUAGE]: userData.languagesPostedIn,
+            [ScoreName.FAVOURITED_ACCOUNTS]: userData.favouriteAccounts,
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: userData.favouritedTags,
+            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
+            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: await MastodonServer.fediverseTrendingTags(),
+        };
     }
 
     // Build an empty of dict of dicts with an entry for each BooleanFilterName

@@ -303,6 +303,7 @@ export default class MastoApi {
         }) as mastodon.v1.Tag[];
     }
 
+    // Get the Fedialgo user's followers
     async getFollowers(params?: ApiParams): Promise<Account[]> {
         const followers = await this.getApiRecords<mastodon.v1.Account>({
             fetch: this.api.v1.accounts.$select(this.user.id).followers.list,
@@ -311,7 +312,7 @@ export default class MastoApi {
             ...(params || {})
         }) as Account[];
 
-        this.logger.tempLogger(CacheKey.FOLLOWERS).log(`${followers.length} followers for ${this.user.acct}`, followers);
+        this.logger.tempLogger(CacheKey.FOLLOWERS).trace(`${followers.length} followers for ${this.user.acct}`, followers);
         return followers;
     }
 
@@ -410,9 +411,8 @@ export default class MastoApi {
 
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
-    async getUserData(): Promise<UserData> {
-        // TODO: the staleness check probably belongs in the UserData class
-        if (!this.userData || (await this.userData.isDataStale())) {
+    async getUserData(force?: boolean): Promise<UserData> {
+        if (force || !this.userData || (await this.userData.isDataStale())) {
             this.userData = await UserData.build();
         }
 

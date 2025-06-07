@@ -46,7 +46,7 @@ export default class MastoApi {
     getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]>;
-    getUserData(): Promise<UserData>;
+    getUserData(force?: boolean): Promise<UserData>;
     hashtagTimelineToots(tagName: string, logger: Logger, maxRecords?: number): Promise<Toot[]>;
     instanceInfo(): Promise<mastodon.v2.Instance>;
     lockAllMutexes(): Promise<ConcurrencyLockRelease[]>;

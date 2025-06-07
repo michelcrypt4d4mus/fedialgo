@@ -79,7 +79,6 @@ declare class TheAlgorithm {
     triggerHomeTimelineBackFill(): Promise<void>;
     triggerMoarData(): Promise<void>;
     triggerPullAllUserData(): Promise<void>;
-    filterOptionDataSources(): Record<FilterOptionDataSource, ObjList>;
     getApiErrorMsgs(): string[];
     getCurrentState(): Promise<Record<string, any>>;
     getRechartsStatsData(numPercentiles?: number): any[];

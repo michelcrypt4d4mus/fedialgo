@@ -221,6 +221,7 @@ class MastoApi {
             ...(params || {})
         });
     }
+    // Get the Fedialgo user's followers
     async getFollowers(params) {
         const followers = await this.getApiRecords({
             fetch: this.api.v1.accounts.$select(this.user.id).followers.list,
@@ -228,7 +229,7 @@ class MastoApi {
             processFxn: (account) => account.isFollower = true,
             ...(params || {})
         });
-        this.logger.tempLogger(enums_1.CacheKey.FOLLOWERS).log(`${followers.length} followers for ${this.user.acct}`, followers);
+        this.logger.tempLogger(enums_1.CacheKey.FOLLOWERS).trace(`${followers.length} followers for ${this.user.acct}`, followers);
         return followers;
     }
     // Get all muted accounts (including accounts that are fully blocked)
@@ -315,9 +316,8 @@ class MastoApi {
     }
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
-    async getUserData() {
-        // TODO: the staleness check probably belongs in the UserData class
-        if (!this.userData || (await this.userData.isDataStale())) {
+    async getUserData(force) {
+        if (force || !this.userData || (await this.userData.isDataStale())) {
             this.userData = await user_data_1.default.build();
         }
         return this.userData;

@@ -1,8 +1,10 @@
 import ObjWithCountList from '../api/obj_with_counts_list';
+import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
-import { type BooleanFilterOption, type FilterArgs } from "../types";
+import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
+type FilterOptionDataSources = Record<FilterOptionDataSource, ObjWithCountList<BooleanFilterOption> | TagList>;
 type TypeFilter = (toot: Toot) => boolean;
 export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
 }
@@ -27,6 +29,7 @@ export default class BooleanFilter extends TootFilter {
     optionsSortedByValue(minToots?: number): BooleanFilterOptionList;
     updateOption(optionName: string, isSelected: boolean): void;
     toArgs(): BooleanFilterArgs;
+    static filterOptionDataSources(): Promise<FilterOptionDataSources>;
     static buildBooleanFilterDict<T extends Record<string, number | BooleanFilterOption>>(): Record<BooleanFilterName, T>;
 }
 export {};

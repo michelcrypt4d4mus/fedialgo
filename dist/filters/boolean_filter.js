@@ -9,6 +9,8 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
+const api_1 = __importDefault(require("../api/api"));
+const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
 const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
@@ -140,6 +142,19 @@ class BooleanFilter extends toot_filter_1.default {
         const filterArgs = super.toArgs();
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
+    }
+    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
+    // Note this won't always be completely up to date, but it will be close enough for the UI
+    // TODO: currently unused
+    static async filterOptionDataSources() {
+        const userData = await api_1.default.instance.getUserData();
+        return {
+            [enums_1.BooleanFilterName.LANGUAGE]: userData.languagesPostedIn,
+            [enums_1.ScoreName.FAVOURITED_ACCOUNTS]: userData.favouriteAccounts,
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: userData.favouritedTags,
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
+            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: await mastodon_server_1.default.fediverseTrendingTags(),
+        };
     }
     // Build an empty of dict of dicts with an entry for each BooleanFilterName
     static buildBooleanFilterDict() {

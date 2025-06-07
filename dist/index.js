@@ -308,17 +308,6 @@ class TheAlgorithm {
             this.loadingStatus = null; // TODO: should we restart the data poller?
         }
     }
-    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
-    // Note this won't always be completely up to date, but it will be close enough for the UI
-    filterOptionDataSources() {
-        return {
-            [enums_1.BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
-            [enums_1.ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
-        };
-    }
     // Return a list of API errors encountered during this session (if any)
     getApiErrorMsgs() {
         return api_1.default.instance.apiErrors.map(e => e.message);
@@ -597,12 +586,13 @@ class TheAlgorithm {
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     async prepareScorers(force) {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, this.logger, log_helpers_1.PREP_SCORERS);
+        const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
+        if (scorersToPrepare.length == 0)
+            return;
         try {
-            if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
-                const startedAt = new Date();
-                await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.logger.tempLogger(log_helpers_1.PREP_SCORERS));
-            }
+            const startedAt = new Date();
+            await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
+            this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.logger.tempLogger(log_helpers_1.PREP_SCORERS));
         }
         finally {
             releaseMutex();

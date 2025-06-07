@@ -326,18 +326,6 @@ class TheAlgorithm {
         }
     }
 
-    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
-    // Note this won't always be completely up to date, but it will be close enough for the UI
-    filterOptionDataSources(): Record<FilterOptionDataSource, ObjList> {
-        return {
-            [BooleanFilterName.LANGUAGE]: this.userData.languagesPostedIn,
-            [ScoreName.FAVOURITED_ACCOUNTS]: this.userData.favouriteAccounts,
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: this.userData.favouritedTags,
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: this.userData.participatedTags,
-            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: this.trendingData.tags,
-        };
-    }
-
     // Return a list of API errors encountered during this session (if any)
     getApiErrorMsgs(): string[] {
         return MastoApi.instance.apiErrors.map(e => e.message);
@@ -666,13 +654,13 @@ class TheAlgorithm {
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     private async prepareScorers(force?: boolean): Promise<void> {
         const releaseMutex = await lockExecution(this.prepareScorersMutex, this.logger, PREP_SCORERS);
+        const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
+        if (scorersToPrepare.length == 0) return;
 
         try {
-            if (force || this.featureScorers.some(scorer => !scorer.isReady)) {
-                const startedAt = new Date();
-                await Promise.all(this.featureScorers.map(scorer => scorer.fetchRequiredData()));
-                this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.logger.tempLogger(PREP_SCORERS));
-            }
+            const startedAt = new Date();
+            await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
+            this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.logger.tempLogger(PREP_SCORERS));
         } finally {
             releaseMutex();
         }
