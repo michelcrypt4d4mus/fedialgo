@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.66.6
+* (Demo App) Fix column spacing in trending tags section
+
 ### v0.66.5
 * Fix source in `TagList.fromParticipated()`
 
