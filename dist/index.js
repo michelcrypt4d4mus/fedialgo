@@ -132,8 +132,9 @@ class TheAlgorithm {
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
     logger = new logger_1.Logger(`TheAlgorithm`);
     trendingData = EMPTY_TRENDING_DATA;
-    userData = new user_data_1.default();
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
+    get userData() { return api_1.default.instance.userData || new user_data_1.default(); }
+    ;
     // Constructor argument variables
     api;
     user;
@@ -200,13 +201,13 @@ class TheAlgorithm {
         const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
         scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
+        await api_1.default.init(params.api, params.user);
         return algo;
     }
     constructor(params) {
         this.api = params.api;
         this.user = params.user;
         this.setTimelineInApp = params.setTimelineInApp ?? DEFAULT_SET_TIMELINE_IN_APP;
-        api_1.default.init(this.api, this.user);
     }
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
     async triggerFeedUpdate(moreOldToots) {
@@ -219,9 +220,11 @@ class TheAlgorithm {
             return;
         this.markLoadStartedAt();
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
+        // Launch these asynchronously so we can start pulling toots right away
+        api_1.default.instance.getUserData();
+        this.prepareScorers();
         let dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-            this.prepareScorers(),
         ];
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
         await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
@@ -236,7 +239,6 @@ class TheAlgorithm {
             hashtagToots(enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-            api_1.default.instance.getUserData().then((userData) => this.userData = userData),
         ]);
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
         // and the load could still be going, but then how do we mark the load as finished?
@@ -379,6 +381,7 @@ class TheAlgorithm {
     async refreshMutedAccounts() {
         const logPrefix = (0, string_helpers_1.arrowed)(`refreshMutedAccounts()`);
         this.logger.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ skipCache: true });
         this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
@@ -545,7 +548,6 @@ class TheAlgorithm {
         }
         this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);
         this.trendingData = await Storage_1.default.getTrendingData();
-        this.userData = await Storage_1.default.loadUserData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
@@ -600,7 +602,7 @@ class TheAlgorithm {
     }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     async recomputeScorers() {
-        this.userData = await user_data_1.default.build();
+        await api_1.default.instance.getUserData(true); // Refresh user data
         await this.prepareScorers(true); // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }

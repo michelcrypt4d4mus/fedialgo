@@ -8,24 +8,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * somewhat interchangeably as a dictionary or a sorted list.
  */
 const user_data_1 = __importDefault(require("./user_data"));
-const string_helpers_1 = require("../helpers/string_helpers");
 const math_helper_1 = require("../helpers/math_helper");
 const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const logger = new logger_1.Logger("TagList");
+const string_helpers_1 = require("../helpers/string_helpers");
 class ObjWithCountList {
     logger;
     length;
     nameDict = {}; // Dict of obj.names to objs
     source;
+    get maxNumToots() { return this._maxNumToots; }
+    ;
+    get objs() { return this._objs; }
+    ;
     _maxNumToots; // Cached max numToots value, if it exists
     _objs;
-    get maxNumToots() {
-        return this._maxNumToots;
-    }
-    get objs() {
-        return this._objs;
-    }
     // Has side effect of mutating the 'tagNames' dict property
     set objs(theTags) {
         this._objs = theTags;

@@ -26,6 +26,7 @@ export default class UserData {
     static build(): Promise<UserData>;
     isDataStale(): Promise<boolean>;
     private populateFavouriteAccounts;
+    private isEmpty;
     static getMutedKeywords(): Promise<string[]>;
 }
 export {};

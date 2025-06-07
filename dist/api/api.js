@@ -73,13 +73,14 @@ class MastoApi {
     waitTimes = {}; // Just for measuring performance (poorly)
     mutexes; // Mutexes for blocking singleton requests (e.g. followed accounts)
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
-    static init(api, user) {
+    static async init(api, user) {
         if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
         apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
+        MastoApi.#instance.userData = await Storage_1.default.loadUserData();
     }
     static get instance() {
         if (!MastoApi.#instance)

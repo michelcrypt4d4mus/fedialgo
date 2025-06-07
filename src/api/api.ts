@@ -134,7 +134,7 @@ export default class MastoApi {
     private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
 
-    static init(api: mastodon.rest.Client, user: Account): void {
+    static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
         if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
             return;
@@ -142,6 +142,7 @@ export default class MastoApi {
 
         apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
+        MastoApi.#instance.userData = await Storage.loadUserData();
     }
 
     public static get instance(): MastoApi {

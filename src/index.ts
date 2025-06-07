@@ -127,8 +127,8 @@ class TheAlgorithm {
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
     logger: Logger = new Logger(`TheAlgorithm`);
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
-    userData: UserData = new UserData();
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
+    get userData(): UserData { return MastoApi.instance.userData || new UserData() };
 
     // Constructor argument variables
     private api: mastodon.rest.Client;
@@ -208,6 +208,7 @@ class TheAlgorithm {
         const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
         ScorerCache.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
+        await MastoApi.init(params.api, params.user as Account);
         return algo;
     }
 
@@ -215,7 +216,6 @@ class TheAlgorithm {
         this.api = params.api;
         this.user = params.user;
         this.setTimelineInApp = params.setTimelineInApp ?? DEFAULT_SET_TIMELINE_IN_APP;
-        MastoApi.init(this.api, this.user as Account);
     }
 
     // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
@@ -228,9 +228,12 @@ class TheAlgorithm {
         this.markLoadStartedAt();
         this.setLoadingStateVariables(TRIGGER_FEED);
 
+        // Launch these asynchronously so we can start pulling toots right away
+        MastoApi.instance.getUserData();
+        this.prepareScorers();
+
         let dataLoads: Promise<any>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-            this.prepareScorers(),
         ];
 
         // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
@@ -248,7 +251,6 @@ class TheAlgorithm {
             hashtagToots(TagTootsCacheKey.TRENDING_TAG_TOOTS),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-            MastoApi.instance.getUserData().then((userData) => this.userData = userData),
         ]);
 
         // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
@@ -413,6 +415,7 @@ class TheAlgorithm {
     async refreshMutedAccounts(): Promise<void> {
         const logPrefix = arrowed(`refreshMutedAccounts()`);
         this.logger.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({skipCache: true});
         this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
@@ -609,7 +612,6 @@ class TheAlgorithm {
 
         this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
         this.trendingData = await Storage.getTrendingData();
-        this.userData = await Storage.loadUserData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
         await updateBooleanFilterOptions(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
@@ -668,7 +670,7 @@ class TheAlgorithm {
 
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     private async recomputeScorers(): Promise<void> {
-        this.userData = await UserData.build();
+        await MastoApi.instance.getUserData(true);  // Refresh user data
         await this.prepareScorers(true);  // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }

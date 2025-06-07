@@ -31,7 +31,7 @@ export default class MastoApi {
     };
     private mutexes;
     private requestSemphore;
-    static init(api: mastodon.rest.Client, user: Account): void;
+    static init(api: mastodon.rest.Client, user: Account): Promise<void>;
     static get instance(): MastoApi;
     private constructor();
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;

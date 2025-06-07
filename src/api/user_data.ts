@@ -87,7 +87,7 @@ export default class UserData {
     // Use MUTED_ACCOUNTS as a proxy for staleness
     // TODO: could be smarter
     async isDataStale(): Promise<boolean> {
-        return await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
+        return this.isEmpty() || await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
     }
 
     // Add up the favourites, retoots, and replies for each account
@@ -123,6 +123,20 @@ export default class UserData {
         });
 
         this.favouriteAccounts.addObjs(optionsToAdd.map(account => account.toBooleanFilterOption()));
+    }
+
+    // Returns true if the user has no data, i.e. no favourite accounts, followed tags, etc.
+    private isEmpty(): boolean {
+        const empty = this.favouriteAccounts.length === 0 &&
+            this.favouritedTags.length === 0 &&
+            this.followedTags.length === 0 &&
+            this.participatedTags.length === 0 &&
+            this.languagesPostedIn.length === 0 &&
+            Object.keys(this.followedAccounts).length === 0 &&
+            Object.keys(this.mutedAccounts).length === 0;
+
+        logger.trace("UserData.isEmpty() =", empty);
+        return empty;
     }
 
     /////////////////////////////

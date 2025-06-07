@@ -3,21 +3,20 @@
  * somewhat interchangeably as a dictionary or a sorted list.
  */
 import UserData from "./user_data";
-import { isNull, wordRegex } from "../helpers/string_helpers";
 import { isNumber } from "../helpers/math_helper";
 import { Logger } from '../helpers/logger';
+import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
+import { wordRegex } from "../helpers/string_helpers";
 import {
     type ObjWithTootCount,
     type ObjListDataSource,
     type StringNumberDict,
 } from "../types";
-import { ScoreName } from "../enums";
+
 
 export type ObjList = ObjWithCountList<ObjWithTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this sucks
-
-const logger = new Logger("TagList");
 
 
 export default class ObjWithCountList<T extends ObjWithTootCount> {
@@ -25,16 +24,11 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     length: number;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: ListSource;
+    get maxNumToots(): number | undefined { return this._maxNumToots };
+    get objs(): T[] { return this._objs };
+
     private _maxNumToots?: number; // Cached max numToots value, if it exists
     private _objs: T[];
-
-    public get maxNumToots(): number | undefined {
-        return this._maxNumToots;
-    }
-
-    public get objs(): T[] {
-        return this._objs;
-    }
 
     // Has side effect of mutating the 'tagNames' dict property
     public set objs(theTags: T[]) {

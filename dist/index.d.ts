@@ -54,8 +54,8 @@ declare class TheAlgorithm {
     loadingStatus: string | null;
     logger: Logger;
     trendingData: TrendingData;
-    userData: UserData;
     weightPresets: WeightPresets;
+    get userData(): UserData;
     private api;
     private user;
     private setTimelineInApp;
