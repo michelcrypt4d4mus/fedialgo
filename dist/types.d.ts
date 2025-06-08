@@ -10,7 +10,7 @@ import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCac
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
-export type ObjNames = Record<string, ObjWithTootCount>;
+export type ObjNames = Record<string, NamedTootCount>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -32,7 +32,7 @@ export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 type FilterOptionUserData = {
     [key in FilterOptionDataSource]?: number;
 };
-export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
+export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
     displayName?: string;
     displayNameWithEmoji?: string;
     isFollowed?: boolean;
@@ -73,10 +73,10 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
-export type ObjListDataSource = (FilterOptionDataSource | FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS);
-export interface ObjWithTootCount extends WithCounts {
+export interface NamedTootCount extends TootCount {
     name: string;
 }
+export type ObjListDataSource = (FilterOptionDataSource | FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS);
 export interface PromiseFulfilledResult<T> {
     status: "fulfilled";
     value: T;
@@ -101,7 +101,7 @@ export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;
 };
-export interface TagWithUsageCounts extends mastodon.v1.Tag, ObjWithTootCount {
+export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 }
 export type TootContext = {
@@ -109,6 +109,11 @@ export type TootContext = {
     descendants: Toot[];
     toot: Toot;
 };
+export interface TootCount {
+    numAccounts?: number;
+    numToots?: number;
+    regex?: RegExp;
+}
 export type TootScore = {
     rawScore: number;
     score: number;
@@ -118,7 +123,7 @@ export type TootScore = {
     weightedScore: number;
 };
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink, WithCounts {
+export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {
 }
 export type TrendingData = {
     links: TrendingLink[];
@@ -140,10 +145,5 @@ export type WeightInfo = {
 export type WeightName = ScoreName | NonScoreWeightName;
 export interface WithCreatedAt {
     createdAt: string | Date;
-}
-export interface WithCounts {
-    numAccounts?: number;
-    numToots?: number;
-    regex?: RegExp;
 }
 export {};

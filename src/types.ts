@@ -16,7 +16,7 @@ import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCac
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
-export type ObjNames = Record<string, ObjWithTootCount>;
+export type ObjNames = Record<string, NamedTootCount>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -49,7 +49,7 @@ export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
 
 // Add FilterOptionDataSource properties to the ObjWithTootCount interface
-export interface BooleanFilterOption extends FilterOptionUserData, ObjWithTootCount {
+export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
     displayName?: string;
     displayNameWithEmoji?: string; // TODO: just testing this
     isFollowed?: boolean;  // TODO: this is too specific to be in the general BooleanFilterOption interface
@@ -119,17 +119,17 @@ export type MinMaxID = {
     max: string;
 };
 
+// Abstract interface for objects that have numToots of some kind
+export interface NamedTootCount extends TootCount {
+    name: string;
+};
+
 export type ObjListDataSource = (
     FilterOptionDataSource
   | FilterTitle
   | CacheKey.FEDIVERSE_TRENDING_TAGS
   | ScoreName.FOLLOWED_TAGS
 );
-
-// Abstract interface for objects that have numToots of some kind
-export interface ObjWithTootCount extends WithCounts {
-    name: string;
-};
 
 // Unfortunately these types, returned by Promise.allSettled(), are not exported anywhere so we're manually recreating...
 export interface PromiseFulfilledResult<T> {status: "fulfilled", value: T};
@@ -174,7 +174,7 @@ export type StorableWithTimestamp = {
     value: StorableObj;
 };
 
-export interface TagWithUsageCounts extends mastodon.v1.Tag, ObjWithTootCount {
+export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 };
 
@@ -183,6 +183,12 @@ export type TootContext = {
     ancestors: Toot[];
     descendants: Toot[];
     toot: Toot;
+};
+
+export interface TootCount {
+    numAccounts?: number;
+    numToots?: number;
+    regex?: RegExp;  // TODO: this shouldn't be here
 };
 
 export type TootScore = {
@@ -195,7 +201,7 @@ export type TootScore = {
 };
 
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink, WithCounts {};
+export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {};
 
 // TODO: we can't enforce that keys are TrendingType enum because "toots" is different from "statuses"
 export type TrendingData = {
@@ -224,12 +230,6 @@ export type WeightName = ScoreName | NonScoreWeightName;
 
 export interface WithCreatedAt {
     createdAt: string | Date;  // ISO date string
-};
-
-export interface WithCounts {
-    numAccounts?: number;
-    numToots?: number;
-    regex?: RegExp;
 };
 
 

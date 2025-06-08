@@ -10,16 +10,16 @@ import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
     type ObjListDataSource,
-    type ObjWithTootCount,
+    type NamedTootCount,
     type StringNumberDict,
 } from "../types";
 
 
-export type ObjList = ObjWithCountList<ObjWithTootCount>;
+export type ObjList = ObjWithCountList<NamedTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this sucks
 
 
-export default class ObjWithCountList<T extends ObjWithTootCount> {
+export default class ObjWithCountList<T extends NamedTootCount> {
     logger: Logger;
     length: number;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
@@ -31,8 +31,8 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     private _objs: T[];
 
     // Has side effect of mutating the 'tagNames' dict property
-    public set objs(theTags: T[]) {
-        this._objs = theTags;
+    public set objs(objs: T[]) {
+        this._objs = objs;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this._maxNumToots = this.maxValue("numToots");
@@ -143,7 +143,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
 };
 
 
-function completeObjWithTootCounts(obj: ObjWithTootCount): ObjWithTootCount {
+function completeObjWithTootCounts(obj: NamedTootCount): NamedTootCount {
     obj.name = obj.name.toLowerCase();
     obj.regex ||= wordRegex(obj.name);
     return obj;

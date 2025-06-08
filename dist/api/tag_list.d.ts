@@ -1,6 +1,6 @@
 import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
-import { type MastodonTag, type ObjWithTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
+import { type MastodonTag, type NamedTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ListSource);
     static fromFavourites(): Promise<TagList>;
@@ -8,7 +8,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     static fromParticipated(): Promise<TagList>;
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     static fromUsageCounts(toots: Toot[], source: ObjListDataSource): TagList;
-    getTag(tag: string | MastodonTag): ObjWithTootCount | undefined;
+    getTag(tag: string | MastodonTag): NamedTootCount | undefined;
     removeFollowedAndMutedTags(): Promise<void>;
     removeFollowedTags(): Promise<void>;
     removeInvalidTrendingTags(): void;

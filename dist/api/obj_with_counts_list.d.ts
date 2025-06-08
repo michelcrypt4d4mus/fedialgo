@@ -1,9 +1,9 @@
 import { Logger } from '../helpers/logger';
 import { ScoreName } from "../enums";
-import { type ObjListDataSource, type ObjWithTootCount, type StringNumberDict } from "../types";
-export type ObjList = ObjWithCountList<ObjWithTootCount>;
+import { type ObjListDataSource, type NamedTootCount, type StringNumberDict } from "../types";
+export type ObjList = ObjWithCountList<NamedTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;
-export default class ObjWithCountList<T extends ObjWithTootCount> {
+export default class ObjWithCountList<T extends NamedTootCount> {
     logger: Logger;
     length: number;
     nameDict: Record<string, T>;
@@ -12,7 +12,7 @@ export default class ObjWithCountList<T extends ObjWithTootCount> {
     get objs(): T[];
     private _maxNumToots?;
     private _objs;
-    set objs(theTags: T[]);
+    set objs(objs: T[]);
     constructor(objs: T[], source: ListSource);
     addObjs(objs: T[]): void;
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;

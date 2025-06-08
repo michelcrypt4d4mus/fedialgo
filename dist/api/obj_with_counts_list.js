@@ -24,8 +24,8 @@ class ObjWithCountList {
     _maxNumToots; // Cached max numToots value, if it exists
     _objs;
     // Has side effect of mutating the 'tagNames' dict property
-    set objs(theTags) {
-        this._objs = theTags;
+    set objs(objs) {
+        this._objs = objs;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this._maxNumToots = this.maxValue("numToots");
