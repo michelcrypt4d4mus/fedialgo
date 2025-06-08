@@ -50,12 +50,12 @@ class Scorer {
         if (this.isReady)
             return await this._score(toot);
         if (!toot.scoreInfo) {
-            this.logger.debug(`Not ready, scoring 0...`);
+            this.logger.trace(`Not ready, scoring 0...`);
             return 0;
         }
         else {
             const existingScore = toot.getIndividualScore("raw", this.name);
-            this.logger.debug(`Not ready but toot already scored (existing score: ${existingScore})`);
+            this.logger.trace(`Not ready but toot already scored (existing score: ${existingScore})`);
             return existingScore;
         }
     }
