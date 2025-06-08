@@ -262,14 +262,14 @@ export default class MastoApi {
     ): Promise<Toot[]> {
         const logger = getLogger(cacheKey);
         const releaseMutex = await lockExecution(this.apiMutexes[cacheKey], logger);
-        const startedAt = new Date();
+        this.waitTimes[cacheKey].markStart();  // Telemetry stuff that should be removed eventually
 
         try {
             let toots = await Storage.getIfNotStale<Toot[]>(cacheKey);
 
             if (!toots) {
                 const statuses = await fetchStatuses();
-                logger.trace(`Retrieved ${statuses.length} Statuses ${ageString(startedAt)}`);
+                logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
                 toots = await Toot.buildToots(statuses, cacheKey);
                 toots = truncateToConfiguredLength(toots, maxRecords, logger);
                 await Storage.set(cacheKey, toots);
@@ -278,7 +278,7 @@ export default class MastoApi {
             return toots;
         } catch (err) {
             // TODO: the hacky cast is because ApiCacheKey is broader than CacheKey
-            this.handleApiError({ cacheKey: cacheKey as CacheKey, logger }, [], startedAt, err);
+            this.handleApiError({ cacheKey: cacheKey as CacheKey, logger }, [], err);
             return [];
         } finally {
             releaseMutex();
@@ -598,7 +598,7 @@ export default class MastoApi {
     private async fetchApiRecords<T extends MastodonApiObject>(
         params: FetchParamsWithCacheData<T>
     ): Promise<MastodonApiObject[]> {
-        let { breakIf, cacheKey, fetch, logger, maxRecords } = params;
+        const { breakIf, cacheKey, fetch, logger, maxRecords } = params;
         this.waitTimes[cacheKey].markStart();  // Telemetry stuff that should be removed eventually
         let newRows: T[] = [];
         let pageNumber = 0;
@@ -627,7 +627,7 @@ export default class MastoApi {
 
             return newRows;
         } catch (e) {
-            return this.handleApiError<T>(params, newRows, this.waitTimes[cacheKey]!.startedAt, e);
+            return this.handleApiError<T>(params, newRows, e);
         }
     }
 
@@ -652,20 +652,18 @@ export default class MastoApi {
         }
 
         const releaseMutex = skipMutex ? null : await lockExecution(this.apiMutexes[cacheKey], logger);
-        let cachedRows: T[] = [];
-        let newRows: T[] = [];
 
         try {
             // Check the cache again, in case it was updated while we were waiting for the mutex
-            params.cacheResult = skipCache ? null : await this.getCacheResult<T>(cacheKey);
-            cachedRows = params.cacheResult?.rows || [];
+            params.cacheResult = await this.getCacheResult<T>(params);
+            const cachedRows = params.cacheResult?.rows || [];
 
             if (this.shouldReturnCachedRows(params)) {
-                logger.trace(`Returning ${cachedRows?.length} cached rows`);
+                logger.trace(`Returning ${cachedRows.length} cached rows`);
                 return cachedRows;
             }
 
-            newRows = await this.fetchApiRecords<T>(params) as T[];
+            let newRows = await this.fetchApiRecords<T>(params) as T[];
 
             // If endpoint has unique IDs (e.g. Toots) merge the cached rows with the new ones
             if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
@@ -704,9 +702,9 @@ export default class MastoApi {
         inParams: FetchParams<T>
     ): Promise<FetchParamsWithCacheData<T>> {
         const params = fillInDefaultParams<T>(inParams);
-        let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
+        let { logger, maxId, maxRecords, moar } = params;
         // Fetch from cache unless skipCache is true
-        const cacheResult = skipCache ? null : (await this.getCacheResult<T>(cacheKey));
+        const cacheResult = await this.getCacheResult<T>(params);
         const minMaxIdParams: MinMaxIDParams = {maxIdForFetch: null, minIdForFetch: null};
 
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
@@ -752,8 +750,12 @@ export default class MastoApi {
     }
 
     // Load data from the cache and make some inferences. Thin wrapper around Storage.getWithStaleness()
-    private async getCacheResult<T extends MastodonApiObject>(key: CacheKey): Promise<CachedRows<T> | null> {
-        const cachedData = await Storage.getWithStaleness(key);
+    private async getCacheResult<T extends MastodonApiObject>(
+        params: FetchParamsWithDefaults<T>
+    ): Promise<CachedRows<T> | null> {
+        const { cacheKey, skipCache } = params;
+        if (skipCache) return null;
+        const cachedData = await Storage.getWithStaleness(cacheKey);
         if (!cachedData) return null;
         const rows = cachedData?.obj as T[];
 
@@ -763,7 +765,7 @@ export default class MastoApi {
         return {
             isStale: cachedData.isStale,
             // minMaxId is not returned  if endpoint doesn't support min/max ID API requests (even if it exists)
-            minMaxId: this.supportsMinMaxId(key) ? findMinMaxId(rows as MastodonObjWithID[]) : null,
+            minMaxId: this.supportsMinMaxId(cacheKey) ? findMinMaxId(rows as MastodonObjWithID[]) : null,
             rows,
             updatedAt: cachedData.updatedAt,
         };
@@ -776,12 +778,12 @@ export default class MastoApi {
     private handleApiError<T extends MastodonApiObject>(
         params: Partial<FetchParamsWithCacheData<T>>,
         rows: T[],
-        startedAt: Date,
         err: Error | unknown,
     ): T[] {
         let { cacheKey, cacheResult, logger } = params;
         cacheKey ??= CacheKey.HOME_TIMELINE_TOOTS;  // TODO: this is a hack to avoid undefined cacheKey
         logger ??= getLogger(cacheKey, 'handleApiError');
+        const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} After pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.str(msg), {cause: err}));

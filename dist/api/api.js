@@ -183,12 +183,12 @@ class MastoApi {
     async getCacheableToots(fetchStatuses, cacheKey, maxRecords) {
         const logger = getLogger(cacheKey);
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
-        const startedAt = new Date();
+        this.waitTimes[cacheKey].markStart(); // Telemetry stuff that should be removed eventually
         try {
             let toots = await Storage_1.default.getIfNotStale(cacheKey);
             if (!toots) {
                 const statuses = await fetchStatuses();
-                logger.trace(`Retrieved ${statuses.length} Statuses ${(0, time_helpers_1.ageString)(startedAt)}`);
+                logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
                 toots = await toot_1.default.buildToots(statuses, cacheKey);
                 toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, logger);
                 await Storage_1.default.set(cacheKey, toots);
@@ -197,7 +197,7 @@ class MastoApi {
         }
         catch (err) {
             // TODO: the hacky cast is because ApiCacheKey is broader than CacheKey
-            this.handleApiError({ cacheKey: cacheKey, logger }, [], startedAt, err);
+            this.handleApiError({ cacheKey: cacheKey, logger }, [], err);
             return [];
         }
         finally {
@@ -486,7 +486,7 @@ class MastoApi {
     }
     // Pure fetch of API records, no caching or background updates
     async fetchApiRecords(params) {
-        let { breakIf, cacheKey, fetch, logger, maxRecords } = params;
+        const { breakIf, cacheKey, fetch, logger, maxRecords } = params;
         this.waitTimes[cacheKey].markStart(); // Telemetry stuff that should be removed eventually
         let newRows = [];
         let pageNumber = 0;
@@ -514,7 +514,7 @@ class MastoApi {
             return newRows;
         }
         catch (e) {
-            return this.handleApiError(params, newRows, this.waitTimes[cacheKey].startedAt, e);
+            return this.handleApiError(params, newRows, e);
         }
     }
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
@@ -533,17 +533,15 @@ class MastoApi {
             return [];
         }
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
-        let cachedRows = [];
-        let newRows = [];
         try {
             // Check the cache again, in case it was updated while we were waiting for the mutex
-            params.cacheResult = skipCache ? null : await this.getCacheResult(cacheKey);
-            cachedRows = params.cacheResult?.rows || [];
+            params.cacheResult = await this.getCacheResult(params);
+            const cachedRows = params.cacheResult?.rows || [];
             if (this.shouldReturnCachedRows(params)) {
-                logger.trace(`Returning ${cachedRows?.length} cached rows`);
+                logger.trace(`Returning ${cachedRows.length} cached rows`);
                 return cachedRows;
             }
-            newRows = await this.fetchApiRecords(params);
+            let newRows = await this.fetchApiRecords(params);
             // If endpoint has unique IDs (e.g. Toots) merge the cached rows with the new ones
             if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
                 newRows = [...cachedRows, ...newRows];
@@ -581,9 +579,9 @@ class MastoApi {
     // Fill in defaults in params and derive the min/maxIdForFetch from cached data if appropriate
     async addCacheDataToParams(inParams) {
         const params = fillInDefaultParams(inParams);
-        let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
+        let { logger, maxId, maxRecords, moar } = params;
         // Fetch from cache unless skipCache is true
-        const cacheResult = skipCache ? null : (await this.getCacheResult(cacheKey));
+        const cacheResult = await this.getCacheResult(params);
         const minMaxIdParams = { maxIdForFetch: null, minIdForFetch: null };
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
         // If we're pulling "moar" old data, use the min ID of the cache as the request maxId
@@ -624,8 +622,11 @@ class MastoApi {
         return completedParams;
     }
     // Load data from the cache and make some inferences. Thin wrapper around Storage.getWithStaleness()
-    async getCacheResult(key) {
-        const cachedData = await Storage_1.default.getWithStaleness(key);
+    async getCacheResult(params) {
+        const { cacheKey, skipCache } = params;
+        if (skipCache)
+            return null;
+        const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
         if (!cachedData)
             return null;
         const rows = cachedData?.obj;
@@ -635,7 +636,7 @@ class MastoApi {
         return {
             isStale: cachedData.isStale,
             // minMaxId is not returned  if endpoint doesn't support min/max ID API requests (even if it exists)
-            minMaxId: this.supportsMinMaxId(key) ? (0, collection_helpers_1.findMinMaxId)(rows) : null,
+            minMaxId: this.supportsMinMaxId(cacheKey) ? (0, collection_helpers_1.findMinMaxId)(rows) : null,
             rows,
             updatedAt: cachedData.updatedAt,
         };
@@ -644,10 +645,11 @@ class MastoApi {
     // handleApiError() will make a decision about whether to use the cache, the new rows, or both
     // and return the appropriate rows and return the appropriate rows in a single array.
     // TODO: handle rate limiting errors
-    handleApiError(params, rows, startedAt, err) {
+    handleApiError(params, rows, err) {
         let { cacheKey, cacheResult, logger } = params;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
         logger ??= getLogger(cacheKey, 'handleApiError');
+        const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} After pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.str(msg), { cause: err }));
