@@ -198,7 +198,11 @@ class TheAlgorithm {
         )
     );
 
-    // Publicly callable constructor() that instantiates the class and loads the feed from storage.
+    /**
+     * Publicly callable constructor that instantiates the class and loads the feed from storage.
+     * @param {AlgorithmArgs} params - The parameters for algorithm creation.
+     * @returns {Promise<TheAlgorithm>} TheAlgorithm instance.
+     */
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         config.setLocale(params.locale);
         await MastoApi.init(params.api, params.user as Account);
@@ -218,7 +222,11 @@ class TheAlgorithm {
         this.setTimelineInApp = params.setTimelineInApp ?? DEFAULT_SET_TIMELINE_IN_APP;
     }
 
-    // Trigger the retrieval of the user's timeline from all the sources if maxId is not provided.
+    /**
+     * Trigger the retrieval of the user's timeline from all the sources.
+     * @param {boolean} [moreOldToots] - Backfill older toots instead of getting new toots
+     * @returns {Promise<void>}
+     */
     async triggerFeedUpdate(moreOldToots?: boolean): Promise<void> {
         const logger = this.logger.tempLogger(TRIGGER_FEED);
         logger.log(`called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
@@ -260,7 +268,10 @@ class TheAlgorithm {
         await this.finishFeedUpdate();
     }
 
-    // Trigger the loading of additional toots, farther back on the home timeline
+    /**
+     * Trigger the loading of additional toots, farther back on the home timeline.
+     * @returns {Promise<void>}
+     */
     async triggerHomeTimelineBackFill(): Promise<void> {
         this.logger.log(`${arrowed(BACKFILL_FEED)} called, state:`, this.statusDict());
         this.checkIfLoading();
@@ -270,8 +281,11 @@ class TheAlgorithm {
         await this.finishFeedUpdate();
     }
 
-    // Manually trigger that which is on an interval by default
-    // TODO: use a real mutex
+    /**
+     * Manually trigger the loading of "moar" user data (recent toots, favourites, notifications, etc).
+     * Usually done by a background task on a set interval.
+     * @returns {Promise<void>}
+     */
     async triggerMoarData(): Promise<void> {
         this.checkIfLoading();
         this.loadingStatus = `Triggering moar data fetching...`;
@@ -295,8 +309,11 @@ class TheAlgorithm {
         }
     }
 
-    // Collect *ALL* the user's history data from the server - past toots, favourites, etc.
-    // Use with caution!
+    /**
+     * Collect *ALL* the user's history data from the server - past toots, favourites, etc.
+     * Use with caution!
+     * @returns {Promise<void>}
+     */
     async triggerPullAllUserData(): Promise<void> {
         const logPrefix = arrowed(`triggerPullAllUserData()`);
         this.logger.log(`${logPrefix} called, state:`, this.statusDict());
@@ -322,12 +339,18 @@ class TheAlgorithm {
         }
     }
 
-    // Return a list of API errors encountered during this session (if any)
+    /**
+     * Return a list of API errors encountered during this session (if any).
+     * @returns {string[]} Array of error messages.
+     */
     getApiErrorMsgs(): string[] {
         return MastoApi.instance.apiErrors.map(e => e.message);
     }
 
-    // Return an object describing the state of the world. Mostly for debugging.
+    /**
+     * Return an object describing the state of the world. Mostly for debugging.
+     * @returns {Promise<Record<string, any>>} State object.
+     */
     async getCurrentState(): Promise<Record<string, any>> {
         const storageInfo = await Storage.storedObjsInfo();
 
@@ -360,27 +383,44 @@ class TheAlgorithm {
         };
     }
 
-    // Return an array of objects suitable for use with Recharts
+    /**
+     * Return an array of objects suitable for use with Recharts.
+     * @param {number} [numPercentiles=5] - Number of percentiles for stats.
+     * @returns {any[]} Recharts data points.
+     */
     getRechartsStatsData(numPercentiles: number = 5): any[] {
         return rechartsDataPoints(this.feed, numPercentiles);
     }
 
-    // Return the current filtered timeline feed in weight order
+    /**
+     * Return the current filtered timeline feed in weight order.
+     * @returns {Toot[]} The filtered timeline feed.
+     */
     getTimeline(): Toot[] {
         return this.feed;
     }
 
-    // Return the user's current weightings for each score category
+    /**
+     * Return the user's current weightings for each score category.
+     * @returns {Promise<Weights>} The user's weights.
+     */
     async getUserWeights(): Promise<Weights> {
         return await Storage.getWeights();
     }
 
-    // TODO: Using loadingStatus as the main determinant of state is kind of janky
+    /**
+     * Return true if the algorithm is currently loading data.
+     * TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
+     * @returns {boolean} Loading state.
+     */
     isLoading(): boolean {
         return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG)
     }
 
-    // Return the timestamp of the most recent toot from followed accounts + hashtags ONLY
+    /**
+     * Return the timestamp of the most recent toot from followed accounts + hashtags ONLY.
+     * @returns {Date | null} The most recent toot date or null.
+     */
     mostRecentHomeTootAt(): Date | null {
         // TODO: this.homeFeed is only set when fetchHomeFeed() is *finished*
         if (this.homeFeed.length == 0 && this.numTriggers > 1) {
@@ -391,7 +431,10 @@ class TheAlgorithm {
         return mostRecentTootedAt(this.homeFeed);
     }
 
-    // Return the number of seconds since the most recent home timeline toot
+    /**
+     * Return the number of seconds since the most recent home timeline toot.
+     * @returns {number | null} Age in seconds or null.
+     */
     mostRecentHomeTootAgeInSeconds(): number | null {
         const mostRecentAt = this.mostRecentHomeTootAt();
 
@@ -405,7 +448,11 @@ class TheAlgorithm {
         return feedAgeInSeconds;
     }
 
-    // Doesn't actually mute the account, just marks it as muted in the userData object
+    /**
+     * Pull the latest list of muted accounts from the server and use that to filter any newly muted accounts
+     * out of the timeline.
+     * @returns {Promise<void>}
+     */
     async refreshMutedAccounts(): Promise<void> {
         const logger = this.logger.tempLogger(`refreshMutedAccounts`);
         logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
@@ -417,7 +464,11 @@ class TheAlgorithm {
         await this.finishFeedUpdate();
     }
 
-    // Clear everything from browser storage except the user's identity and weightings (unless complete is true).
+    /**
+     * Clear everything from browser storage except the user's identity and weightings (unless complete is true).
+     * @param {boolean} [complete=false] - If true, remove user data as well.
+     * @returns {Promise<void>}
+     */
     async reset(complete: boolean = false): Promise<void> {
         this.logger.warn(`reset() called, clearing all storage...`);
         this.dataPoller && clearInterval(this.dataPoller!);
@@ -443,7 +494,10 @@ class TheAlgorithm {
         }
     }
 
-    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+    /**
+     * Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+     * @returns {Promise<void>}
+     */
     async saveTimelineToCache(): Promise<void> {
         if (this.isLoading()) return;
         const logger = this.logger.tempLogger(`saveTimelineToCache`);
@@ -461,16 +515,28 @@ class TheAlgorithm {
         }
     }
 
-    // Return info about the Fedialgo user's home mastodon instance
+    /**
+     * Return info about the Fedialgo user's home mastodon instance.
+     * @returns {Promise<mastodon.v2.Instance>} Instance info.
+     */
     async serverInfo(): Promise<mastodon.v2.Instance> {
         return await MastoApi.instance.instanceInfo();
     }
 
+    /**
+     * Get the URL for a tag.
+     * @param {string | MastodonTag} tag - The tag or tag object.
+     * @returns {string} The tag URL.
+     */
     tagUrl(tag: string | MastodonTag): string {
         return MastoApi.instance.tagUrl(tag);
     }
 
-    // Update the feed filters and return the newly filtered feed
+    /**
+     * Update the feed filters and return the newly filtered feed.
+     * @param {FeedFilterSettings} newFilters - The new filter settings.
+     * @returns {Toot[]} The filtered feed.
+     */
     updateFilters(newFilters: FeedFilterSettings): Toot[] {
         this.logger.log(`updateFilters() called with newFilters:`, newFilters);
         this.filters = newFilters;
@@ -478,14 +544,22 @@ class TheAlgorithm {
         return this.filterFeedAndSetInApp();
     }
 
-    // Update user weightings and rescore / resort the feed.
+    /**
+     * Update user weightings and rescore / resort the feed.
+     * @param {Weights} userWeights - The new user weights.
+     * @returns {Promise<Toot[]>} The filtered and rescored feed.
+     */
     async updateUserWeights(userWeights: Weights): Promise<Toot[]> {
         this.logger.log("updateUserWeights() called with weights:", userWeights);
         await Storage.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }
 
-    // Update user weightings to one of the preset values and rescore / resort the feed.
+    /**
+     * Update user weightings to one of the preset values and rescore / resort the feed.
+     * @param {WeightPresetLabel | string} presetName - The preset name.
+     * @returns {Promise<Toot[]>} The filtered and rescored feed.
+     */
     async updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]> {
         this.logger.log("updateUserWeightsToPreset() called with presetName:", presetName);
 
