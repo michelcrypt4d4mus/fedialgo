@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.69.5
 * Add "la" to TAG_ONLY_STRINGS
 
 ### v0.69.4
