@@ -27,14 +27,16 @@ import {
 const BATCH_MAP = "batchMap()";
 
 
-export function addDicts(...args: StringNumberDict[]): StringNumberDict {
-    return args.reduce((acc, dict) => {
-        Object.entries(dict).forEach(([k, v]) => {
-            acc[k] = (acc[k] || 0) + v;
-        });
+// Add up an arbitrary number of StringNumberDicts, returning a new dict.
+export function addDicts(...dicts: StringNumberDict[]): StringNumberDict {
+    const sumDict: StringNumberDict = {};
+    const keys = new Set(dicts.map((dict => Object.keys(dict))).flat());
 
-        return acc;
-    }, {} as StringNumberDict);
+    keys.forEach((k) => {
+        sumDict[k] = sumArray(dicts.map((d) => d[k] || 0));
+    });
+
+    return sumDict;
 };
 
 

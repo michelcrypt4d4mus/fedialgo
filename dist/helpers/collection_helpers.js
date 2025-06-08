@@ -15,13 +15,14 @@ const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
 const BATCH_MAP = "batchMap()";
-function addDicts(...args) {
-    return args.reduce((acc, dict) => {
-        Object.entries(dict).forEach(([k, v]) => {
-            acc[k] = (acc[k] || 0) + v;
-        });
-        return acc;
-    }, {});
+// Add up an arbitrary number of StringNumberDicts, returning a new dict.
+function addDicts(...dicts) {
+    const sumDict = {};
+    const keys = new Set(dicts.map((dict => Object.keys(dict))).flat());
+    keys.forEach((k) => {
+        sumDict[k] = sumArray(dicts.map((d) => d[k] || 0));
+    });
+    return sumDict;
 }
 exports.addDicts = addDicts;
 ;
