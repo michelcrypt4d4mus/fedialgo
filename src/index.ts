@@ -75,6 +75,7 @@ import {
 import {
     type BooleanFilterOption,
     type FeedFilterSettings,
+    type FilterOptionDataSource,
     type KeysOfValueType,
     type MastodonInstance,
     type MastodonTag,
@@ -90,7 +91,6 @@ import {
     type Weights,
     type WeightInfoDict,
 } from "./types";
-import { type FilterOptionDataSource } from './types';
 
 // Strings
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
