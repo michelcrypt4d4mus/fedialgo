@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.69.1
 * Lower log level for missing score message
 
 # v0.69.0
