@@ -1,7 +1,7 @@
 # NEXT RELEASE
-* Add FollowersScorer to weight accounts that follow the fedialgo user
-* Add `config.apibackgroundLoadSleepBetweenRequestsMS` param; sleep that long between requests during background loads
+* Add `FollowersScorer` to weight accounts that follow the fedialgo user
 * Cap initial followed account retrieval before merging toots to timeline at 1,600; beyond that they will be loaded in a background job
+* Add `config.apibackgroundLoadSleepBetweenRequestsMS` param; sleep that long between requests during background loads
 * Fix `OUTLIER_DAMPENER` value in various presets
 * Sort filter options by displayName if available
 
