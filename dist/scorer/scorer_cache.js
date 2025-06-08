@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Note there are many nasty circular dependencies if you try to import stuff into this file.
  */
 const async_mutex_1 = require("async-mutex");
+const time_helpers_1 = require("../helpers/time_helpers");
 const SCORERS_MUTEX = new async_mutex_1.Mutex();
 class ScorerCache {
     // These can score a toot without knowing about the rest of the toots in the feed
@@ -27,7 +28,7 @@ class ScorerCache {
             if (scorersToPrepare.length == 0)
                 return;
             await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready`, startedAt);
+            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
         finally {
             releaseMutex();

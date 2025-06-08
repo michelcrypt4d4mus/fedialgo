@@ -6,6 +6,7 @@ import { Mutex } from "async-mutex";
 
 import FeatureScorer from "./feature_scorer";
 import FeedScorer from "./feed_scorer";
+import { ageString } from "../helpers/time_helpers";
 
 const SCORERS_MUTEX = new Mutex();
 
@@ -33,7 +34,7 @@ export default class ScorerCache {
             const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
             if (scorersToPrepare.length == 0) return;
             await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready`, startedAt);
+            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready ${ageString(startedAt)}`);
         } finally {
             releaseMutex();
         }
