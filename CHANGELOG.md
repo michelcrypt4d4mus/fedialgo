@@ -1,6 +1,8 @@
 # NEXT RELEASE
 * Add `config.apibackgroundLoadSleepBetweenRequestsMS` param; sleep that long between requests during background loads
 * Cap initial followed account retrieval before merging toots to timeline at 1,600; beyond that they will be loaded in a background job
+* Fix `OUTLIER_DAMPENER` value in various presets
+* Sort filter options by displayName if available
 
 ## v0.68.0
 * Update the cache in the background instead of always dropping/reloading the whole thing when it gets stale

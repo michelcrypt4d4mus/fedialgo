@@ -126,7 +126,7 @@ export default class BooleanFilter extends TootFilter {
     // If minToots is set then only return options with a value greater than or equal to minValue
     // along with any 'selectedOptions' entries that are below that threshold.
     optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
-        let options = this.options.objs.toSorted((a, b) => compareStr(a.name, b.name));
+        let options = this.options.objs.toSorted((a, b) => compareStr(a.displayName || a.name, b.displayName || b.name));
         return this.optionListWithMinToots(options, minToots);
     }
 
