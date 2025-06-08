@@ -126,9 +126,10 @@ export default class MastoApi {
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     waitTimes = buildCacheKeyDict(() => new WaitTime()); // Just for measuring performance (poorly)
-    private apiMutexes = buildCacheKeyDict(() => new Mutex());   // Mutexes for blocking singleton requests (e.g. followed accounts)
-    private cacheMutexes = buildCacheKeyDict(() => new Mutex()); // Mutexes for blocking cache requests (e.g. home timeline toots)
-    private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
+
+    private apiMutexes = buildCacheKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
+    private cacheMutexes = buildCacheKeyDict(() => new Mutex()); // For locking checking the cache for an API endpoint
+    private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
 
     static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
         if (MastoApi.#instance) {
@@ -152,11 +153,6 @@ export default class MastoApi {
         this.homeDomain = extractDomain(user.url);
         this.logger = getLogger();
         this.reset();
-
-        // Initialize mutexes for each StorageKey
-        this.apiMutexes = buildCacheKeyDict(() => new Mutex());  // Mutexes for API calls that need to be serialized
-        this.cacheMutexes = buildCacheKeyDict(() => new Mutex()); // Mutexes for cache requests that need to be serialized
-        this.waitTimes = buildCacheKeyDict(() => new WaitTime()); // Wait times for each cache key
     }
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).

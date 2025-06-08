@@ -68,9 +68,9 @@ class MastoApi {
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
     waitTimes = (0, enums_1.buildCacheKeyDict)(() => new log_helpers_1.WaitTime()); // Just for measuring performance (poorly)
-    apiMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // Mutexes for blocking singleton requests (e.g. followed accounts)
-    cacheMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // Mutexes for blocking cache requests (e.g. home timeline toots)
-    requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
+    apiMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking data fetching for an API endpoint
+    cacheMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking checking the cache for an API endpoint
+    requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
     static async init(api, user) {
         if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
@@ -91,10 +91,6 @@ class MastoApi {
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
         this.logger = getLogger();
         this.reset();
-        // Initialize mutexes for each StorageKey
-        this.apiMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // Mutexes for API calls that need to be serialized
-        this.cacheMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // Mutexes for cache requests that need to be serialized
-        this.waitTimes = (0, enums_1.buildCacheKeyDict)(() => new log_helpers_1.WaitTime()); // Wait times for each cache key
     }
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
     // TODO: should there be a mutex? Only called by triggerFeedUpdate() which can only run once at a time
