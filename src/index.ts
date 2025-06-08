@@ -443,6 +443,24 @@ class TheAlgorithm {
         }
     }
 
+    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+    async saveTimelineToCache(): Promise<void> {
+        if (this.isLoading()) return;
+        const logger = this.logger.tempLogger(`saveTimelineToCache`);
+        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
+        if (this.totalNumTimesShown == newTotalNumTimesShown) return;
+
+        try {
+            const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
+            const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
+            logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
+            await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
+            this.totalNumTimesShown = newTotalNumTimesShown;
+        } catch (error) {
+            logger.error(`Error saving toots:`, error);
+        }
+    }
+
     // Return info about the Fedialgo user's home mastodon instance
     async serverInfo(): Promise<mastodon.v2.Instance> {
         return await MastoApi.instance.instanceInfo();
@@ -584,7 +602,7 @@ class TheAlgorithm {
         }
 
         this.cacheUpdater = setInterval(
-            async () => await this.updateTootCache(),
+            async () => await this.saveTimelineToCache(),
             config.toots.saveChangesIntervalSeconds * 1000
         );
     }
@@ -726,24 +744,6 @@ class TheAlgorithm {
             },
             config.api.backgroundLoadIntervalMinutes * SECONDS_IN_MINUTE * 1000
         );
-    }
-
-    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
-    async updateTootCache(): Promise<void> {
-        if (this.isLoading()) return;
-        const logPrefix = arrowed(`updateTootCache()`);
-        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
-        if (this.totalNumTimesShown == newTotalNumTimesShown) return;
-
-        try {
-            const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
-            const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-            this.logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
-            this.totalNumTimesShown = newTotalNumTimesShown;
-        } catch (error) {
-            this.logger.error(`${logPrefix} Error saving toots:`, error);
-        }
     }
 };
 

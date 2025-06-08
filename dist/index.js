@@ -408,6 +408,25 @@ class TheAlgorithm {
             await this.loadCachedData();
         }
     }
+    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+    async saveTimelineToCache() {
+        if (this.isLoading())
+            return;
+        const logger = this.logger.tempLogger(`saveTimelineToCache`);
+        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
+        if (this.totalNumTimesShown == newTotalNumTimesShown)
+            return;
+        try {
+            const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
+            const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
+            logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
+            await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
+            this.totalNumTimesShown = newTotalNumTimesShown;
+        }
+        catch (error) {
+            logger.error(`Error saving toots:`, error);
+        }
+    }
     // Return info about the Fedialgo user's home mastodon instance
     async serverInfo() {
         return await api_1.default.instance.instanceInfo();
@@ -529,7 +548,7 @@ class TheAlgorithm {
             moar_data_poller_1.moarDataLogger.log(`cacheUpdater already exists, not starting another one`);
             return;
         }
-        this.cacheUpdater = setInterval(async () => await this.updateTootCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);
+        this.cacheUpdater = setInterval(async () => await this.saveTimelineToCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
@@ -648,25 +667,6 @@ class TheAlgorithm {
                 this.dataPoller && clearInterval(this.dataPoller);
             }
         }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
-    }
-    // Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
-    async updateTootCache() {
-        if (this.isLoading())
-            return;
-        const logPrefix = (0, string_helpers_1.arrowed)(`updateTootCache()`);
-        const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
-        if (this.totalNumTimesShown == newTotalNumTimesShown)
-            return;
-        try {
-            const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
-            const msg = `${logPrefix} saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-            this.logger.debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
-            this.totalNumTimesShown = newTotalNumTimesShown;
-        }
-        catch (error) {
-            this.logger.error(`${logPrefix} Error saving toots:`, error);
-        }
     }
 }
 ;

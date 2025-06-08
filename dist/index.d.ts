@@ -89,6 +89,7 @@ declare class TheAlgorithm {
     mostRecentHomeTootAgeInSeconds(): number | null;
     refreshMutedAccounts(): Promise<void>;
     reset(complete?: boolean): Promise<void>;
+    saveTimelineToCache(): Promise<void>;
     serverInfo(): Promise<mastodon.v2.Instance>;
     tagUrl(tag: string | MastodonTag): string;
     updateFilters(newFilters: FeedFilterSettings): Toot[];
@@ -111,7 +112,6 @@ declare class TheAlgorithm {
     private setLoadingStateVariables;
     private statusDict;
     private enableMoarDataBackgroundPoller;
-    updateTootCache(): Promise<void>;
 }
 export default TheAlgorithm;
 export { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, ObjWithCountList, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
