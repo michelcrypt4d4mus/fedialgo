@@ -47,7 +47,7 @@ class Config {
         maxSecondsPerPage: 30,
         minutesUntilStaleDefault: 10,
         mutexWarnSeconds: 5,
-        timeoutMS: 5000,
+        timeoutMS: 2500,
         data: {
             [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,

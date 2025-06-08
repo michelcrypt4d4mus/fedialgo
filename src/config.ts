@@ -153,7 +153,7 @@ class Config implements ConfigType {
         maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
-        timeoutMS: 5_000,                       // Timeout for API calls
+        timeoutMS: 2_500,                       // Timeout for API calls
         data: {                                 // See comments on ApiDataConfig for explanations of these values
             [CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,

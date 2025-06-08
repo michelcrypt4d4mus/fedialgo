@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Lower timeoutMS to 2,500
 
 ### v0.69.2
 * Don't log `FollowersScorer` data
