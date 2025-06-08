@@ -649,10 +649,10 @@ class TheAlgorithm {
     private async mergeTootsToFeed(newToots: Toot[], logger: Logger): Promise<void> {
         const startedAt = new Date();
         const numTootsBefore = this.feed.length;
-        this.feed = Toot.dedupeToots([...this.feed, ...newToots], logger);
+        this.feed = Toot.dedupeToots([...this.feed, ...newToots], logger.tempLogger('mergeTootsToFeed'));
         await updateBooleanFilterOptions(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        this.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
+        logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logger.logPrefix);
     }
 

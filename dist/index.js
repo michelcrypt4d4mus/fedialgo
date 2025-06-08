@@ -582,10 +582,10 @@ class TheAlgorithm {
     async mergeTootsToFeed(newToots, logger) {
         const startedAt = new Date();
         const numTootsBefore = this.feed.length;
-        this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logger);
+        this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logger.tempLogger('mergeTootsToFeed'));
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        this.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
+        logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logger.logPrefix);
     }
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.

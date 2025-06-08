@@ -22,7 +22,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         let score = (0, collection_helpers_1.sumArray)(tagScores);
         // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= config_1.config.scoring.excessiveTags) {
-            this.logger.trace(`Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
+            this.logger.deep(`Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
             score *= config_1.config.scoring.excessiveTagsPenalty;
         }
         return score;
