@@ -18,7 +18,7 @@ import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
 import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
-import { isDebugMode } from "./helpers/environment_helpers";
+import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
 import { isNumber, sizeOf } from "./helpers/math_helper";
 import { Logger } from './helpers/logger';
 import {
@@ -276,7 +276,9 @@ export default class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = {updatedAt, value: storableValue} as StorableWithTimestamp;
-        logger.deep(`<set()> Setting value at key: ${storageKey} to value:`, withTimestamp);
+        const hereLogger = logger.tempLogger(storageKey, `set()`);
+        const msg = `Updating cached value`;
+        isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localForage.setItem(storageKey, withTimestamp);
     }
 

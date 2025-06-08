@@ -488,9 +488,6 @@ class MastoApi {
                     logger = logger.tempLogger('backgroundUpdate');
                     this.getApiRecordsOrCache({ ...paramsWithCache, logger }, true);
                 }
-                else {
-                    hereLogger.debug(`Returning ${cacheResult.rows.length} cached rows`);
-                }
                 return cacheResult.rows;
             }
             else {
@@ -679,23 +676,25 @@ class MastoApi {
     // Check that the params passed to the fetch methods are valid and work together
     validateFetchParams(params) {
         let { cacheKey, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        logger = logger.tempLogger('validateFetchParams');
         if (moar && (skipCache || maxId)) {
             logger.warn(`skipCache=true AND moar or maxId set!`);
         }
         if (maxIdForFetch && minIdForFetch) {
-            this.logger.logAndThrowError(`maxIdForFetch and minIdForFetch can't be used at same time!`, params);
+            logger.logAndThrowError(`maxIdForFetch and minIdForFetch can't be used at same time!`, params);
         }
         // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
         if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
             const paramsToLog = (0, collection_helpers_1.removeKeys)(params, PARAMS_TO_NOT_LOG, PARAMS_TO_NOT_LOG_IF_FALSE);
             if (this.shouldReturnCachedRows(params)) {
-                logger.trace(`Returning cached rows w/params:`, paramsToLog);
+                return;
+                // logger.trace(`Returning cached rows w/params:`, paramsToLog);
             }
             else if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
-                logger.debug(`Incremental fetch from API to update stale cache:`, paramsToLog);
+                logger.debug(`Possible incremental fetch from API to update stale cache:`, paramsToLog);
             }
             else {
-                logger.trace(`Fetching new data from API w/params:`, paramsToLog);
+                logger.trace(`Fetching data from API or cache w/params:`, paramsToLog);
             }
         }
     }
