@@ -15,7 +15,11 @@ const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
 const BATCH_MAP = "batchMap()";
-// Add up an arbitrary number of StringNumberDicts, returning a new dict.
+/**
+ * Adds up an arbitrary number of StringNumberDicts, returning a new dict.
+ * @param {...StringNumberDict[]} dicts - Dictionaries to sum.
+ * @returns {StringNumberDict} The summed dictionary.
+ */
 function addDicts(...dicts) {
     const sumDict = {};
     const keys = new Set(dicts.map((dict => Object.keys(dict))).flat());
@@ -26,19 +30,33 @@ function addDicts(...dicts) {
 }
 exports.addDicts = addDicts;
 ;
-// Return a new object with only the key/value pairs that have a value greater than minValue
+/**
+ * Returns a new object with only the key/value pairs that have a value greater than minValue.
+ * @param {StringNumberDict} obj - The input dictionary.
+ * @param {number} minValue - The minimum value to include.
+ * @returns {StringNumberDict} The filtered dictionary.
+ */
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
 }
 exports.atLeastValues = atLeastValues;
 ;
-// Return empty or single element array based on value
+/**
+ * Returns an array containing the value if defined, otherwise an empty array.
+ * @template T
+ * @param {T | undefined | null} value - The value to wrap.
+ * @returns {[T] | []} The optional array.
+ */
 function asOptionalArray(value) {
     return (0, string_helpers_1.isNull)(value) ? [] : [value];
 }
 exports.asOptionalArray = asOptionalArray;
 ;
-// Take the average of an array of numbers. null and undefined are excluded, not treated like zero.
+/**
+ * Calculates the average of an array of numbers, ignoring null/undefined completely.
+ * @param {number[]} values - The array of numbers.
+ * @returns {number} The average, or NaN if the array is empty.
+ */
 function average(values) {
     values = values.filter(math_helper_1.isNumber);
     if (values.length == 0)
@@ -47,13 +65,17 @@ function average(values) {
 }
 exports.average = average;
 ;
-// Process an array async in batches of batchSize. From https://dev.to/woovi/processing-promises-in-batch-2le6
-//    - items: array of items to process
-//    - fxn: function to call for each item
-//    - logPrefix: optional label for logging
-//    - batchSize: number of items to process at once
-//    - sleepBetweenMS: optional number of milliseconds to sleep between batches
-// If fxn returns anything it returns the results of mapping items with fxn().
+/**
+ * Processes an array asynchronously in batches.
+ * @template T
+ * @param {T[]} array - The array to process.
+ * @param {(e: T) => Promise<any>} fxn - The async function to apply.
+ * @param {object} [options] - Batch options.
+ * @param {number} [options.batchSize] - Batch size.
+ * @param {Logger} [options.logger] - Logger instance.
+ * @param {number} [options.sleepBetweenMS] - Sleep between batches in ms.
+ * @returns {Promise<any[]>} The results of mapping items with fxn().
+ */
 async function batchMap(array, fxn, options) {
     let { batchSize, logger, sleepBetweenMS } = (options || {});
     logger = logger ? logger.tempLogger(BATCH_MAP) : new logger_1.Logger(BATCH_MAP);
@@ -75,7 +97,11 @@ async function batchMap(array, fxn, options) {
 }
 exports.batchMap = batchMap;
 ;
-// Check if the elements of 'array' are as unique as they should be
+/**
+ * Checks if the elements of an array have unique IDs and logs a warning if not.
+ * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiCacheKey} label - Label for logging.
+ */
 function checkUniqueIDs(array, label) {
     const logPrefix = `[${label}]`;
     const objsByID = groupBy(array, (e) => e.id);
@@ -86,7 +112,13 @@ function checkUniqueIDs(array, label) {
 }
 exports.checkUniqueIDs = checkUniqueIDs;
 ;
-// Get minimum and maximum values from an array of objects using the given valueFxn to extract the value
+/**
+ * Computes the minimum and maximum values from an array using a value function.
+ * @template T
+ * @param {T[]} array - The array to process.
+ * @param {(value: T) => number | undefined} valueFxn - Function to extract value.
+ * @returns {MinMax | null} The min and max values, or null if array is empty.
+ */
 function computeMinMax(array, valueFxn) {
     if (array.length == 0)
         return null;
@@ -103,7 +135,14 @@ function computeMinMax(array, valueFxn) {
 }
 exports.computeMinMax = computeMinMax;
 ;
-// Return a dict keyed by the result of getKey() with the number of times that result appears in 'items'
+/**
+ * Returns a dictionary keyed by the result of getKey() with the count of each key.
+ * @template T
+ * @param {T[]} items - The items to count.
+ * @param {(item: T) => string | null | undefined} [getKey] - Function to get key.
+ * @param {boolean} [countNulls] - Whether to count null keys.
+ * @returns {StringNumberDict} The counts dictionary.
+ */
 function countValues(items, getKey = (item) => item, countNulls) {
     return items.reduce((counts, item) => {
         const key = getKey(item);
@@ -112,7 +151,12 @@ function countValues(items, getKey = (item) => item, countNulls) {
 }
 exports.countValues = countValues;
 ;
-// Divide the values of dict1 by the values of dict2, returning a new dict.
+/**
+ * Divides the values of dict1 by the values of dict2, returning a new dict.
+ * @param {StringNumberDict} dict1 - Numerator dictionary.
+ * @param {StringNumberDict} dict2 - Denominator dictionary.
+ * @returns {StringNumberDict} The result dictionary.
+ */
 function divideDicts(dict1, dict2) {
     const result = {};
     const logger = new logger_1.Logger("divideDicts()");
@@ -128,7 +172,17 @@ function divideDicts(dict1, dict2) {
     return result;
 }
 exports.divideDicts = divideDicts;
-// Basic collection filter but logs the numebr of elements removed
+;
+/**
+ * Filters an array and logs the number of elements removed.
+ * @template T
+ * @param {T[]} array - The array to filter.
+ * @param {(value: T) => boolean} filterFxn - The filter function.
+ * @param {Logger} logger - Logger instance.
+ * @param {string} reason - Reason for filtering.
+ * @param {string} [objType] - Object type for logging.
+ * @returns {T[]} The filtered array.
+ */
 function filterWithLog(array, filterFxn, logger, reason, // Describe why things were filtered
 objType) {
     const filtered = array.filter(filterFxn);
@@ -137,17 +191,22 @@ objType) {
 }
 exports.filterWithLog = filterWithLog;
 ;
-// Find the minimum 'id' property in an array of objects that have an 'id' property.
-// TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
-// the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
-// If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
-// This is an unfixable server side problem that we used to work around with this:
-//
-// static findMinIdForMaxIdParam(toots: Toot[]): string | null {
-//     if (toots.length == 0) return null;
-//     const idx = Math.min(toots.length - 1, MAX_ID_IDX);
-//     return sortByCreatedAt(toots)[idx].id;
-// }
+/**
+ * Finds the minimum and maximum 'id' property in an array of objects that have an 'id' property.
+ * Find the minimum 'id' property in an array of objects that have an 'id' property.
+ * TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
+ * the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
+ * If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
+ * This is an unfixable server side problem that we used to work around with this:
+ *
+ * static findMinIdForMaxIdParam(toots: Toot[]): string | null {
+ *     if (toots.length == 0) return null;
+ *     const idx = Math.min(toots.length - 1, MAX_ID_IDX);
+ *     return sortByCreatedAt(toots)[idx].id;
+ * }
+ * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @returns {MinMaxID | null} The min and max IDs, or null if invalid.
+ */
 function findMinMaxId(array) {
     if (!array?.length) {
         console.warn(`[findMinMaxId()] called with 0 length array:`, array);
@@ -177,7 +236,12 @@ function findMinMaxId(array) {
 }
 exports.findMinMaxId = findMinMaxId;
 ;
-// Collate the fulfilled and rejected results given by Promise.allSettled() into an easier to handle format
+/**
+ * Collates the fulfilled and rejected results from Promise.allSettled() into an easier to handle format.
+ * @template T
+ * @param {Promise<T>[]} promises - Array of promises.
+ * @returns {Promise<PromisesResults<T>>} The results object.
+ */
 async function getPromiseResults(promises) {
     const results = await Promise.allSettled(promises);
     return {
@@ -187,7 +251,14 @@ async function getPromiseResults(promises) {
 }
 exports.getPromiseResults = getPromiseResults;
 ;
-// TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
+/**
+ * Groups an array by the result of makeKey().
+ * TODO: Standard library Object.groupBy() requires some tsconfig setting that i don't understand
+ * @template T
+ * @param {T[]} array - The array to group.
+ * @param {(item: T) => string} makeKey - Function to get group key.
+ * @returns {Record<string, T[]>} The grouped object.
+ */
 function groupBy(array, makeKey) {
     return array.reduce((grouped, item) => {
         const group = makeKey(item);
@@ -198,7 +269,13 @@ function groupBy(array, makeKey) {
 }
 exports.groupBy = groupBy;
 ;
-// Add 1 to the number at counts[key], or set it to 1 if it doesn't exist
+/**
+ * Increments the count for a key in a dictionary by 'increment'.
+ * @param {StringNumberDict} counts - The counts dictionary.
+ * @param {CountKey | null} [k] - The key to increment.
+ * @param {number} [increment=1] - The increment amount.
+ * @returns {StringNumberDict} The updated dictionary.
+ */
 function incrementCount(counts, k, increment = 1) {
     k = k ?? "unknown";
     counts[k] = (counts[k] || 0) + increment;
@@ -206,32 +283,57 @@ function incrementCount(counts, k, increment = 1) {
 }
 exports.incrementCount = incrementCount;
 ;
+/**
+ * Return true if the object is a non-null object (not an array, function, etc.).
+ * @param {unknown} obj - The object to check.
+ * @returns {boolean} True if it's a non-null object
+ */
+function isRecord(obj) {
+    return typeof obj === "object" && obj !== null && obj.constructor.name === "Object";
+}
+;
+/**
+ * Decrements the count for a key in a dictionary.
+ * @param {StringNumberDict} counts - The counts dictionary.
+ * @param {CountKey | null} [k] - The key to decrement.
+ * @param {number} [increment=1] - The decrement amount.
+ * @returns {StringNumberDict} The updated dictionary.
+ */
 function decrementCount(counts, k, increment = 1) {
     return incrementCount(counts, k, -1 * increment);
 }
 exports.decrementCount = decrementCount;
 ;
-// Mastodon does not support top posts from foreign servers, so we have to do it manually
-function isRecord(x) {
-    return typeof x === "object" && x !== null && x.constructor.name === "Object";
-}
-;
-{ /* Mapping enums is annoying. See: https://www.typescriptlang.org/play/?ts=5.0.4#code/KYDwDg9gTgLgBMAdgVwLZwDIENEHNla7ADOAongDYCWxAFnAN4BQccA5EgKoDKbcAvO3K5qdNgBoW7AF60AEjhh9BbALI4AJlihVE4uABUoWDVRhUIiLBQlMAvkyYwAnmGBwwVAMYBrYFAB5MHNLAUYpLwgNYAAuOD9nCAAzOBc3ZMwcfEISYVFaAG4pCiwAI2AKOOw8AiIyShpC+yKmJORELxDEOCJEfywYYCCugAoEuISMtOAM6uy6vMaASjjPX39hi27mVihgGGQobalWSOiJ4GdJVlYS8srMmpz6kUaAbQSAXWu4OyKHJiRRDEeAQYJbYhhEZSAKlABWwE6ADoEsQRnNarkGnQlnAsJCxpcpq4ZikMc9Fji3p8mEskagsGARr1+oNNpYlkUgA */ }
-// Generate a fxn to check if a string is in an enum.
-// From https://stackoverflow.com/questions/72050271/check-if-value-exists-in-string-enum-in-typescript
+/**
+ * Generate a function to check if a value exists in a string enum.
+ * @template E
+ * @param {Record<string, E>} strEnum - The enum object.
+ * @returns {(value: string) => value is E} The checker function.
+ */
 function isValueInStringEnum(strEnum) {
     const enumValues = new Set(Object.values(strEnum));
     return (value) => enumValues.has(value);
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
-// Create a dict from obj.id => obj
+/**
+ * Builds a dictionary from an array keyed by id.
+ * @template T
+ * @param {T[]} array - Array of objects with id property.
+ * @returns {Record<string, T>} The keyed dictionary.
+ */
 function keyById(array) {
     return keyByProperty(array, obj => obj.id);
 }
 exports.keyById = keyById;
 ;
-// Build a dictionary from the result of keyFxn() for each object in the array
+/**
+ * Builds a dictionary from an array keyed by a property.
+ * @template T
+ * @param {T[]} array - Array of objects.
+ * @param {(value: T) => string} keyFxn - Function to get key.
+ * @returns {Record<string, T>} The keyed dictionary.
+ */
 function keyByProperty(array, keyFxn) {
     return array.reduce((keyedDict, obj) => {
         keyedDict[keyFxn(obj)] = obj;
@@ -240,7 +342,16 @@ function keyByProperty(array, keyFxn) {
 }
 exports.keyByProperty = keyByProperty;
 ;
-// Split the array into numChunks OR n chunks of size chunkSize
+/**
+ * Splits an array into chunks of a given size or number of chunks.
+ * @template T
+ * @param {T[]} array - The array to chunk.
+ * @param {object} options - Chunk options.
+ * @param {number} [options.chunkSize] - Size of each chunk.
+ * @param {Logger} [options.logger] - Logger instance.
+ * @param {number} [options.numChunks] - Number of chunks.
+ * @returns {T[][]} The array of chunks.
+ */
 function makeChunks(array, options) {
     let { chunkSize, logger, numChunks } = options;
     if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
@@ -251,14 +362,27 @@ function makeChunks(array, options) {
 }
 exports.makeChunks = makeChunks;
 ;
-// Sort array by fxn() value & divide into numPercentiles sections
+/**
+ * Sorts an array by a function and divides into numPercentile chunks.
+ * @template T
+ * @param {T[]} array - The array to sort and chunk.
+ * @param {(element: T) => number | undefined} fxn - Function to get value.
+ * @param {number} numPercentiles - Number of percentiles.
+ * @returns {T[][]} The percentile chunks.
+ */
 function makePercentileChunks(array, fxn, numPercentiles) {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
     return makeChunks(sortedArray, { numChunks: numPercentiles });
 }
 exports.makePercentileChunks = makePercentileChunks;
 ;
-// Simple wrapper around Array.reduce() that returns a StringNumberDict
+/**
+ * Reduces an array to a StringNumberDict using an update function.
+ * @template T
+ * @param {T[]} objs - The array to reduce.
+ * @param {(accumulator: StringNumberDict, obj: T) => void} updateCounts - Update function.
+ * @returns {StringNumberDict} The reduced dictionary.
+ */
 function reduceToCounts(objs, updateCounts) {
     return objs.reduce((counts, obj) => {
         updateCounts(counts, obj);
@@ -267,7 +391,15 @@ function reduceToCounts(objs, updateCounts) {
 }
 exports.reduceToCounts = reduceToCounts;
 ;
-// Remove keys whose value is null or are in the keysToRemove array.
+/**
+ * Removes keys from an object if their value is null or in keysToRemove array.
+ * @template T
+ * @template K
+ * @param {T} obj - The object to clean.
+ * @param {K[]} [keysToRemove] - Keys to remove.
+ * @param {K[]} [keysToRemoveIfFalse] - Keys to remove if value is false.
+ * @returns {Partial<T>} The cleaned object.
+ */
 function removeKeys(obj, keysToRemove, keysToRemoveIfFalse) {
     const copy = { ...obj };
     Object.keys(copy).forEach((k) => {
@@ -283,14 +415,23 @@ function removeKeys(obj, keysToRemove, keysToRemoveIfFalse) {
 }
 exports.removeKeys = removeKeys;
 ;
-// Randomize the order of an array
+/**
+ * Randomizes the order of an array.
+ * @template T
+ * @param {T[]} array - The array to shuffle.
+ * @returns {T[]} The shuffled array.
+ */
 function shuffle(array) {
     const sortRandom = (a, b) => (0, string_helpers_1.hashObject)(a).localeCompare((0, string_helpers_1.hashObject)(b));
     return array.toSorted(sortRandom);
 }
 exports.shuffle = shuffle;
 ;
-// Sort the keys of a dict by their values in descending order
+/**
+ * Sorts the keys of a dictionary by their values in descending order.
+ * @param {StringNumberDict} dict - The dictionary to sort.
+ * @returns {string[]} The sorted keys.
+ */
 function sortKeysByValue(dict) {
     return Object.keys(dict).sort((a, b) => {
         const aVal = dict[a] || 0;
@@ -305,8 +446,15 @@ function sortKeysByValue(dict) {
 }
 exports.sortKeysByValue = sortKeysByValue;
 ;
-// Sort an array of objects by given property (or properties - extra props are used as tiebreakers).
-// If ascending is true, sort in ascending order (low to high), otherwise high to low.
+/**
+ * Sorts an array of objects by one or two properties.
+ * @template T
+ * @param {T[]} array - The array to sort.
+ * @param {keyof T | (keyof T)[]} prop - Property or properties to sort by.
+ * @param {boolean | boolean[]} [ascending] - Sort order(s).
+ * @param {boolean} [ignoreCase] - Ignore case for string properties.
+ * @returns {T[]} The sorted array.
+ */
 function sortObjsByProps(array, prop, ascending, ignoreCase) {
     ascending ||= false;
     const props = Array.isArray(prop) ? prop : [prop];
@@ -344,14 +492,24 @@ function sortObjsByProps(array, prop, ascending, ignoreCase) {
 }
 exports.sortObjsByProps = sortObjsByProps;
 ;
-// Sort an array of objects by the createdAt property
+/**
+ * Sorts an array of objects by the createdAt property.
+ * @template T
+ * @param {T[]} array - The array to sort.
+ * @returns {T[]} The sorted array.
+ */
 function sortObjsByCreatedAt(array) {
     return sortObjsByProps(arguments[0], "createdAt");
 }
 exports.sortObjsByCreatedAt = sortObjsByCreatedAt;
 ;
-// Return a two element array of arrays, the first of which contains all elements that match
-// the condition and the second contains all elements that do not match.
+/**
+ * Splits an array into two arrays based on a condition.
+ * @template T
+ * @param {T[]} array - The array to split.
+ * @param {(element: T) => boolean} condition - The condition function.
+ * @returns {[T[], T[]]} The two arrays.
+ */
 function split(array, condition) {
     return [
         array.filter((element) => condition(element)),
@@ -360,32 +518,56 @@ function split(array, condition) {
 }
 exports.split = split;
 ;
-// Subtract a constant from all values in a dict
+/**
+ * Subtracts a constant from all values in a dictionary.
+ * @param {StringNumberDict} dict - The dictionary.
+ * @param {number} constant - The constant to subtract.
+ * @returns {StringNumberDict} The updated dictionary.
+ */
 function subtractConstant(dict, constant) {
     return Object.fromEntries(Object.entries(dict).map(([k, v]) => [k, v - constant]));
 }
 exports.subtractConstant = subtractConstant;
 ;
-// Sum the elements of an array
+/**
+ * Sums the elements of an array, treating null/undefined as 0.
+ * @param {(number | null | undefined)[]} arr - The array to sum.
+ * @returns {number} The sum.
+ */
 function sumArray(arr) {
     const numArray = arr.map((x) => (x ?? 0));
     return numArray.reduce((a, b) => a + b, 0);
 }
 exports.sumArray = sumArray;
 ;
-// Sum the values of a dict
+/**
+ * Sums the values of a dictionary.
+ * @param {StringNumberDict | Weights} obj - The dictionary.
+ * @returns {number} The sum.
+ */
 function sumValues(obj) {
     return sumArray(Object.values(obj));
 }
 exports.sumValues = sumValues;
 ;
-// Turn values into keys and keys into values.
+/**
+ * Swaps the keys and values of a dictionary.
+ * @template T
+ * @param {T} dict - The dictionary.
+ * @returns {StringDict} The swapped dictionary.
+ */
 function swapKeysAndValues(dict) {
     return Object.fromEntries(Object.entries(dict).map(entry => entry.toReversed()));
 }
 exports.swapKeysAndValues = swapKeysAndValues;
 ;
-// Apply a transform() function to all keys in a nested object.
+/**
+ * Recursively applies a transform function to all keys in a nested object.
+ * @template T
+ * @param {T} data - The data to transform.
+ * @param {(key: string) => string} transform - The transform function.
+ * @returns {T} The transformed data.
+ */
 function transformKeys(data, transform) {
     if (Array.isArray(data)) {
         return data.map((value) => transformKeys(value, transform));
@@ -400,7 +582,13 @@ function transformKeys(data, transform) {
 }
 exports.transformKeys = transformKeys;
 ;
-// Find the configured value at configKey and truncate array to that length
+/**
+ * Truncates an array to a maximum length, logging if truncated.
+ * @param {any[]} array - The array to truncate.
+ * @param {number} maxRecords - The maximum length.
+ * @param {Logger} [logger] - Logger instance.
+ * @returns {any[]} The truncated array.
+ */
 function truncateToConfiguredLength(array, maxRecords, logger) {
     if (array.length <= maxRecords)
         return array;
@@ -412,7 +600,11 @@ function truncateToConfiguredLength(array, maxRecords, logger) {
 }
 exports.truncateToConfiguredLength = truncateToConfiguredLength;
 ;
-// Return a new array with only unique non null values
+/**
+ * Returns a new array with only unique, non-null string values.
+ * @param {(string | undefined)[]} array - The array to uniquify.
+ * @returns {string[] | undefined} The unique array or undefined if empty.
+ */
 const uniquify = (array) => {
     if (array.length == 0)
         return undefined;
@@ -421,7 +613,14 @@ const uniquify = (array) => {
     return newArray;
 };
 exports.uniquify = uniquify;
-// Remove elements of an array if they have duplicate values for the given transform function
+/**
+ * Removes elements of an array with duplicate values for a given property.
+ * @template T
+ * @param {T[]} rows - The array to uniquify.
+ * @param {(obj: T) => string} transform - Function to get property.
+ * @param {string} [logPrefix] - Log prefix.
+ * @returns {T[]} The uniquified array.
+ */
 function uniquifyByProp(rows, transform, logPrefix) {
     const logger = new logger_1.Logger(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
@@ -432,14 +631,27 @@ function uniquifyByProp(rows, transform, logPrefix) {
 }
 exports.uniquifyByProp = uniquifyByProp;
 ;
-// [ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 }
+/**
+ * Zips two arrays into a dictionary ([ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 })
+ * @template T
+ * @param {string[]} array1 - Keys array.
+ * @param {T[]} array2 - Values array.
+ * @returns {Record<string, T>} The zipped dictionary.
+ */
 function zipArrays(array1, array2) {
     return Object.fromEntries(array1.map((e, i) => [e, array2[i]]));
 }
 exports.zipArrays = zipArrays;
 ;
-// Run a list of promises in parallel and return a dict of the results keyed by the input
-// Raises error on isAccessTokenRevokedError(), otherwise just logs a warning and moves on
+/**
+ * Runs a list of promises in parallel and returns a dict of results keyed by input.
+ * Raises error on isAccessTokenRevokedError(), otherwise just logs a warning and moves on
+ * @template T
+ * @param {string[]} args - The keys.
+ * @param {(s: string) => Promise<T>} promiser - The promise function.
+ * @param {Logger} [logger] - Logger instance.
+ * @returns {Promise<Record<string, T>>} The results dictionary.
+ */
 async function zipPromises(args, promiser, logger) {
     const allResults = zipArrays(args, await Promise.allSettled(args.map(promiser)));
     logger ||= new logger_1.Logger(`zipPromises`);
