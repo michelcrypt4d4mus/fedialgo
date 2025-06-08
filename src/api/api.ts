@@ -571,22 +571,22 @@ export default class MastoApi {
     private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         let { cacheKey, cacheResult, logger, skipMutex } = paramsWithCache;
-        const thisLogger = logger.tempLogger('getFromCacheWithRefresh');
-        // Lock cacheMutex before checking the cache
-        const releaseMutex = skipMutex ? null : await lockExecution(this.cacheMutexes[cacheKey], thisLogger);
+        const hereLogger = logger.tempLogger('getFromCacheWithRefresh');
+        const releaseMutex = skipMutex ? null : await lockExecution(this.cacheMutexes[cacheKey], hereLogger);
 
         try {
             // TODO: maybe check that there's more than 0 rows in the cache before returning them?
             if (cacheResult) {
-                if (cacheResult?.isStale) {
-                    thisLogger.debug(`Cache is stale, triggering background update...`);
-                    this.getApiRecordsOrCache<T>({...paramsWithCache, logger: logger.tempLogger('backgroundUpdate')}, true);
+                if (cacheResult.isStale) {
+                    hereLogger.debug(`Stale cache, returning ${cacheResult.rows.length} but triggering background update`);
+                    logger = logger.tempLogger('backgroundUpdate')
+                    this.getApiRecordsOrCache<T>({ ...paramsWithCache, logger }, true);
                 }
 
-                thisLogger.debug(`Returning ${cacheResult.rows.length} cached rows`);
+                hereLogger.debug(`Returning ${cacheResult.rows.length} cached rows`);
                 return cacheResult.rows;
             } else {
-                thisLogger.debug(`No cached rows found, fetching from API...`);
+                hereLogger.debug(`No cached rows found, fetching from API...`);
                 return await this.getApiRecordsOrCache<T>(paramsWithCache);
             }
         } finally {
@@ -599,30 +599,33 @@ export default class MastoApi {
         params: FetchParamsWithCacheData<T>
     ): Promise<MastodonApiObject[]> {
         const { breakIf, cacheKey, fetch, logger, maxRecords } = params;
-        this.waitTimes[cacheKey].markStart();  // Telemetry stuff that should be removed eventually
+        const waitTime = this.waitTimes[cacheKey];
+        waitTime.markStart();  // Telemetry
         let newRows: T[] = [];
         let pageNumber = 0;
 
         try {
             for await (const page of fetch(this.buildParams(params))) {
-                this.waitTimes[cacheKey].markEnd(); // telemetry
+                waitTime.markEnd(); // telemetry
                 newRows = newRows.concat(page as T[]);
                 pageNumber += 1;
-                const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;  // breakIf() must be called before we check the length of rows!
-                const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey].ageString()}`;
-                const requestSeconds = this.waitTimes[cacheKey].ageInSeconds();
+
+                // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
+                const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
+                let resultsMsg = `${page.length} in page ${pageNumber}, ${newRows.length} records so far`;
+                resultsMsg += ` ${waitTime.ageString()}`;
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
-                    logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
+                    logger.debug(`Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`);
                     break;
-                } else if (requestSeconds > config.api.maxSecondsPerPage) {
-                    throw new Error(`Stopped fetch at page ${pageNumber}, ${recordsSoFar}. Took too long (${requestSeconds}s)`);
+                } else if (waitTime.ageInSeconds() > config.api.maxSecondsPerPage) {
+                    throw new Error(`${logger.logPrefix} Took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`);
                 } else {
-                    const msg = `Retrieved page ${pageNumber} (${recordsSoFar})`;
+                    const msg = `Retrieved ${resultsMsg}`;
                     (pageNumber % 5 == 0) ? logger.debug(msg) : logger.trace(msg);
                 }
 
-                this.waitTimes[cacheKey].markStart();  // Reset timer for next page
+                waitTime.markStart();  // Reset timer for next page
             }
 
             return newRows;
