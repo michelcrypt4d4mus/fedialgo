@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.68.0
 * Update the cache in the background instead of always dropping/reloading the whole thing when it gets stale
 * Add `getFollowers()` to `MastoApi`; add configuration variable `config.api.pullFollowers` to turn on/off follower retrieval
 * Don't wait for scorers to finish preparing before integrating toots into the timeline
