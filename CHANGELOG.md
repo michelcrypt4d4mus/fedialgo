@@ -1,8 +1,11 @@
 # NEXT RELEASE
-* Set FEDIVERSE_POPULAR_SERVERS staleness to 72 hours
+
+### v0.69.4
+* Set `FEDIVERSE_POPULAR_SERVERS` staleness to 72 hours
+* (Demo App) Reverse the order of color highlighting for tag filters so trending tags are always colored first
 
 ### v0.69.3
-* Lower timeoutMS to 2,500
+* Lower `timeoutMS` to 2,500
 
 ### v0.69.2
 * Don't log `FollowersScorer` data
