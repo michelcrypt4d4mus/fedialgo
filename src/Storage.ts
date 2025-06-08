@@ -59,9 +59,9 @@ export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
 ).concat(Object.values(TagTootsCacheKey));
 
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
-    (keys, [k, v]) => k == CacheKey.FOLLOWERS || k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys,
+    (keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
     [] as StorageKey[]
-);;
+);
 
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
 export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [

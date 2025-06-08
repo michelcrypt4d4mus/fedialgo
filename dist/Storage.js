@@ -56,8 +56,7 @@ localforage_1.default.config({
 ;
 ;
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []).concat(Object.values(enums_1.TagTootsCacheKey));
-exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k == enums_1.CacheKey.FOLLOWERS || k.endsWith('_ACCOUNTS') ? keys.concat(v) : keys, []);
-;
+exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
 // Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
 exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,

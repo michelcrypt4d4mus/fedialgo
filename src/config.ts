@@ -59,7 +59,6 @@ interface ApiConfig {
     maxSecondsPerPage: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
-    pullFollowers: boolean;
     timeoutMS: number;
 };
 
@@ -154,7 +153,6 @@ class Config implements ConfigType {
         maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
-        pullFollowers: false,                   // If true, pull followers on initial load
         timeoutMS: 5_000,                       // Timeout for API calls
         data: {                                 // See comments on ApiDataConfig for explanations of these values
             [CacheKey.BLOCKED_ACCOUNTS]: {
@@ -525,7 +523,6 @@ if (isDebugMode) {
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;
     config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2_500;
-    config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;
 };

@@ -698,17 +698,14 @@ export default class MastoApi {
     }
 
     // Get maxRecords, and if that's not more than minRecords launch a background fetch
+    // params must include a fetchGenerator() that returns an API iterator
     private async getWithBackgroundFetch<T extends MastodonApiObject>(
         params: BackgroundFetchparams<T>
     ): Promise<T[]> {
         const { minRecords } = params;
-        const logger = loggerForParams(params);
-        logger.trace(`getWithBackgroundFetch() called with minRecords=${minRecords}`);
-
-        if (!params.fetchGenerator) {
-            logger.logAndThrowError(`getWithBackgroundFetch() needs fetchGenerator!`, params);
-        }
-
+        const logger = loggerForParams(params).tempLogger('getWithBackgroundFetch');
+        if (!params.fetchGenerator) logger.logAndThrowError(`Missing fetchGenerator!`, params);
+        logger.trace(`Called with minRecords ${minRecords}`);
         const objs = await this.getApiObjsAndUpdate<T>(params) as T[];
 
         if (objs.length < minRecords) {
@@ -717,6 +714,8 @@ export default class MastoApi {
             // TODO: can't import the ScorerCache here because it would create a circular dependency
             this.getApiObjsAndUpdate<T>({...FULL_HISTORY_PARAMS, ...params, isBackgroundFetch: true})
                 // .then(() => ScorerCache.prepareScorers(true))  // Force ScorerCache to update
+        } else {
+            logger.trace(`Have enough rows (have ${objs.length}, want ${minRecords}), doing nothing`);
         }
 
         return objs;

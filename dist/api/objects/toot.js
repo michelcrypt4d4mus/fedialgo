@@ -27,6 +27,7 @@ const time_helpers_1 = require("../../helpers/time_helpers");
 const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
+const math_helper_1 = require("../../helpers/math_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
 const logger_1 = require("../../helpers/logger");
 const enums_1 = require("../../enums");
@@ -296,7 +297,7 @@ class Toot {
         return toots;
     }
     getIndividualScore(scoreType, name) {
-        if (this.scoreInfo?.scores) {
+        if ((0, math_helper_1.isNumber)(this.scoreInfo?.scores?.[name]?.[scoreType])) {
             return this.scoreInfo.scores[name][scoreType];
         }
         else {

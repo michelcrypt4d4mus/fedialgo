@@ -10,6 +10,7 @@ import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
+import { Logger } from "../../helpers/logger";
 import { type AccountLike, type AccountNames, type BooleanFilterOption,type StringNumberDict } from "../../types";
 
 const NBSP_REGEX = /&nbsp;/g;
@@ -18,6 +19,8 @@ const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month
 
 // TODO: isFollowed doesn't belong here...
 type AccountCount = Record<string, {account: Account, count: number, isFollowed?: boolean}>;
+
+const logger = new Logger("Account");
 
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
@@ -188,6 +191,13 @@ export default class Account implements AccountObj {
     static countAccounts(accounts: Account[]): StringNumberDict {
         return Object.values(this.countAccountsWithObj(accounts)).reduce(
             (counts, accountWithCount) => {
+                if (!accountWithCount.account.webfingerURI) {
+                    const account = Account.build(accountWithCount.account);
+                    const webfingerURI = account.buildWebfingerURI();
+                    logger.warn(`countAccounts() - Account has no webfingerURI, setting to ${webfingerURI}`);
+                    accountWithCount.account.webfingerURI = webfingerURI;
+                }
+
                 counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
                 return counts;
             },

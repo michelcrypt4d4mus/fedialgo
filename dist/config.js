@@ -47,7 +47,6 @@ class Config {
         maxSecondsPerPage: 30,
         minutesUntilStaleDefault: 10,
         mutexWarnSeconds: 5,
-        pullFollowers: false,
         timeoutMS: 5000,
         data: {
             [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
@@ -405,7 +404,6 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 5;
     config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2500;
-    config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;
 }

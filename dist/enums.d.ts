@@ -44,6 +44,7 @@ export declare enum ScoreName {
     FAVOURITED_TAGS = "FavouritedTags",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
+    FOLLOWERS = "Followers",
     IMAGE_ATTACHMENTS = "ImageAttachments",
     INTERACTIONS = "Interactions",
     MENTIONS_FOLLOWED = "MentionsFollowed",

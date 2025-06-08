@@ -72,7 +72,7 @@ var ScoreName;
     ScoreName["FAVOURITED_TAGS"] = "FavouritedTags";
     ScoreName["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     ScoreName["FOLLOWED_TAGS"] = "FollowedTags";
-    // FOLLOWERS = 'Followers',
+    ScoreName["FOLLOWERS"] = "Followers";
     ScoreName["IMAGE_ATTACHMENTS"] = "ImageAttachments";
     ScoreName["INTERACTIONS"] = "Interactions";
     ScoreName["MENTIONS_FOLLOWED"] = "MentionsFollowed";

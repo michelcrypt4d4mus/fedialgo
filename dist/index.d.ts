@@ -9,6 +9,7 @@ import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
 import FollowedAccountsScorer from './scorer/feature/followed_accounts_scorer';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
+import FollowersScorer from './scorer/feature/followers_scorer';
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
@@ -70,7 +71,7 @@ declare class TheAlgorithm {
     private dataPoller?;
     private featureScorers;
     private feedScorers;
-    weightedScorers: (AlreadyShownScorer | AuthorFollowersScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedAccountsScorer | FollowedTagsScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
+    weightedScorers: (AlreadyShownScorer | AuthorFollowersScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedAccountsScorer | FollowedTagsScorer | FollowersScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
     weightInfo: WeightInfoDict;
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     private constructor();

@@ -22,9 +22,11 @@ const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const config_1 = require("../../config");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+const logger_1 = require("../../helpers/logger");
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT = { year: "numeric", month: "short", day: "numeric" };
+const logger = new logger_1.Logger("Account");
 ;
 class Account {
     id;
@@ -168,6 +170,12 @@ class Account {
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
     static countAccounts(accounts) {
         return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
+            if (!accountWithCount.account.webfingerURI) {
+                const account = Account.build(accountWithCount.account);
+                const webfingerURI = account.buildWebfingerURI();
+                logger.warn(`countAccounts() - Account has no webfingerURI, setting to ${webfingerURI}`);
+                accountWithCount.account.webfingerURI = webfingerURI;
+            }
             counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
             return counts;
         }, {});

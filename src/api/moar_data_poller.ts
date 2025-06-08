@@ -36,12 +36,6 @@ export async function getMoarData(): Promise<boolean> {
         MastoApi.instance.getRecentUserToots.bind(MastoApi.instance),
     ];
 
-    // if (config.api.pullFollowers) {
-    //     pollers = pollers.concat([
-    //         MastoApi.instance.getFollowers.bind(MastoApi.instance),
-    //     ]);
-    // }
-
     try {
         // Call without moar boolean to check how big the cache is
         let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));

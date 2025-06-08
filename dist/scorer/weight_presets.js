@@ -33,6 +33,7 @@ exports.DEFAULT_WEIGHTS = {
     [enums_1.ScoreName.FAVOURITED_TAGS]: 0.1,
     [enums_1.ScoreName.FOLLOWED_ACCOUNTS]: 1.5,
     [enums_1.ScoreName.FOLLOWED_TAGS]: 4.0,
+    [enums_1.ScoreName.FOLLOWERS]: 0.1,
     [enums_1.ScoreName.IMAGE_ATTACHMENTS]: 0,
     [enums_1.ScoreName.INTERACTIONS]: 1.0,
     [enums_1.ScoreName.MENTIONS_FOLLOWED]: 2.0,

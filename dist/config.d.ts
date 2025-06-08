@@ -31,7 +31,6 @@ interface ApiConfig {
     maxSecondsPerPage: number;
     minutesUntilStaleDefault: number;
     mutexWarnSeconds: number;
-    pullFollowers: boolean;
     timeoutMS: number;
 }
 type FediverseConfig = {
@@ -111,7 +110,6 @@ declare class Config implements ConfigType {
         maxSecondsPerPage: number;
         minutesUntilStaleDefault: number;
         mutexWarnSeconds: number;
-        pullFollowers: boolean;
         timeoutMS: number;
         data: ApiDataConfig;
     };

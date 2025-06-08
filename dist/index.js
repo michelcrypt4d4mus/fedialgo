@@ -43,6 +43,7 @@ const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity
 const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
 const followed_accounts_scorer_1 = __importDefault(require("./scorer/feature/followed_accounts_scorer"));
 const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
+const followers_scorer_1 = __importDefault(require("./scorer/feature/followers_scorer"));
 const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
@@ -158,6 +159,7 @@ class TheAlgorithm {
         new favourited_tags_scorer_1.default(),
         new followed_accounts_scorer_1.default(),
         new followed_tags_scorer_1.default(),
+        new followers_scorer_1.default(),
         new hashtag_participation_scorer_1.default(),
         new image_attachment_scorer_1.default(),
         new interactions_scorer_1.default(),
@@ -242,9 +244,6 @@ class TheAlgorithm {
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
-        if (config_1.config.api.pullFollowers) {
-            api_1.default.instance.getFollowers();
-        }
         await this.finishFeedUpdate();
     }
     // Trigger the loading of additional toots, farther back on the home timeline
@@ -293,7 +292,6 @@ class TheAlgorithm {
         try {
             const _allResults = await Promise.all([
                 api_1.default.instance.getFavouritedToots(api_1.FULL_HISTORY_PARAMS),
-                api_1.default.instance.getFollowers(api_1.FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
                 api_1.default.instance.getRecentUserToots(api_1.FULL_HISTORY_PARAMS),
@@ -593,7 +591,7 @@ class TheAlgorithm {
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     async scoreAndFilterFeed() {
-        await scorer_cache_1.default.prepareScorers();
+        // await ScorerCache.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, this.logger.tempLogger('scoreAndFilterFeed()'));
         await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);

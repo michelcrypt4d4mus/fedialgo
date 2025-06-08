@@ -10,12 +10,12 @@ import Account from "./account";
 import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
-import TagList from "../tag_list";
 import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
+import { isNumber } from "../../helpers/math_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
@@ -408,8 +408,8 @@ export default class Toot implements TootObj {
     }
 
     getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number {
-        if (this.scoreInfo?.scores) {
-            return this.scoreInfo.scores[name][scoreType];
+        if (isNumber(this.scoreInfo?.scores?.[name]?.[scoreType])) {
+            return this.scoreInfo!.scores[name][scoreType];
         } else {
             tootLogger.warn(`<getIndividualScore()> called on toot but no scoreInfo.scores:`, this);
             return 0;

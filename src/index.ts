@@ -15,6 +15,7 @@ import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
 import FollowedAccountsScorer from './scorer/feature/followed_accounts_scorer';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
+import FollowersScorer from './scorer/feature/followers_scorer';
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
@@ -154,6 +155,7 @@ class TheAlgorithm {
         new FavouritedTagsScorer(),
         new FollowedAccountsScorer(),
         new FollowedTagsScorer(),
+        new FollowersScorer(),
         new HashtagParticipationScorer(),
         new ImageAttachmentScorer(),
         new InteractionsScorer(),
@@ -255,11 +257,6 @@ class TheAlgorithm {
         // and the load could still be going, but then how do we mark the load as finished?
         const allResults = await Promise.all(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
-
-        if (config.api.pullFollowers) {
-            MastoApi.instance.getFollowers();
-        }
-
         await this.finishFeedUpdate();
     }
 
@@ -311,7 +308,6 @@ class TheAlgorithm {
         try {
             const _allResults = await Promise.all([
                 MastoApi.instance.getFavouritedToots(FULL_HISTORY_PARAMS),
-                MastoApi.instance.getFollowers(FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
                 MastoApi.instance.getRecentUserToots(FULL_HISTORY_PARAMS),
@@ -662,7 +658,7 @@ class TheAlgorithm {
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
-        await ScorerCache.prepareScorers();
+        // await ScorerCache.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, true);
 
         this.feed = truncateToConfiguredLength(
