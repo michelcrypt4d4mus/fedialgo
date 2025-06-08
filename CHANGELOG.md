@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Set FEDIVERSE_POPULAR_SERVERS staleness to 72 hours
 
 ### v0.69.3
 * Lower timeoutMS to 2,500

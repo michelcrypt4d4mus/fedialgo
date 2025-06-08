@@ -40,14 +40,15 @@ export function addDicts(...dicts: StringNumberDict[]): StringNumberDict {
 };
 
 
-// Return empty or single element array based on value
-export function asOptionalArray<T>(value: T | undefined | null): [T] | [] {
-    return isNull(value) ? [] : [value as T];
-}
-
 // Return a new object with only the key/value pairs that have a value greater than minValue
 export function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
+};
+
+
+// Return empty or single element array based on value
+export function asOptionalArray<T>(value: T | undefined | null): [T] | [] {
+    return isNull(value) ? [] : [value as T];
 };
 
 

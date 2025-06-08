@@ -14,16 +14,10 @@ import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, FEDIVERSE_CACHE_KEYS } from "../config";
+import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { TrendingType, buildCacheKeyDict } from '../enums';
-import {
-    countValues,
-    shuffle,
-    sortKeysByValue,
-    transformKeys,
-    zipPromises
-} from "../helpers/collection_helpers";
 import {
     decorateLinkHistory,
     decorateTagHistory,

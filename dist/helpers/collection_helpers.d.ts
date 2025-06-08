@@ -2,8 +2,8 @@ import { Logger } from './logger';
 import { type ApiCacheKey } from '../enums';
 import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromisesResults, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 export declare function addDicts(...dicts: StringNumberDict[]): StringNumberDict;
-export declare function asOptionalArray<T>(value: T | undefined | null): [T] | [];
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
+export declare function asOptionalArray<T>(value: T | undefined | null): [T] | [];
 export declare function average(values: number[]): number;
 export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
     batchSize?: number;

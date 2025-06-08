@@ -61,7 +61,7 @@ class Config {
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
-                minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 72 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
@@ -109,7 +109,7 @@ class Config {
                 supportsMinMaxId: true,
             },
             [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 15,
+                minutesUntilStale: 20,
             },
             [enums_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,

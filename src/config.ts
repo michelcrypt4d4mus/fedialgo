@@ -167,7 +167,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
             [CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
-                minutesUntilStale: 24 * MINUTES_IN_HOUR,
+                minutesUntilStale: 72 * MINUTES_IN_HOUR,
             },
             [CacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
@@ -215,7 +215,7 @@ class Config implements ConfigType {
                 supportsMinMaxId: true,
             },
             [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 15,
+                minutesUntilStale: 20,
             },
             [CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
