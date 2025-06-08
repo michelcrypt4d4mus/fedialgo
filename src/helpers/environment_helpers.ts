@@ -1,5 +1,5 @@
 /*
- * Helpers for environment variables
+ * Helpers for environment variables.
  */
 
 console.log(
@@ -10,11 +10,14 @@ console.log(
     `\n          LOAD_TEST=${process.env.LOAD_TEST}`
 );
 
+export const isDevelopment = process.env.NODE_ENV === "development";
+export const isProduction = process.env.NODE_ENV === "production";
+export const isTest = process.env.NODE_ENV === "test";
+
 // Set for a whole lot more logging
 export const isDeepDebug = process.env.FEDIALGO_DEEP_DEBUG === "true";
-
+// More logging, some configuration changes
 export const isDebugMode = isDeepDebug || process.env.FEDIALGO_DEBUG === "true";
-export const isProduction = process.env.NODE_ENV === "production";
 
 // Set for long stress tests, pulling tons of data from the mastodon API
 export const isLoadTest = process.env.LOAD_TEST === "true";
