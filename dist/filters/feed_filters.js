@@ -28,10 +28,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
+const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tags_for_fetching_toots_1 = __importDefault(require("../api/tags_for_fetching_toots"));
-const user_data_1 = __importDefault(require("../api/user_data"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -103,7 +103,7 @@ async function updateBooleanFilterOptions(filters, toots) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
-    const userData = await user_data_1.default.build(); // Get user data for language and tag counts
+    const userData = await api_1.default.instance.getUserData();
     const suppressedNonLatinTags = {};
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new boolean_filter_1.BooleanFilterOptionList([], filterName);

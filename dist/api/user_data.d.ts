@@ -22,8 +22,8 @@ export default class UserData {
     participatedTags: TagList;
     preferredLanguage: string;
     serverSideFilters: mastodon.v2.Filter[];
-    static buildFromData(data: UserApiData): UserData;
     static build(): Promise<UserData>;
+    static buildFromData(data: UserApiData): UserData;
     isDataStale(): Promise<boolean>;
     private populateFavouriteAccounts;
     private isEmpty;

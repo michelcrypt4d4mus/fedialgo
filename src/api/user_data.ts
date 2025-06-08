@@ -47,22 +47,6 @@ export default class UserData {
     preferredLanguage = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
 
-    // Alternate constructor to build UserData from raw API data
-    static buildFromData(data: UserApiData): UserData {
-        const userData = new UserData();
-        userData.populateFavouriteAccounts(data);
-        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
-        userData.followedAccounts = Account.countAccounts(data.followedAccounts);
-        userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
-        userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
-        userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
-        userData.serverSideFilters = data.serverSideFilters;
-        userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
-        userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
-        logger.trace("Built from data:", userData);
-        return userData;
-    }
-
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build(): Promise<UserData> {
         const responses = await Promise.all([
@@ -82,6 +66,22 @@ export default class UserData {
             recentToots: responses[4],
             serverSideFilters: responses[5],
         });
+    }
+
+    // Alternate constructor to build UserData from raw API data
+    static buildFromData(data: UserApiData): UserData {
+        const userData = new UserData();
+        userData.populateFavouriteAccounts(data);
+        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+        userData.followedAccounts = Account.countAccounts(data.followedAccounts);
+        userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
+        userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
+        userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+        userData.serverSideFilters = data.serverSideFilters;
+        userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
+        userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
+        logger.trace("Built from data:", userData);
+        return userData;
     }
 
     // Use MUTED_ACCOUNTS as a proxy for staleness

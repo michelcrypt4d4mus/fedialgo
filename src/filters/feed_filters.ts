@@ -3,12 +3,11 @@
  */
 import Account from "../api/objects/account";
 import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterOptionList, isBooleanFilterName } from "./boolean_filter";
+import MastoApi from "../api/api";
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
-import TagList from "../api/tag_list";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
-import UserData from "../api/user_data";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
@@ -101,7 +100,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     populateMissingFilters(filters);  // Ensure all filters are instantiated
     const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const tagLists = await TagsForFetchingToots.rawTagLists();
-    const userData = await UserData.build();  // Get user data for language and tag counts
+    const userData = await MastoApi.instance.getUserData();
     const suppressedNonLatinTags: Record<string, StringNumberDict> = {};
 
     const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
