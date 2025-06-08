@@ -248,9 +248,8 @@ class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = { updatedAt, value: storableValue };
-        const hereLogger = logger.tempLogger(storageKey, `set()`);
-        const msg = `Updating cached value`;
-        environment_helpers_1.isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
+        const hereLogger = logger.tempLogger(key, `set`, `Updating cached value`);
+        environment_helpers_1.isDeepDebug ? hereLogger.deep('', withTimestamp) : hereLogger.trace('');
         await localforage_1.default.setItem(storageKey, withTimestamp);
     }
     // Serialize the FeedFilterSettings object

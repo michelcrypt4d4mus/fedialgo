@@ -276,9 +276,8 @@ export default class Storage {
         const updatedAt = new Date().toISOString();
         const storableValue = this.serialize(key, value);
         const withTimestamp = {updatedAt, value: storableValue} as StorableWithTimestamp;
-        const hereLogger = logger.tempLogger(storageKey, `set()`);
-        const msg = `Updating cached value`;
-        isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
+        const hereLogger = logger.tempLogger(key, `set`, `Updating cached value`);
+        isDeepDebug ? hereLogger.deep('', withTimestamp) : hereLogger.trace('');
         await localForage.setItem(storageKey, withTimestamp);
     }
 
