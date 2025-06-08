@@ -619,7 +619,7 @@ export default class MastoApi {
                     logger.debug(`Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`);
                     break;
                 } else if (waitTime.ageInSeconds() > config.api.maxSecondsPerPage) {
-                    throw new Error(`${logger.logPrefix} Took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`);
+                    logger.logAndThrowError(`Request took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`)
                 } else {
                     const msg = `Retrieved ${resultsMsg}`;
                     (pageNumber % 5 == 0) ? logger.debug(msg) : logger.trace(msg);
@@ -789,7 +789,7 @@ export default class MastoApi {
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} After pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
-        this.apiErrors.push(new Error(logger.str(msg), {cause: err}));
+        this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows

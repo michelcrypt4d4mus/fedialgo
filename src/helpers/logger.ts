@@ -44,25 +44,29 @@ export class Logger {
     // Returns the error message in case it's of use.
     error(msg: string | Error, ...args: any[]): string {
         if (msg instanceof Error) {
-            console.error(this.str(msg.message), ...args);
+            console.error(this.line(msg.message), ...args);
             return msg.message;
         }
 
         msg = this.errorStr(msg, ...args);
-        console.error(this.str(msg), ...args);
+        console.error(this.line(msg), ...args);
         return msg;
     }
 
     // warn() also checks the first argument for an Error but first arg must be a string
-    warn =  (msg: string, ...args: any[]) => console.warn(this.str(this.errorStr(msg, ...args)), ...args);
-    log =   (msg: string, ...args: any[]) => console.log(this.str(msg), ...args);
-    info =  (msg: string, ...args: any[]) => console.info(this.str(msg), ...args);
-    debug = (msg: string, ...args: any[]) => console.debug(this.str(msg), ...args);
+    warn =  (msg: string, ...args: any[]) => console.warn(this.line(this.errorStr(msg, ...args)), ...args);
+    log =   (msg: string, ...args: any[]) => console.log(this.line(msg), ...args);
+    info =  (msg: string, ...args: any[]) => console.info(this.line(msg), ...args);
+    debug = (msg: string, ...args: any[]) => console.debug(this.line(msg), ...args);
     trace = (msg: string, ...args: any[]) => {(isDebugMode || isDeepDebug) && this.debug(msg, ...args)};
     deep =  (msg: string, ...args: any[]) => {isDeepDebug && this.debug(msg, ...args)};
-
     // Not a real warning, just a log with a warning prefix in colored text
     warnWithoutTrace = (msg: string, ...args: any[]) => console.log(`%cWarning: ${msg}`, 'color: orange;');
+
+    // Concatenate prefix and strings
+    line(msg: string | undefined): string {
+        return this.logPrefix + (isEmptyStr(msg) ? '' : ` ${msg}`);
+    }
 
     // Log an error message and throw an Error with the stringified args and the message.
     logAndThrowError(msg: string, ...args: any[]): never {
@@ -80,7 +84,7 @@ export class Logger {
             }
         }
 
-        throw new Error(msg);
+        throw new Error(this.line(msg));
     }
 
     // Log the fact that an array was reduced in size.
@@ -125,11 +129,6 @@ export class Logger {
     // Make a custom error message
     private makeErrorMsg(error: Error, msg?: string): string {
         return msg ? `${msg} (error.message="${error.message}")` : error.message;
-    }
-
-    // Concatenate prefix and strings
-    str(msg: string | undefined): string {
-        return this.logPrefix + (isEmptyStr(msg) ? '' : ` ${msg}`);
     }
 
     // Returns a function that will build Logger objects with the starting prefixes

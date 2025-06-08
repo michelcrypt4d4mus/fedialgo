@@ -11,6 +11,7 @@ export declare class Logger {
     trace: (msg: string, ...args: any[]) => void;
     deep: (msg: string, ...args: any[]) => void;
     warnWithoutTrace: (msg: string, ...args: any[]) => void;
+    line(msg: string | undefined): string;
     logAndThrowError(msg: string, ...args: any[]): never;
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void;
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;
@@ -18,6 +19,5 @@ export declare class Logger {
     tempLogger(...args: string[]): Logger;
     private errorStr;
     private makeErrorMsg;
-    str(msg: string | undefined): string;
     static logBuilder(name: string, ...prefixes: string[]): ((...args: string[]) => Logger);
 }
