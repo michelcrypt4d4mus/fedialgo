@@ -1,6 +1,9 @@
 # NEXT RELEASE
+* Update the cache in the background instead of always dropping/reloading the whole thing when it gets stale
 * Add `getFollowers()` to `MastoApi`; add configuration variable `config.api.pullFollowers` to turn on/off follower retrieval
 * Move `TheAlgorithm.filterOptionDataSources()` to `BooleanFilter` static method
+* `TheAlgorithm.userData` now refers to the same object as `MastoApi.instance.userData`
+* Don't wait for scorers to finish preparing before integrating toots into the timeline
 
 ## v0.67.0
 * Add switches in the hashtag filter section to enable / disable each kind of hashtag colored highlighting (participated/favourited/trending)

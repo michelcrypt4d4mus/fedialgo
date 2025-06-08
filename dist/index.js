@@ -559,11 +559,11 @@ class TheAlgorithm {
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
     async lockedMergeToFeed(newToots, logger) {
-        const thisLogger = logger.tempLogger('lockedMergeToFeed');
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, thisLogger);
+        const hereLogger = logger.tempLogger('lockedMergeToFeed');
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, hereLogger);
         try {
             await this.mergeTootsToFeed(newToots, logger);
-            thisLogger.trace(`Merged ${newToots.length} newToots, released mutex`);
+            hereLogger.trace(`Merged ${newToots.length} newToots, released mutex`);
         }
         finally {
             releaseMutex();

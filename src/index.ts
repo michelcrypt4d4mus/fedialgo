@@ -624,12 +624,12 @@ class TheAlgorithm {
     // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
     private async lockedMergeToFeed(newToots: Toot[], logger: Logger): Promise<void> {
-        const thisLogger = logger.tempLogger('lockedMergeToFeed');
-        const releaseMutex = await lockExecution(this.mergeMutex, thisLogger);
+        const hereLogger = logger.tempLogger('lockedMergeToFeed');
+        const releaseMutex = await lockExecution(this.mergeMutex, hereLogger);
 
         try {
             await this.mergeTootsToFeed(newToots, logger);
-            thisLogger.trace(`Merged ${newToots.length} newToots, released mutex`);
+            hereLogger.trace(`Merged ${newToots.length} newToots, released mutex`);
         } finally {
             releaseMutex();
         }

@@ -34,7 +34,7 @@ export async function getMoarData(): Promise<boolean> {
         MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
         MastoApi.instance.getNotifications.bind(MastoApi.instance),
         MastoApi.instance.getRecentUserToots.bind(MastoApi.instance),
-    ].filter(Boolean);  // Remove nulls
+    ];
 
     if (config.api.pullFollowers) {
         pollers = pollers.concat([
