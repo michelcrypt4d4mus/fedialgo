@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Don't log FollowersScorer data
+
+### v0.69.2
+* Don't log `FollowersScorer` data
 
 ### v0.69.1
 * Lower log level for missing score message
