@@ -121,18 +121,6 @@ class UserData {
         });
         this.favouriteAccounts.addObjs(optionsToAdd.map(account => account.toBooleanFilterOption()));
     }
-    // Returns true if the user has no data, i.e. no favourite accounts, followed tags, etc.
-    isEmpty() {
-        const empty = this.favouriteAccounts.length === 0 &&
-            this.favouritedTags.length === 0 &&
-            this.followedTags.length === 0 &&
-            this.participatedTags.length === 0 &&
-            this.languagesPostedIn.length === 0 &&
-            Object.keys(this.followedAccounts).length === 0 &&
-            Object.keys(this.mutedAccounts).length === 0;
-        // logger.deep("UserData.isEmpty() =", empty);
-        return empty;
-    }
     /////////////////////////////
     //      Static Methods     //
     /////////////////////////////
