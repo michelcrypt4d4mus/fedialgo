@@ -17,9 +17,7 @@ class FollowersScorer extends acccount_scorer_1.default {
     }
     ;
     async prepareScoreData() {
-        const followers = await api_1.default.instance.getFollowers();
-        this.logger.debug(`Found ${followers.length} followers:`, followers);
-        return account_1.default.countAccounts(followers);
+        return account_1.default.countAccounts(await api_1.default.instance.getFollowers());
     }
     ;
 }

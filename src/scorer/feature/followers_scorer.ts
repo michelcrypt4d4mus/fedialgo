@@ -16,8 +16,6 @@ export default class FollowersScorer extends AccountScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        const followers = await MastoApi.instance.getFollowers();
-        this.logger.debug(`Found ${followers.length} followers:`, followers);
-        return Account.countAccounts(followers);
+        return Account.countAccounts(await MastoApi.instance.getFollowers());
     };
 };
