@@ -33,8 +33,6 @@ type FilterOptionUserData = {
     [key in FilterOptionDataSource]?: number;
 };
 export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
-    displayName?: string;
-    displayNameWithEmoji?: string;
     isFollowed?: boolean;
 }
 export type FeedFilterSettingsSerialized = {
@@ -74,6 +72,8 @@ export type MinMaxID = {
     max: string;
 };
 export interface NamedTootCount extends TootCount {
+    displayName?: string;
+    displayNameWithEmoji?: string;
     name: string;
 }
 export type ObjListDataSource = (FilterOptionDataSource | FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS);

@@ -50,8 +50,6 @@ type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
 
 // Add FilterOptionDataSource properties to the ObjWithTootCount interface
 export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
-    displayName?: string;
-    displayNameWithEmoji?: string; // TODO: just testing this
     isFollowed?: boolean;  // TODO: this is too specific to be in the general BooleanFilterOption interface
 };
 
@@ -121,6 +119,8 @@ export type MinMaxID = {
 
 // Abstract interface for objects that have numToots of some kind
 export interface NamedTootCount extends TootCount {
+    displayName?: string;
+    displayNameWithEmoji?: string; // TODO: just testing this
     name: string;
 };
 
