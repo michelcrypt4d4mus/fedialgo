@@ -4,10 +4,10 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
-type FilterOptionDataSources = Record<FilterOptionDataSource, ObjWithCountList<BooleanFilterOption> | TagList>;
-type TypeFilter = (toot: Toot) => boolean;
 export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
 }
+type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
+type TypeFilter = (toot: Toot) => boolean;
 export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
@@ -18,8 +18,8 @@ export interface BooleanFilterArgs extends FilterArgs {
 export default class BooleanFilter extends TootFilter {
     selectedOptions: string[];
     title: BooleanFilterName;
-    private _options;
     get options(): BooleanFilterOptionList;
+    private _options;
     set options(optionList: BooleanFilterOptionList);
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
     isAllowed(toot: Toot): boolean;

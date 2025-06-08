@@ -1,0 +1,12 @@
+{
+    "plugins": ["jsdoc-plugin-typescript"],
+    "source": {
+        "include": ["dist"],
+        "includePattern": ".+\\.[jt]sx?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "opts": {
+        "destination": "./docs",
+        "recurse": true
+    }
+}

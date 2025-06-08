@@ -15,13 +15,14 @@ import { config } from '../config';
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
-type FilterOptionDataSources = Record<FilterOptionDataSource, ObjWithCountList<BooleanFilterOption> | TagList>;
+export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
+
+type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
-export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
 export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
@@ -74,13 +75,11 @@ export interface BooleanFilterArgs extends FilterArgs {
 
 
 export default class BooleanFilter extends TootFilter {
-    selectedOptions: string[];         // Which options are selected for use in the filter
-    title: BooleanFilterName
-    private _options: ObjWithCountList<BooleanFilterOption>;  // e.g. counts of toots with this option
+    selectedOptions: string[];   // Which options are selected for use in the filter
+    title: BooleanFilterName;
 
-    public get options(): BooleanFilterOptionList {
-        return this._options;
-    }
+    get options() { return this._options };
+    private _options: BooleanFilterOptionList;
 
     // Also removes options that are no longer valid
     public set options(optionList: BooleanFilterOptionList) {
@@ -89,7 +88,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs) {
-        let optionInfo = new ObjWithCountList<BooleanFilterOption>([], title);
+        let optionInfo = new BooleanFilterOptionList([], title);
         let description: string;
 
         if (title == BooleanFilterName.TYPE) {

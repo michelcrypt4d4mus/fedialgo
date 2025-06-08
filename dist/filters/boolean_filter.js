@@ -17,11 +17,11 @@ const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 class BooleanFilterOptionList extends obj_with_counts_list_1.default {
 }
 exports.BooleanFilterOptionList = BooleanFilterOptionList;
 ;
+const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
 const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.TypeFilterName)(value);
@@ -70,17 +70,16 @@ const TOOT_MATCHERS = {
 class BooleanFilter extends toot_filter_1.default {
     selectedOptions; // Which options are selected for use in the filter
     title;
-    _options; // e.g. counts of toots with this option
-    get options() {
-        return this._options;
-    }
+    get options() { return this._options; }
+    ;
+    _options;
     // Also removes options that are no longer valid
     set options(optionList) {
         this._options = optionList;
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
     constructor({ title, invertSelection, selectedOptions }) {
-        let optionInfo = new obj_with_counts_list_1.default([], title);
+        let optionInfo = new BooleanFilterOptionList([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;

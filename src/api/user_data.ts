@@ -11,6 +11,7 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
+import { BooleanFilterOptionList } from "../filters/boolean_filter";
 import { config } from "../config";
 import { keyById } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
@@ -38,7 +39,7 @@ interface UserApiData {
 export default class UserData {
     lastUpdatedAt?: Date | null;
     // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
-    favouriteAccounts = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
+    favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
     followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
