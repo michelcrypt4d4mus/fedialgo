@@ -65,6 +65,7 @@ const TAG_ONLY_STRINGS = new Set([
     "in",
     "it",
     "ja",
+    "la",
     "mastodon",
     "press",
     "tv",

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add "la" to TAG_ONLY_STRINGS
 
 ### v0.69.4
 * Set `FEDIVERSE_POPULAR_SERVERS` staleness to 72 hours
@@ -13,12 +14,12 @@
 ### v0.69.1
 * Lower log level for missing score message
 
-# v0.69.0
+## v0.69.0
 * Add `FollowersScorer` to weight accounts that follow the fedialgo user
 * Cap initial followed account retrieval before merging toots to timeline at 1,600; beyond that they will be loaded in a background job that sleeps `config.apibackgroundLoadSleepBetweenRequestsMS` in between requests
 * Fix `OUTLIER_DAMPENER` value in various presets
 * Fix removing newly muted accounts from feed
-* (Demo App) Sort filter options by 1displayName1 if available
+* (Demo App) Sort filter options by `displayName` if available
 
 ## v0.68.0
 * Update the cache in the background instead of always dropping/reloading the whole thing when it gets stale
@@ -28,7 +29,7 @@
 * `TheAlgorithm.userData` now refers to the same object as `MastoApi.instance.userData`
 
 ## v0.67.0
-* Add switches in the hashtag filter section to enable / disable each kind of hashtag colored highlighting (participated/favourited/trending)
+* (Demo App) Add switches in the hashtag filter section to enable / disable each kind of hashtag colored highlighting (participated/favourited/trending)
 
 ### v0.66.6
 * (Demo App) Fix column spacing in trending tags section
