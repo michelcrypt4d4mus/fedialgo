@@ -36,5 +36,6 @@ export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
 
 // Create a string representation of the tag with its usage counts & language
 export function tagInfoStr(tag: TagWithUsageCounts) {
-    return `${tag.name} (${tag.numToots} numToots, language: ${tag.language})`;
+    const infoStr = `${tag.numToots} numToots` + (tag.language ? `, language: ${tag.language}` : "");
+    return `${tag.name} (${infoStr})`;
 };
