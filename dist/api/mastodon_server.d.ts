@@ -24,7 +24,7 @@ export default class MastodonServer {
     static getMastodonInstancesInfo(): Promise<MastodonInstances>;
     static getTrendingData(): Promise<TrendingData>;
     private static fetchMastodonInstances;
-    private static fetchTrendingObjsFromAllServers;
+    private static getTrendingObjsFromAllServers;
     private static getTopServerDomains;
     private static callForServers;
     private static callForTopServers;

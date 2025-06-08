@@ -181,7 +181,7 @@ export default class MastodonServer {
 
     // Get the top trending links from all servers
     static async fediverseTrendingLinks(): Promise<TrendingLink[]> {
-        return await this.fetchTrendingObjsFromAllServers<TrendingLink>({
+        return await this.getTrendingObjsFromAllServers<TrendingLink>({
             key: CacheKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
@@ -192,7 +192,7 @@ export default class MastodonServer {
 
     // Get the top trending tags from all servers, minus any invalid or muted tags
     static async fediverseTrendingTags(): Promise<TagList> {
-        const tags = await this.fetchTrendingObjsFromAllServers<TagWithUsageCounts>({
+        const tags = await this.getTrendingObjsFromAllServers<TagWithUsageCounts>({
             key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
@@ -208,7 +208,7 @@ export default class MastodonServer {
 
         // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots(): Promise<Toot[]> {
-        return await this.fetchTrendingObjsFromAllServers<Toot>({
+        return await this.getTrendingObjsFromAllServers<Toot>({
             key: CacheKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
@@ -315,7 +315,7 @@ export default class MastodonServer {
     }
 
     // Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
-    private static async fetchTrendingObjsFromAllServers<T extends TrendingObj>(
+    private static async getTrendingObjsFromAllServers<T extends TrendingObj>(
         props: FetchTrendingProps<T>
     ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;

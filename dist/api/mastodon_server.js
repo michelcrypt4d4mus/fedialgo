@@ -136,7 +136,7 @@ class MastodonServer {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Get the top trending links from all servers
     static async fediverseTrendingLinks() {
-        return await this.fetchTrendingObjsFromAllServers({
+        return await this.getTrendingObjsFromAllServers({
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
@@ -146,7 +146,7 @@ class MastodonServer {
     }
     // Get the top trending tags from all servers, minus any invalid or muted tags
     static async fediverseTrendingTags() {
-        const tags = await this.fetchTrendingObjsFromAllServers({
+        const tags = await this.getTrendingObjsFromAllServers({
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
@@ -160,7 +160,7 @@ class MastodonServer {
     }
     // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
     static async fediverseTrendingToots() {
-        return await this.fetchTrendingObjsFromAllServers({
+        return await this.getTrendingObjsFromAllServers({
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
             serverFxn: (server) => server.fetchTrendingStatuses(),
             processingFxn: async (toots) => {
@@ -249,7 +249,7 @@ class MastodonServer {
         return servers;
     }
     // Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
-    static async fetchTrendingObjsFromAllServers(props) {
+    static async getTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.trendingMutexes[key], logger);
