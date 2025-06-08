@@ -6,6 +6,8 @@ import { isDebugMode, isDeepDebug } from './environment_helpers';
 import { split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from './string_helpers';
 
+type LoggerArg = string | boolean | null | undefined;  // boolean so we can filter out optional args that are falsey
+
 const PREFIXERS = [
     bracketed,
     arrowed,
@@ -25,8 +27,8 @@ export class Logger {
     logPrefix: string;
     prefixes: string[];
 
-    constructor(name: string, ...args: string[]) {
-        this.prefixes = [name, ...args]
+    constructor(name: string, ...args: LoggerArg[]) {
+        this.prefixes = [name, ...(args.filter(arg => typeof arg == 'string') as string[])];
         this.logPrefix = this.prefixes.map((str, i) => PREFIXERS[i] ? PREFIXERS[i](str) : str).join(' ');
 
         if (this.prefixes.length > PREFIXERS.length) {
@@ -112,9 +114,9 @@ export class Logger {
     }
 
     // Returns new Logger with one additional prefix.
-    tempLogger(...args: string[]): Logger {
-        args = [...this.prefixes, ...args];
-        return new Logger(args[0], ...args.slice(1));
+    tempLogger(arg1: string, ...args: LoggerArg[]): Logger {
+        const tempArgs = [...this.prefixes, arg1, ...args];
+        return new Logger(tempArgs[0] as string, ...tempArgs.slice(1));
     }
 
     // Mutates args array to pop the first Error if it exists
@@ -132,9 +134,9 @@ export class Logger {
     }
 
     // Returns a function that will build Logger objects with the starting prefixes
-    static logBuilder(name: string, ...prefixes: string[]): ((...args: string[]) => Logger) {
+    static logBuilder(name: string, ...prefixes: LoggerArg[]): ((...args: LoggerArg[]) => Logger) {
         // I think we have to define as const before returning to get the closure to capture the name + prefixes?
-        const logMaker = (...args: string[]) => new Logger(name, ...[...prefixes, ...args]);
+        const logMaker = (...args: LoggerArg[]) => new Logger(name, ...[...prefixes, ...args]);
         return logMaker;
     }
 };

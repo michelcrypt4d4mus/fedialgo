@@ -1,7 +1,8 @@
+type LoggerArg = string | boolean | null | undefined;
 export declare class Logger {
     logPrefix: string;
     prefixes: string[];
-    constructor(name: string, ...args: string[]);
+    constructor(name: string, ...args: LoggerArg[]);
     static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger;
     error(msg: string | Error, ...args: any[]): string;
     warn: (msg: string, ...args: any[]) => void;
@@ -16,8 +17,9 @@ export declare class Logger {
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void;
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;
     tagWithRandomString(): void;
-    tempLogger(...args: string[]): Logger;
+    tempLogger(arg1: string, ...args: LoggerArg[]): Logger;
     private errorStr;
     private makeErrorMsg;
-    static logBuilder(name: string, ...prefixes: string[]): ((...args: string[]) => Logger);
+    static logBuilder(name: string, ...prefixes: LoggerArg[]): ((...args: LoggerArg[]) => Logger);
 }
+export {};

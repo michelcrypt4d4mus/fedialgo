@@ -25,7 +25,7 @@ class Logger {
     logPrefix;
     prefixes;
     constructor(name, ...args) {
-        this.prefixes = [name, ...args];
+        this.prefixes = [name, ...args.filter(arg => typeof arg == 'string')];
         this.logPrefix = this.prefixes.map((str, i) => PREFIXERS[i] ? PREFIXERS[i](str) : str).join(' ');
         if (this.prefixes.length > PREFIXERS.length) {
             this.warn(`Logger created with too many prefixes: ${this.prefixes}`);
@@ -95,9 +95,9 @@ class Logger {
         this.logPrefix += ` *#(${(0, string_helpers_1.createRandomString)(4)})#*`;
     }
     // Returns new Logger with one additional prefix.
-    tempLogger(...args) {
-        args = [...this.prefixes, ...args];
-        return new Logger(args[0], ...args.slice(1));
+    tempLogger(arg1, ...args) {
+        const tempArgs = [...this.prefixes, arg1, ...args];
+        return new Logger(tempArgs[0], ...tempArgs.slice(1));
     }
     // Mutates args array to pop the first Error if it exists
     errorStr(msg, ...args) {

@@ -25,6 +25,7 @@ import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
+    asOptionalArray,
     findMinMaxId,
     getPromiseResults,
     removeKeys,
@@ -73,15 +74,17 @@ interface MaxIdParams extends ApiParams {
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 //   - breakIf: fxn to call to check if we should fetch more pages
 //   - fetch: the data fetching function to call with params
+//   - isBackgroundFetch: a logging flag to indicate if this is a background fetch
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - processFxn: optional function to process the object before storing and returning it
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
 interface FetchParams<T extends MastodonApiObject> extends MaxIdParams {
-    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
-    cacheKey: CacheKey,  // Mutex will be skipped if label is a string not a StorageKey,
-    skipMutex?: boolean,
     breakIf?: ((pageOfResults: T[], allResults: T[]) => Promise<true | undefined>) | null ,
+    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
+    cacheKey: CacheKey,
+    isBackgroundFetch?: boolean,
     processFxn?: ((obj: T) => void) | null,
+    skipMutex?: boolean,
 };
 
 // Same as FetchParams but all properties are required and we add 'limit'
@@ -160,7 +163,7 @@ export default class MastoApi {
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const cacheKey = CacheKey.HOME_TIMELINE_TOOTS;
-        const logger = getLogger(...[cacheKey as string].concat(moar ? ["moar"] : []));
+        const logger = loggerForParams({ ...params, cacheKey });
         const startedAt = new Date();
 
         let homeTimelineToots = await Storage.getCoerced<Toot>(cacheKey);
@@ -186,7 +189,6 @@ export default class MastoApi {
         const _incompleteToots = await this.getApiRecords<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             cacheKey: cacheKey,
-            logger,
             maxId: maxId,
             maxRecords: maxRecords,
             skipCache: true,  // always skip the cache for the home timeline
@@ -598,9 +600,11 @@ export default class MastoApi {
             // TODO: maybe check that there's more than 0 rows in the cache before returning them?
             if (cacheResult) {
                 if (cacheResult.isStale) {
-                    hereLogger.debug(`Returning ${cacheResult.rows.length} stale rows and triggering cache update`);
-                    logger = logger.tempLogger('backgroundUpdate')
-                    this.getApiRecordsOrCache<T>({ ...paramsWithCache, logger }, true);
+                    // If the mutex is locked background load is in progress so don't start another one
+                    if (!this.apiMutexes[cacheKey].isLocked()) {
+                        hereLogger.debug(`Returning ${cacheResult.rows.length} stale rows and triggering cache update`);
+                        this.getApiRecordsOrCache<T>({...paramsWithCache, isBackgroundFetch: true});
+                    }
                 }
 
                 return cacheResult.rows;
@@ -616,15 +620,14 @@ export default class MastoApi {
     // Generic Mastodon API fetcher. Accepts a 'fetch' fxn w/a few other args (see comments on FetchParams)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     private async getApiRecordsOrCache<T extends MastodonApiObject>(
-        params: FetchParamsWithCacheData<T>,
-        isBackgroundUpdate?: boolean
+        params: FetchParamsWithCacheData<T>
     ): Promise<MastodonApiObject[]> {
-        let { cacheKey, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
-        logger = logger.tempLogger('getApiRecordsOrCache', cacheKey);
+        let { cacheKey, isBackgroundFetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
+        logger = logger.tempLogger('getApiRecordsOrCache');
 
         if (this.apiMutexes[cacheKey].isLocked()) {
-            if (isBackgroundUpdate) {
-                logger.trace(`Called but ApiMutex is already locked, nothing to do`);
+            if (isBackgroundFetch) {
+                logger.trace(`Called but mutex already locked (background load in progress, nothing to do)`);
             } else {
                 logger.error(`ApiMutex is already locked but shouldn't be! Returning empty array...`);
             }
@@ -632,6 +635,7 @@ export default class MastoApi {
             return [];
         }
 
+        this.validateFetchParams<T>(params);
         const releaseMutex = skipMutex ? null : await lockExecution(this.apiMutexes[cacheKey], logger);
 
         try {
@@ -719,7 +723,6 @@ export default class MastoApi {
             maxRecords,
         };
 
-        this.validateFetchParams<T>(completedParams);
         return completedParams;
     }
 
@@ -823,9 +826,8 @@ export default class MastoApi {
 
             if (this.shouldReturnCachedRows(params)) {
                 return;
-                // logger.trace(`Returning cached rows w/params:`, paramsToLog);
             } else if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
-                logger.debug(`Possible incremental fetch from API to update stale cache:`, paramsToLog);
+                logger.debug(`Incremental fetch from API to update stale cache:`, paramsToLog);
             } else {
                 logger.trace(`Fetching data from API or cache w/params:`, paramsToLog);
             }
@@ -856,15 +858,16 @@ export default class MastoApi {
 
 // Populate the various fetch options with basic defaults
 function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
-    let { cacheKey, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
+    let { cacheKey, isBackgroundFetch, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
     const requestDefaults = config.api.data[cacheKey];
     const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
     const withDefaults: FetchParamsWithDefaults<T> = {
         ...params,
         breakIf: params.breakIf || null,
+        isBackgroundFetch: isBackgroundFetch || false,
         limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
-        logger: logger || getLogger(cacheKey, ...(moar ? ["moar"] : [])),
+        logger: loggerForParams(params),
         maxId: maxId || null,
         maxRecords: maxApiRecords,
         maxCacheRecords: requestDefaults?.maxCacheRecords,
@@ -876,6 +879,12 @@ function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>
 
     return withDefaults;
 };
+
+
+function loggerForParams<T extends MastodonApiObject>(params: Omit<FetchParams<T>, "fetch">): Logger {
+    const { cacheKey, isBackgroundFetch, moar } = params;
+    return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
+}
 
 
 // Return true if the error is an access token revoked error
