@@ -79,7 +79,6 @@ import {
     type MastodonInstance,
     type MastodonTag,
     type MinMaxAvgScore,
-    type NamedTootCount,
     type ScoreStats,
     type StringNumberDict,
     type TagWithUsageCounts,
