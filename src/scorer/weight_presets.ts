@@ -107,7 +107,7 @@ export const WEIGHT_PRESETS: WeightPresets = {
             return preset;
         },
         {
-            [NonScoreWeightName.TIME_DECAY]: 0,
+            [NonScoreWeightName.TIME_DECAY]: 0.01,
             [NonScoreWeightName.TRENDING]: 0,
             [NonScoreWeightName.OUTLIER_DAMPENER]: 1,
         } as Weights

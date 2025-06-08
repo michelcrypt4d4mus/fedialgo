@@ -95,7 +95,7 @@ exports.WEIGHT_PRESETS = {
         preset[scoreName] = scoreName == enums_1.ScoreName.CHAOS ? 100 : 0;
         return preset;
     }, {
-        [enums_1.NonScoreWeightName.TIME_DECAY]: 0,
+        [enums_1.NonScoreWeightName.TIME_DECAY]: 0.01,
         [enums_1.NonScoreWeightName.TRENDING]: 0,
         [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 1,
     }),
