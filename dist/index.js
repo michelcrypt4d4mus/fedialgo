@@ -577,7 +577,7 @@ class TheAlgorithm {
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], logger.tempLogger('mergeTootsToFeed'));
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
+        logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
         this.setLoadingStateVariables(logger.logPrefix);
     }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed

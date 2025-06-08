@@ -640,7 +640,7 @@ class TheAlgorithm {
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], logger.tempLogger('mergeTootsToFeed'));
         await updateBooleanFilterOptions(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
+        logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
         this.setLoadingStateVariables(logger.logPrefix);
     }
 
