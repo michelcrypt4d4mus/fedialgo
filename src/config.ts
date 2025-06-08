@@ -509,6 +509,7 @@ if (isQuickMode) {
     config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.initialMaxRecords = 240;
     config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = SECONDS_IN_HOUR;
+    config.favouritedTags.numTags = 5;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
@@ -518,7 +519,7 @@ if (isDebugMode) {
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 60;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 60;
     config.api.maxRecordsForFeatureScoring = 2_500;
-    config.api.pullFollowers = true;
+    // config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;
 };

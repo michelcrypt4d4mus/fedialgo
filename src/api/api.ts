@@ -130,8 +130,9 @@ export default class MastoApi {
     logger: Logger;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-    waitTimes: {[key in CacheKey]?: WaitTime} = {}; // Just for measuring performance (poorly)
-    private mutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
+    waitTimes: Record<ApiCacheKey, WaitTime>; // Just for measuring performance (poorly)
+    private apiMutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
+    private cacheMutexes: ApiMutex; // Mutexes for blocking cache requests (e.g. home timeline toots)
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
 
     static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
@@ -158,10 +159,20 @@ export default class MastoApi {
         this.reset();
 
         // Initialize mutexes for each StorageKey
-        this.mutexes = ALL_CACHE_KEYS.reduce((mutexes, key) => {
+        this.apiMutexes = ALL_CACHE_KEYS.reduce((mutexes, key) => {
             mutexes[key] = new Mutex();
             return mutexes;
         }, {} as ApiMutex);
+
+        this.cacheMutexes = ALL_CACHE_KEYS.reduce((mutexes, key) => {
+            mutexes[key] = new Mutex();
+            return mutexes;
+        }, {} as ApiMutex);
+
+        this.waitTimes = ALL_CACHE_KEYS.reduce((waitTimes, key) => {
+            waitTimes[key] = new WaitTime();
+            return waitTimes;
+        }, {} as Record<ApiCacheKey, WaitTime>);
     }
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
@@ -250,7 +261,7 @@ export default class MastoApi {
         maxRecords: number,
     ): Promise<Toot[]> {
         const logger = getLogger(cacheKey);
-        const releaseMutex = await lockExecution(this.mutexes[cacheKey], logger);
+        const releaseMutex = await lockExecution(this.apiMutexes[cacheKey], logger);
         const startedAt = new Date();
 
         try {
@@ -355,7 +366,7 @@ export default class MastoApi {
     // TODO: this.getApiRecords() doesn't work here because endpoint doesn't paginate the same way
     async getServerSideFilters(): Promise<mastodon.v2.Filter[]> {
         const logger = getLogger(CacheKey.SERVER_SIDE_FILTERS);
-        const releaseMutex = await lockExecution(this.mutexes[CacheKey.SERVER_SIDE_FILTERS], logger);
+        const releaseMutex = await lockExecution(this.apiMutexes[CacheKey.SERVER_SIDE_FILTERS], logger);
         const startTime = new Date();
 
         try {
@@ -473,7 +484,7 @@ export default class MastoApi {
         apiLogger.log(`lockAllMutexes() called, locking all mutexes...`);
 
         return await Promise.all(
-            Object.values(this.mutexes).map(mutex => lockExecution(mutex, apiLogger, 'lockAllMutexes()'))
+            Object.values(this.apiMutexes).map(mutex => lockExecution(mutex, apiLogger, 'lockAllMutexes()'))
         );
     };
 
@@ -523,7 +534,7 @@ export default class MastoApi {
 
     // Called on instantiation and also when we are trying to reset state of the world
     reset(): void {
-        if (this.mutexes) this.logger.log(`Resetting MastoApi instance...`);
+        if (this.apiMutexes) this.logger.log(`Resetting MastoApi instance...`);
         this.apiErrors = [];
         this.userData = undefined;  // Clear the user data cache
         this.setSemaphoreConcurrency(config.api.maxConcurrentHashtagRequests);
@@ -556,42 +567,77 @@ export default class MastoApi {
     // Check the config for supportsMinMaxId boolean
     private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
+    // Return cached rows (if they exist) and trigger a background update if the cache is stale
+    private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
+        const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
+        let { cacheKey, cacheResult, logger, skipMutex } = paramsWithCache;
+        const thisLogger = logger.tempLogger('getFromCacheWithRefresh');
+        // Lock cacheMutex before checking the cache
+        const releaseMutex = skipMutex ? null : await lockExecution(this.cacheMutexes[cacheKey], thisLogger);
+
+        try {
+            // TODO: maybe check that there's more than 0 rows in the cache before returning them?
+            if (cacheResult) {
+                if (cacheResult?.isStale) {
+                    thisLogger.debug(`Cache is stale, triggering background update...`);
+                    this.fetchApiRecords<T>({...paramsWithCache, logger: logger.tempLogger('backgroundUpdate')}, true);
+                }
+
+                thisLogger.debug(`Returning ${cacheResult.rows.length} cached rows`);
+                return cacheResult.rows;
+            } else {
+                return await this.fetchApiRecords<T>(paramsWithCache);
+            }
+        } finally {
+            releaseMutex?.();
+        }
+    }
+
     // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
     // See comment above on FetchParams object for more info about arguments
-    private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
-        let { breakIf, cacheKey, fetch, logger, moar, processFxn, skipCache, skipMutex } = inParams;
-        logger ??= getLogger(cacheKey, 'getApiRecords');
+    private async fetchApiRecords<T extends MastodonApiObject>(
+        params: FetchParamsWithCacheData<T>,
+        isBackgroundUpdate?: boolean
+    ): Promise<MastodonApiObject[]> {
+        let { breakIf, cacheKey, fetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
+        logger = logger.tempLogger('fetchApiRecords', cacheKey);
 
-        // Lock mutex before checking cache (unless skipMutex is true)
-        const releaseMutex = skipMutex ? null : await lockExecution(this.mutexes[cacheKey], logger);
-        const completeParams = await this.addCacheDataToParams<T>({ ...inParams, logger });
-        let { cacheResult, maxCacheRecords, maxRecords } = completeParams;
+        if (this.apiMutexes[cacheKey].isLocked()) {
+            if (isBackgroundUpdate) {
+                logger.trace(`Called but ApiMutex is already locked, nothing to do`);
+            } else {
+                logger.warn(`ApiMutex is already locked! Returning empty array...`);
+            }
 
-        // If cache is fresh return it unless 'moar' flag is set (Storage.get() handled the deserialization of Toots etc.)
-        if (this.shouldReturnCachedRows(completeParams)) {
-            releaseMutex?.();  // TODO: seems a bit dangerous to handle the mutex outside of try/finally...
-            return cacheResult!.rows;
+            return [];
         }
 
-        let cachedRows = cacheResult?.rows || [];
-        let pageNumber = 0;
+        const releaseMutex = skipMutex ? null : await lockExecution(this.apiMutexes[cacheKey], logger);
+        let cachedRows: T[] = [];
         let newRows: T[] = [];
+        let pageNumber = 0;
 
         try {
-            // Telemetry stuff that should be removed eventually
-            this.waitTimes[cacheKey] ||= new WaitTime();
-            this.waitTimes[cacheKey]!.markStart();
+            // Check the cache again, in case it was updated while we were waiting for the mutex
+            params = await this.addCacheDataToParams<T>(params);
+            const { cacheResult, maxRecords } = params;
+            cachedRows = cacheResult?.rows || [];
 
-            for await (const page of fetch(this.buildParams(completeParams))) {
-                this.waitTimes[cacheKey]!.markEnd(); // telemetry
-                const requestSeconds = this.waitTimes[cacheKey]!.ageInSeconds() || 0;
+            if (this.shouldReturnCachedRows(params)) {
+                logger.trace(`Returning ${cachedRows?.length} cached rows`);
+                return cachedRows;
+            }
 
-                // the important stuff
+            this.waitTimes[cacheKey].markStart();  // Telemetry stuff that should be removed eventually
+
+            for await (const page of fetch(this.buildParams(params))) {
+                this.waitTimes[cacheKey].markEnd(); // telemetry
                 newRows = newRows.concat(page as T[]);
                 pageNumber += 1;
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;  // breakIf() must be called before we check the length of rows!
-                const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey]!.ageString()}`;
+                const recordsSoFar = `${page.length} in page, ${newRows.length} records so far ${this.waitTimes[cacheKey].ageString()}`;
+                const requestSeconds = this.waitTimes[cacheKey].ageInSeconds();
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Completing fetch at page ${pageNumber}, ${recordsSoFar}, shouldStop=${shouldStop}`);
@@ -603,17 +649,10 @@ export default class MastoApi {
                     (pageNumber % 5 == 0) ? logger.debug(msg) : logger.trace(msg);
                 }
 
-                // Reset timer to try to only measure the time spent waiting for the API to respond
-                this.waitTimes[cacheKey]!.markStart();
+                this.waitTimes[cacheKey].markStart();  // Reset timer for next page
             }
         } catch (e) {
-            if (!this.waitTimes[cacheKey]) {
-                logger.warn(`waitTimes[${cacheKey}] is undefined!`);
-                this.waitTimes[cacheKey] = new WaitTime();
-                this.waitTimes[cacheKey]!.markStart();
-            }
-
-            newRows = this.handleApiError<T>(completeParams, newRows, this.waitTimes[cacheKey]!.startedAt, e);
+            newRows = this.handleApiError<T>(params, newRows, this.waitTimes[cacheKey]!.startedAt, e);
             cachedRows = [];  // Set cachedRows to empty because hanldeApiError() already handled the merge
         } finally {
             releaseMutex?.();
@@ -652,12 +691,10 @@ export default class MastoApi {
 
     // Fill in defaults in params and derive the min/maxIdForFetch from cached data if appropriate
     private async addCacheDataToParams<T extends MastodonApiObject>(
-        params: FetchParams<T>
+        inParams: FetchParams<T>
     ): Promise<FetchParamsWithCacheData<T>> {
-        let { cacheKey, logger, maxId, moar, skipCache } = params;
-        logger ??= getLogger(cacheKey, moar ? "moar" : "initial");
-        const fullParams = fillInDefaultParams<T>({ ...params, logger });
-        const { maxRecords } = fullParams;
+        const params = fillInDefaultParams<T>(inParams);
+        let { cacheKey, logger, maxId, maxRecords, moar, skipCache } = params;
 
         // Fetch from cache unless skipCache is true
         const cacheResult = skipCache ? null : (await this.getCachedRows<T>(cacheKey));
@@ -696,7 +733,7 @@ export default class MastoApi {
 
         const completedParams: FetchParamsWithCacheData<T> = {
             ...minMaxIdParams,
-            ...fullParams,
+            ...params,
             cacheResult,
             maxRecords
         };
@@ -840,7 +877,7 @@ function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>
         ...params,
         breakIf: params.breakIf || null,
         limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
-        logger: logger || getLogger(cacheKey),
+        logger: logger || getLogger(cacheKey, ...(moar ? ["moar"] : [])),
         maxId: maxId || null,
         maxRecords: maxApiRecords,
         maxCacheRecords: requestDefaults?.maxCacheRecords,

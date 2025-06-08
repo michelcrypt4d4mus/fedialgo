@@ -2,7 +2,6 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { CacheKey } from "../enums";
 import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { type ApiCacheKey, type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
@@ -26,10 +25,9 @@ export default class MastoApi {
     logger: Logger;
     user: Account;
     userData?: UserData;
-    waitTimes: {
-        [key in CacheKey]?: WaitTime;
-    };
-    private mutexes;
+    waitTimes: Record<ApiCacheKey, WaitTime>;
+    private apiMutexes;
+    private cacheMutexes;
     private requestSemphore;
     static init(api: mastodon.rest.Client, user: Account): Promise<void>;
     static get instance(): MastoApi;
@@ -58,6 +56,7 @@ export default class MastoApi {
     private endpointURL;
     private supportsMinMaxId;
     private getApiRecords;
+    private fetchApiRecords;
     private buildParams;
     private addCacheDataToParams;
     private getCachedRows;

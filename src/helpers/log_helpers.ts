@@ -22,17 +22,19 @@ export async function lockExecution(
     logger: Logger,
     logPrefix?: string
 ): Promise<ConcurrencyLockRelease> {
+    logger = logPrefix ? logger.tempLogger(logPrefix) : logger;
+    logger.trace(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);
     let releaseLock: ConcurrencyLockRelease;
-    let logMsg = logPrefix ? `${logPrefix} ` : '';
+    let logMsg: string;
 
     if (Array.isArray(acquireLock)) {
-        logMsg += `Semaphore ${acquireLock[0]}`;
+        logMsg = `Semaphore ${acquireLock[0]}`;
         releaseLock = acquireLock[1];
     } else {
-        logMsg += `Mutex`;
+        logMsg = `Mutex`;
         releaseLock = acquireLock;
     }
 
@@ -75,10 +77,10 @@ export class WaitTime {
     numRequests: number = 0;
     startedAt: Date = new Date();  // TODO: this shouldn't really be set yet...
 
-    ageInSeconds(): number | undefined {
+    ageInSeconds(): number {
         if (!this.startedAt) {
             this.logger.warn(`No startedAt set for WaitTime so can't compute ageInSeconds()`);
-            return undefined;
+            return 0;
         }
 
         return ageInSeconds(this.startedAt);

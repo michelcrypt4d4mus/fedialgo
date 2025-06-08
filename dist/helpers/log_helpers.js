@@ -12,17 +12,19 @@ exports.PREP_SCORERS = "prepareScorers";
 exports.TRIGGER_FEED = "triggerFeedUpdate";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
 async function lockExecution(locker, logger, logPrefix) {
+    logger = logPrefix ? logger.tempLogger(logPrefix) : logger;
+    logger.trace(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     let releaseLock;
-    let logMsg = logPrefix ? `${logPrefix} ` : '';
+    let logMsg;
     if (Array.isArray(acquireLock)) {
-        logMsg += `Semaphore ${acquireLock[0]}`;
+        logMsg = `Semaphore ${acquireLock[0]}`;
         releaseLock = acquireLock[1];
     }
     else {
-        logMsg += `Mutex`;
+        logMsg = `Mutex`;
         releaseLock = acquireLock;
     }
     logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
@@ -63,7 +65,7 @@ class WaitTime {
     ageInSeconds() {
         if (!this.startedAt) {
             this.logger.warn(`No startedAt set for WaitTime so can't compute ageInSeconds()`);
-            return undefined;
+            return 0;
         }
         return (0, time_helpers_1.ageInSeconds)(this.startedAt);
     }

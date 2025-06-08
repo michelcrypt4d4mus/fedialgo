@@ -13,7 +13,7 @@ export declare class WaitTime {
     milliseconds: number;
     numRequests: number;
     startedAt: Date;
-    ageInSeconds(): number | undefined;
+    ageInSeconds(): number;
     ageString(): string;
     markStart(): void;
     markEnd(): void;
