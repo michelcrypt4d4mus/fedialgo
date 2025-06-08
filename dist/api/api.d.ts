@@ -57,9 +57,10 @@ export default class MastoApi {
     private supportsMinMaxId;
     private getApiRecords;
     private fetchApiRecords;
+    private getApiRecordsOrCache;
     private buildParams;
     private addCacheDataToParams;
-    private getCachedRows;
+    private getCacheResult;
     private handleApiError;
     private buildFromApiObjects;
     private shouldReturnCachedRows;
