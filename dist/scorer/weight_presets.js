@@ -55,7 +55,7 @@ exports.WEIGHT_PRESETS = {
     }, {
         [enums_1.NonScoreWeightName.TIME_DECAY]: 9.99,
         [enums_1.NonScoreWeightName.TRENDING]: 0,
-        [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 0,
+        [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 1,
     }),
     [WeightPresetLabel.DEFAULT]: {
         ...exports.DEFAULT_WEIGHTS
@@ -96,7 +96,7 @@ exports.WEIGHT_PRESETS = {
     }, {
         [enums_1.NonScoreWeightName.TIME_DECAY]: 0,
         [enums_1.NonScoreWeightName.TRENDING]: 0,
-        [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 0,
+        [enums_1.NonScoreWeightName.OUTLIER_DAMPENER]: 1,
     }),
     [WeightPresetLabel.TRENDING]: {
         ...exports.DEFAULT_WEIGHTS,
