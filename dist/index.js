@@ -381,7 +381,6 @@ class TheAlgorithm {
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ skipCache: true });
         this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
-        (await api_1.default.instance.getUserData()).mutedAccounts = this.userData.mutedAccounts;
         await this.finishFeedUpdate();
     }
     // Clear everything from browser storage except the user's identity and weightings (unless complete is true).
@@ -495,11 +494,10 @@ class TheAlgorithm {
         const logger = this.logger.tempLogger(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
-        // Required for refreshing muted accounts
-        // TODO: this is pretty janky and the completeToots() call will take a long time if there's a lot of toots to complete
-        this.feed = await toot_1.default.removeInvalidToots(this.feed, logger);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await toot_1.default.completeToots(this.feed, logger);
+        // Must come *after* completeToots() for refreshing muted accounts  // TODO: this is pretty janky
+        this.feed = await toot_1.default.removeInvalidToots(this.feed, logger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
