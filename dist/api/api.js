@@ -495,10 +495,9 @@ class MastoApi {
             for await (const page of fetch(this.buildParams(params))) {
                 waitTime.markEnd(); // telemetry
                 newRows = newRows.concat(page);
-                pageNumber += 1;
                 // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
-                let resultsMsg = `${page.length} in page ${pageNumber}, ${newRows.length} records so far`;
+                let resultsMsg = `${page.length} in page ${++pageNumber}, ${newRows.length} records so far`;
                 resultsMsg += ` ${waitTime.ageString()}`;
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`);
