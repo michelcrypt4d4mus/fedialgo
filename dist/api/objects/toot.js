@@ -302,7 +302,7 @@ class Toot {
             return this.scoreInfo.scores[name][scoreType];
         }
         else {
-            tootLogger.warn(`<getIndividualScore()> called on toot but no scoreInfo.scores:`, this);
+            tootLogger.trace(`no score available for ${scoreType}/${name}:`, this);
             return 0;
         }
     }

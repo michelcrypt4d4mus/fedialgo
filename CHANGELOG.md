@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Lower log level for missing score message
 
 # v0.69.0
 * Add `FollowersScorer` to weight accounts that follow the fedialgo user
