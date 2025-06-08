@@ -566,7 +566,6 @@ class MastoApi {
     async addCacheDataToParams(inParams) {
         const params = fillInDefaultParams(inParams);
         let { logger, maxId, maxRecords, moar } = params;
-        // Fetch from cache unless skipCache is true
         const cacheResult = await this.getCacheResult(params);
         const minMaxIdParams = { maxIdForFetch: null, minIdForFetch: null };
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
@@ -574,19 +573,13 @@ class MastoApi {
         // If we're incrementally updating stale data, use the max ID of the cache as the request minId
         if (cacheResult?.minMaxId) {
             if (moar) {
-                if (maxId) {
+                if (maxId)
                     logger.warn(`maxId param "${maxId}" will overload minID in cache "${cacheResult.minMaxId.min}"!`);
-                }
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
                 logger.info(`Getting MOAR_DATA; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
             }
             else {
-                // TODO: is this right? we used to return the cached data quickly if it was OK...
-                // TODO: at the very least we are filling in this value when it is only used for updating stale data...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
-                if (cacheResult.isStale) {
-                    logger.info(`Incremental update of stale data from cached maxId "${minMaxIdParams.minIdForFetch}"`);
-                }
             }
         }
         else if (maxId) {
@@ -595,19 +588,19 @@ class MastoApi {
         }
         // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
         if (cacheResult && moar) {
-            const newMaxRecords = maxRecords + cacheResult.rows.length;
-            logger.info(`Increasing maxRecords for MOAR_DATA to ${newMaxRecords}`);
+            maxRecords = maxRecords + cacheResult.rows.length;
+            logger.info(`Increasing maxRecords for MOAR_DATA to ${maxRecords}`);
         }
         const completedParams = {
             ...minMaxIdParams,
             ...params,
             cacheResult,
-            maxRecords
+            maxRecords,
         };
         this.validateFetchParams(completedParams);
         return completedParams;
     }
-    // Load data from the cache and make some inferences. Thin wrapper around Storage.getWithStaleness()
+    // Load rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness().
     async getCacheResult(params) {
         const { cacheKey, skipCache } = params;
         if (skipCache)
@@ -669,7 +662,7 @@ class MastoApi {
         }
         else if (Storage_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof toot_1.default ? obj : toot_1.default.build(obj));
-            return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects()`));
+            return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
         else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id, key);
@@ -699,7 +692,7 @@ class MastoApi {
                 logger.trace(`Returning cached rows w/params:`, paramsToLog);
             }
             else if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
-                logger.debug(`Incremental fetch from API to update cache:`, paramsToLog);
+                logger.debug(`Incremental fetch from API to update stale cache:`, paramsToLog);
             }
             else {
                 logger.trace(`Fetching new data from API w/params:`, paramsToLog);

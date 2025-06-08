@@ -115,10 +115,7 @@ class Logger {
     // Returns a function that will build Logger objects with the starting prefixes
     static logBuilder(name, ...prefixes) {
         // I think we have to define as const before returning to get the closure to capture the name + prefixes?
-        const logMaker = (...args) => {
-            const loggerArgs = [...prefixes, ...args];
-            return new Logger(name, ...loggerArgs);
-        };
+        const logMaker = (...args) => new Logger(name, ...[...prefixes, ...args]);
         return logMaker;
     }
 }

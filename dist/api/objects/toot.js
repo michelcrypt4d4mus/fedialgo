@@ -760,7 +760,7 @@ class Toot {
             }
             return mostRecent;
         });
-        logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
+        logger.logArrayReduction(toots, deduped, "Toot", "duplicate");
         return deduped;
     }
     // Get rid of toots we never want to see again

@@ -683,7 +683,6 @@ export default class MastoApi {
     ): Promise<FetchParamsWithCacheData<T>> {
         const params = fillInDefaultParams<T>(inParams);
         let { logger, maxId, maxRecords, moar } = params;
-        // Fetch from cache unless skipCache is true
         const cacheResult = await this.getCacheResult<T>(params);
         const minMaxIdParams: MinMaxIDParams = {maxIdForFetch: null, minIdForFetch: null};
 
@@ -692,20 +691,11 @@ export default class MastoApi {
         // If we're incrementally updating stale data, use the max ID of the cache as the request minId
         if (cacheResult?.minMaxId) {
             if (moar) {
-                if (maxId) {
-                    logger.warn(`maxId param "${maxId}" will overload minID in cache "${cacheResult.minMaxId.min}"!`);
-                }
-
+                if (maxId) logger.warn(`maxId param "${maxId}" will overload minID in cache "${cacheResult.minMaxId.min}"!`);
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
                 logger.info(`Getting MOAR_DATA; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
             } else {
-                // TODO: is this right? we used to return the cached data quickly if it was OK...
-                // TODO: at the very least we are filling in this value when it is only used for updating stale data...
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
-
-                if (cacheResult.isStale) {
-                    logger.info(`Incremental update of stale data from cached maxId "${minMaxIdParams.minIdForFetch}"`);
-                }
             }
         } else if (maxId) {
             logger.info(`Loading backward from manually provided maxId: "${maxId}"`);
@@ -714,22 +704,22 @@ export default class MastoApi {
 
         // If 'moar' flag is set, add another unit of maxRecords to the row count we have now
         if (cacheResult && moar) {
-            const newMaxRecords = maxRecords! + cacheResult.rows!.length;
-            logger.info(`Increasing maxRecords for MOAR_DATA to ${newMaxRecords}`);
+            maxRecords = maxRecords! + cacheResult.rows!.length;
+            logger.info(`Increasing maxRecords for MOAR_DATA to ${maxRecords}`);
         }
 
         const completedParams: FetchParamsWithCacheData<T> = {
             ...minMaxIdParams,
             ...params,
             cacheResult,
-            maxRecords
+            maxRecords,
         };
 
         this.validateFetchParams<T>(completedParams);
         return completedParams;
     }
 
-    // Load data from the cache and make some inferences. Thin wrapper around Storage.getWithStaleness()
+    // Load rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness().
     private async getCacheResult<T extends MastodonApiObject>(
         params: FetchParamsWithDefaults<T>
     ): Promise<CachedRows<T> | null> {
@@ -796,7 +786,7 @@ export default class MastoApi {
             return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
-            return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects()`));
+            return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id, key);
         } else {
@@ -829,7 +819,7 @@ export default class MastoApi {
             if (this.shouldReturnCachedRows(params)) {
                 logger.trace(`Returning cached rows w/params:`, paramsToLog);
             } else if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
-                logger.debug(`Incremental fetch from API to update cache:`, paramsToLog);
+                logger.debug(`Incremental fetch from API to update stale cache:`, paramsToLog);
             } else {
                 logger.trace(`Fetching new data from API w/params:`, paramsToLog);
             }

@@ -936,7 +936,7 @@ export default class Toot implements TootObj {
             return mostRecent;
         });
 
-        logger.logArrayReduction(toots, deduped, "Toots", "duplicate");
+        logger.logArrayReduction(toots, deduped, "Toot", "duplicate");
         return deduped;
     }
 
