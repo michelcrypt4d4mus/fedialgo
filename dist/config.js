@@ -400,7 +400,7 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[enums_1.CacheKey.FOLLOWED_TAGS].minutesUntilStale = 5;
     config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 5;
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
-    config.api.backgroundLoadIntervalMinutes = 5;
+    config.api.backgroundLoadIntervalMinutes = 2;
     config.api.maxRecordsForFeatureScoring = 2500;
     // config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1500;

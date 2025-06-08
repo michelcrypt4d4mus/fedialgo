@@ -488,11 +488,12 @@ class MastoApi {
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.cacheMutexes[cacheKey], hereLogger);
         try {
             // TODO: maybe check that there's more than 0 rows in the cache before returning them?
+            // "moar" data requests are aleady running in their own background job so can afford to wait
             if (cacheResult && !moar) {
                 if (cacheResult.isStale) {
                     // If the mutex is locked background load is in progress so don't start another one
                     if (this.apiMutexes[cacheKey].isLocked()) {
-                        hereLogger.trace(`Cache is stale, but mutex is locked, returning stale rows`);
+                        hereLogger.trace(`Stale cache but update already in progress, returning stale rows`);
                     }
                     else {
                         hereLogger.debug(`Returning ${cacheResult.rows.length} stale rows and triggering cache update`);
