@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -8,7 +31,7 @@ const api_1 = __importDefault(require("./api"));
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
-const toot_1 = __importDefault(require("./objects/toot"));
+const toot_1 = __importStar(require("./objects/toot"));
 const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
@@ -17,6 +40,7 @@ const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
 class UserData {
+    lastUpdatedAt;
     // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
     favouriteAccounts = new obj_with_counts_list_1.default([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
@@ -57,14 +81,15 @@ class UserData {
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
+        //Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
+        userData.lastUpdatedAt = (0, toot_1.mostRecentTootedAt)([...data.recentToots, ...data.favouritedToots]);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config_1.config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);
         return userData;
     }
-    // Use MUTED_ACCOUNTS as a proxy for staleness
-    // TODO: could be smarter
-    async isDataStale() {
-        return this.isEmpty() || await Storage_1.default.isDataStale(enums_1.CacheKey.MUTED_ACCOUNTS);
+    // If there's newer data in the cache the data is not fresh
+    async hasNewestApiData() {
+        return !!(Storage_1.default.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage_1.default.lastUpdatedAt));
     }
     // Add up the favourites, retoots, and replies for each account
     populateFavouriteAccounts(data) {
@@ -105,7 +130,7 @@ class UserData {
             this.languagesPostedIn.length === 0 &&
             Object.keys(this.followedAccounts).length === 0 &&
             Object.keys(this.mutedAccounts).length === 0;
-        logger.trace("UserData.isEmpty() =", empty);
+        // logger.deep("UserData.isEmpty() =", empty);
         return empty;
     }
     /////////////////////////////

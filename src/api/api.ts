@@ -143,7 +143,7 @@ export default class MastoApi {
 
         apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
-        MastoApi.#instance.userData = await Storage.loadUserData();
+        MastoApi.#instance.userData = await Storage.loadUserData();  // Instantiate userData from the cache
     }
 
     public static get instance(): MastoApi {
@@ -409,7 +409,7 @@ export default class MastoApi {
         const releaseMutex = await lockExecution(USER_DATA_MUTEX, this.logger);
 
         try {
-            if (force || !this.userData || (await this.userData.isDataStale())) {
+            if (force || !this.userData?.hasNewestApiData()) {
                 this.userData = await UserData.build();
             }
 
@@ -441,7 +441,7 @@ export default class MastoApi {
                 skipMutex: true,
             });
 
-            logger.trace(`Retrieved ${toots.length} toots ${ageString(startedAt)}`);
+            logger.deep(`Retrieved ${toots.length} toots ${ageString(startedAt)}`);
             return toots as Toot[];
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
@@ -510,7 +510,7 @@ export default class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            logger.trace(`Retrieved ${statuses.length} toots ${ageString(startedAt)}`);
+            logger.deep(`Retrieved ${statuses.length} toots ${ageString(startedAt)}`);
             return statuses;
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);

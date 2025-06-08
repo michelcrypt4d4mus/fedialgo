@@ -14,6 +14,7 @@ export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[];
 export default class Storage {
+    static lastUpdatedAt: Date | null;
     static clearAll(): Promise<void>;
     static get(key: StorageKey): Promise<StorableObj | null>;
     static getCoerced<T>(key: CacheKey): Promise<T[]>;

@@ -54,7 +54,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     }
 
     // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
-    // # of times the tag appears in array of Toot objects.
+    // # of times the tag appears in the 'toots' array of Toot objects.
     static fromUsageCounts(toots: Toot[], source: ObjListDataSource): TagList {
         // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
         let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;

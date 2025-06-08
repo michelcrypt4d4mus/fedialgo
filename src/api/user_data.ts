@@ -9,7 +9,7 @@ import MastoApi from "./api";
 import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
-import Toot from "./objects/toot";
+import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, CacheKey, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
 import { keyById } from "../helpers/collection_helpers";
@@ -36,6 +36,7 @@ interface UserApiData {
 
 
 export default class UserData {
+    lastUpdatedAt?: Date | null;
     // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
     favouriteAccounts = new ObjWithCountList<BooleanFilterOption>([], ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
@@ -79,15 +80,16 @@ export default class UserData {
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
+        //Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
+        userData.lastUpdatedAt = mostRecentTootedAt([...data.recentToots, ...data.favouritedToots]);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);
         return userData;
     }
 
-    // Use MUTED_ACCOUNTS as a proxy for staleness
-    // TODO: could be smarter
-    async isDataStale(): Promise<boolean> {
-        return this.isEmpty() || await Storage.isDataStale(CacheKey.MUTED_ACCOUNTS);
+    // If there's newer data in the cache the data is not fresh
+    async hasNewestApiData(): Promise<boolean> {
+        return !!(Storage.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage.lastUpdatedAt));
     }
 
     // Add up the favourites, retoots, and replies for each account
@@ -135,7 +137,7 @@ export default class UserData {
             Object.keys(this.followedAccounts).length === 0 &&
             Object.keys(this.mutedAccounts).length === 0;
 
-        logger.trace("UserData.isEmpty() =", empty);
+        // logger.deep("UserData.isEmpty() =", empty);
         return empty;
     }
 

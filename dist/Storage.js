@@ -67,6 +67,7 @@ exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
 ];
 const logger = new logger_1.Logger('STORAGE');
 class Storage {
+    static lastUpdatedAt = null; // Last time the storage was updated
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
         logger.log(`Clearing all storage...`);
@@ -244,13 +245,14 @@ class Storage {
     }
     // Set the value at the given key (with the user ID as a prefix)
     static async set(key, value) {
-        const storageKey = await this.buildKey(key);
-        const updatedAt = new Date().toISOString();
-        const storableValue = this.serialize(key, value);
-        const withTimestamp = { updatedAt, value: storableValue };
         const hereLogger = logger.tempLogger(key, `set`, `Updating cached value`);
+        const storageKey = await this.buildKey(key);
+        const updatedAt = new Date();
+        const storableValue = this.serialize(key, value);
+        const withTimestamp = { updatedAt: updatedAt.toISOString(), value: storableValue };
         environment_helpers_1.isDeepDebug ? hereLogger.deep('', withTimestamp) : hereLogger.trace('');
         await localforage_1.default.setItem(storageKey, withTimestamp);
+        this.lastUpdatedAt = updatedAt;
     }
     // Serialize the FeedFilterSettings object
     static async setFilters(filters) {

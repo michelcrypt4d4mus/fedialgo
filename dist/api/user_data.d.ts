@@ -13,6 +13,7 @@ interface UserApiData {
     serverSideFilters: mastodon.v2.Filter[];
 }
 export default class UserData {
+    lastUpdatedAt?: Date | null;
     favouriteAccounts: ObjWithCountList<BooleanFilterOption>;
     favouritedTags: TagList;
     followedAccounts: StringNumberDict;
@@ -24,7 +25,7 @@ export default class UserData {
     serverSideFilters: mastodon.v2.Filter[];
     static build(): Promise<UserData>;
     static buildFromData(data: UserApiData): UserData;
-    isDataStale(): Promise<boolean>;
+    hasNewestApiData(): Promise<boolean>;
     private populateFavouriteAccounts;
     private isEmpty;
     static getMutedKeywords(): Promise<string[]>;

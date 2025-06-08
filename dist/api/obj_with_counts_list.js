@@ -81,7 +81,7 @@ class ObjWithCountList {
     // Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
     // Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
     populateByCountingProps(objs, propExtractor) {
-        this.logger.trace(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
+        this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
         const options = objs.reduce((optionDict, obj) => {
             const extractedProps = propExtractor(obj);
             optionDict[extractedProps.name] ??= extractedProps;

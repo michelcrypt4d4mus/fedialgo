@@ -80,7 +80,7 @@ class MastoApi {
         }
         apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
-        MastoApi.#instance.userData = await Storage_1.default.loadUserData();
+        MastoApi.#instance.userData = await Storage_1.default.loadUserData(); // Instantiate userData from the cache
     }
     static get instance() {
         if (!MastoApi.#instance)
@@ -313,7 +313,7 @@ class MastoApi {
     async getUserData(force) {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(USER_DATA_MUTEX, this.logger);
         try {
-            if (force || !this.userData || (await this.userData.isDataStale())) {
+            if (force || !this.userData?.hasNewestApiData()) {
                 this.userData = await user_data_1.default.build();
             }
             return this.userData;
@@ -342,7 +342,7 @@ class MastoApi {
                 // Concurrency is managed by the semaphore above, not the mutexes
                 skipMutex: true,
             });
-            logger.trace(`Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            logger.deep(`Retrieved ${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
             return toots;
         }
         catch (e) {
@@ -409,7 +409,7 @@ class MastoApi {
         try {
             const searchResult = await this.api.v2.search.list(query);
             const statuses = searchResult.statuses;
-            logger.trace(`Retrieved ${statuses.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            logger.deep(`Retrieved ${statuses.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`);
             return statuses;
         }
         catch (e) {
