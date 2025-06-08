@@ -72,8 +72,7 @@ export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
     CacheKey.SERVER_SIDE_FILTERS,
 ]
 
-const LOG_PREFIX = '[STORAGE]';
-const logger = new Logger(LOG_PREFIX);
+const logger = new Logger('STORAGE');
 
 
 export default class Storage {
@@ -203,11 +202,11 @@ export default class Storage {
 
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key: ApiCacheKey): Promise<StorableObjWithStaleness | null> {
-        const logger = new Logger(LOG_PREFIX, key, `getWithStaleness`);
+        const hereLogger = logger.tempLogger(key, `getWithStaleness`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
         if (!withTimestamp?.updatedAt) {
-            logger.deep(`No data found, returning null`);
+            hereLogger.deep(`No data found, returning null`);
             return null;
         };
 
@@ -218,12 +217,12 @@ export default class Storage {
         let isStale = false;
 
         if (dataAgeInMinutes > staleAfterMinutes) {
-            logger.debug(`Data is stale ${minutesMsg}`);
+            hereLogger.debug(`Data is stale ${minutesMsg}`);
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
-            logger.trace(msg);
+            hereLogger.trace(msg);
         }
 
         // Check for unique IDs in the stored data if we're in debug mode

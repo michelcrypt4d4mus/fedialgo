@@ -65,8 +65,7 @@ exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
     enums_1.CacheKey.NOTIFICATIONS,
     enums_1.CacheKey.SERVER_SIDE_FILTERS,
 ];
-const LOG_PREFIX = '[STORAGE]';
-const logger = new logger_1.Logger(LOG_PREFIX);
+const logger = new logger_1.Logger('STORAGE');
 class Storage {
     // Clear everything but preserve the user's identity and weightings
     static async clearAll() {
@@ -182,10 +181,10 @@ class Storage {
     }
     // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
     static async getWithStaleness(key) {
-        const logger = new logger_1.Logger(LOG_PREFIX, key, `getWithStaleness`);
+        const hereLogger = logger.tempLogger(key, `getWithStaleness`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp?.updatedAt) {
-            logger.deep(`No data found, returning null`);
+            hereLogger.deep(`No data found, returning null`);
             return null;
         }
         ;
@@ -195,14 +194,14 @@ class Storage {
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;
         if (dataAgeInMinutes > staleAfterMinutes) {
-            logger.debug(`Data is stale ${minutesMsg}`);
+            hereLogger.debug(`Data is stale ${minutesMsg}`);
             isStale = true;
         }
         else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
             if (Array.isArray(withTimestamp.value))
                 msg += ` (${withTimestamp.value.length} records)`;
-            logger.trace(msg);
+            hereLogger.trace(msg);
         }
         // Check for unique IDs in the stored data if we're in debug mode
         if (environment_helpers_1.isDebugMode && exports.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
