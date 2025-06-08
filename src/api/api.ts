@@ -25,7 +25,6 @@ import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { TrendingType } from '../enums';
 import {
-    asOptionalArray,
     findMinMaxId,
     getPromiseResults,
     removeKeys,
