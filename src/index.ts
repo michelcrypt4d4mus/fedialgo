@@ -125,6 +125,8 @@ class TheAlgorithm {
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
+
+    get timeline(): Toot[] { return [...this.feed] };
     get userData(): UserData { return MastoApi.instance.userData || new UserData() };
 
     // Constructor argument variables
@@ -389,14 +391,6 @@ class TheAlgorithm {
      */
     getRechartsStatsData(numPercentiles: number = 5): any[] {
         return rechartsDataPoints(this.feed, numPercentiles);
-    }
-
-    /**
-     * Return the current filtered timeline feed in weight order.
-     * @returns {Toot[]} The filtered timeline feed.
-     */
-    getTimeline(): Toot[] {
-        return this.feed;
     }
 
     /**

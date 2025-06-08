@@ -54,6 +54,7 @@ declare class TheAlgorithm {
     loadingStatus: string | null;
     trendingData: TrendingData;
     weightPresets: WeightPresets;
+    get timeline(): Toot[];
     get userData(): UserData;
     private api;
     private user;
@@ -118,11 +119,6 @@ declare class TheAlgorithm {
      * @returns {any[]} Recharts data points.
      */
     getRechartsStatsData(numPercentiles?: number): any[];
-    /**
-     * Return the current filtered timeline feed in weight order.
-     * @returns {Toot[]} The filtered timeline feed.
-     */
-    getTimeline(): Toot[];
     /**
      * Return the user's current weightings for each score category.
      * @returns {Promise<Weights>} The user's weights.

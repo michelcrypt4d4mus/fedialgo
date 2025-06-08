@@ -131,6 +131,8 @@ class TheAlgorithm {
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
     trendingData = EMPTY_TRENDING_DATA;
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
+    get timeline() { return [...this.feed]; }
+    ;
     get userData() { return api_1.default.instance.userData || new user_data_1.default(); }
     ;
     // Constructor argument variables
@@ -366,13 +368,6 @@ class TheAlgorithm {
      */
     getRechartsStatsData(numPercentiles = 5) {
         return (0, stats_helper_1.rechartsDataPoints)(this.feed, numPercentiles);
-    }
-    /**
-     * Return the current filtered timeline feed in weight order.
-     * @returns {Toot[]} The filtered timeline feed.
-     */
-    getTimeline() {
-        return this.feed;
     }
     /**
      * Return the user's current weightings for each score category.

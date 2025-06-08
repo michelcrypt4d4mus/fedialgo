@@ -98,11 +98,11 @@ if (!algorithm.isLoading()) {
     algorithm.triggerFeedUpdate();
 }
 
-// algorithm.getTimeline() returns the current weight-ordered/filtered array of Toot objects
+// algorithm.timeline returns the current weight-ordered/filtered array of Toot objects
 // Note there won't be anything there until the timeilne is at least partially built!
-let timeline: Toot[] = algorithm.getTimeline();
+let timeline: Toot[] = algorithm.timeline;
 // If you wanted to wait until the feed was fully constructed, wait for the Promise:
-algorithm.triggerFeedUpdate().then(() => timeline = algorithm.getTimeline());
+algorithm.triggerFeedUpdate().then(() => timeline = algorithm.timeline);
 
 // You can pull additional past timeline toots beyond the configured initial amount:
 algorithm.triggerHomeTimelineBackFill();

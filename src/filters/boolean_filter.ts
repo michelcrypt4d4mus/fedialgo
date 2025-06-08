@@ -1,4 +1,4 @@
-/*
+/**
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
@@ -15,18 +15,55 @@ import { config } from '../config';
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
+/**
+ * List of BooleanFilterOption objects with count support.
+ * @extends ObjWithCountList<BooleanFilterOption>
+ */
 export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
 
+/**
+ * Data sources for filter options.
+ * @typedef {Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>} FilterOptionDataSources
+ */
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
+
+/**
+ * Function type for matching a toot against selected options.
+ * @callback TootMatcher
+ * @param {Toot} toot - The toot to check.
+ * @param {string[]} selectedOptions - The selected options.
+ * @returns {boolean} True if the toot matches.
+ */
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
+
+/**
+ * Function type for type-based filter.
+ * @callback TypeFilter
+ * @param {Toot} toot - The toot to check.
+ * @returns {boolean} True if the toot matches the type.
+ */
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
+/**
+ * Checks if a value is a valid BooleanFilterName.
+ * @param {string} value - The value to check.
+ * @returns {boolean}
+ */
 export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
+
+/**
+ * Checks if a value is a valid TypeFilterName.
+ * @param {string} value - The value to check.
+ * @returns {boolean}
+ */
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
-// Defining a new filter just requires adding a new entry to TYPE_FILTERS
+/**
+ * Type-based filters for toots.
+ * @type {Record<TypeFilterName, TypeFilter>}
+ */
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot().audioAttachments?.length,
     [TypeFilterName.BOT]:               (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
@@ -49,7 +86,10 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot().videoAttachments?.length,
 };
 
-// Defining a new filter category just requires adding a new entry to TYPE_FILTERS
+/**
+ * Matchers for BooleanFilterName categories.
+ * @type {Record<BooleanFilterName, TootMatcher>}
+ */
 const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.APP]: (toot: Toot, selectedOptions: string[]) => {
         return selectedOptions.includes(toot.realToot().application?.name);
@@ -68,25 +108,53 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     },
 };
 
+/**
+ * Arguments for BooleanFilter constructor.
+ * @typedef {object} BooleanFilterArgs
+ * @property {string[]} [selectedOptions] - The selected options.
+ * @property {BooleanFilterName} title - The filter title.
+ */
 export interface BooleanFilterArgs extends FilterArgs {
     selectedOptions?: string[];
     title: BooleanFilterName;
 };
 
-
+/**
+ * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
+ * @extends TootFilter
+ */
 export default class BooleanFilter extends TootFilter {
-    selectedOptions: string[];   // Which options are selected for use in the filter
+    /**
+     * Which options are selected for use in the filter.
+     * @type {string[]}
+     */
+    selectedOptions: string[];
+    /**
+     * The filter title/category.
+     * @type {BooleanFilterName}
+     */
     title: BooleanFilterName;
 
+    /**
+     * Get the current options list.
+     * @returns {BooleanFilterOptionList}
+     */
     get options() { return this._options };
     private _options: BooleanFilterOptionList;
 
-    // Also removes options that are no longer valid
+    /**
+     * Set the options list and remove invalid selected options.
+     * @param {BooleanFilterOptionList} optionList
+     */
     public set options(optionList: BooleanFilterOptionList) {
         this._options = optionList;
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
 
+    /**
+     * Create a BooleanFilter.
+     * @param {BooleanFilterArgs} param0 - Constructor arguments.
+     */
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs) {
         let optionInfo = new BooleanFilterOptionList([], title);
         let description: string;
@@ -104,38 +172,61 @@ export default class BooleanFilter extends TootFilter {
         this.selectedOptions = selectedOptions ?? [];
     }
 
-    // Return true if the toot matches the filter
+    /**
+     * Return true if the toot matches the filter.
+     * @param {Toot} toot - The toot to check.
+     * @returns {boolean}
+     */
     isAllowed(toot: Toot): boolean {
         if (!this.selectedOptions.length) return true;  // If there's no selectedOptions allow everything
         const isMatched = TOOT_MATCHERS[this.title](toot, this.selectedOptions);
         return this.invertSelection ? !isMatched : isMatched;
     }
 
-    // If the option is in selectedOptions then it's enabled
+    /**
+     * Return true if the option is in selectedOptions.
+     * @param {string} optionName - The option name.
+     * @returns {boolean}
+     */
     isOptionEnabled(optionName: string): boolean {
         return this.selectedOptions.includes(optionName);
     }
 
-    // Return only options that have at least minToots or are in selectedOptions
+    /**
+     * Return only options that have at least minToots or are in selectedOptions.
+     * @param {BooleanFilterOption[]} options - The options to filter.
+     * @param {number} [minToots=0] - Minimum number of toots.
+     * @returns {BooleanFilterOptionList}
+     */
     optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
         return new BooleanFilterOptionList(options, this.title);
     }
 
-    // If minToots is set then only return options with a value greater than or equal to minValue
-    // along with any 'selectedOptions' entries that are below that threshold.
+    /**
+     * Return options sorted by name, filtered by minToots.
+     * @param {number} [minToots=0] - Minimum number of toots.
+     * @returns {BooleanFilterOptionList}
+     */
     optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
         let options = this.options.objs.toSorted((a, b) => compareStr(a.displayName || a.name, b.displayName || b.name));
         return this.optionListWithMinToots(options, minToots);
     }
 
-    // Sort options by numToots, then by name
+    /**
+     * Return options sorted by value, filtered by minToots.
+     * @param {number} [minToots=0] - Minimum number of toots.
+     * @returns {BooleanFilterOptionList}
+     */
     optionsSortedByValue(minToots: number = 0): BooleanFilterOptionList {
         return this.optionListWithMinToots(this.options.topObjs(), minToots);
     }
 
-    // Add the element to the filters array if it's not already there or remove it if it is
-    // If isValidOption is false remove the element from the filter instead of adding it
+    /**
+     * Add or remove an option from the filter.
+     * @param {string} optionName - The option name.
+     * @param {boolean} isSelected - Whether the option is selected.
+     */
     updateOption(optionName: string, isSelected: boolean) {
         this.logger.debug(`Updating options for ${this.title} with ${optionName} and ${isSelected}`);
 
@@ -154,16 +245,20 @@ export default class BooleanFilter extends TootFilter {
         this.selectedOptions = [...new Set(this.selectedOptions)];
     }
 
-    // Required for serialization of settings to local storage
+    /**
+     * Required for serialization of settings to local storage.
+     * @returns {BooleanFilterArgs}
+     */
     toArgs(): BooleanFilterArgs {
         const filterArgs = super.toArgs() as BooleanFilterArgs;
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
     }
 
-    // Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption
-    // Note this won't always be completely up to date, but it will be close enough for the UI
-    // TODO: currently unused
+    /**
+     * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
+     * @returns {Promise<FilterOptionDataSources>}
+     */
     static async filterOptionDataSources(): Promise<FilterOptionDataSources> {
         const userData = await MastoApi.instance.getUserData();
 
@@ -174,16 +269,5 @@ export default class BooleanFilter extends TootFilter {
             [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
             [TagTootsCacheKey.TRENDING_TAG_TOOTS]: await MastodonServer.fediverseTrendingTags(),
         };
-    }
-
-    // Build an empty of dict of dicts with an entry for each BooleanFilterName
-    static buildBooleanFilterDict<T extends Record<string, number | BooleanFilterOption>>(): Record<BooleanFilterName, T> {
-        return Object.values(BooleanFilterName).reduce(
-            (dict, filterName) => {
-                dict[filterName] = {} as T;
-                return dict;
-            },
-            {} as Record<BooleanFilterName, T>
-        );
     }
 };
