@@ -2,7 +2,6 @@
 /*
  * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
  */
-
 // Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
 // Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
 // This should live in Storage.ts but that creates a circular dependency with config.ts
@@ -30,6 +29,21 @@ export enum TagTootsCacheKey {
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
     TRENDING_TAG_TOOTS = 'TrendingTagToots'
 };
+
+export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
+
+// Build a dictionary of <whatever> for each ApiCacheKey
+export function buildCacheKeyDict<T>(
+    fxn: (key?: ApiCacheKey) => T,
+    keys?: ApiCacheKey[]
+): Record<ApiCacheKey, T> {
+    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
+        dict[key] = fxn(key);
+        return dict;
+    }, {} as Record<ApiCacheKey, T>);
+};
+
 
 // Storage keys but not for the API cache, for user data etc.
 export enum AlgorithmStorageKey {

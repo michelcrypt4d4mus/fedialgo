@@ -16,7 +16,7 @@ import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, FEDIVERSE_CACHE_KEYS } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
-import { TrendingType } from '../enums';
+import { TrendingType, buildCacheKeyDict } from '../enums';
 import {
     countValues,
     shuffle,
@@ -31,7 +31,6 @@ import {
     uniquifyTrendingObjs
 } from "./objects/trending_with_history";
 import {
-    type ApiMutex,
     type MastodonInstance,
     type MastodonInstances,
     type TagWithUsageCounts,
@@ -42,14 +41,6 @@ import {
 
 export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
-
-const TRENDING_MUTEXES: Partial<ApiMutex> = FEDIVERSE_CACHE_KEYS.reduce(
-    (mutexes, key) => {
-        mutexes[key] = new Mutex();
-        return mutexes;
-    },
-    {} as ApiMutex
-);
 
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
@@ -74,6 +65,7 @@ export default class MastodonServer {
     private static v1Url = (path: string) => `${API_V1}/${path}`;
     private static v2Url = (path: string) => `${API_V2}/${path}`;
     private static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
+    private static trendingMutexes = buildCacheKeyDict(() => new Mutex(), FEDIVERSE_CACHE_KEYS);
 
     constructor(domain: string) {
         this.domain = domain;
@@ -230,7 +222,7 @@ export default class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo(): Promise<MastodonInstances> {
         const logger =  getLogger(CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo");
-        const releaseMutex = await lockExecution(TRENDING_MUTEXES[CacheKey.FEDIVERSE_POPULAR_SERVERS]!, logger);
+        const releaseMutex = await lockExecution(this.trendingMutexes[CacheKey.FEDIVERSE_POPULAR_SERVERS]!, logger);
 
         try {
             let servers = await Storage.getIfNotStale<MastodonInstances>(CacheKey.FEDIVERSE_POPULAR_SERVERS);
@@ -328,7 +320,7 @@ export default class MastodonServer {
     ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
-        const releaseMutex = await lockExecution(TRENDING_MUTEXES[key]!, logger);
+        const releaseMutex = await lockExecution(this.trendingMutexes[key]!, logger);
         const startedAt = new Date();
 
         try {

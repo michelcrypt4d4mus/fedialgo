@@ -11,8 +11,7 @@ exports.BACKFILL_FEED = "triggerHomeTimelineBackFill";
 exports.PREP_SCORERS = "prepareScorers";
 exports.TRIGGER_FEED = "triggerFeedUpdate";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
-async function lockExecution(locker, logger, logPrefix) {
-    logger = logPrefix ? logger.tempLogger(logPrefix) : logger;
+async function lockExecution(locker, logger) {
     logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();

@@ -1,5 +1,6 @@
 import { Logger } from './logger';
-import { type ApiCacheKey, type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromisesResults, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type ApiCacheKey } from '../enums';
+import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromisesResults, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 export declare function addDicts(...args: StringNumberDict[]): StringNumberDict;
 export declare function atLeastValues(obj: StringNumberDict, minValue: number): StringNumberDict;
 export declare function average(values: number[]): number;

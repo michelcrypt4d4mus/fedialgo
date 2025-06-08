@@ -9,6 +9,7 @@ export default class MastodonServer {
     private static v1Url;
     private static v2Url;
     private static trendUrl;
+    private static trendingMutexes;
     constructor(domain: string);
     fetchServerInfo(): Promise<InstanceResponse>;
     fetchTrendingStatuses(): Promise<Toot[]>;

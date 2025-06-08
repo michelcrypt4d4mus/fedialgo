@@ -21,10 +21,6 @@ const logger_1 = require("../helpers/logger");
 const enums_2 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
-const TRENDING_MUTEXES = config_1.FEDIVERSE_CACHE_KEYS.reduce((mutexes, key) => {
-    mutexes[key] = new async_mutex_1.Mutex();
-    return mutexes;
-}, {});
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
@@ -39,6 +35,7 @@ class MastodonServer {
     static v1Url = (path) => `${API_V1}/${path}`;
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);
+    static trendingMutexes = (0, enums_2.buildCacheKeyDict)(() => new async_mutex_1.Mutex(), config_1.FEDIVERSE_CACHE_KEYS);
     constructor(domain) {
         this.domain = domain;
         this.logger = logger_1.Logger.withParenthesizedName(LOG_PREFIX, domain);
@@ -176,7 +173,7 @@ class MastodonServer {
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getMastodonInstancesInfo() {
         const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo");
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.trendingMutexes[enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger);
         try {
             let servers = await Storage_1.default.getIfNotStale(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS);
             if (!servers) {
@@ -255,7 +252,7 @@ class MastodonServer {
     static async fetchTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(TRENDING_MUTEXES[key], logger);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.trendingMutexes[key], logger);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);

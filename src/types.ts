@@ -14,7 +14,6 @@ import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCac
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
-export type ApiMutex = Record<ApiCacheKey, Mutex>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type ObjNames = Record<string, ObjWithTootCount>;
@@ -26,7 +25,6 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 
 // Misc
 export type AccountLike = Account | mastodon.v1.Account;
-export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
 export type CountKey = FilterTitle | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;

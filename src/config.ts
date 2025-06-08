@@ -1,11 +1,10 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { pull } from "lodash";
-import { CacheKey, NonScoreWeightName, TagTootsCacheKey } from "./enums";
+import { CacheKey, NonScoreWeightName, TagTootsCacheKey, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { Logger } from "./helpers/logger";
-import { ApiCacheKey, type NonScoreWeightInfoDict } from "./types";
+import { type NonScoreWeightInfoDict } from "./types";
 
 // Cachey keys for the fediverse wide trending data
 export const FEDIVERSE_CACHE_KEYS = [

@@ -9,8 +9,8 @@ import { isAccessTokenRevokedError } from '../api/api';
 import { isNumber, isNumberOrNumberString } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
+import { type ApiCacheKey } from '../enums';
 import {
-    type ApiCacheKey,
     type CountKey,
     type MastodonObjWithID,
     type MinMax,

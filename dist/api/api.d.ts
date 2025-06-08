@@ -2,9 +2,10 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
+import { type ApiCacheKey } from "../enums";
 import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
-import { type ApiCacheKey, type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
+import { type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
 export interface ApiParams {
     logger?: Logger;
     maxRecords?: number;

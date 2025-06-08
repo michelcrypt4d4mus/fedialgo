@@ -17,7 +17,7 @@ import Storage, {
     type CacheTimestamp,
 } from "../Storage";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { CacheKey, TagTootsCacheKey } from "../enums";
+import { CacheKey, buildCacheKeyDict, type ApiCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
@@ -33,8 +33,6 @@ import {
     uniquifyByProp
 } from "../helpers/collection_helpers";
 import {
-    type ApiCacheKey,
-    type ApiMutex,
     type ConcurrencyLockRelease,
     type MastodonApiObject,
     type MastodonObjWithID,
@@ -105,19 +103,16 @@ interface HomeTimelineParams extends MaxIdParams {
 
 type FetchParamName = keyof FetchParamsWithCacheData<any>;
 
-// constants
-const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+
 // Logging
-const LOG_PREFIX = 'API';
 const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetch", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
-
 // Loggers prefixed by [API]
-const getLogger = Logger.logBuilder(LOG_PREFIX);
+const getLogger = Logger.logBuilder('API');
 const apiLogger = getLogger();
 
 
@@ -130,9 +125,9 @@ export default class MastoApi {
     logger: Logger;
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-    waitTimes: Record<ApiCacheKey, WaitTime>; // Just for measuring performance (poorly)
-    private apiMutexes: ApiMutex;  // Mutexes for blocking singleton requests (e.g. followed accounts)
-    private cacheMutexes: ApiMutex; // Mutexes for blocking cache requests (e.g. home timeline toots)
+    waitTimes = buildCacheKeyDict(() => new WaitTime()); // Just for measuring performance (poorly)
+    private apiMutexes = buildCacheKeyDict(() => new Mutex());   // Mutexes for blocking singleton requests (e.g. followed accounts)
+    private cacheMutexes = buildCacheKeyDict(() => new Mutex()); // Mutexes for blocking cache requests (e.g. home timeline toots)
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Limit concurrency of search & hashtag requests
 
     static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
@@ -159,20 +154,9 @@ export default class MastoApi {
         this.reset();
 
         // Initialize mutexes for each StorageKey
-        this.apiMutexes = ALL_CACHE_KEYS.reduce((mutexes, key) => {
-            mutexes[key] = new Mutex();
-            return mutexes;
-        }, {} as ApiMutex);
-
-        this.cacheMutexes = ALL_CACHE_KEYS.reduce((mutexes, key) => {
-            mutexes[key] = new Mutex();
-            return mutexes;
-        }, {} as ApiMutex);
-
-        this.waitTimes = ALL_CACHE_KEYS.reduce((waitTimes, key) => {
-            waitTimes[key] = new WaitTime();
-            return waitTimes;
-        }, {} as Record<ApiCacheKey, WaitTime>);
+        this.apiMutexes = buildCacheKeyDict(() => new Mutex());  // Mutexes for API calls that need to be serialized
+        this.cacheMutexes = buildCacheKeyDict(() => new Mutex()); // Mutexes for cache requests that need to be serialized
+        this.waitTimes = buildCacheKeyDict(() => new WaitTime()); // Wait times for each cache key
     }
 
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
@@ -534,15 +518,9 @@ export default class MastoApi {
 
     // Called on instantiation and also when we are trying to reset state of the world
     reset(): void {
-        if (this.apiMutexes) this.logger.log(`Resetting MastoApi instance...`);
         this.apiErrors = [];
         this.userData = undefined;  // Clear the user data cache
         this.setSemaphoreConcurrency(config.api.maxConcurrentHashtagRequests);
-
-        this.waitTimes = ALL_CACHE_KEYS.reduce((waitTimes, key) => {
-            waitTimes[key] = new WaitTime();
-            return waitTimes;
-        }, {} as {[key in ApiCacheKey]: WaitTime});
     };
 
     // After the initial load we don't need to have massive concurrency and in fact it can be a big resource

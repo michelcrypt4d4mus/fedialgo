@@ -1,5 +1,5 @@
-import { CacheKey } from "./enums";
-import { ApiCacheKey, type NonScoreWeightInfoDict } from "./types";
+import { CacheKey, type ApiCacheKey } from "./enums";
+import { type NonScoreWeightInfoDict } from "./types";
 export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;

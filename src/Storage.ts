@@ -11,7 +11,7 @@ import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
-import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey } from "./enums";
+import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, type ApiCacheKey } from "./enums";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
@@ -34,7 +34,6 @@ import {
     type TrendingData,
     type WeightName,
     type Weights,
-    ApiCacheKey,
 } from "./types";
 
 // Configure localForage to use WebSQL as the driver
