@@ -121,8 +121,6 @@ const EMPTY_TRENDING_DATA = {
     toots: []
 };
 // Constants
-const REALLY_BIG_NUMBER = 10000000000;
-const PULL_USER_HISTORY_PARAMS = { maxRecords: REALLY_BIG_NUMBER, moar: true };
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 ;
 class TheAlgorithm {
@@ -147,10 +145,8 @@ class TheAlgorithm {
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     // Loggers
     logger = new logger_1.Logger(`TheAlgorithm`);
-    prepareScorersLogger = this.logger.tempLogger(log_helpers_1.PREP_SCORERS);
     // Mutexess
     mergeMutex = new async_mutex_1.Mutex();
-    prepareScorersMutex = new async_mutex_1.Mutex();
     // Background tasks
     cacheUpdater;
     dataPoller;
@@ -224,7 +220,7 @@ class TheAlgorithm {
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
         // Launch these asynchronously so we can start pulling toots right away
         api_1.default.instance.getUserData();
-        this.prepareScorers();
+        scorer_cache_1.default.prepareScorers();
         let dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
         ];
@@ -247,7 +243,7 @@ class TheAlgorithm {
         const allResults = await Promise.all(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
         if (config_1.config.api.pullFollowers) {
-            api_1.default.instance.getFollowers(PULL_USER_HISTORY_PARAMS);
+            api_1.default.instance.getFollowers();
         }
         await this.finishFeedUpdate();
     }
@@ -296,11 +292,11 @@ class TheAlgorithm {
         this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
         try {
             const _allResults = await Promise.all([
-                api_1.default.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
-                api_1.default.instance.getFollowers(PULL_USER_HISTORY_PARAMS),
+                api_1.default.instance.getFavouritedToots(api_1.FULL_HISTORY_PARAMS),
+                api_1.default.instance.getFollowers(api_1.FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
-                api_1.default.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
+                api_1.default.instance.getRecentUserToots(api_1.FULL_HISTORY_PARAMS),
             ]);
             await this.recomputeScorers();
             this.logger.log(`${logPrefix} finished`);
@@ -461,7 +457,7 @@ class TheAlgorithm {
         if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
             this.logger.debug(`${(0, string_helpers_1.arrowed)(log_helpers_1.TRIGGER_FEED)} QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
             // Needs to be called to update the feed in the app
-            this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
+            scorer_cache_1.default.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
         }
         else {
@@ -588,31 +584,16 @@ class TheAlgorithm {
         logger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore}`, startedAt);
         this.setLoadingStateVariables(logger.logPrefix);
     }
-    // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
-    async prepareScorers(force) {
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, this.prepareScorersLogger);
-        const startedAt = new Date();
-        try {
-            const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
-            if (scorersToPrepare.length == 0)
-                return;
-            await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.prepareScorersLogger);
-        }
-        finally {
-            releaseMutex();
-        }
-    }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     async recomputeScorers() {
         await api_1.default.instance.getUserData(true); // Refresh user data
-        await this.prepareScorers(true); // The "true" arg is the key here
+        await scorer_cache_1.default.prepareScorers(true); // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     async scoreAndFilterFeed() {
-        await this.prepareScorers(); // Make sure the scorers are ready to go
+        await scorer_cache_1.default.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, this.logger.tempLogger('scoreAndFilterFeed()'));
         await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);

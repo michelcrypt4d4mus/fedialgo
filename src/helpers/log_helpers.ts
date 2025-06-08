@@ -17,7 +17,8 @@ export const TRIGGER_FEED = "triggerFeedUpdate";
 
 
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
-export async function lockExecution(locker: Mutex | Semaphore, logger: Logger): Promise<ConcurrencyLockRelease> {
+export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger): Promise<ConcurrencyLockRelease> {
+    logger ||= new Logger("lockExecution");
     logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();

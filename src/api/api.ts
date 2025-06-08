@@ -8,6 +8,7 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
+// import ScorerCache from "../scorer/scorer_cache";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import Storage, {
@@ -23,6 +24,7 @@ import { extractDomain } from '../helpers/string_helpers';
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
+import { sleep } from "../helpers/time_helpers";
 import { TrendingType } from '../enums';
 import {
     findMinMaxId,
@@ -42,6 +44,8 @@ import {
     type TootLike,
     type WithCreatedAt,
 } from "../types";
+
+type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
 
 interface CachedRows<T> extends CacheTimestamp {
     minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
@@ -73,17 +77,23 @@ interface MaxIdParams extends ApiParams {
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
 //   - breakIf: fxn to call to check if we should fetch more pages
 //   - fetch: the data fetching function to call with params
+//   - fetchGenerator: creates a new Iterator of the same type as fetch()
 //   - isBackgroundFetch: a logging flag to indicate if this is a background fetch
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - processFxn: optional function to process the object before storing and returning it
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
 interface FetchParams<T extends MastodonApiObject> extends MaxIdParams {
     breakIf?: ((pageOfResults: T[], allResults: T[]) => Promise<true | undefined>) | null ,
-    fetch: ((params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>),
     cacheKey: CacheKey,
+    fetch?: ApiFetcher<T> | undefined | null,
+    fetchGenerator?: (() => ApiFetcher<T>) | undefined | null,
     isBackgroundFetch?: boolean,
     processFxn?: ((obj: T) => void) | null,
     skipMutex?: boolean,
+};
+
+interface BackgroundFetchparams<T extends MastodonApiObject> extends FetchParams<T> {
+    minRecords: number,
 };
 
 // Same as FetchParams but all properties are required and we add 'limit'
@@ -105,6 +115,8 @@ interface HomeTimelineParams extends MaxIdParams {
 
 type FetchParamName = keyof FetchParamsWithCacheData<any>;
 
+export const BIG_NUMBER = 10_000_000_000;
+export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
 // Error messages for MastoHttpError
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
@@ -185,7 +197,7 @@ export default class MastoApi {
 
         // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
-        const _incompleteToots = await this.getApiRecordsAndUpdate<mastodon.v1.Status>({
+        const _incompleteToots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             fetch: this.api.v1.timelines.home.list,
             cacheKey: cacheKey,
             maxId: maxId,
@@ -225,7 +237,7 @@ export default class MastoApi {
 
     // Get blocked accounts (doesn't include muted accounts)
     async getBlockedAccounts(): Promise<Account[]> {
-        const blockedAccounts = await this.getApiRecordsAndUpdate<mastodon.v1.Account>({
+        const blockedAccounts = await this.getApiObjsAndUpdate<mastodon.v1.Account>({
             fetch: this.api.v1.blocks.list,
             cacheKey: CacheKey.BLOCKED_ACCOUNTS
         }) as Account[];
@@ -269,7 +281,7 @@ export default class MastoApi {
     // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
     async getFavouritedToots(params?: ApiParams): Promise<Toot[]> {
-        return await this.getApiRecordsAndUpdate<mastodon.v1.Status>({
+        return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             fetch: this.api.v1.favourites.list,
             cacheKey: CacheKey.FAVOURITED_TOOTS,
             ...(params || {})
@@ -278,9 +290,10 @@ export default class MastoApi {
 
     // Get accounts the user is following
     async getFollowedAccounts(params?: ApiParams): Promise<Account[]> {
-        return await this.getApiRecordsAndUpdate<mastodon.v1.Account>({
-            fetch: this.api.v1.accounts.$select(this.user.id).following.list,
+        return await this.getWithBackgroundFetch<mastodon.v1.Account>({
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             cacheKey: CacheKey.FOLLOWED_ACCOUNTS,
+            minRecords: this.user.followingCount - 10, // We want to get at least this many followed accounts
             processFxn: (account) => (account as Account).isFollowed = true,
             ...(params || {})
         }) as Account[];
@@ -288,7 +301,7 @@ export default class MastoApi {
 
     // Get hashtags the user is following
     async getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]> {
-        return await this.getApiRecordsAndUpdate<mastodon.v1.Tag>({
+        return await this.getApiObjsAndUpdate<mastodon.v1.Tag>({
             fetch: this.api.v1.followedTags.list,
             cacheKey: CacheKey.FOLLOWED_TAGS,
             processFxn: (tag) => repairTag(tag),
@@ -298,20 +311,18 @@ export default class MastoApi {
 
     // Get the Fedialgo user's followers
     async getFollowers(params?: ApiParams): Promise<Account[]> {
-        const followers = await this.getApiRecordsAndUpdate<mastodon.v1.Account>({
-            fetch: this.api.v1.accounts.$select(this.user.id).followers.list,
+        return await this.getWithBackgroundFetch<mastodon.v1.Account>({
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             cacheKey: CacheKey.FOLLOWERS,
+            minRecords: this.user.followersCount - 10, // We want to get at least this many followed accounts
             processFxn: (account) => (account as Account).isFollower = true,
             ...(params || {})
         }) as Account[];
-
-        this.logger.tempLogger(CacheKey.FOLLOWERS).trace(`${followers.length} followers for ${this.user.acct}`, followers);
-        return followers;
     }
 
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts(params?: ApiParams): Promise<Account[]> {
-        const mutedAccounts = await this.getApiRecordsAndUpdate<mastodon.v1.Account>({
+        const mutedAccounts = await this.getApiObjsAndUpdate<mastodon.v1.Account>({
             fetch: this.api.v1.mutes.list,
             cacheKey: CacheKey.MUTED_ACCOUNTS,
             ...(params || {})
@@ -323,7 +334,7 @@ export default class MastoApi {
 
     // Get the user's recent notifications
     async getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]> {
-        const notifs = await this.getApiRecordsAndUpdate<mastodon.v1.Notification>({
+        const notifs = await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             cacheKey: CacheKey.NOTIFICATIONS,
             ...(params || {})
@@ -336,7 +347,7 @@ export default class MastoApi {
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
     async getRecentUserToots(params?: MaxIdParams): Promise<Toot[]> {
-        return await this.getApiRecordsAndUpdate<mastodon.v1.Status>({
+        return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             cacheKey: CacheKey.RECENT_USER_TOOTS,
             ...(params || {})
@@ -428,7 +439,7 @@ export default class MastoApi {
         const startedAt = new Date();
 
         try {
-            const toots = await this.getApiRecordsAndUpdate<mastodon.v1.Status>({
+            const toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({
                 fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 cacheKey: CacheKey.HASHTAG_TOOTS,  // This CacheKey is just for log prefixes + signaling how to serialize
                 logger,
@@ -549,24 +560,27 @@ export default class MastoApi {
     private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
     // Pure fetch of API records, no caching or background updates
-    private async fetchApiRecords<T extends MastodonApiObject>(
+    private async fetchApiObjs<T extends MastodonApiObject>(
         params: FetchParamsWithCacheData<T>
     ): Promise<MastodonApiObject[]> {
         this.validateFetchParams<T>(params);
-        const { breakIf, cacheKey, fetch, logger, maxRecords } = params;
+        let { breakIf, cacheKey, fetch, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
+
+        // Create a new Iterator for the fetch if fetchGenerator is provided
+        fetch = fetchGenerator ? fetchGenerator() : fetch;
         const waitTime = this.waitTimes[cacheKey];
         waitTime.markStart();  // Telemetry
         let newRows: T[] = [];
         let pageNumber = 0;
 
         try {
-            for await (const page of fetch(this.buildParams(params))) {
+            for await (const page of fetch!(this.buildParams(params))) {
                 waitTime.markEnd(); // telemetry
                 newRows = newRows.concat(page as T[]);
 
                 // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
-                let resultsMsg = `${page.length} in page ${++pageNumber}, ${newRows.length} records so far`;
+                let resultsMsg = `fetched ${page.length} in page ${++pageNumber}, ${newRows.length} records so far`;
                 resultsMsg += ` ${waitTime.ageString()}`;
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
@@ -575,8 +589,12 @@ export default class MastoApi {
                 } else if (waitTime.ageInSeconds() > config.api.maxSecondsPerPage) {
                     logger.logAndThrowError(`Request took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`)
                 } else {
-                    const msg = `Retrieved ${resultsMsg}`;
-                    (pageNumber % 5 == 0) ? logger.debug(msg) : logger.trace(msg);
+                    (pageNumber % 5 == 0) ? logger.debug(resultsMsg) : logger.trace(resultsMsg);
+                }
+
+                if (isBackgroundFetch) {
+                    logger.trace(`Background fetch, sleeping for ${config.api.backgroundLoadSleepBetweenRequestsMS / 1000}s`);
+                    await sleep(config.api.backgroundLoadSleepBetweenRequestsMS);
                 }
 
                 waitTime.markStart();  // Reset timer for next page
@@ -589,12 +607,12 @@ export default class MastoApi {
     }
 
     // Return cached rows immediately if they exist but trigger a background update if they are stale
-    private async getApiRecordsAndUpdate<T extends MastodonApiObject>(
+    private async getApiObjsAndUpdate<T extends MastodonApiObject>(
         inParams: FetchParams<T>
     ): Promise<MastodonApiObject[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         let { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
-        const hereLogger = logger.tempLogger('getApiRecordsAndUpdate');
+        const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
         const releaseMutex = skipMutex ? null : await lockExecution(this.cacheMutexes[cacheKey], hereLogger);
 
         try {
@@ -607,13 +625,13 @@ export default class MastoApi {
                         hereLogger.trace(`Stale cache but update already in progress, returning stale rows`);
                     }  else {
                         hereLogger.debug(`Returning ${cacheResult.rows.length} stale rows and triggering cache update`);
-                        this.getApiRecords<T>({...paramsWithCache, isBackgroundFetch: true});
+                        this.getApiObjs<T>({...paramsWithCache, isBackgroundFetch: true});
                     }
                 }
 
                 return cacheResult.rows;
             } else {
-                return await this.getApiRecords<T>(paramsWithCache);
+                return await this.getApiObjs<T>(paramsWithCache);
             }
         } finally {
             releaseMutex?.();
@@ -622,11 +640,11 @@ export default class MastoApi {
 
     // Generic Mastodon API fetcher. Accepts a 'fetch' fxn w/a few other args (see comments on FetchParams)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
-    private async getApiRecords<T extends MastodonApiObject>(
+    private async getApiObjs<T extends MastodonApiObject>(
         params: FetchParamsWithCacheData<T>
     ): Promise<MastodonApiObject[]> {
         let { cacheKey, isBackgroundFetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
-        logger = logger.tempLogger('getApiRecords');
+        logger = logger.tempLogger('getApiObjs');
         params = { ...params, logger };
 
         if (this.apiMutexes[cacheKey].isLocked()) {
@@ -651,7 +669,7 @@ export default class MastoApi {
                 return cachedRows;
             }
 
-            let newRows = await this.fetchApiRecords<T>(params) as T[];
+            let newRows = await this.fetchApiObjs<T>(params) as T[];
 
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
@@ -677,6 +695,31 @@ export default class MastoApi {
         } finally {
             releaseMutex?.();
         }
+    }
+
+    // Get maxRecords, and if that's not more than minRecords launch a background fetch
+    private async getWithBackgroundFetch<T extends MastodonApiObject>(
+        params: BackgroundFetchparams<T>
+    ): Promise<T[]> {
+        const { minRecords } = params;
+        const logger = loggerForParams(params);
+        logger.trace(`getWithBackgroundFetch() called with minRecords=${minRecords}`);
+
+        if (!params.fetchGenerator) {
+            logger.logAndThrowError(`getWithBackgroundFetch() needs fetchGenerator!`, params);
+        }
+
+        const objs = await this.getApiObjsAndUpdate<T>(params) as T[];
+
+        if (objs.length < minRecords) {
+            logger.log(`Fewer rows (${objs.length}) than required (${minRecords}), launching bg job to get the rest`);
+
+            // TODO: can't import the ScorerCache here because it would create a circular dependency
+            this.getApiObjsAndUpdate<T>({...FULL_HISTORY_PARAMS, ...params, isBackgroundFetch: true})
+                // .then(() => ScorerCache.prepareScorers(true))  // Force ScorerCache to update
+        }
+
+        return objs;
     }
 
     // https://neet.github.io/masto.js/interfaces/mastodon.DefaultPaginationParams.html
@@ -811,8 +854,14 @@ export default class MastoApi {
 
     // Check that the params passed to the fetch methods are valid and work together
     private validateFetchParams<T extends MastodonApiObject>(params: FetchParamsWithCacheData<T>): void {
-        let { cacheKey, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        let { cacheKey, fetch, fetchGenerator, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
         logger = logger.tempLogger('validateFetchParams');
+
+        if (!(fetch || fetchGenerator)) {
+            logger.logAndThrowError(`No fetch or fetchGenerator provided for ${cacheKey}`, params);
+        } else if (fetch && fetchGenerator) {
+            logger.logAndThrowError(`Both fetch and fetchGenerator provided for ${cacheKey}`, params);
+        }
 
         if (moar && (skipCache || maxId)) {
             logger.warn(`skipCache=true AND moar or maxId set!`);
@@ -866,6 +915,8 @@ function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>
 
     const withDefaults: FetchParamsWithDefaults<T> = {
         ...params,
+        fetch: params.fetch || null,
+        fetchGenerator: params.fetchGenerator || null,
         breakIf: params.breakIf || null,
         isBackgroundFetch: isBackgroundFetch || false,
         limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),

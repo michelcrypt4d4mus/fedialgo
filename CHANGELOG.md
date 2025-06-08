@@ -1,6 +1,8 @@
 # NEXT RELEASE
+* Add `config.apibackgroundLoadSleepBetweenRequestsMS` param; sleep that long between requests during background loads
+* Cap initial followed account retrieval before merging toots to timeline at 1,600; beyond that they will be loaded in a background job
 
-# v0.68.0
+## v0.68.0
 * Update the cache in the background instead of always dropping/reloading the whole thing when it gets stale
 * Add `getFollowers()` to `MastoApi`; add configuration variable `config.api.pullFollowers` to turn on/off follower retrieval
 * Don't wait for scorers to finish preparing before integrating toots into the timeline

@@ -37,7 +37,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 penalizedTag.numToPenalize = penalizedTag.numToots - config_1.config.scoring.minTrendingTagTootsForPenalty;
             });
         });
-        this.logger.trace(`tagsEncountered:`, trendingTagsInFeed);
+        this.logger.deep(`tagsEncountered:`, trendingTagsInFeed);
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce((tootScores, toot) => {

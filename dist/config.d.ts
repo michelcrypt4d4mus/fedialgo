@@ -22,6 +22,7 @@ type ApiRequestDefaults = {
 type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
 interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
+    backgroundLoadSleepBetweenRequestsMS: number;
     data: Readonly<ApiDataConfig>;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
@@ -101,6 +102,7 @@ interface ConfigType {
 }
 declare class Config implements ConfigType {
     api: {
+        backgroundLoadSleepBetweenRequestsMS: number;
         backgroundLoadIntervalMinutes: number;
         defaultRecordsPerPage: number;
         hashtagTootRetrievalDelaySeconds: number;

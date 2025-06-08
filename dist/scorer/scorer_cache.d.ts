@@ -5,5 +5,6 @@ export default class ScorerCache {
     static feedScorers: FeedScorer[];
     static weightedScorers: (FeedScorer | FeatureScorer)[];
     static addScorers(featureScorers: FeatureScorer[], feedScorers: FeedScorer[]): void;
+    static prepareScorers(force?: boolean): Promise<void>;
     static resetScorers(): void;
 }

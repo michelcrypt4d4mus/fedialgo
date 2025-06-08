@@ -50,6 +50,7 @@ type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
 // See Config object for comments explaining these and other values
 interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
+    backgroundLoadSleepBetweenRequestsMS: number;
     data: Readonly<ApiDataConfig>;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
@@ -144,6 +145,7 @@ interface ConfigType {
 // App level config that is not user configurable
 class Config implements ConfigType {
     api = {
+        backgroundLoadSleepBetweenRequestsMS: 1_500, // How long to wait between API requests during backgrund load
         backgroundLoadIntervalMinutes: 10,      // Time between background polling for additional user data after initial load
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
@@ -180,7 +182,7 @@ class Config implements ConfigType {
             },
             [CacheKey.FOLLOWED_ACCOUNTS]: {
                 allowBackgroundLoad: true,
-                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                initialMaxRecords: 1_600,
                 limit: 80,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
@@ -190,9 +192,9 @@ class Config implements ConfigType {
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
             [CacheKey.FOLLOWERS]: {
-                initialMaxRecords: 2_000,
+                initialMaxRecords: 1_600,
                 limit: 80,
-                minutesUntilStale: 72 * MINUTES_IN_HOUR,
+                minutesUntilStale: 24 * MINUTES_IN_HOUR,
             },
             [CacheKey.HASHTAG_TOOTS]: {
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -516,12 +518,14 @@ if (isQuickMode) {
 // Debug mode settings
 if (isDebugMode) {
     configLogger.debug(`FEDIALGO_DEBUG mode enabled, applying debug settings...`);
-    config.api.data[CacheKey.FOLLOWED_TAGS]!.minutesUntilStale = 5;
-    config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 5;
-    config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
-    config.api.backgroundLoadIntervalMinutes = 2;
+    config.api.data[CacheKey.FOLLOWED_ACCOUNTS]!.initialMaxRecords = 160;
+    config.api.data[CacheKey.FOLLOWED_TAGS]!.minutesUntilStale = 10;
+    config.api.data[CacheKey.FOLLOWERS]!.initialMaxRecords = 320;
+    config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 10;
+    config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;
+    config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2_500;
-    // config.api.pullFollowers = true;
+    config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;
 };

@@ -27,11 +27,11 @@ async function getMoarData() {
         api_1.default.instance.getNotifications.bind(api_1.default.instance),
         api_1.default.instance.getRecentUserToots.bind(api_1.default.instance),
     ];
-    if (config_1.config.api.pullFollowers) {
-        pollers = pollers.concat([
-            api_1.default.instance.getFollowers.bind(api_1.default.instance),
-        ]);
-    }
+    // if (config.api.pullFollowers) {
+    //     pollers = pollers.concat([
+    //         MastoApi.instance.getFollowers.bind(MastoApi.instance),
+    //     ]);
+    // }
     try {
         // Call without moar boolean to check how big the cache is
         let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));

@@ -274,13 +274,14 @@ export default class Storage {
 
     // Set the value at the given key (with the user ID as a prefix)
     static async set(key: StorageKey, value: StorableObj): Promise<void> {
-        const hereLogger = logger.tempLogger(key, `set`, `Updating cached value`);
+        const hereLogger = logger.tempLogger(key, `set`, `Updating cache`);
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date();
 
         const storableValue = this.serialize(key, value);
         const withTimestamp = {updatedAt: updatedAt.toISOString(), value: storableValue} as StorableWithTimestamp;
-        isDeepDebug ? hereLogger.deep('', withTimestamp) : hereLogger.trace('');
+        const msg = `with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
+        isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localForage.setItem(storageKey, withTimestamp);
         this.lastUpdatedAt = updatedAt;
     }

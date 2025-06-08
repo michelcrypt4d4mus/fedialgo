@@ -65,9 +65,7 @@ declare class TheAlgorithm {
     private numTriggers;
     private totalNumTimesShown;
     private logger;
-    private prepareScorersLogger;
     private mergeMutex;
-    private prepareScorersMutex;
     private cacheUpdater?;
     private dataPoller?;
     private featureScorers;
@@ -107,7 +105,6 @@ declare class TheAlgorithm {
     private logTelemetry;
     private markLoadStartedAt;
     private mergeTootsToFeed;
-    private prepareScorers;
     private recomputeScorers;
     private scoreAndFilterFeed;
     private setLoadingStateVariables;

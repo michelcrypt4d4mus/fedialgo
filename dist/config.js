@@ -38,6 +38,7 @@ const configLogger = new logger_1.Logger("Config");
 // App level config that is not user configurable
 class Config {
     api = {
+        backgroundLoadSleepBetweenRequestsMS: 1500,
         backgroundLoadIntervalMinutes: 10,
         defaultRecordsPerPage: 40,
         hashtagTootRetrievalDelaySeconds: 1,
@@ -74,7 +75,7 @@ class Config {
             },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
                 allowBackgroundLoad: true,
-                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                initialMaxRecords: 1600,
                 limit: 80,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
@@ -84,9 +85,9 @@ class Config {
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWERS]: {
-                initialMaxRecords: 2000,
+                initialMaxRecords: 1600,
                 limit: 80,
-                minutesUntilStale: 72 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.HASHTAG_TOOTS]: {
             // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -397,12 +398,14 @@ if (environment_helpers_1.isQuickMode) {
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
     configLogger.debug(`FEDIALGO_DEBUG mode enabled, applying debug settings...`);
-    config.api.data[enums_1.CacheKey.FOLLOWED_TAGS].minutesUntilStale = 5;
-    config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 5;
-    config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 1;
-    config.api.backgroundLoadIntervalMinutes = 2;
+    config.api.data[enums_1.CacheKey.FOLLOWED_ACCOUNTS].initialMaxRecords = 160;
+    config.api.data[enums_1.CacheKey.FOLLOWED_TAGS].minutesUntilStale = 10;
+    config.api.data[enums_1.CacheKey.FOLLOWERS].initialMaxRecords = 320;
+    config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 10;
+    config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 5;
+    config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2500;
-    // config.api.pullFollowers = true;
+    config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;
 }

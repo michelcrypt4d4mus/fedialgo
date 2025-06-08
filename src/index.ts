@@ -18,7 +18,7 @@ import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
-import MastoApi, { isAccessTokenRevokedError } from "./api/api";
+import MastoApi, { FULL_HISTORY_PARAMS, isAccessTokenRevokedError } from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
 import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
@@ -107,8 +107,6 @@ const EMPTY_TRENDING_DATA = {
 };
 
 // Constants
-const REALLY_BIG_NUMBER = 10_000_000_000;
-const PULL_USER_HISTORY_PARAMS = {maxRecords: REALLY_BIG_NUMBER, moar: true};
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 
 interface AlgorithmArgs {
@@ -142,10 +140,8 @@ class TheAlgorithm {
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
     // Loggers
     private logger: Logger = new Logger(`TheAlgorithm`);
-    private prepareScorersLogger = this.logger.tempLogger(PREP_SCORERS);
     // Mutexess
     private mergeMutex = new Mutex();
-    private prepareScorersMutex = new Mutex();
     // Background tasks
     private cacheUpdater?: ReturnType<typeof setInterval>;
     private dataPoller?: ReturnType<typeof setInterval>;
@@ -232,7 +228,7 @@ class TheAlgorithm {
 
         // Launch these asynchronously so we can start pulling toots right away
         MastoApi.instance.getUserData();
-        this.prepareScorers();
+        ScorerCache.prepareScorers();
 
         let dataLoads: Promise<any>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
@@ -261,7 +257,7 @@ class TheAlgorithm {
         logger.deep(`FINISHED promises, allResults:`, allResults);
 
         if (config.api.pullFollowers) {
-            MastoApi.instance.getFollowers(PULL_USER_HISTORY_PARAMS);
+            MastoApi.instance.getFollowers();
         }
 
         await this.finishFeedUpdate();
@@ -314,11 +310,11 @@ class TheAlgorithm {
 
         try {
             const _allResults = await Promise.all([
-                MastoApi.instance.getFavouritedToots(PULL_USER_HISTORY_PARAMS),
-                MastoApi.instance.getFollowers(PULL_USER_HISTORY_PARAMS),
+                MastoApi.instance.getFavouritedToots(FULL_HISTORY_PARAMS),
+                MastoApi.instance.getFollowers(FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
-                MastoApi.instance.getRecentUserToots(PULL_USER_HISTORY_PARAMS),
+                MastoApi.instance.getRecentUserToots(FULL_HISTORY_PARAMS),
             ]);
 
             await this.recomputeScorers();
@@ -507,7 +503,7 @@ class TheAlgorithm {
         if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
             this.logger.debug(`${arrowed(TRIGGER_FEED)} QUICK_MODE Feed is ${feedAgeInMinutes.toFixed(0)}s old, not updating`);
             // Needs to be called to update the feed in the app
-            this.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
+            ScorerCache.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
         } else {
             return false;
@@ -656,32 +652,17 @@ class TheAlgorithm {
         this.setLoadingStateVariables(logger.logPrefix);
     }
 
-    // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
-    private async prepareScorers(force?: boolean): Promise<void> {
-        const releaseMutex = await lockExecution(this.prepareScorersMutex, this.prepareScorersLogger);
-        const startedAt = new Date();
-
-        try {
-            const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
-            if (scorersToPrepare.length == 0) return;
-            await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.prepareScorersLogger);
-        } finally {
-            releaseMutex();
-        }
-    }
-
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     private async recomputeScorers(): Promise<void> {
         await MastoApi.instance.getUserData(true);  // Refresh user data
-        await this.prepareScorers(true);  // The "true" arg is the key here
+        await ScorerCache.prepareScorers(true);  // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }
 
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
-        await this.prepareScorers();  // Make sure the scorers are ready to go
+        await ScorerCache.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, true);
 
         this.feed = truncateToConfiguredLength(

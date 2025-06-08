@@ -1,8 +1,13 @@
 /*
  * Exists to avoid circular dependencies so Scorer can access the weights in TheAlgorithm instance.
+ * Note there are many nasty circular dependencies if you try to import stuff into this file.
  */
+import { Mutex } from "async-mutex";
+
 import FeatureScorer from "./feature_scorer";
 import FeedScorer from "./feed_scorer";
+
+const SCORERS_MUTEX = new Mutex();
 
 
 export default class ScorerCache {
@@ -17,6 +22,21 @@ export default class ScorerCache {
         this.featureScorers = featureScorers;
         this.feedScorers = feedScorers;
         this.weightedScorers = [...featureScorers, ...feedScorers];
+    }
+
+    // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
+    static async prepareScorers(force?: boolean): Promise<void> {
+        const startedAt = new Date();
+        const releaseMutex = await SCORERS_MUTEX.acquire();
+
+        try {
+            const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
+            if (scorersToPrepare.length == 0) return;
+            await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
+            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready`, startedAt);
+        } finally {
+            releaseMutex();
+        }
     }
 
     static resetScorers() {

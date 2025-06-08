@@ -663,7 +663,7 @@ class Toot {
     // Fetch all the data we need to set dependent properties and set them on the toots.
     // If 'source' arg is proivded we set it as the Toot.source prop and avoid doing an isDeepInspect completion
     static async completeToots(toots, logger, source) {
-        logger = logger.tempLogger(`completeToots("${source || 'NO_SOURCE'}")`);
+        logger = logger.tempLogger(`completeToots(${source || ''})`);
         const isDeepInspect = !source;
         const startedAt = new Date();
         const userData = await api_1.default.instance.getUserData();

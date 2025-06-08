@@ -18,6 +18,11 @@ interface MaxIdParams extends ApiParams {
 interface HomeTimelineParams extends MaxIdParams {
     mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>;
 }
+export declare const BIG_NUMBER = 10000000000;
+export declare const FULL_HISTORY_PARAMS: {
+    maxRecords: number;
+    moar: boolean;
+};
 export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
@@ -56,9 +61,10 @@ export default class MastoApi {
     tagUrl(tag: MastodonTag | string): string;
     private endpointURL;
     private supportsMinMaxId;
-    private fetchApiRecords;
-    private getApiRecordsAndUpdate;
-    private getApiRecords;
+    private fetchApiObjs;
+    private getApiObjsAndUpdate;
+    private getApiObjs;
+    private getWithBackgroundFetch;
     private buildParams;
     private addCacheDataToParams;
     private getCacheResult;

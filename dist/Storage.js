@@ -245,12 +245,13 @@ class Storage {
     }
     // Set the value at the given key (with the user ID as a prefix)
     static async set(key, value) {
-        const hereLogger = logger.tempLogger(key, `set`, `Updating cached value`);
+        const hereLogger = logger.tempLogger(key, `set`, `Updating cache`);
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date();
         const storableValue = this.serialize(key, value);
         const withTimestamp = { updatedAt: updatedAt.toISOString(), value: storableValue };
-        environment_helpers_1.isDeepDebug ? hereLogger.deep('', withTimestamp) : hereLogger.trace('');
+        const msg = `with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
+        environment_helpers_1.isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localforage_1.default.setItem(storageKey, withTimestamp);
         this.lastUpdatedAt = updatedAt;
     }
