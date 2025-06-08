@@ -522,7 +522,7 @@ class TheAlgorithm {
 
         try {
             newToots = await tootFetcher;
-            this.logTelemetry(`fetched ${newToots.length} toots`, startedAt, logger);
+            this.logTelemetry(`Got ${newToots.length} toots for ${CacheKey.HOME_TIMELINE_TOOTS}`, startedAt, logger);
         } catch (e) {
             MastoApi.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${ageString(startedAt)}`);
         }

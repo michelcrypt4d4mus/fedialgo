@@ -53,6 +53,8 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+// Mutex locking and concurrency
+const USER_DATA_MUTEX = new async_mutex_1.Mutex(); // For locking user data fetching
 // Logging
 const PARAMS_TO_NOT_LOG = ["breakIf", "fetch", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE = ["skipCache", "skipMutex", "moar"];
@@ -64,7 +66,7 @@ class MastoApi {
     api;
     apiErrors = []; // Errors encountered while using the API
     homeDomain;
-    logger;
+    logger = getLogger();
     user;
     userData; // Save UserData in the API object to avoid polling local storage over and over
     waitTimes = (0, enums_1.buildCacheKeyDict)(() => new log_helpers_1.WaitTime()); // Just for measuring performance (poorly)
@@ -89,7 +91,6 @@ class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
-        this.logger = getLogger();
         this.reset();
     }
     // Get the user's home timeline feed (recent toots from followed accounts and hashtags).
@@ -311,10 +312,16 @@ class MastoApi {
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData(force) {
-        if (force || !this.userData || (await this.userData.isDataStale())) {
-            this.userData = await user_data_1.default.build();
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(USER_DATA_MUTEX, this.logger);
+        try {
+            if (force || !this.userData || (await this.userData.isDataStale())) {
+                this.userData = await user_data_1.default.build();
+            }
+            return this.userData;
         }
-        return this.userData;
+        finally {
+            releaseMutex();
+        }
     }
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
     // Concurrency is managed by a semaphore in this method, not the normal mutexes.

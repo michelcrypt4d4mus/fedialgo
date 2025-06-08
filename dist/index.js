@@ -475,7 +475,7 @@ class TheAlgorithm {
         let newToots = [];
         try {
             newToots = await tootFetcher;
-            this.logTelemetry(`fetched ${newToots.length} toots`, startedAt, logger);
+            this.logTelemetry(`Got ${newToots.length} toots for ${enums_1.CacheKey.HOME_TIMELINE_TOOTS}`, startedAt, logger);
         }
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);

@@ -107,7 +107,8 @@ type FetchParamName = keyof FetchParamsWithCacheData<any>;
 const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
 const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
-
+// Mutex locking and concurrency
+const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging
 const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetch", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
@@ -122,7 +123,7 @@ export default class MastoApi {
     api: mastodon.rest.Client;
     apiErrors: Error[] = [];  // Errors encountered while using the API
     homeDomain: string;
-    logger: Logger;
+    logger: Logger = getLogger();
     user: Account;
     userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
     waitTimes = buildCacheKeyDict(() => new WaitTime()); // Just for measuring performance (poorly)
@@ -151,7 +152,6 @@ export default class MastoApi {
         this.api = api;
         this.user = user;
         this.homeDomain = extractDomain(user.url);
-        this.logger = getLogger();
         this.reset();
     }
 
@@ -404,11 +404,17 @@ export default class MastoApi {
     // Retrieve background data about the user that will be used for scoring etc.
     // Caches as an instance variable so the storage doesn't have to be hit over and over
     async getUserData(force?: boolean): Promise<UserData> {
-        if (force || !this.userData || (await this.userData.isDataStale())) {
-            this.userData = await UserData.build();
-        }
+        const releaseMutex = await lockExecution(USER_DATA_MUTEX, this.logger);
 
-        return this.userData;
+        try {
+            if (force || !this.userData || (await this.userData.isDataStale())) {
+                this.userData = await UserData.build();
+            }
+
+            return this.userData;
+        } finally {
+            releaseMutex();
+        }
     }
 
     // Fetch toots from the tag timeline API. This is a different endpoint than the search API.
