@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.69.3
 * Lower timeoutMS to 2,500
 
 ### v0.69.2
