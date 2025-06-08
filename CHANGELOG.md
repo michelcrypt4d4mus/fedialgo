@@ -4,6 +4,7 @@
 * Add `config.apibackgroundLoadSleepBetweenRequestsMS` param; sleep that long between requests during background loads
 * Fix `OUTLIER_DAMPENER` value in various presets
 * Sort filter options by displayName if available
+* ~~Fix removing newly muted accounts from feed~~
 
 ## v0.68.0
 * Update the cache in the background instead of always dropping/reloading the whole thing when it gets stale

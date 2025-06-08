@@ -87,6 +87,7 @@ type TootCache = {
 };
 
 
+export const JUST_MUTING = "justMuting";  // Used in the filter settings to indicate that the user is just muting this toot
 export const UNKNOWN = "unknown";
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
@@ -568,7 +569,11 @@ export default class Toot implements TootObj {
     ): void {
         if (source) {
             this.sources ??= [];
-            if (!this.sources.includes(source)) this.sources?.push(source);
+
+            // TODO: this JUST_MUTING thing is a really ugly hack to allow muting accounts in real time
+            if (source != JUST_MUTING && !this.sources.includes(source)) {
+                this.sources?.push(source);
+            }
         }
 
         const isDeepInspect = !source;

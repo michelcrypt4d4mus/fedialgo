@@ -35,7 +35,7 @@ import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
-import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
+import Toot, { earliestTootedAt, JUST_MUTING, mostRecentTootedAt } from './api/objects/toot';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
@@ -407,12 +407,13 @@ class TheAlgorithm {
 
     // Doesn't actually mute the account, just marks it as muted in the userData object
     async refreshMutedAccounts(): Promise<void> {
-        const logPrefix = arrowed(`refreshMutedAccounts()`);
-        this.logger.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        const logger = this.logger.tempLogger(`refreshMutedAccounts`);
+        logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({skipCache: true});
-        this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
+        logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
+        await Toot.completeToots(this.feed, logger, JUST_MUTING);
         await this.finishFeedUpdate();
     }
 
@@ -545,7 +546,6 @@ class TheAlgorithm {
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await Toot.completeToots(this.feed, logger);
-        // Must come *after* completeToots() for refreshing muted accounts  // TODO: this is pretty janky
         this.feed = await Toot.removeInvalidToots(this.feed, logger);
         await updateBooleanFilterOptions(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?

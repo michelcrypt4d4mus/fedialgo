@@ -375,12 +375,13 @@ class TheAlgorithm {
     }
     // Doesn't actually mute the account, just marks it as muted in the userData object
     async refreshMutedAccounts() {
-        const logPrefix = (0, string_helpers_1.arrowed)(`refreshMutedAccounts()`);
-        this.logger.log(`${logPrefix} called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
+        const logger = this.logger.tempLogger(`refreshMutedAccounts`);
+        logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ skipCache: true });
-        this.logger.log(`${logPrefix} found ${mutedAccounts.length} muted accounts after refresh...`);
+        logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
+        await toot_1.default.completeToots(this.feed, logger, toot_1.JUST_MUTING);
         await this.finishFeedUpdate();
     }
     // Clear everything from browser storage except the user's identity and weightings (unless complete is true).
@@ -496,7 +497,6 @@ class TheAlgorithm {
         logger.debug(`${FINALIZING_SCORES_MSG}...`);
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         await toot_1.default.completeToots(this.feed, logger);
-        // Must come *after* completeToots() for refreshing muted accounts  // TODO: this is pretty janky
         this.feed = await toot_1.default.removeInvalidToots(this.feed, logger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?

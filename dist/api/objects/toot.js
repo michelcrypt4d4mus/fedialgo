@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = exports.JUST_MUTING = void 0;
 /*
  * Ideally this would be a formal class but for now it's just some helper functions
  * for dealing with Toot objects.
@@ -51,6 +51,7 @@ var TootCacheKey;
     TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
 })(TootCacheKey || (TootCacheKey = {}));
 ;
+exports.JUST_MUTING = "justMuting"; // Used in the filter settings to indicate that the user is just muting this toot
 exports.UNKNOWN = "unknown";
 const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
@@ -433,8 +434,10 @@ class Toot {
     completeProperties(userData, trendingLinks, trendingTags, source) {
         if (source) {
             this.sources ??= [];
-            if (!this.sources.includes(source))
+            // TODO: this JUST_MUTING thing is a really ugly hack to allow muting accounts in real time
+            if (source != exports.JUST_MUTING && !this.sources.includes(source)) {
                 this.sources?.push(source);
+            }
         }
         const isDeepInspect = !source;
         this.muted ||= (this.author().webfingerURI in userData.mutedAccounts);
