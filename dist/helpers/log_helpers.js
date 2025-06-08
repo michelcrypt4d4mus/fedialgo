@@ -13,7 +13,7 @@ exports.TRIGGER_FEED = "triggerFeedUpdate";
 // Lock a Semaphore or Mutex and log the time it took to acquire the lock
 async function lockExecution(locker, logger, logPrefix) {
     logger = logPrefix ? logger.tempLogger(logPrefix) : logger;
-    logger.trace(`lockExecution called...`);
+    logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);

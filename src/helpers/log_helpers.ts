@@ -23,7 +23,7 @@ export async function lockExecution(
     logPrefix?: string
 ): Promise<ConcurrencyLockRelease> {
     logger = logPrefix ? logger.tempLogger(logPrefix) : logger;
-    logger.trace(`lockExecution called...`);
+    logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
     const waitSeconds = ageInSeconds(startedAt);

@@ -130,7 +130,6 @@ class TheAlgorithm {
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
-    logger = new logger_1.Logger(`TheAlgorithm`);
     trendingData = EMPTY_TRENDING_DATA;
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
     get userData() { return api_1.default.instance.userData || new user_data_1.default(); }
@@ -146,6 +145,9 @@ class TheAlgorithm {
     loadStartedAt = null; // Timestamp of when the feed started loading
     numTriggers = 0;
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
+    // Loggers
+    logger = new logger_1.Logger(`TheAlgorithm`);
+    prepareScorersLogger = this.logger.tempLogger(log_helpers_1.PREP_SCORERS);
     // Mutexess
     mergeMutex = new async_mutex_1.Mutex();
     prepareScorersMutex = new async_mutex_1.Mutex();
@@ -588,14 +590,14 @@ class TheAlgorithm {
     }
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     async prepareScorers(force) {
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, this.logger, log_helpers_1.PREP_SCORERS);
+        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.prepareScorersMutex, this.prepareScorersLogger);
         const startedAt = new Date();
         try {
             const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
             if (scorersToPrepare.length == 0)
                 return;
             await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.logger.tempLogger(log_helpers_1.PREP_SCORERS));
+            this.logTelemetry(`${this.featureScorers.length} scorers ready`, startedAt, this.prepareScorersLogger);
         }
         finally {
             releaseMutex();

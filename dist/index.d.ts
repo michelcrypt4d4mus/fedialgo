@@ -52,7 +52,6 @@ declare class TheAlgorithm {
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;
-    logger: Logger;
     trendingData: TrendingData;
     weightPresets: WeightPresets;
     get userData(): UserData;
@@ -65,6 +64,8 @@ declare class TheAlgorithm {
     private loadStartedAt;
     private numTriggers;
     private totalNumTimesShown;
+    private logger;
+    private prepareScorersLogger;
     private mergeMutex;
     private prepareScorersMutex;
     private cacheUpdater?;
