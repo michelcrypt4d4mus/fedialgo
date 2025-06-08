@@ -519,6 +519,7 @@ if (isDebugMode) {
     config.api.data[CacheKey.FOLLOWED_TAGS]!.minutesUntilStale = 5;
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 5;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 1;
+    config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2_500;
     // config.api.pullFollowers = true;
     config.toots.maxTimelineLength = 1_500;

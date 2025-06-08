@@ -195,7 +195,7 @@ class Storage {
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
         let isStale = false;
         if (dataAgeInMinutes > staleAfterMinutes) {
-            hereLogger.debug(`Data is stale ${minutesMsg}`);
+            hereLogger.trace(`Data is stale ${minutesMsg}`);
             isStale = true;
         }
         else {

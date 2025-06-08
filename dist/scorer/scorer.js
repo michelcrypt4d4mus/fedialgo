@@ -50,7 +50,7 @@ class Scorer {
         if (this.isReady)
             return await this._score(toot);
         if (!toot.scoreInfo) {
-            this.logger.warn(`Not ready, scoring 0...`);
+            this.logger.debug(`Not ready, scoring 0...`);
             return 0;
         }
         else {

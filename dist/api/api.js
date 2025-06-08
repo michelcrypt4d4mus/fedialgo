@@ -120,7 +120,7 @@ class MastoApi {
         }
         // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
-        const _incompleteToots = await this.getApiRecords({
+        const _incompleteToots = await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.timelines.home.list,
             cacheKey: cacheKey,
             maxId: maxId,
@@ -155,7 +155,7 @@ class MastoApi {
     }
     // Get blocked accounts (doesn't include muted accounts)
     async getBlockedAccounts() {
-        const blockedAccounts = await this.getApiRecords({
+        const blockedAccounts = await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.blocks.list,
             cacheKey: enums_1.CacheKey.BLOCKED_ACCOUNTS
         });
@@ -191,7 +191,7 @@ class MastoApi {
     // Get an array of Toots the user has recently favourited: https://docs.joinmastodon.org/methods/favourites/#get
     // IDs of accounts ar enot monotonic so there's not really any way to incrementally load this endpoint
     async getFavouritedToots(params) {
-        return await this.getApiRecords({
+        return await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.favourites.list,
             cacheKey: enums_1.CacheKey.FAVOURITED_TOOTS,
             ...(params || {})
@@ -199,7 +199,7 @@ class MastoApi {
     }
     // Get accounts the user is following
     async getFollowedAccounts(params) {
-        return await this.getApiRecords({
+        return await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.accounts.$select(this.user.id).following.list,
             cacheKey: enums_1.CacheKey.FOLLOWED_ACCOUNTS,
             processFxn: (account) => account.isFollowed = true,
@@ -208,7 +208,7 @@ class MastoApi {
     }
     // Get hashtags the user is following
     async getFollowedTags(params) {
-        return await this.getApiRecords({
+        return await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.followedTags.list,
             cacheKey: enums_1.CacheKey.FOLLOWED_TAGS,
             processFxn: (tag) => (0, tag_1.repairTag)(tag),
@@ -217,7 +217,7 @@ class MastoApi {
     }
     // Get the Fedialgo user's followers
     async getFollowers(params) {
-        const followers = await this.getApiRecords({
+        const followers = await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.accounts.$select(this.user.id).followers.list,
             cacheKey: enums_1.CacheKey.FOLLOWERS,
             processFxn: (account) => account.isFollower = true,
@@ -228,7 +228,7 @@ class MastoApi {
     }
     // Get all muted accounts (including accounts that are fully blocked)
     async getMutedAccounts(params) {
-        const mutedAccounts = await this.getApiRecords({
+        const mutedAccounts = await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.mutes.list,
             cacheKey: enums_1.CacheKey.MUTED_ACCOUNTS,
             ...(params || {})
@@ -238,7 +238,7 @@ class MastoApi {
     }
     // Get the user's recent notifications
     async getNotifications(params) {
-        const notifs = await this.getApiRecords({
+        const notifs = await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.notifications.list,
             cacheKey: enums_1.CacheKey.NOTIFICATIONS,
             ...(params || {})
@@ -249,7 +249,7 @@ class MastoApi {
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
     async getRecentUserToots(params) {
-        return await this.getApiRecords({
+        return await this.getApiRecordsAndUpdate({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             cacheKey: enums_1.CacheKey.RECENT_USER_TOOTS,
             ...(params || {})
@@ -331,7 +331,7 @@ class MastoApi {
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
         const startedAt = new Date();
         try {
-            const toots = await this.getApiRecords({
+            const toots = await this.getApiRecordsAndUpdate({
                 fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 cacheKey: enums_1.CacheKey.HASHTAG_TOOTS,
                 logger,
@@ -447,6 +447,7 @@ class MastoApi {
     supportsMinMaxId = (cacheKey) => !!config_1.config.api.data[cacheKey]?.supportsMinMaxId;
     // Pure fetch of API records, no caching or background updates
     async fetchApiRecords(params) {
+        this.validateFetchParams(params);
         const { breakIf, cacheKey, fetch, logger, maxRecords } = params;
         const waitTime = this.waitTimes[cacheKey];
         waitTime.markStart(); // Telemetry
@@ -479,28 +480,29 @@ class MastoApi {
             return this.handleApiError(params, newRows, e);
         }
     }
-    // Return cached rows (if they exist) but trigger a background update if the cache is stale,
-    // otherwise do a normal API fetch
-    async getApiRecords(inParams) {
+    // Return cached rows immediately if they exist but trigger a background update if they are stale
+    async getApiRecordsAndUpdate(inParams) {
         const paramsWithCache = await this.addCacheDataToParams(inParams);
-        let { cacheKey, cacheResult, logger, skipMutex } = paramsWithCache;
-        const hereLogger = logger.tempLogger('getFromCacheWithRefresh');
+        let { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
+        const hereLogger = logger.tempLogger('getApiRecordsAndUpdate');
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.cacheMutexes[cacheKey], hereLogger);
         try {
             // TODO: maybe check that there's more than 0 rows in the cache before returning them?
-            if (cacheResult) {
+            if (cacheResult && !moar) {
                 if (cacheResult.isStale) {
                     // If the mutex is locked background load is in progress so don't start another one
-                    if (!this.apiMutexes[cacheKey].isLocked()) {
+                    if (this.apiMutexes[cacheKey].isLocked()) {
+                        hereLogger.trace(`Cache is stale, but mutex is locked, returning stale rows`);
+                    }
+                    else {
                         hereLogger.debug(`Returning ${cacheResult.rows.length} stale rows and triggering cache update`);
-                        this.getApiRecordsOrCache({ ...paramsWithCache, isBackgroundFetch: true });
+                        this.getApiRecords({ ...paramsWithCache, isBackgroundFetch: true });
                     }
                 }
                 return cacheResult.rows;
             }
             else {
-                hereLogger.debug(`No cached rows found, fetching from API...`);
-                return await this.getApiRecordsOrCache(paramsWithCache);
+                return await this.getApiRecords(paramsWithCache);
             }
         }
         finally {
@@ -509,9 +511,10 @@ class MastoApi {
     }
     // Generic Mastodon API fetcher. Accepts a 'fetch' fxn w/a few other args (see comments on FetchParams)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
-    async getApiRecordsOrCache(params) {
+    async getApiRecords(params) {
         let { cacheKey, isBackgroundFetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
-        logger = logger.tempLogger('getApiRecordsOrCache');
+        logger = logger.tempLogger('getApiRecords');
+        params = { ...params, logger };
         if (this.apiMutexes[cacheKey].isLocked()) {
             if (isBackgroundFetch) {
                 logger.trace(`Called but mutex already locked (background load in progress, nothing to do)`);
@@ -521,7 +524,6 @@ class MastoApi {
             }
             return [];
         }
-        this.validateFetchParams(params);
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
         try {
             // Check the cache again, in case it was updated while we were waiting for the mutex
@@ -582,7 +584,6 @@ class MastoApi {
                 if (maxId)
                     logger.warn(`maxId param "${maxId}" will overload minID in cache "${cacheResult.minMaxId.min}"!`);
                 minMaxIdParams.maxIdForFetch = maxId || cacheResult.minMaxId.min;
-                logger.info(`Getting MOAR_DATA; loading backwards from minId in cache: "${minMaxIdParams.maxIdForFetch}"`);
             }
             else {
                 minMaxIdParams.minIdForFetch = cacheResult.minMaxId.max;
@@ -694,11 +695,11 @@ class MastoApi {
         // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
         if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS) {
             const paramsToLog = (0, collection_helpers_1.removeKeys)(params, PARAMS_TO_NOT_LOG, PARAMS_TO_NOT_LOG_IF_FALSE);
-            if (this.shouldReturnCachedRows(params)) {
-                return;
-            }
-            else if (paramsToLog.minIdForFetch || paramsToLog.maxIdForFetch) {
+            if (paramsToLog.minIdForFetch) {
                 logger.debug(`Incremental fetch from API to update stale cache:`, paramsToLog);
+            }
+            else if (paramsToLog.maxIdForFetch) {
+                logger.debug(`Loading backwards from maxIdForFetch:`, paramsToLog);
             }
             else {
                 logger.trace(`Fetching data from API or cache w/params:`, paramsToLog);
@@ -737,7 +738,7 @@ function fillInDefaultParams(params) {
         breakIf: params.breakIf || null,
         isBackgroundFetch: isBackgroundFetch || false,
         limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
-        logger: loggerForParams(params),
+        logger: logger || loggerForParams(params),
         maxId: maxId || null,
         maxRecords: maxApiRecords,
         maxCacheRecords: requestDefaults?.maxCacheRecords,

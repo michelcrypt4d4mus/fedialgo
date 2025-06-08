@@ -218,7 +218,7 @@ export default class Storage {
         let isStale = false;
 
         if (dataAgeInMinutes > staleAfterMinutes) {
-            hereLogger.debug(`Data is stale ${minutesMsg}`);
+            hereLogger.trace(`Data is stale ${minutesMsg}`);
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
