@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Rename ObjWithTootCount to NamedTootCount, WithCounts to TootCounts
+* Rename `ObjWithTootCount` to `NamedTootCount`, `WithCounts` to `TootCounts`
 
 ### v0.69.5
 * Add "la" to TAG_ONLY_STRINGS
