@@ -517,7 +517,7 @@ if (isQuickMode) {
 if (isDebugMode) {
     configLogger.debug(`FEDIALGO_DEBUG mode enabled, applying debug settings...`);
     config.api.data[CacheKey.FOLLOWED_ACCOUNTS]!.initialMaxRecords = 160;
-    config.api.data[CacheKey.FOLLOWED_TAGS]!.minutesUntilStale = 10;
+    config.api.data[CacheKey.FOLLOWED_TAGS]!.minutesUntilStale = 60;
     config.api.data[CacheKey.FOLLOWERS]!.initialMaxRecords = 320;
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 10;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;

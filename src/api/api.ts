@@ -58,10 +58,12 @@ interface MinMaxIDParams {
 };
 
 // Generic params for MastoApi methods that support backfilling via "moar" flag
+//   - bustCache: if true, don't use cached data and update the cache with the new data
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
 //   - skipCache: if true, don't use cached data
 export interface ApiParams {
+    bustCache?: boolean,
     logger?: Logger,  // Optional logger to use for logging API calls
     maxRecords?: number,
     moar?: boolean,
@@ -202,7 +204,7 @@ export default class MastoApi {
             cacheKey: cacheKey,
             maxId: maxId,
             maxRecords: maxRecords,
-            skipCache: true,  // always skip the cache for the home timeline
+            skipCache: true,  // Home timeline manages its own cache state via breakIf()
             skipMutex: true,
             breakIf: async (newStatuses: StatusList, allStatuses: StatusList) => {
                 const oldestTootAt = earliestTootedAt(newStatuses);
@@ -774,8 +776,8 @@ export default class MastoApi {
     private async getCacheResult<T extends MastodonApiObject>(
         params: FetchParamsWithDefaults<T>
     ): Promise<CachedRows<T> | null> {
-        const { cacheKey, skipCache } = params;
-        if (skipCache) return null;
+        const { bustCache, cacheKey, skipCache } = params;
+        if (bustCache || skipCache) return null;
         const cachedData = await Storage.getWithStaleness(cacheKey);
         if (!cachedData) return null;
         const rows = cachedData?.obj as T[];
@@ -914,6 +916,7 @@ function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>
 
     const withDefaults: FetchParamsWithDefaults<T> = {
         ...params,
+        bustCache: params.bustCache || false,
         fetch: params.fetch || null,
         fetchGenerator: params.fetchGenerator || null,
         breakIf: params.breakIf || null,

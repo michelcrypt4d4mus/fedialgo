@@ -639,8 +639,8 @@ class MastoApi {
     }
     // Load rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness().
     async getCacheResult(params) {
-        const { cacheKey, skipCache } = params;
-        if (skipCache)
+        const { bustCache, cacheKey, skipCache } = params;
+        if (bustCache || skipCache)
             return null;
         const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
         if (!cachedData)
@@ -772,6 +772,7 @@ function fillInDefaultParams(params) {
     const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
     const withDefaults = {
         ...params,
+        bustCache: params.bustCache || false,
         fetch: params.fetch || null,
         fetchGenerator: params.fetchGenerator || null,
         breakIf: params.breakIf || null,

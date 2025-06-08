@@ -7,6 +7,7 @@ import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
 export interface ApiParams {
+    bustCache?: boolean;
     logger?: Logger;
     maxRecords?: number;
     moar?: boolean;

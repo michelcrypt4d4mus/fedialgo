@@ -410,7 +410,7 @@ class TheAlgorithm {
         const logger = this.logger.tempLogger(`refreshMutedAccounts`);
         logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
-        const mutedAccounts = await MastoApi.instance.getMutedAccounts({skipCache: true});
+        const mutedAccounts = await MastoApi.instance.getMutedAccounts({bustCache: true});
         logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
         await Toot.completeToots(this.feed, logger, JUST_MUTING);

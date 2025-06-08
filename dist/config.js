@@ -398,7 +398,7 @@ if (environment_helpers_1.isQuickMode) {
 if (environment_helpers_1.isDebugMode) {
     configLogger.debug(`FEDIALGO_DEBUG mode enabled, applying debug settings...`);
     config.api.data[enums_1.CacheKey.FOLLOWED_ACCOUNTS].initialMaxRecords = 160;
-    config.api.data[enums_1.CacheKey.FOLLOWED_TAGS].minutesUntilStale = 10;
+    config.api.data[enums_1.CacheKey.FOLLOWED_TAGS].minutesUntilStale = 60;
     config.api.data[enums_1.CacheKey.FOLLOWERS].initialMaxRecords = 320;
     config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 10;
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 5;
