@@ -1,6 +1,6 @@
 import { Logger } from '../helpers/logger';
 import { ScoreName } from "../enums";
-import { type ObjWithTootCount, type ObjListDataSource, type StringNumberDict } from "../types";
+import { type ObjListDataSource, type ObjWithTootCount, type StringNumberDict } from "../types";
 export type ObjList = ObjWithCountList<ObjWithTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;
 export default class ObjWithCountList<T extends ObjWithTootCount> {

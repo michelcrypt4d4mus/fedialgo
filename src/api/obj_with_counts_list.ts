@@ -9,8 +9,8 @@ import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
-    type ObjWithTootCount,
     type ObjListDataSource,
+    type ObjWithTootCount,
     type StringNumberDict,
 } from "../types";
 

@@ -10,7 +10,7 @@ import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
-import { BooleanFilterName, CacheKey, ScoreName, TagTootsCacheKey } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
 import { keyById } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
