@@ -1,7 +1,7 @@
 /*
  * Math and numbers.
  */
-import { byteString, isNull, isString } from "./string_helpers";
+import { byteString, isNull } from "./string_helpers";
 import { strBytes } from "./log_helpers";
 import { sumArray } from "./collection_helpers";
 import { type StringNumberDict } from "../types";

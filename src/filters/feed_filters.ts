@@ -14,7 +14,7 @@ import { incrementCount, split, sumArray, sumValues } from "../helpers/collectio
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
 import {
-    BooleanFilterOption,
+    type BooleanFilterOption,
     type BooleanFilters,
     type FeedFilterSettings,
     type FilterArgs,
