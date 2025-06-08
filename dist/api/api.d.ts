@@ -55,8 +55,8 @@ export default class MastoApi {
     tagUrl(tag: MastodonTag | string): string;
     private endpointURL;
     private supportsMinMaxId;
-    private getApiRecords;
     private fetchApiRecords;
+    private getApiRecords;
     private getApiRecordsOrCache;
     private buildParams;
     private addCacheDataToParams;

@@ -95,7 +95,7 @@ export default class Storage {
                 logger.warn(`No user identity found, cleared storage anyways`);
             }
         } finally {
-            releasers.forEach((release) => release?.());
+            releasers.forEach((release) => release());
             logger.log(`Cleared all storage items, released mutexes`);
         }
     }

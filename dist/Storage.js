@@ -87,7 +87,7 @@ class Storage {
             }
         }
         finally {
-            releasers.forEach((release) => release?.());
+            releasers.forEach((release) => release());
             logger.log(`Cleared all storage items, released mutexes`);
         }
     }

@@ -480,12 +480,12 @@ export default class MastoApi {
         }
     }
 
+    // Lock all the API mutexes so we can do stuff with the cache state
     async lockAllMutexes(): Promise<ConcurrencyLockRelease[]> {
-        apiLogger.log(`lockAllMutexes() called, locking all mutexes...`);
-
-        return await Promise.all(
-            Object.values(this.apiMutexes).map(mutex => lockExecution(mutex, apiLogger, 'lockAllMutexes()'))
-        );
+        const allMutexes = Object.values(this.apiMutexes).concat(Object.values(this.cacheMutexes));
+        const mutexLogger = apiLogger.tempLogger('lockAllMutexes');
+        mutexLogger.log(`Locking all mutexes...`);
+        return await Promise.all(allMutexes.map(mutex => lockExecution(mutex, mutexLogger)));
     };
 
     // Uses v2 search API (docs: https://docs.joinmastodon.org/methods/search/) to resolve
@@ -567,33 +567,6 @@ export default class MastoApi {
     // Check the config for supportsMinMaxId boolean
     private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
-    // Return cached rows (if they exist) and trigger a background update if the cache is stale
-    private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
-        const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
-        let { cacheKey, cacheResult, logger, skipMutex } = paramsWithCache;
-        const hereLogger = logger.tempLogger('getFromCacheWithRefresh');
-        const releaseMutex = skipMutex ? null : await lockExecution(this.cacheMutexes[cacheKey], hereLogger);
-
-        try {
-            // TODO: maybe check that there's more than 0 rows in the cache before returning them?
-            if (cacheResult) {
-                if (cacheResult.isStale) {
-                    hereLogger.debug(`Stale cache, returning ${cacheResult.rows.length} but triggering background update`);
-                    logger = logger.tempLogger('backgroundUpdate')
-                    this.getApiRecordsOrCache<T>({ ...paramsWithCache, logger }, true);
-                }
-
-                hereLogger.debug(`Returning ${cacheResult.rows.length} cached rows`);
-                return cacheResult.rows;
-            } else {
-                hereLogger.debug(`No cached rows found, fetching from API...`);
-                return await this.getApiRecordsOrCache<T>(paramsWithCache);
-            }
-        } finally {
-            releaseMutex?.();
-        }
-    }
-
     // Pure fetch of API records, no caching or background updates
     private async fetchApiRecords<T extends MastodonApiObject>(
         params: FetchParamsWithCacheData<T>
@@ -633,21 +606,49 @@ export default class MastoApi {
         }
     }
 
-    // Generic Mastodon object fetcher. Accepts a 'fetch' fxn w/a few other args (see FetchParams type)
+    // Return cached rows (if they exist) but trigger a background update if the cache is stale,
+    // otherwise do a normal API fetch
+    private async getApiRecords<T extends MastodonApiObject>(inParams: FetchParams<T>): Promise<MastodonApiObject[]> {
+        const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
+        let { cacheKey, cacheResult, logger, skipMutex } = paramsWithCache;
+        const hereLogger = logger.tempLogger('getFromCacheWithRefresh');
+        const releaseMutex = skipMutex ? null : await lockExecution(this.cacheMutexes[cacheKey], hereLogger);
+
+        try {
+            // TODO: maybe check that there's more than 0 rows in the cache before returning them?
+            if (cacheResult) {
+                if (cacheResult.isStale) {
+                    hereLogger.debug(`Returning ${cacheResult.rows.length} stale rows and triggering cache update`);
+                    logger = logger.tempLogger('backgroundUpdate')
+                    this.getApiRecordsOrCache<T>({ ...paramsWithCache, logger }, true);
+                } else {
+                    hereLogger.debug(`Returning ${cacheResult.rows.length} cached rows`);
+                }
+
+                return cacheResult.rows;
+            } else {
+                hereLogger.debug(`No cached rows found, fetching from API...`);
+                return await this.getApiRecordsOrCache<T>(paramsWithCache);
+            }
+        } finally {
+            releaseMutex?.();
+        }
+    }
+
+    // Generic Mastodon API fetcher. Accepts a 'fetch' fxn w/a few other args (see comments on FetchParams)
     // Tries to use cached data first (unless skipCache=true), fetches from API if cache is empty or stale
-    // See comment above on FetchParams object for more info about arguments
     private async getApiRecordsOrCache<T extends MastodonApiObject>(
         params: FetchParamsWithCacheData<T>,
         isBackgroundUpdate?: boolean
     ): Promise<MastodonApiObject[]> {
         let { cacheKey, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
-        logger = logger.tempLogger('fetchApiRecords', cacheKey);
+        logger = logger.tempLogger('getApiRecordsOrCache', cacheKey);
 
         if (this.apiMutexes[cacheKey].isLocked()) {
             if (isBackgroundUpdate) {
                 logger.trace(`Called but ApiMutex is already locked, nothing to do`);
             } else {
-                logger.warn(`ApiMutex is already locked! Returning empty array...`);
+                logger.error(`ApiMutex is already locked but shouldn't be! Returning empty array...`);
             }
 
             return [];
@@ -667,23 +668,26 @@ export default class MastoApi {
 
             let newRows = await this.fetchApiRecords<T>(params) as T[];
 
-            // If endpoint has unique IDs (e.g. Toots) merge the cached rows with the new ones
+            // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
+            // newRows are in front so they will survive truncation (if it happens)
             if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-                newRows = [...cachedRows, ...newRows];
-            }
-
-            // If we have a maxCacheRecords limit, truncate the new rows to that limit
-            if (maxCacheRecords && newRows.length > maxCacheRecords) {
-                logger.warn(`Truncating ${newRows.length} rows to maxCacheRecords=${maxCacheRecords}`);
-                newRows = truncateToConfiguredLength(sortObjsByCreatedAt(newRows as WithCreatedAt[]), maxCacheRecords, logger);
+                newRows = [...newRows, ...cachedRows];
             }
 
             const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
+
+            // If we have a maxCacheRecords limit, truncate the new rows to that limit
+            if (maxCacheRecords && objs.length > maxCacheRecords) {
+                logger.warn(`Truncating ${objs.length} rows to maxCacheRecords=${maxCacheRecords}`);
+                // TODO: there's a Mastodon object w/out created_at, so this would break but for now that object has no maxCacheRecords set for that endpoint
+                newRows = truncateToConfiguredLength(sortObjsByCreatedAt(objs as WithCreatedAt[]), maxCacheRecords, logger);
+            }
+
             if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
             if (!skipCache) await Storage.set(cacheKey, objs);
             return objs;
         } catch (err) {
-            logger.error(`Error fetching API records for ${cacheKey} where there really shouldn't be!! Returning []`, err);
+            logger.error(`Error fetching API records for ${cacheKey} where there really shouldn't be!`, err);
             return [];
         } finally {
             releaseMutex?.();
