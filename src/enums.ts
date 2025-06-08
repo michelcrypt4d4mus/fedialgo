@@ -31,9 +31,9 @@ export enum TagTootsCacheKey {
 };
 
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
-const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
 
-// Build a dictionary of <whatever> for each ApiCacheKey
+// Build a dictionary of whatever fxn() returns for each ApiCacheKey
 export function buildCacheKeyDict<T>(
     fxn: (key?: ApiCacheKey) => T,
     keys?: ApiCacheKey[]

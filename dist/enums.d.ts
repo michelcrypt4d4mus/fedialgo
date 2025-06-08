@@ -22,6 +22,7 @@ export declare enum TagTootsCacheKey {
     TRENDING_TAG_TOOTS = "TrendingTagToots"
 }
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+export declare const ALL_CACHE_KEYS: (CacheKey | TagTootsCacheKey)[];
 export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys?: ApiCacheKey[]): Record<ApiCacheKey, T>;
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",

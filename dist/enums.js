@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.buildCacheKeyDict = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.buildCacheKeyDict = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
 /*
  * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
  */
@@ -34,10 +34,10 @@ var TagTootsCacheKey;
     TagTootsCacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
 })(TagTootsCacheKey || (exports.TagTootsCacheKey = TagTootsCacheKey = {}));
 ;
-const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
-// Build a dictionary of <whatever> for each ApiCacheKey
+exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
+// Build a dictionary of whatever fxn() returns for each ApiCacheKey
 function buildCacheKeyDict(fxn, keys) {
-    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
+    return (keys || exports.ALL_CACHE_KEYS).reduce((dict, key) => {
         dict[key] = fxn(key);
         return dict;
     }, {});
