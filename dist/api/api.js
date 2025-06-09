@@ -392,7 +392,7 @@ class MastoApi {
     /**
      * Retrieves background data about the user for scoring, etc. Caches as an instance variable.
      * @param {boolean} [force] - If true, forces a refresh from the API.
-     * @returns {Promise<UserData>} The user data object.
+     * @returns {Promise<UserData>} The UserData object.
      */
     async getUserData(force) {
         const releaseMutex = await (0, log_helpers_1.lockExecution)(USER_DATA_MUTEX, this.logger);

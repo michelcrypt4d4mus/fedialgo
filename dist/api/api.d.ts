@@ -165,7 +165,7 @@ export default class MastoApi {
     /**
      * Retrieves background data about the user for scoring, etc. Caches as an instance variable.
      * @param {boolean} [force] - If true, forces a refresh from the API.
-     * @returns {Promise<UserData>} The user data object.
+     * @returns {Promise<UserData>} The UserData object.
      */
     getUserData(force?: boolean): Promise<UserData>;
     /**

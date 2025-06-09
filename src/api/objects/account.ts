@@ -13,12 +13,11 @@ import { keyByProperty } from "../../helpers/collection_helpers";
 import { Logger } from "../../helpers/logger";
 import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
 
+type AccountCount = Record<string, {account: Account, count: number}>;
+
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month: "short", day: "numeric"};
-
-// TODO: isFollowed doesn't belong here...
-type AccountCount = Record<string, {account: Account, count: number, isFollowed?: boolean}>;
 
 const logger = new Logger("Account");
 

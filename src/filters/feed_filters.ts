@@ -11,10 +11,9 @@ import Toot from "../api/objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
 import { BooleanFilterOptionList } from "../api/obj_with_counts_list";
 import { config } from "../config";
-import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
+import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
-import { type FilterArgs } from './toot_filter';
 import {
     type BooleanFilterOption,
     type BooleanFilters,
@@ -24,6 +23,9 @@ import {
     type TootNumberProp,
 } from "../types";
 
+type FilterOptions = Record<BooleanFilterName, BooleanFilterOptionList>;
+type DictOfDicts = Record<string, StringNumberDict>;
+
 export const DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {} as BooleanFilters,
@@ -31,19 +33,14 @@ export const DEFAULT_FILTERS = {
     numericFilters: {} as NumericFilters,
 } as FeedFilterSettings;
 
-type FilterOptions = Record<BooleanFilterName, BooleanFilterOptionList>;
-type DictOfDicts = Record<string, StringNumberDict>;
-
-const filterLogger = new Logger('feed_filters.ts');
+const logger = new Logger('feed_filters.ts');
 
 
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 export function buildNewFilterSettings(): FeedFilterSettings {
-    // Stringify and parse to get a deep copy of the default filters
-    const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings;
+    const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings; // Deep copy
     populateMissingFilters(filters);
-    filterLogger.trace(`buildNewFilterSettings() result:`, filters);
     return filters;
 }
 
@@ -62,7 +59,7 @@ export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilter
     }, {} as NumericFilters);
 
     populateMissingFilters(filterArgs);
-    filterLogger.trace(`buildFiltersFromArgs() result:`, filterArgs);
+    logger.trace(`buildFiltersFromArgs() result:`, filterArgs);
     return filterArgs;
 }
 
@@ -74,19 +71,19 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 
     // For upgrades of existing users for the rename of booleanFilterArgs
     if ("feedFilterSectionArgs" in filters) {
-        filterLogger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
+        logger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
         filters.booleanFilterArgs = filters.feedFilterSectionArgs as BooleanFilterArgs[];
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
     }
 
-    const validBooleanFilterArgs = BooleanFilter.removeInvalidFilterArgs(filters.booleanFilterArgs, filterLogger);
-    const validNumericFilterArgs = NumericFilter.removeInvalidFilterArgs(filters.numericFilterArgs, filterLogger);
+    const validBooleanFilterArgs = BooleanFilter.removeInvalidFilterArgs(filters.booleanFilterArgs, logger);
+    const validNumericFilterArgs = NumericFilter.removeInvalidFilterArgs(filters.numericFilterArgs, logger);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
 
     if (wasChanged) {
-        filterLogger.warn(`Repaired invalid filter args:`, filters);
+        logger.warn(`Repaired invalid filter args:`, filters);
     }
 
     filters.booleanFilterArgs = validBooleanFilterArgs as BooleanFilterArgs[];
@@ -100,7 +97,6 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
 // will all have been stored and reloaded along with the feed that birthed those filter options.
 export async function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<FeedFilterSettings> {
     populateMissingFilters(filters);  // Ensure all filters are instantiated
-    const logger = filterLogger.tempLogger('updateBooleanFilterOptions');
     const tagLists = await TagsForFetchingToots.rawTagLists();
     const userData = await MastoApi.instance.getUserData();
     const suppressedNonLatinTags: DictOfDicts = {};
@@ -176,9 +172,9 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         filters.booleanFilters[filterName].options = optionLists[filterName];
     });
 
-    logSuppressedHashtags(logger, suppressedNonLatinTags);
+    logSuppressedHashtags(suppressedNonLatinTags);
     await Storage.setFilters(filters);
-    logger.trace(`Completed, built filters:`, filters);
+    logger.trace(`Updated filters:`, filters);
     return filters;
 }
 
@@ -206,8 +202,8 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 // };
 
 
-// Logging helper
-function logSuppressedHashtags(logger: Logger, suppressedHashtags: DictOfDicts): void {
+// Simple logging helper
+function logSuppressedHashtags(suppressedHashtags: DictOfDicts): void {
     if (Object.keys(suppressedHashtags).length) {
         const languageCounts = Object.values(suppressedHashtags).map(counts => sumValues(counts));
         logger.debug(`Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedHashtags);
@@ -224,9 +220,8 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
 
     Object.values(BooleanFilterName).forEach((booleanFilterName) => {
         if (!filters.booleanFilters[booleanFilterName]) {
-            filterLogger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
+            logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
             filters.booleanFilters[booleanFilterName] = new BooleanFilter({title: booleanFilterName});
-            return;
         }
     });
 }
