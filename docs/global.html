@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>[FediAlgo] Global</title>
+    <title>FediAlgo Global</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -381,6 +381,652 @@ can be filtered inclusively or exclusively based on an array of strings
     
 
     
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="fillInDefaultParams"><span class="type-signature"></span>fillInDefaultParams<span class="signature">(params)</span><span class="type-signature"> &rarr; {FetchParamsWithDefaults.&lt;T>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Populates fetch options with basic defaults for API requests.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">FetchParams.&lt;T></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Fetch parameters.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_api.js.html">api/api.js</a>, <a href="api_api.js.html#line961">line 961</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Fetch parameters with defaults filled in.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">FetchParamsWithDefaults.&lt;T></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isAccessTokenRevokedError"><span class="type-signature"></span>isAccessTokenRevokedError<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns true if the error is an access token revoked error.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>e</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">unknown</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The error to check.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_api.js.html">api/api.js</a>, <a href="api_api.js.html#line990">line 990</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    True if the error is an access token revoked error.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isRateLimitError"><span class="type-signature"></span>isRateLimitError<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns true if the error is a rate limit error.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>e</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Error</span>
+|
+
+<span class="param-type">unknown</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The error to check.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_api.js.html">api/api.js</a>, <a href="api_api.js.html#line1004">line 1004</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    True if the error is a rate limit error.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="loggerForParams"><span class="type-signature"></span>loggerForParams<span class="signature">(params)</span><span class="type-signature"> &rarr; {Logger}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns a logger instance for the given fetch parameters.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Omit.&lt;FetchParams.&lt;T>, "fetch"></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Fetch parameters (excluding fetch).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="api_api.js.html">api/api.js</a>, <a href="api_api.js.html#line981">line 981</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Logger instance.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Logger</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
 
     
 
@@ -395,13 +1041,13 @@ can be filtered inclusively or exclusively based on an array of strings
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FILTERABLE_SCORES">FILTERABLE_SCORES</a></li><li><a href="global.html#TOOT_MATCHERS">TOOT_MATCHERS</a></li><li><a href="global.html#TYPE_FILTERS">TYPE_FILTERS</a></li><li><a href="global.html#api_1">api_1</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FILTERABLE_SCORES">FILTERABLE_SCORES</a></li><li><a href="global.html#TOOT_MATCHERS">TOOT_MATCHERS</a></li><li><a href="global.html#TYPE_FILTERS">TYPE_FILTERS</a></li><li><a href="global.html#api_1">api_1</a></li><li><a href="global.html#fillInDefaultParams">fillInDefaultParams</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#loggerForParams">loggerForParams</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Jun 08 2025 23:40:59 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 02:17:48 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
