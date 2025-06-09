@@ -126,7 +126,7 @@ class ObjWithCountList {
      * Returns the object in the list with the given name, or undefined if not found.
      * Name matching is case-insensitive.
      * @param {number} [maxObjs] - Optional maximum number of objects to return.
-     * @returns {T[]]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
+     * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
     topObjs(maxObjs) {
         const sortBy = (this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots");

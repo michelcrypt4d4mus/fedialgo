@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
 /**
- * Special case of ObjWithCountList for BooleanFilterOption objects.
+ * Subclass of ObjWithCountList for BooleanFilterOption objects.
  * @extends {ObjWithCountList}
  */
 class BooleanFilterOptionList extends obj_with_counts_list_1.default {

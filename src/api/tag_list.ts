@@ -1,4 +1,4 @@
-/**
+/*
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 import MastoApi from "./api";
@@ -20,7 +20,7 @@ const logger = new Logger("TagList");
 
 
 /**
- * Special case of ObjWithCountList for lists of TagWithUsageCounts objects.
+ * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
  * @extends {ObjWithCountList}
  */
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {

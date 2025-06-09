@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
+/*
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 const api_1 = __importDefault(require("./api"));
@@ -15,7 +15,7 @@ const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
 const logger = new logger_1.Logger("TagList");
 /**
- * Special case of ObjWithCountList for lists of TagWithUsageCounts objects.
+ * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
  * @extends {ObjWithCountList}
  */
 class TagList extends obj_with_counts_list_1.default {
