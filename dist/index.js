@@ -107,7 +107,7 @@ Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: f
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
-// Strings
+const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
@@ -121,8 +121,6 @@ const EMPTY_TRENDING_DATA = {
     servers: {},
     toots: []
 };
-// Constants
-const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 ;
 /**
  * Main class for scoring, sorting, and managing a Mastodon feed made of Toot objects.
@@ -154,11 +152,11 @@ const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimeline
  */
 class TheAlgorithm {
     static isDebugMode = environment_helpers_1.isDebugMode;
+    static weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
     trendingData = EMPTY_TRENDING_DATA;
-    weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
     get apiErrorMsgs() { return api_1.default.instance.apiErrors.map(e => e.message); }
     ;
     // TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.

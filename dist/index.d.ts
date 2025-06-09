@@ -41,6 +41,14 @@ import { isValueInStringEnum, makeChunks, makePercentileChunks, sortKeysByValue 
 import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightName, type Weights, type WeightInfoDict } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
+/**
+ * Arguments for constructing a TheAlgorithm instance.
+ *
+ * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
+ * @property {mastodon.v1.Account} user - The Mastodon user account for which to build the feed.
+ * @property {string} [locale] - Optional locale string for date formatting.
+ * @property {(feed: Toot[]) => void} [setTimelineInApp] - Optional callback to set the feed in the consuming app.
+ */
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -77,11 +85,11 @@ interface AlgorithmArgs {
  */
 declare class TheAlgorithm {
     static isDebugMode: boolean;
+    static weightPresets: WeightPresets;
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;
     trendingData: TrendingData;
-    weightPresets: WeightPresets;
     get apiErrorMsgs(): string[];
     get isLoading(): boolean;
     get timeline(): Toot[];

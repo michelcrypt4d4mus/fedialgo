@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Stop requiring all FetchParams to have a value
+* Stop requiring all `FetchParams` to have a value
+* Make TheAlgorithm.weightPresets into a static variable
 
 ### v0.69.8
 * Convert `isBoolean/NumericFilterName` methods to static `TootFilter.isValidTitle()`
