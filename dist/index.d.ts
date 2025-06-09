@@ -47,6 +47,34 @@ interface AlgorithmArgs {
     locale?: string;
     setTimelineInApp?: (feed: Toot[]) => void;
 }
+/**
+ * Main class for scoring, sorting, and managing a Mastodon feed made of Toot objects.
+ *
+ * TheAlgorithm orchestrates fetching, scoring, filtering, and updating the user's timeline/feed.
+ * It manages feature and feed scorers, trending data, filters, user weights, and background polling.
+ *
+ * Key responsibilities:
+ * - Fetches and merges toots from multiple sources (home timeline, trending, hashtags, etc.)
+ * - Applies scoring algorithms and user-defined weights to rank toots
+ * - Filters the feed based on user settings and filter options
+ * - Handles background polling for new data and saving state to storage
+ * - Provides methods for updating filters, weights, and retrieving current state
+ * - Exposes utility methods for stats, server info, and tag URLs
+ *
+ * Properties:
+ * @property {FeedFilterSettings} filters - Current filter settings for the feed
+ * @property {number | null} lastLoadTimeInSeconds - Duration of the last load in seconds
+ * @property {string | null} loadingStatus - String describing load activity
+ * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
+ * @property {WeightPresets} weightPresets - Preset weight configurations
+ * @property {WeightInfoDict} weightInfo - Info about all scoring weights
+ * @property {Toot[]} timeline - The current filtered timeline
+ * @property {Toot[]} feed - The full set of toots in the feed (private)
+ * @property {Toot[]} homeFeed - The subset of toots from the home timeline (private)
+ * @property {UserData} userData - User data for scoring and filtering
+ * @property {boolean} isLoading - Whether a feed load is in progress
+ * @property {string[]} apiErrorMsgs - API error messages
+ */
 declare class TheAlgorithm {
     static isDebugMode: boolean;
     filters: FeedFilterSettings;

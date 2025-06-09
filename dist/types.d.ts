@@ -51,8 +51,18 @@ export type FilterArgs = {
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;
-export type MastodonApiObj = (MastodonObjWithID | mastodon.v1.Tag | mastodon.v1.TrendLink);
+/**
+ * Union type representing any object that can be returned from the Mastodon API and handled by the app
+ * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
+ */
+export type MastodonApiObj = (MastodonObjWithID | MastodonTag | mastodon.v1.TrendLink);
 export type MastodonObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
+/**
+ * Local extension to the Mastodon Instance type that adds some additional properties
+ * @extends {mastodon.v2.Instance}
+ * @property {number} [followedPctOfMAU] - Pct of the instance's monthly active users (MAU) the user follows
+ * @property {number} [MAU] - Monthly active users of the instance, if available
+ */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;
