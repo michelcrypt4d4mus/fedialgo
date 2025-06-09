@@ -6,7 +6,7 @@
     "types": "./dist/index.d.ts",
     "scripts": {
         "build": "tsc",
-        "docs": "jsdoc -c jsdoc.config.json",
+        "docs": "jsdoc -c jsdoc.config.json --readme README.md",
         "test": "jest --coverage",
         "testTS": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
         "lint": "eslint ./src --fix"

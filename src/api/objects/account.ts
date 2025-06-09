@@ -11,7 +11,7 @@ import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
 import { Logger } from "../../helpers/logger";
-import { type AccountLike, type AccountNames, type BooleanFilterOption,type StringNumberDict } from "../../types";
+import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
 
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
