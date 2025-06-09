@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = void 0;
+exports.TYPE_FILTERS = exports.isTypeFilterName = void 0;
 /**
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
@@ -18,8 +18,6 @@ const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
-exports.isBooleanFilterName = isBooleanFilterName;
 const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.TypeFilterName)(value);
 exports.isTypeFilterName = isTypeFilterName;
 /**
@@ -205,6 +203,14 @@ class BooleanFilter extends toot_filter_1.default {
             [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: await mastodon_server_1.default.fediverseTrendingTags(),
         };
+    }
+    /**
+     * Checks if a given property name is a valid numeric filter name.
+     * @param {string} name - The property name to check.
+     * @returns {boolean} True if the name is a filterable numeric property.
+     */
+    static isValidTitle(name) {
+        return (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(name);
     }
 }
 exports.default = BooleanFilter;

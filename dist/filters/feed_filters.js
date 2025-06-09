@@ -84,8 +84,8 @@ function repairFilterSettings(filters) {
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
     }
-    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, boolean_filter_1.isBooleanFilterName);
-    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.isNumericFilterName);
+    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, boolean_filter_1.default.isValidTitle);
+    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.default.isValidTitle);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
     if (wasChanged) {

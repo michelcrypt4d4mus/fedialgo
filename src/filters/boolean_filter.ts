@@ -36,7 +36,6 @@ type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
-export const isBooleanFilterName = (value: string) => isValueInStringEnum(BooleanFilterName)(value);
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
 /**
@@ -247,5 +246,14 @@ export default class BooleanFilter extends TootFilter {
             [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
             [TagTootsCacheKey.TRENDING_TAG_TOOTS]: await MastodonServer.fediverseTrendingTags(),
         };
+    }
+
+    /**
+     * Checks if a given property name is a valid numeric filter name.
+     * @param {string} name - The property name to check.
+     * @returns {boolean} True if the name is a filterable numeric property.
+     */
+    static isValidTitle(name: string) {
+        return isValueInStringEnum(BooleanFilterName)(name);
     }
 };

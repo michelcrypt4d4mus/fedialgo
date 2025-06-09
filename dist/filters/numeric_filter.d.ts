@@ -7,12 +7,6 @@ import { type FilterArgs, type TootNumberProp } from "../types";
  */
 export declare const FILTERABLE_SCORES: TootNumberProp[];
 /**
- * Checks if a given property name is a valid numeric filter name.
- * @param {string} name - The property name to check.
- * @returns {boolean} True if the name is a filterable numeric property.
- */
-export declare const isNumericFilterName: (name: string) => boolean;
-/**
  * Arguments for constructing a NumericFilter.
  * @interface
  * @extends FilterArgs
@@ -56,4 +50,10 @@ export default class NumericFilter extends TootFilter {
      * @param {number} newValue - The new minimum value for the filter.
      */
     updateValue(newValue: number): void;
+    /**
+     * Checks if a given property name is a valid numeric filter name.
+     * @param {string} name - The property name to check.
+     * @returns {boolean} True if the name is a filterable numeric property.
+     */
+    static isValidTitle(name: string): boolean;
 }

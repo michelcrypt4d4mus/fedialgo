@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isNumericFilterName = exports.FILTERABLE_SCORES = void 0;
+exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 /**
  * List of toot numeric properties that can be filtered.
@@ -14,13 +14,6 @@ exports.FILTERABLE_SCORES = [
     "reblogsCount",
     "favouritesCount",
 ];
-/**
- * Checks if a given property name is a valid numeric filter name.
- * @param {string} name - The property name to check.
- * @returns {boolean} True if the name is a filterable numeric property.
- */
-const isNumericFilterName = (name) => exports.FILTERABLE_SCORES.includes(name);
-exports.isNumericFilterName = isNumericFilterName;
 ;
 /**
  * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
@@ -83,6 +76,14 @@ class NumericFilter extends toot_filter_1.default {
      */
     updateValue(newValue) {
         this.value = newValue;
+    }
+    /**
+     * Checks if a given property name is a valid numeric filter name.
+     * @param {string} name - The property name to check.
+     * @returns {boolean} True if the name is a filterable numeric property.
+     */
+    static isValidTitle(name) {
+        return exports.FILTERABLE_SCORES.includes(name);
     }
 }
 exports.default = NumericFilter;
