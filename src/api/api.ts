@@ -46,17 +46,26 @@ import {
 
 type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
 
+/**
+ * Represents cached rows of API objects, including optional min/max ID information and cache timestamp.
+ * @template T
+ * @extends CacheTimestamp
+ * @property {MinMaxID | null} [minMaxId] - The min/max ID in the cache if supported by the request.
+ * @property {T[]} rows - Cached rows of API objects.
+ */
 interface CachedRows<T> extends CacheTimestamp {
     minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
     rows: T[];                     // Cached rows of API objects
 };
 
-// Generic params for MastoApi methods that support backfilling via "moar" flag
-//   - bustCache: if true, don't use cached data and update the cache with the new data
-//   - maxId: optional maxId to use for pagination
-//   - maxRecords: optional max number of records to fetch
-//   - moar: if true, continue fetching from the max_id found in the cache
-//   - skipCache: if true, don't use cached data
+/**
+ * Generic parameters for MastoApi methods that support backfilling via the "moar" flag.
+ * @property {boolean} [bustCache] - If true, don't use cached data and update the cache with new data.
+ * @property {Logger} [logger] - Optional logger to use for logging API calls.
+ * @property {number} [maxRecords] - Optional max number of records to fetch.
+ * @property {boolean} [moar] - If true, continue fetching from the max_id found in the cache.
+ * @property {boolean} [skipCache] - If true, don't use cached data.
+ */
 export interface ApiParams {
     bustCache?: boolean,
     logger?: Logger,  // Optional logger to use for logging API calls
@@ -65,25 +74,36 @@ export interface ApiParams {
     skipCache?: boolean,
 };
 
-// Only a few endpoints support a max_id parameter, so we have a separate interface for those
+/**
+ * Parameters for endpoints that support a max_id parameter, extending ApiParams.
+ * @extends ApiParams
+ * @property {string | number | null} [maxId] - Optional maxId to use for pagination.
+ */
 interface ApiParamsWithMaxID extends ApiParams {
     maxId?: string | number | null,
 };
 
-// Home timeline request params
-//   - mergeTootsToFeed: fxn to call to merge the fetched Toots into the main feed
+/**
+ * Parameters for fetching the home timeline, extending ApiParamsWithMaxID.
+ * @extends ApiParamsWithMaxID
+ * @property {(toots: Toot[], logger: Logger) => Promise<void>} mergeTootsToFeed - Function to merge fetched Toots into the main feed.
+ */
 interface HomeTimelineParams extends ApiParamsWithMaxID {
     mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>,
 };
 
-// Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
-//   - breakIf: fxn to call to check if we should fetch more pages
-//   - fetch: the data fetching function to call with params
-//   - fetchGenerator: creates a new Iterator of the same type as fetch()
-//   - isBackgroundFetch: a logging flag to indicate if this is a background fetch
-//   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
-//   - processFxn: optional function to process the object before storing and returning it
-//   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
+/**
+ * Parameters for fetching up to maxRecords pages of a user's data from the API.
+ * @template T
+ * @extends ApiParamsWithMaxID
+ * @property {(pageOfResults: T[], allResults: T[]) => Promise<true | undefined>} [breakIf] - Function to check if more pages should be fetched.
+ * @property {CacheKey} cacheKey - Cache key for storage.
+ * @property {ApiFetcher<T>} [fetch] - Data fetching function to call with params.
+ * @property {() => ApiFetcher<T>} [fetchGenerator] - Function to create a new iterator of the same type as fetch().
+ * @property {boolean} [isBackgroundFetch] - Logging flag to indicate if this is a background fetch.
+ * @property {(obj: T) => void} [processFxn] - Optional function to process the object before storing and returning it.
+ * @property {boolean} [skipMutex] - If true, don't lock the endpoint mutex when making requests.
+ */
 interface FetchParams<T extends MastodonApiObject> extends ApiParamsWithMaxID {
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     cacheKey: CacheKey,
@@ -94,11 +114,25 @@ interface FetchParams<T extends MastodonApiObject> extends ApiParamsWithMaxID {
     skipMutex?: boolean,
 };
 
+/**
+ * Parameters for background fetches, extending FetchParams.
+ * @template T
+ * @extends FetchParams<T>
+ * @property {number} minRecords - Minimum number of records to fetch.
+ */
 interface BackgroundFetchparams<T extends MastodonApiObject> extends FetchParams<T> {
     minRecords: number,
 };
 
-// Same as FetchParams but all properties are required and we add 'limit'
+/**
+ * Same as FetchParams but all properties are required and 'limit' is added.
+ * @template T
+ * @extends FetchParams<T>
+ * @property {number} limit - The limit for the API request.
+ * @property {Logger} logger - Logger instance for logging.
+ * @property {number} [maxCacheRecords] - Optional maximum number of records to keep in the cache.
+ * @property {number} maxRecords - Maximum number of records to fetch.
+ */
 interface FetchParamsWithDefaults<T extends MastodonApiObject> extends FetchParams<T> {
     limit: number,
     logger: Logger,
@@ -106,12 +140,23 @@ interface FetchParamsWithDefaults<T extends MastodonApiObject> extends FetchPara
     maxRecords: number,
 };
 
+/**
+ * Parameters for min/max ID API requests.
+ * @property {string | number | null} maxIdForFetch - The max ID to use for the API request.
+ * @property {string | number | null} minIdForFetch - The min ID to use for the API request.
+ */
 interface MinMaxIDParams {
     maxIdForFetch: string | number | null,  // The max ID to use for the API request
     minIdForFetch: string | number | null,
 };
 
-// Same as FetchParams but with a few derived fields
+/**
+ * Same as FetchParams but with a few derived fields, including cache data and min/max ID params.
+ * @template T
+ * @extends FetchParamsWithDefaults<T>
+ * @extends MinMaxIDParams
+ * @property {CachedRows<T> | null} cacheResult - The cached result for the request, if any.
+ */
 interface FetchParamsWithCacheData<T extends MastodonApiObject> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
     cacheResult: CachedRows<T> | null,
 };
@@ -1142,6 +1187,7 @@ export function isAccessTokenRevokedError(e: Error | unknown): boolean {
 
     return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
 };
+
 
 /**
  * Returns true if the error is a rate limit error.

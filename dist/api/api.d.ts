@@ -6,6 +6,14 @@ import { type ApiCacheKey } from "../enums";
 import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
+/**
+ * Generic parameters for MastoApi methods that support backfilling via the "moar" flag.
+ * @property {boolean} [bustCache] - If true, don't use cached data and update the cache with new data.
+ * @property {Logger} [logger] - Optional logger to use for logging API calls.
+ * @property {number} [maxRecords] - Optional max number of records to fetch.
+ * @property {boolean} [moar] - If true, continue fetching from the max_id found in the cache.
+ * @property {boolean} [skipCache] - If true, don't use cached data.
+ */
 export interface ApiParams {
     bustCache?: boolean;
     logger?: Logger;
@@ -13,9 +21,19 @@ export interface ApiParams {
     moar?: boolean;
     skipCache?: boolean;
 }
+/**
+ * Parameters for endpoints that support a max_id parameter, extending ApiParams.
+ * @extends ApiParams
+ * @property {string | number | null} [maxId] - Optional maxId to use for pagination.
+ */
 interface ApiParamsWithMaxID extends ApiParams {
     maxId?: string | number | null;
 }
+/**
+ * Parameters for fetching the home timeline, extending ApiParamsWithMaxID.
+ * @extends ApiParamsWithMaxID
+ * @property {(toots: Toot[], logger: Logger) => Promise<void>} mergeTootsToFeed - Function to merge fetched Toots into the main feed.
+ */
 interface HomeTimelineParams extends ApiParamsWithMaxID {
     mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>;
 }
