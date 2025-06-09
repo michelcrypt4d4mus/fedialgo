@@ -134,7 +134,7 @@ class Toot {
     videoAttachments;
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
     contentCache = {};
-    // Array with the author of the toot and (if it exists) the account that retooted it.
+    /** Array with the author of the toot and (if it exists) the account that retooted it. */
     get accounts() { return this.withRetoot.map((toot) => toot.account); }
     ;
     /** Age of this toot in hours */
