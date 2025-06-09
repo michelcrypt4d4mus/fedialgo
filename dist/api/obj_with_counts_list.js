@@ -3,8 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BooleanFilterOptionList = void 0;
-/**
+/*
  * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
@@ -150,13 +149,5 @@ class ObjWithCountList {
     }
 }
 exports.default = ObjWithCountList;
-;
-/**
- * Special case of ObjWithCountList for BooleanFilterOption objects.
- * @extends {ObjWithCountList}
- */
-class BooleanFilterOptionList extends ObjWithCountList {
-}
-exports.BooleanFilterOptionList = BooleanFilterOptionList;
 ;
 //# sourceMappingURL=obj_with_counts_list.js.map

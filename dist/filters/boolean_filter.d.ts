@@ -1,8 +1,14 @@
+/**
+ * Feed filtering information related to a single criterion on which toots
+ * can be filtered inclusively or exclusively based on an array of strings
+ * (e.g. language, hashtag, type of toot).
+ * @module Filters
+ */
+import BooleanFilterOptionList from "../api/boolean_filter_option_list";
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
-import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { type BooleanFilterOption, type FilterOptionDataSource } from "../types";
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TypeFilter = (toot: Toot) => boolean;
@@ -20,22 +26,14 @@ export interface BooleanFilterArgs extends FilterArgs {
 /**
  * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
  * @extends TootFilter
+ * @property {string} [description] - Optional description of the filter for display or documentation purposes.
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+ * @property {BooleanFilterOptionList} options - The BooleanFilterOptions available for this filter.
+ * @property {string[]} selectedOptions - The names of the options selected for use in filtering.
  */
 export default class BooleanFilter extends TootFilter {
-    /**
-     * Which options are selected for use in the filter.
-     * @type {string[]}
-     */
     selectedOptions: string[];
-    /**
-     * The filter title/category.
-     * @type {BooleanFilterName}
-     */
     title: BooleanFilterName;
-    /**
-     * Get the current options list.
-     * @returns {BooleanFilterOptionList}
-     */
     get options(): BooleanFilterOptionList;
     private _options;
     /**
