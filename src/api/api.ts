@@ -409,8 +409,9 @@ export default class MastoApi {
         }
 
         const toots = results.fulfilled.flat();
-        let msg = `search endpoint got ${results.fulfilled[0].length} toots, hashtag timeline got ${results.fulfilled[1].length}`;
-        msg += ` ${ageString(startedAt)} (total ${toots.length}, oldest=${quotedISOFmt(earliestTootedAt(toots))}`;
+        let msg = `search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
+                  `hashtag timeline got ${results.fulfilled[1]?.length || 0} ` +
+                  `${ageString(startedAt)} (total ${toots.length}, oldest=${quotedISOFmt(earliestTootedAt(toots))}`;
         logger.trace(`${msg}, newest=${quotedISOFmt(mostRecentTootedAt(toots))})`);
         return toots;
     }

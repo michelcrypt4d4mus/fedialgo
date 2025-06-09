@@ -1,5 +1,6 @@
-/*
+/**
  * Various helper methods for dealing with collections (arrays, objects, etc.)
+ * @module collection_helpers
  */
 import chunk from 'lodash/chunk';
 

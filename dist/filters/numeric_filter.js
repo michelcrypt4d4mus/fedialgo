@@ -5,17 +5,41 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isNumericFilterName = exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
+/**
+ * List of toot numeric properties that can be filtered.
+ * @type {TootNumberProp[]}
+ */
 exports.FILTERABLE_SCORES = [
     "repliesCount",
     "reblogsCount",
     "favouritesCount",
 ];
+/**
+ * Checks if a given property name is a valid numeric filter name.
+ * @param {string} name - The property name to check.
+ * @returns {boolean} True if the name is a filterable numeric property.
+ */
 const isNumericFilterName = (name) => exports.FILTERABLE_SCORES.includes(name);
 exports.isNumericFilterName = isNumericFilterName;
 ;
+/**
+ * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
+ * Allows filtering toots based on a minimum value for a given property.
+ * @extends TootFilter
+ */
 class NumericFilter extends toot_filter_1.default {
+    /**
+     * The property of the toot to filter on (e.g., 'repliesCount').
+     */
     title;
+    /**
+     * The minimum value required for the toot property for the toot to be included in the timeline.
+     */
     value;
+    /**
+     * Creates a NumericFilter instance.
+     * @param {NumericFilterArgs} param0 - The filter arguments.
+     */
     constructor({ invertSelection, title, value }) {
         const titleStr = title;
         super({
@@ -26,7 +50,11 @@ class NumericFilter extends toot_filter_1.default {
         this.title = title;
         this.value = value ?? 0;
     }
-    // Return true if the toot should appear in the timeline feed
+    /**
+     * Determines if a toot passes the numeric filter.
+     * @param {Toot} toot - The toot to check.
+     * @returns {boolean} True if the toot should appear in the timeline feed.
+     */
     isAllowed(toot) {
         if (this.invertSelection && this.value === 0)
             return true; // 0 doesn't work as a maximum
@@ -40,13 +68,19 @@ class NumericFilter extends toot_filter_1.default {
         const isOK = propertyValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
-    // Required for serialization of settings to local storage
+    /**
+     * Serializes the filter settings for storage (e.g., local storage).
+     * @returns {NumericFilterArgs} The arguments representing the filter state.
+     */
     toArgs() {
         const filterArgs = super.toArgs();
         filterArgs.value = this.value;
         return filterArgs;
     }
-    // Update the value of the filter
+    /**
+     * Updates the value of the filter.
+     * @param {number} newValue - The new minimum value for the filter.
+     */
     updateValue(newValue) {
         this.value = newValue;
     }
