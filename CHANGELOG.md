@@ -5,6 +5,7 @@
 * Convert `Toot.getScore()` to `score` getter
 * Rename `ObjWithTootCount` to `NamedTootCount`, `WithCounts` to `TootCounts`
 * Upgrade `masto.js` to 7.1.0
+* Fix handling of failed hashtag timeline and search for hashtag API requests
 
 ### v0.69.5
 * Add "la" to `TAG_ONLY_STRINGS`

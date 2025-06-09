@@ -308,8 +308,9 @@ class MastoApi {
             }
         }
         const toots = results.fulfilled.flat();
-        let msg = `search endpoint got ${results.fulfilled[0].length} toots, hashtag timeline got ${results.fulfilled[1].length}`;
-        msg += ` ${(0, time_helpers_1.ageString)(startedAt)} (total ${toots.length}, oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}`;
+        let msg = `search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
+            `hashtag timeline got ${results.fulfilled[1]?.length || 0} ` +
+            `${(0, time_helpers_1.ageString)(startedAt)} (total ${toots.length}, oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}`;
         logger.trace(`${msg}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))})`);
         return toots;
     }
