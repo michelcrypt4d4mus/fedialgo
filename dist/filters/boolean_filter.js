@@ -4,16 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = void 0;
-/**
- * @fileoverview Feed filtering information related to a single criterion on which toots
- * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language, hashtag, type of toot).
- */
-const boolean_filter_option_list_1 = __importDefault(require("../api/boolean_filter_option_list"));
-const api_1 = __importDefault(require("../api/api"));
-const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
+const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
@@ -87,7 +80,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     constructor(params) {
         const { title, invertSelection, selectedOptions } = params;
-        let optionInfo = new boolean_filter_option_list_1.default([], title);
+        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -128,7 +121,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new boolean_filter_option_list_1.default(options, this.title);
+        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
     }
     /**
      * Return options sorted by name, filtered by minToots (selected options are always included).
@@ -175,22 +168,6 @@ class BooleanFilter extends toot_filter_1.default {
         const filterArgs = super.toArgs();
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
-    }
-    /**
-     * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
-     * Note this won't be completely up to date but should be good enough for most purposes.
-     * TODO: currently unused
-     * @returns {Promise<FilterOptionDataSources>}
-     */
-    static async filterOptionDataSources() {
-        const userData = await api_1.default.instance.getUserData();
-        return {
-            [enums_1.BooleanFilterName.LANGUAGE]: userData.languagesPostedIn,
-            [enums_1.ScoreName.FAVOURITED_ACCOUNTS]: userData.favouriteAccounts,
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: userData.favouritedTags,
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: await mastodon_server_1.default.fediverseTrendingTags(),
-        };
     }
     /**
      * Checks if a given property name is a valid numeric filter name.

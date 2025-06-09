@@ -3,18 +3,14 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import BooleanFilterOptionList from "../api/boolean_filter_option_list";
-import MastoApi from '../api/api';
-import MastodonServer from '../api/mastodon_server';
-import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
-import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName, isValueInStringEnum } from '../enums';
+import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums';
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { type BooleanFilterOption, type FilterOptionDataSource } from "../types";
 
-type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
@@ -203,24 +199,6 @@ export default class BooleanFilter extends TootFilter {
         const filterArgs = super.toArgs() as BooleanFilterArgs;
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
-    }
-
-    /**
-     * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
-     * Note this won't be completely up to date but should be good enough for most purposes.
-     * TODO: currently unused
-     * @returns {Promise<FilterOptionDataSources>}
-     */
-    static async filterOptionDataSources(): Promise<FilterOptionDataSources> {
-        const userData = await MastoApi.instance.getUserData();
-
-        return {
-            [BooleanFilterName.LANGUAGE]: userData.languagesPostedIn,
-            [ScoreName.FAVOURITED_ACCOUNTS]: userData.favouriteAccounts,
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: userData.favouritedTags,
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
-            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: await MastodonServer.fediverseTrendingTags(),
-        };
     }
 
     /**

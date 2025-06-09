@@ -3,13 +3,11 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import BooleanFilterOptionList from "../api/boolean_filter_option_list";
-import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
-import { type BooleanFilterOption, type FilterOptionDataSource } from "../types";
-type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
+import { type BooleanFilterOption } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 /**
@@ -87,13 +85,6 @@ export default class BooleanFilter extends TootFilter {
      * @returns {BooleanFilterArgs}
      */
     toArgs(): BooleanFilterArgs;
-    /**
-     * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
-     * Note this won't be completely up to date but should be good enough for most purposes.
-     * TODO: currently unused
-     * @returns {Promise<FilterOptionDataSources>}
-     */
-    static filterOptionDataSources(): Promise<FilterOptionDataSources>;
     /**
      * Checks if a given property name is a valid numeric filter name.
      * @param {string} name - The property name to check.

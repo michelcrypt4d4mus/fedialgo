@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = require("../helpers/logger");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 /**
  * Abstract base class representing a filter that can be applied to a Toot to determine
@@ -35,6 +36,21 @@ class TootFilter {
             invertSelection: this.invertSelection,
             title: this.title,
         };
+    }
+    /** Must be overridden in subclasses. */
+    static isValidTitle(name) {
+        throw new Error("isValidTitle() must be implemented in subclasses");
+    }
+    /** Remove any filter args from the list whose title is invalid */
+    static removeInvalidFilterArgs(args, logger) {
+        const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => this.isValidTitle(arg.title));
+        if (invalidArgs.length > 0) {
+            logger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+        }
+        else {
+            logger.trace("All filter args are valid.");
+        }
+        return validArgs;
     }
 }
 exports.default = TootFilter;

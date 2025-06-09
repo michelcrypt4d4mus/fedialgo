@@ -1,7 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import BooleanFilterOptionList from "./boolean_filter_option_list";
-import { ObjList } from "./obj_with_counts_list";
+import { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { type AccountNames, type StringNumberDict, type TagWithUsageCounts } from "../types";
@@ -22,7 +21,6 @@ interface UserApiData {
  * from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
  * for use in scoring and filtering algorithms.
  *
- * Properties:
  * @property {BooleanFilterOptionList} favouriteAccounts - Accounts the user has favourited, retooted, or replied to.
  * @property {TagList} favouritedTags - List of tags the user has favourited.
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
@@ -31,7 +29,7 @@ interface UserApiData {
  * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted, keyed by account name.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
- * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user (currently unused).
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 export default class UserData {
     favouriteAccounts: BooleanFilterOptionList;
