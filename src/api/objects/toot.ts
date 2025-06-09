@@ -119,21 +119,6 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo.
  * @typedef {object} SerializableToot
- * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
- * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
- * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
- * @property {TagWithUsageCounts[]} [participatedTags] - Tags that the user has participated in that exist in this toot
- * @property {SerializableToot | null} [reblog] - The toot that was retooted (if any)
- * @property {AccountLike[]} [reblogsBy] - The accounts that retooted this toot (if any)
- * @property {string} [resolvedID] - This Toot with URLs resolved to homeserver versions
- * @property {TootScore} [scoreInfo] - Scoring info for weighting/sorting this toot
- * @property {string[]} [sources] - Source of the toot (e.g. trending tag toots, home timeline, etc.)
- * @property {TrendingLink[]} [trendingLinks] - Links that are trending in this toot
- * @property {number} [trendingRank] - Most trending on a server gets a 10, next is a 9, etc.
- * @property {TagWithUsageCounts[]} [trendingTags] - Tags that are trending in this toot
- * @property {mastodon.v1.MediaAttachment[]} [audioAttachments]
- * @property {mastodon.v1.MediaAttachment[]} [imageAttachments]
- * @property {mastodon.v1.MediaAttachment[]} [videoAttachments]
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
@@ -156,6 +141,21 @@ export interface SerializableToot extends mastodon.v1.Status {
 /**
  * Interface for Toot object with additional helper methods.
  * @typedef {object} TootObj
+ * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
+ * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
+ * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
+ * @property {TagWithUsageCounts[]} [participatedTags] - Tags that the user has participated in that exist in this toot
+ * @property {SerializableToot | null} [reblog] - The toot that was retooted (if any)
+ * @property {AccountLike[]} [reblogsBy] - The accounts that retooted this toot (if any)
+ * @property {string} [resolvedID] - This Toot with URLs resolved to homeserver versions
+ * @property {TootScore} [scoreInfo] - Scoring info for weighting/sorting this toot
+ * @property {string[]} [sources] - Source of the toot (e.g. trending tag toots, home timeline, etc.)
+ * @property {TrendingLink[]} [trendingLinks] - Links that are trending in this toot
+ * @property {number} [trendingRank] - Most trending on a server gets a 10, next is a 9, etc.
+ * @property {TagWithUsageCounts[]} [trendingTags] - Tags that are trending in this toot
+ * @property {mastodon.v1.MediaAttachment[]} [audioAttachments]
+ * @property {mastodon.v1.MediaAttachment[]} [imageAttachments]
+ * @property {mastodon.v1.MediaAttachment[]} [videoAttachments]
  */
 interface TootObj extends SerializableToot {
     // Getters
@@ -249,7 +249,7 @@ export default class Toot implements TootObj {
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
     private contentCache: TootCache = {};
 
-    // Array with the author of the toot and (if it exists) the account that retooted it.
+    /** Array with the author of the toot and (if it exists) the account that retooted it. */
     get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)};
     /** Age of this toot in hours */
     get ageInHours(): number { return ageInHours(this.createdAt) };
