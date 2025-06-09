@@ -160,7 +160,7 @@ export function buildCacheKeyDict<T>(
  * Generate a function to check if a value exists in a string enum.
  * @template E
  * @param {Record<string, E>} strEnum - The enum object.
- * @returns {(value: string) => value is E} The checker function.
+ * @returns {(value: string) => boolean} The checker function.
  */
 export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
     const enumValues = new Set(Object.values(strEnum) as string[]);
