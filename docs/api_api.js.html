@@ -163,7 +163,7 @@ class MastoApi {
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const cacheKey = enums_1.CacheKey.HOME_TIMELINE_TOOTS;
-        const logger = loggerForParams({ ...params, cacheKey });
+        const logger = this.loggerForParams({ ...params, cacheKey });
         const startedAt = new Date();
         let homeTimelineToots = await Storage_1.default.getCoerced(cacheKey);
         let allNewToots = [];
@@ -738,7 +738,7 @@ class MastoApi {
      */
     async getWithBackgroundFetch(params) {
         const { minRecords } = params;
-        const logger = loggerForParams(params).tempLogger('getWithBackgroundFetch');
+        const logger = this.loggerForParams(params).tempLogger('getWithBackgroundFetch');
         if (!params.fetchGenerator)
             logger.logAndThrowError(`Missing fetchGenerator!`, params);
         logger.trace(`Called with minRecords ${minRecords}`);
@@ -777,7 +777,7 @@ class MastoApi {
      * @returns {Promise&lt;FetchParamsWithCacheData&lt;T>>} Completed fetch parameters with cache data.
      */
     async addCacheDataToParams(inParams) {
-        const params = fillInDefaultParams(inParams);
+        const params = this.fillInDefaultParams(inParams);
         let { logger, maxId, maxRecords, moar } = params;
         const cacheResult = await this.getCacheResult(params);
         const minMaxIdParams = { maxIdForFetch: null, minIdForFetch: null };
@@ -902,6 +902,35 @@ class MastoApi {
         }
     }
     /**
+     * Populates fetch options with basic defaults for API requests.
+     * @template T
+     * @param {FetchParams&lt;T>} params - Fetch parameters.
+     * @returns {FetchParamsWithDefaults&lt;T>} Fetch parameters with defaults filled in.
+     */
+    fillInDefaultParams(params) {
+        let { cacheKey, logger, maxRecords } = params;
+        const requestDefaults = config_1.config.api.data[cacheKey];
+        const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
+        const withDefaults = {
+            ...params,
+            limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
+            logger: logger || this.loggerForParams(params),
+            maxRecords: maxApiRecords,
+            maxCacheRecords: requestDefaults?.maxCacheRecords,
+        };
+        return withDefaults;
+    }
+    /**
+     * Returns a logger instance for the given fetch parameters.
+     * @template T
+     * @param {Omit&lt;FetchParams&lt;T>, "fetch">} params - Fetch parameters (excluding fetch).
+     * @returns {Logger} Logger instance.
+     */
+    loggerForParams(params) {
+        const { cacheKey, isBackgroundFetch, moar } = params;
+        return getLogger(cacheKey, moar &amp;&amp; "moar", isBackgroundFetch &amp;&amp; "backgroundFetch");
+    }
+    /**
      * Returns true if the cache is fresh and we don't need to fetch more data.
      * @private
      * @template T
@@ -981,36 +1010,6 @@ class MastoApi {
 exports.default = MastoApi;
 ;
 /**
- * Populates fetch options with basic defaults for API requests.
- * @template T
- * @param {FetchParams&lt;T>} params - Fetch parameters.
- * @returns {FetchParamsWithDefaults&lt;T>} Fetch parameters with defaults filled in.
- */
-function fillInDefaultParams(params) {
-    let { cacheKey, logger, maxRecords } = params;
-    const requestDefaults = config_1.config.api.data[cacheKey];
-    const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
-    const withDefaults = {
-        ...params,
-        limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
-        logger: logger || loggerForParams(params),
-        maxRecords: maxApiRecords,
-        maxCacheRecords: requestDefaults?.maxCacheRecords,
-    };
-    return withDefaults;
-}
-;
-/**
- * Returns a logger instance for the given fetch parameters.
- * @template T
- * @param {Omit&lt;FetchParams&lt;T>, "fetch">} params - Fetch parameters (excluding fetch).
- * @returns {Logger} Logger instance.
- */
-function loggerForParams(params) {
-    const { cacheKey, isBackgroundFetch, moar } = params;
-    return getLogger(cacheKey, moar &amp;&amp; "moar", isBackgroundFetch &amp;&amp; "backgroundFetch");
-}
-/**
  * Returns true if the error is an access token revoked error.
  * @param {Error | unknown} e - The error to check.
  * @returns {boolean} True if the error is an access token revoked error.
@@ -1048,13 +1047,13 @@ exports.isRateLimitError = isRateLimitError;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#FILTERABLE_SCORES">FILTERABLE_SCORES</a></li><li><a href="global.html#TOOT_MATCHERS">TOOT_MATCHERS</a></li><li><a href="global.html#TYPE_FILTERS">TYPE_FILTERS</a></li><li><a href="global.html#api_1">api_1</a></li><li><a href="global.html#fillInDefaultParams">fillInDefaultParams</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#loggerForParams">loggerForParams</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#api_1">api_1</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 02:21:47 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 02:27:11 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
