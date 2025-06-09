@@ -1,7 +1,7 @@
 <!-- [![Fedialgo Build and Test](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml/badge.svg)](https://github.com/pkreissel/fedialgo/actions/workflows/CI.yaml) -->
 
 # `fedialgo`
-Fedialgo is a `node.js` library offering a customizable algorithm for the federated social media platform [Mastodon](https://joinmastodon.org/) that can free you from the tyranny of Mastodon's reverse chronological order timeline. It's based on [pkreissel's original implementation](https://github.com/pkreissel/fedialgo) and ideas though it has more or less been completely rewritten and has many more features like integration of trending toots,filtering of the feed, improved load times, and more.
+Fedialgo is a `node.js` library offering a customizable algorithm for the federated social media platform [Mastodon](https://joinmastodon.org/) that can free you from the tyranny of Mastodon's reverse chronological order timeline. It's based on [pkreissel's original implementation](https://github.com/pkreissel/fedialgo) and ideas though it has more or less been completely rewritten and has many more features like integration of trending toots, filtering of the feed by hashtag/user/etc., improved load times, and more.
 
 * Try the demo app [here](https://michelcrypt4d4mus.github.io/fedialgo_demo_app_foryoufeed/)! (code for the demo app is [here](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed)).
 * Video of the demo in action [on YouTube](https://www.youtube.com/watch?v=tR35bUHzJdk).

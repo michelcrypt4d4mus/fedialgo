@@ -226,6 +226,10 @@ class TheAlgorithm {
     /**
      * Publicly callable constructor that instantiates the class and loads the feed from storage.
      * @param {AlgorithmArgs} params - The parameters for algorithm creation.
+     * @param {mastodon.rest.Client} params.api - The Mastodon REST API client instance.
+     * @param {mastodon.v1.Account} params.user - The Mastodon user account for which to build the feed.
+     * @param {string} [params.locale] - Optional locale string for date formatting.
+     * @param {(feed: Toot[]) => void} [params.setTimelineInApp] - Optional callback to set the feed in the consuming app.
      * @returns {Promise<TheAlgorithm>} TheAlgorithm instance.
      */
     static async create(params) {
