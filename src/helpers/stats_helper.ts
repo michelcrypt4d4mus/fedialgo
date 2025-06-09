@@ -6,7 +6,7 @@ import { average, makePercentileChunks } from "./collection_helpers";
 import { ScoreName } from '../enums';
 import { suffixedInt } from "./string_helpers";
 import { traceLog } from "./log_helpers";
-import { type MinMaxAvgScore, type ScoresStats, type WeightedScore } from "../types";
+import { type MinMaxAvgScore, type ScoresStats, type ScoreType, type WeightedScore } from "../types";
 
 
 // Compute stats about the scores of a list of toots
@@ -57,7 +57,7 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): a
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(
     toots: Toot[],
-    scoreType: keyof WeightedScore,
+    scoreType: ScoreType,
     scoreName: ScoreName,
     numPercentiles: number
 ): MinMaxAvgScore[] {

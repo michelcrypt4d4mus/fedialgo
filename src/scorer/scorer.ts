@@ -13,10 +13,10 @@ import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { Logger } from '../helpers/logger';
 import { ScoreName, NonScoreWeightName } from '../enums';
 import {
+    type ScoreType,
     type StringNumberDict,
     type TootScore,
     type TootScores,
-    type WeightedScore,
     type WeightInfo,
     type WeightName,
 } from "../types";
@@ -194,7 +194,7 @@ export default abstract class Scorer {
     }
 
     // Add 1 so that time decay multiplier works even with scorers giving 0s
-    private static sumScores(scores: TootScores, scoreType: keyof WeightedScore): number {
+    private static sumScores(scores: TootScores, scoreType: ScoreType): number {
         return 1 + sumArray(Object.values(scores).map((s) => s[scoreType]));
     }
 };

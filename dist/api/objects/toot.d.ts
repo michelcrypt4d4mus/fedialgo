@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import Account from "./account";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
-import { type AccountLike, type FeedFilterSettings, type MastodonTag, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TrendingLink, type WeightedScore } from "../../types";
+import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TrendingLink } from "../../types";
 export declare const JUST_MUTING = "justMuting";
 export declare const UNKNOWN = "unknown";
 /**
@@ -215,11 +215,11 @@ export default class Toot implements TootObj {
     getConversation(): Promise<Toot[]>;
     /**
      * Get an individual score for this toot.
-     * @param {keyof WeightedScore} scoreType - The score type.
+     * @param {ScoreType} scoreType - The score type.
      * @param {ScoreName} name - The score name.
      * @returns {number}
      */
-    getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number;
+    getIndividualScore(scoreType: ScoreType, name: ScoreName): number;
     /**
      * Make an API call to get this toot's URL on the home server instead of on the toot's original server.
      *       this: https://fosstodon.org/@kate/114360290341300577

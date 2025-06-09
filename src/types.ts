@@ -146,6 +146,7 @@ export type ScoreStats = {
 };
 
 export type ScoresStats = Record<ScoreName, ScoreStats>;
+export type ScoreType = keyof WeightedScore;
 
 export type StorableApiObject = (
     MastodonObjWithID |
