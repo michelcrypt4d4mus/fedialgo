@@ -8,6 +8,7 @@ type AccountCount = Record<string, {
 }>;
 /**
  * Interface for Account object with additional helper methods and properties.
+ * @interface
  * @typedef {object} AccountObj
  * @property {() => string} [describe] - Returns a string description of the account.
  * @property {() => string} [displayNameFullHTML] - Returns the display name with emojis and webfinger URI in HTML.
