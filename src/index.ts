@@ -92,23 +92,28 @@ import {
     type WeightInfoDict,
 } from "./types";
 
-// Strings
+const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load"
 
-const EMPTY_TRENDING_DATA = {
+const EMPTY_TRENDING_DATA: TrendingData = {
     links: [],
     tags: new TagList([], TagTootsCacheKey.TRENDING_TAG_TOOTS),
     servers: {},
     toots: []
 };
 
-// Constants
-const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
-
+/**
+ * Arguments for constructing a TheAlgorithm instance.
+ *
+ * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
+ * @property {mastodon.v1.Account} user - The Mastodon user account for which to build the feed.
+ * @property {string} [locale] - Optional locale string for date formatting.
+ * @property {(feed: Toot[]) => void} [setTimelineInApp] - Optional callback to set the feed in the consuming app.
+ */
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -146,12 +151,12 @@ interface AlgorithmArgs {
  */
 class TheAlgorithm {
     static isDebugMode = isDebugMode;
+    static weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
     loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
-    weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
     get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrors.map(e => e.message) };
     // TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
