@@ -131,6 +131,11 @@ class TheAlgorithm {
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
     trendingData = EMPTY_TRENDING_DATA;
     weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
+    get apiErrorMsgs() { return api_1.default.instance.apiErrors.map(e => e.message); }
+    ;
+    // TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
+    get isLoading() { return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG); }
+    ;
     get timeline() { return [...this.feed]; }
     ;
     get userData() { return api_1.default.instance.userData || new user_data_1.default(); }
@@ -326,13 +331,6 @@ class TheAlgorithm {
         }
     }
     /**
-     * Return a list of API errors encountered during this session (if any).
-     * @returns {string[]} Array of error messages.
-     */
-    getApiErrorMsgs() {
-        return api_1.default.instance.apiErrors.map(e => e.message);
-    }
-    /**
      * Return an object describing the state of the world. Mostly for debugging.
      * @returns {Promise<Record<string, any>>} State object.
      */
@@ -347,7 +345,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Api: {
-                errors: this.getApiErrorMsgs(),
+                errors: this.apiErrorMsgs,
                 waitTimes: api_1.default.instance.waitTimes
             },
             Config: config_1.config,
@@ -375,14 +373,6 @@ class TheAlgorithm {
      */
     async getUserWeights() {
         return await Storage_1.default.getWeights();
-    }
-    /**
-     * Return true if the algorithm is currently loading data.
-     * TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
-     * @returns {boolean} Loading state.
-     */
-    isLoading() {
-        return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG);
     }
     /**
      * Return the timestamp of the most recent toot from followed accounts + hashtags ONLY.
@@ -459,7 +449,7 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async saveTimelineToCache() {
-        if (this.isLoading())
+        if (this.isLoading)
             return;
         const logger = this.logger.tempLogger(`saveTimelineToCache`);
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
@@ -529,7 +519,7 @@ class TheAlgorithm {
     ///////////////////////////////
     // Throw an error if the feed is loading
     checkIfLoading() {
-        if (this.isLoading()) {
+        if (this.isLoading) {
             this.logger.warn(`${(0, string_helpers_1.arrowed)(log_helpers_1.TRIGGER_FEED)} Load in progress already!`, this.statusDict());
             throw new Error(`${log_helpers_1.TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
         }
@@ -718,7 +708,7 @@ class TheAlgorithm {
             homeFeedMostRecentAt: mostRecentTootAt ? (0, time_helpers_1.toISOFormat)(mostRecentTootAt) : null,
             homeFeedOldestAt: oldestTootAt ? (0, time_helpers_1.toISOFormat)(oldestTootAt) : null,
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
-            isLoading: this.isLoading(),
+            isLoading: this.isLoading,
             loadingStatus: this.loadingStatus,
             minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
         };

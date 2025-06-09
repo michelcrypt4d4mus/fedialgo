@@ -54,6 +54,8 @@ declare class TheAlgorithm {
     loadingStatus: string | null;
     trendingData: TrendingData;
     weightPresets: WeightPresets;
+    get apiErrorMsgs(): string[];
+    get isLoading(): boolean;
     get timeline(): Toot[];
     get userData(): UserData;
     private api;
@@ -104,11 +106,6 @@ declare class TheAlgorithm {
      */
     triggerPullAllUserData(): Promise<void>;
     /**
-     * Return a list of API errors encountered during this session (if any).
-     * @returns {string[]} Array of error messages.
-     */
-    getApiErrorMsgs(): string[];
-    /**
      * Return an object describing the state of the world. Mostly for debugging.
      * @returns {Promise<Record<string, any>>} State object.
      */
@@ -124,12 +121,6 @@ declare class TheAlgorithm {
      * @returns {Promise<Weights>} The user's weights.
      */
     getUserWeights(): Promise<Weights>;
-    /**
-     * Return true if the algorithm is currently loading data.
-     * TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
-     * @returns {boolean} Loading state.
-     */
-    isLoading(): boolean;
     /**
      * Return the timestamp of the most recent toot from followed accounts + hashtags ONLY.
      * @returns {Date | null} The most recent toot date or null.

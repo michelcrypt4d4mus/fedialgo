@@ -126,6 +126,9 @@ class TheAlgorithm {
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
     weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
+    get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrors.map(e => e.message) };
+    // TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
+    get isLoading(): boolean { return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG) };
     get timeline(): Toot[] { return [...this.feed] };
     get userData(): UserData { return MastoApi.instance.userData || new UserData() };
 
@@ -341,14 +344,6 @@ class TheAlgorithm {
     }
 
     /**
-     * Return a list of API errors encountered during this session (if any).
-     * @returns {string[]} Array of error messages.
-     */
-    getApiErrorMsgs(): string[] {
-        return MastoApi.instance.apiErrors.map(e => e.message);
-    }
-
-    /**
      * Return an object describing the state of the world. Mostly for debugging.
      * @returns {Promise<Record<string, any>>} State object.
      */
@@ -369,7 +364,7 @@ class TheAlgorithm {
         return {
             Algorithm: this.statusDict(),
             Api: {
-                errors: this.getApiErrorMsgs(),
+                errors: this.apiErrorMsgs,
                 waitTimes: MastoApi.instance.waitTimes
             },
             Config: config,
@@ -399,15 +394,6 @@ class TheAlgorithm {
      */
     async getUserWeights(): Promise<Weights> {
         return await Storage.getWeights();
-    }
-
-    /**
-     * Return true if the algorithm is currently loading data.
-     * TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
-     * @returns {boolean} Loading state.
-     */
-    isLoading(): boolean {
-        return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG)
     }
 
     /**
@@ -492,7 +478,7 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async saveTimelineToCache(): Promise<void> {
-        if (this.isLoading()) return;
+        if (this.isLoading) return;
         const logger = this.logger.tempLogger(`saveTimelineToCache`);
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.totalNumTimesShown == newTotalNumTimesShown) return;
@@ -569,7 +555,7 @@ class TheAlgorithm {
 
     // Throw an error if the feed is loading
     private checkIfLoading(): void {
-        if (this.isLoading()) {
+        if (this.isLoading) {
             this.logger.warn(`${arrowed(TRIGGER_FEED)} Load in progress already!`, this.statusDict());
             throw new Error(`${TRIGGER_FEED} ${GET_FEED_BUSY_MSG}`);
         }
@@ -787,7 +773,7 @@ class TheAlgorithm {
             homeFeedMostRecentAt: mostRecentTootAt ? toISOFormat(mostRecentTootAt) : null,
             homeFeedOldestAt: oldestTootAt ? toISOFormat(oldestTootAt) : null,
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
-            isLoading: this.isLoading(),
+            isLoading: this.isLoading,
             loadingStatus: this.loadingStatus,
             minMaxScores: computeMinMax(this.feed, (toot) => toot.scoreInfo?.score),
         };

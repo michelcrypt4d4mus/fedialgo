@@ -94,7 +94,7 @@ import { Toot } from "fedialgo";
 algorithm.triggerFeedUpdate();
 
 // After first invocation check if loading is in progress before calling to avoid exceptions
-if (!algorithm.isLoading()) {
+if (!algorithm.isLoading) {
     algorithm.triggerFeedUpdate();
 }
 
@@ -149,10 +149,10 @@ filters.booleanFilters[BooleanFilterName.HASHTAG].options.forEach((option) => {
 ```
 
 #### Errors
-Most minor API errors will be handled silently so that if, for example, fedialgo only gets half of a user's recent toots or whatever that doesn't cause any issues for the client app. If you want to see what, if any, errors were encountered during the scoring process you can see use `getApiErrorMsgs()` to find them.
+Most minor API errors will be handled silently so that if, for example, fedialgo only gets half of a user's recent toots or whatever that doesn't cause any issues for the client app. If you want to see what, if any, errors were encountered during the scoring process you can check `apiErrorMsgs` to find them.
 
 ```typescript
-console.log(`API errors:`, algorithm.getApiErrorMsgs());
+console.log(`API errors:`, algorithm.apiErrorMsgs);
 ```
 
 #### Resetting Everything

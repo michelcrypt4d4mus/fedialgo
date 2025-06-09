@@ -1,10 +1,11 @@
 # NEXT RELEASE
-* Convert TheAlgorithm.getTimeline to a getter named timeline()
+* Convert `TheAlgorithm.getTimeline()` to a getter named `timeline`, getApiErrorMsgs() to apiErrorMsgs, isLoading() and serverInfo() to getters
+
 * Rename `ObjWithTootCount` to `NamedTootCount`, `WithCounts` to `TootCounts`
 * Upgrade `masto.js` to 7.1.0
 
 ### v0.69.5
-* Add "la" to TAG_ONLY_STRINGS
+* Add "la" to `TAG_ONLY_STRINGS`
 
 ### v0.69.4
 * Set `FEDIVERSE_POPULAR_SERVERS` staleness to 72 hours

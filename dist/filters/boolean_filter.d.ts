@@ -4,38 +4,21 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
-/**
- * List of BooleanFilterOption objects with count support.
- * @extends ObjWithCountList<BooleanFilterOption>
- */
 export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
 }
-/**
- * Data sources for filter options.
- * @typedef {Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>} FilterOptionDataSources
- */
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 /**
- * Function type for type-based filter.
+ * Function type for matching a toot based on a filter for what type of Toot it is.
  * @callback TypeFilter
  * @param {Toot} toot - The toot to check.
  * @returns {boolean} True if the toot matches the type.
  */
 type TypeFilter = (toot: Toot) => boolean;
-/**
- * Checks if a value is a valid BooleanFilterName.
- * @param {string} value - The value to check.
- * @returns {boolean}
- */
 export declare const isBooleanFilterName: (value: string) => boolean;
-/**
- * Checks if a value is a valid TypeFilterName.
- * @param {string} value - The value to check.
- * @returns {boolean}
- */
 export declare const isTypeFilterName: (value: string) => boolean;
 /**
- * Type-based filters for toots.
+ * Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
+ * and a function that matches the toot.
  * @type {Record<TypeFilterName, TypeFilter>}
  */
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
@@ -75,10 +58,6 @@ export default class BooleanFilter extends TootFilter {
      * @param {BooleanFilterOptionList} optionList
      */
     set options(optionList: BooleanFilterOptionList);
-    /**
-     * Create a BooleanFilter.
-     * @param {BooleanFilterArgs} param0 - Constructor arguments.
-     */
     constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
     /**
      * Return true if the toot matches the filter.
@@ -100,13 +79,13 @@ export default class BooleanFilter extends TootFilter {
      */
     optionListWithMinToots(options: BooleanFilterOption[], minToots?: number): BooleanFilterOptionList;
     /**
-     * Return options sorted by name, filtered by minToots.
+     * Return options sorted by name, filtered by minToots (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
     optionsSortedByName(minToots?: number): BooleanFilterOptionList;
     /**
-     * Return options sorted by value, filtered by minToots.
+     * Return options sorted by numToots, filtered by minToots.
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -114,7 +93,7 @@ export default class BooleanFilter extends TootFilter {
     /**
      * Add or remove an option from the filter.
      * @param {string} optionName - The option name.
-     * @param {boolean} isSelected - Whether the option is selected.
+     * @param {boolean} isSelected - If true, add the option; if false, remove it.
      */
     updateOption(optionName: string, isSelected: boolean): void;
     /**
@@ -124,6 +103,8 @@ export default class BooleanFilter extends TootFilter {
     toArgs(): BooleanFilterArgs;
     /**
      * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
+     * Note this won't be completely up to date but should be good enough for most purposes.
+     * TODO: currently unused
      * @returns {Promise<FilterOptionDataSources>}
      */
     static filterOptionDataSources(): Promise<FilterOptionDataSources>;
