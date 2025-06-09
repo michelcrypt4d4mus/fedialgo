@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildNewFilterSettings = exports.buildFiltersFromArgs = exports.DEFAULT_FILTERS = void 0;
+exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = exports.DEFAULT_FILTERS = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
@@ -45,6 +45,16 @@ exports.DEFAULT_FILTERS = {
     numericFilters: {},
 };
 const filterLogger = new logger_1.Logger('feed_filters.ts');
+// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
+// Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
+function buildNewFilterSettings() {
+    // Stringify and parse to get a deep copy of the default filters
+    const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
+    populateMissingFilters(filters);
+    filterLogger.trace(`buildNewFilterSettings() result:`, filters);
+    return filters;
+}
+exports.buildNewFilterSettings = buildNewFilterSettings;
 // For building a FeedFilterSettings object from the serialized version.
 // NOTE: Mutates object.
 function buildFiltersFromArgs(filterArgs) {
@@ -61,18 +71,6 @@ function buildFiltersFromArgs(filterArgs) {
     return filterArgs;
 }
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
-;
-// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
-// Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
-function buildNewFilterSettings() {
-    // Stringify and parse to get a deep copy of the default filters
-    const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS));
-    populateMissingFilters(filters);
-    filterLogger.trace(`buildNewFilterSettings() result:`, filters);
-    return filters;
-}
-exports.buildNewFilterSettings = buildNewFilterSettings;
-;
 // Remove filter args with invalid titles to upgrade existing users w/invalid args in browser Storage.
 // Returns true if the filter settings were changed.
 function repairFilterSettings(filters) {
@@ -96,7 +94,6 @@ function repairFilterSettings(filters) {
     return wasChanged;
 }
 exports.repairFilterSettings = repairFilterSettings;
-;
 // Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
 // Note that this shouldn't need to be called when initializing from storage because the filter options
 // will all have been stored and reloaded along with the feed that birthed those filter options.
@@ -110,6 +107,14 @@ async function updateBooleanFilterOptions(filters, toots) {
         lists[filterName] = new obj_with_counts_list_1.BooleanFilterOptionList([], filterName);
         return lists;
     }, {});
+    const decorateAccount = (accountOption, account) => {
+        accountOption.displayName = account.displayName;
+        const favouriteAccountProps = userData.favouriteAccounts.getObj(accountOption.name);
+        if (favouriteAccountProps) {
+            accountOption.isFollowed = favouriteAccountProps.isFollowed;
+            accountOption[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
+        }
+    };
     const decorateHashtag = (tagOption) => {
         Object.entries(tagLists).forEach(([key, tagList]) => {
             const propertyObj = tagList.getObj(tagOption.name);
@@ -126,14 +131,6 @@ async function updateBooleanFilterOptions(filters, toots) {
         const languageUsage = userData.languagesPostedIn.getObj(languageOption.name);
         if (languageUsage) {
             languageOption[enums_1.BooleanFilterName.LANGUAGE] = languageUsage.numToots || 0;
-        }
-    };
-    const decorateAccount = (accountOption, account) => {
-        accountOption.displayName = account.displayName;
-        const favouriteAccountProps = userData.favouriteAccounts.getObj(accountOption.name);
-        if (favouriteAccountProps) {
-            accountOption.isFollowed = favouriteAccountProps.isFollowed;
-            accountOption[enums_1.ScoreName.FAVOURITED_ACCOUNTS] = favouriteAccountProps.numToots || 0;
         }
     };
     toots.forEach(toot => {
@@ -166,16 +163,12 @@ async function updateBooleanFilterOptions(filters, toots) {
         const filterName = key;
         filters.booleanFilters[filterName].options = optionLists[filterName];
     });
-    if (Object.keys(suppressedNonLatinTags).length) {
-        const languageCounts = Object.values(suppressedNonLatinTags).map(counts => (0, collection_helpers_1.sumValues)(counts));
-        logger.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedNonLatinTags);
-    }
+    logSuppressedHashtags(logger, suppressedNonLatinTags);
     await Storage_1.default.setFilters(filters);
     logger.trace(`Completed, built filters:`, filters);
     return filters;
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
-;
 // We have to rescan the toots to get the tag counts because the tag counts are built with
 // containsTag() whereas the demo app uses containsString() to actually filter.
 // TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
@@ -195,6 +188,13 @@ exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
+// Logging helper
+function logSuppressedHashtags(logger, suppressedHashtags) {
+    if (Object.keys(suppressedHashtags).length) {
+        const languageCounts = Object.values(suppressedHashtags).map(counts => (0, collection_helpers_1.sumValues)(counts));
+        logger.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedHashtags);
+    }
+}
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {
@@ -210,7 +210,6 @@ function populateMissingFilters(filters) {
         }
     });
 }
-;
 // Remove any filter args from the list whose title is invalid
 function removeInvalidFilterArgs(args, titleValidator) {
     const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => titleValidator(arg.title));
@@ -219,5 +218,4 @@ function removeInvalidFilterArgs(args, titleValidator) {
     }
     return validArgs;
 }
-;
 //# sourceMappingURL=feed_filters.js.map
