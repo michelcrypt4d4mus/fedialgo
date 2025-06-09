@@ -1,6 +1,5 @@
 /**
  * Put a minimum number on things like reblogs and replies.
- * @module Filters
  */
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";

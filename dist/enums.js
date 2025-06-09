@@ -1,7 +1,6 @@
 "use strict";
 /**
  * Enums used by FediAlgo.
- * @module Enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
@@ -168,7 +167,7 @@ exports.buildCacheKeyDict = buildCacheKeyDict;
  */
 function isValueInStringEnum(strEnum) {
     const enumValues = new Set(Object.values(strEnum));
-    return (value) => enumValues.has(value);
+    return (str) => enumValues.has(str);
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;

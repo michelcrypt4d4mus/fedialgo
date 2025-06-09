@@ -1,7 +1,6 @@
 /**
- * Helper functions and class for dealing with Toot (Mastodon status) objects.
+ * @fileoverview Helper functions and class for dealing with Toot (Mastodon status) objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
- * @module Toot
  */
 import { capitalCase } from "change-case";
 import { mastodon } from "masto";

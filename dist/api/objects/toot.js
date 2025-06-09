@@ -14,9 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = exports.JUST_MUTING = void 0;
 /**
- * Helper functions and class for dealing with Toot (Mastodon status) objects.
+ * @fileoverview Helper functions and class for dealing with Toot (Mastodon status) objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
- * @module Toot
  */
 const change_case_1 = require("change-case");
 const class_transformer_1 = require("class-transformer");

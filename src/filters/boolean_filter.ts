@@ -1,8 +1,7 @@
 /**
- * Feed filtering information related to a single criterion on which toots
+ * @fileoverview Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
- * @module Filters
  */
 import BooleanFilterOptionList from "../api/boolean_filter_option_list";
 import MastoApi from '../api/api';

@@ -1,6 +1,5 @@
 /**
  * Enums used by FediAlgo.
- * @module Enums
  */
 
 /**
