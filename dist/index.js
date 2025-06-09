@@ -102,8 +102,8 @@ Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function ()
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_1.TrendingType; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return enums_1.TypeFilterName; } });
 Object.defineProperty(exports, "TagTootsCacheKey", { enumerable: true, get: function () { return enums_1.TagTootsCacheKey; } });
+Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return enums_1.isValueInStringEnum; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
-Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return collection_helpers_1.isValueInStringEnum; } });
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });

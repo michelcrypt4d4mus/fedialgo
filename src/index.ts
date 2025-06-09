@@ -62,11 +62,11 @@ import {
     ScoreName,
     TrendingType,
     TypeFilterName,
-    TagTootsCacheKey
+    TagTootsCacheKey,
+    isValueInStringEnum,
 } from "./enums";
 import {
     computeMinMax,
-    isValueInStringEnum,
     makeChunks,
     makePercentileChunks,
     sortKeysByValue,

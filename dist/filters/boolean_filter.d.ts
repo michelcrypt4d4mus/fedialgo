@@ -6,7 +6,6 @@ import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TypeFilter = (toot: Toot) => boolean;
-export declare const isTypeFilterName: (value: string) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 /**
  * Arguments for BooleanFilter constructor.
