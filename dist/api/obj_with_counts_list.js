@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BooleanFilterOptionList = void 0;
-/*
+/**
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */

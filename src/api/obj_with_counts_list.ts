@@ -1,4 +1,4 @@
-/*
+/**
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
@@ -10,11 +10,10 @@ import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
     type BooleanFilterOption,
-    type ObjListDataSource,
     type NamedTootCount,
+    type ObjListDataSource,
     type StringNumberDict,
 } from "../types";
-
 
 export type ObjList = ObjWithCountList<NamedTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this sucks
