@@ -1,4 +1,4 @@
-/**
+/*
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 import MastoApi from "./api";
