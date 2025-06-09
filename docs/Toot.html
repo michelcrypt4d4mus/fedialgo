@@ -28,8 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-Toot.html">Toot</a>~</span>Toot<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Toot<span class="signature">()</span><span class="type-signature"></span></h2>
         
             <div class="class-description">Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
 Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/</div>
@@ -90,6 +89,93 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>accounts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="Account.html">Account</a>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Array with the author of the toot and (if it exists) the account that retooted it.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>ageInHours</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Age of this toot in hours.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>author</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Account.html">Account</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The account that posted this toot, not the account that reblogged it.</td>
+        </tr>
+
     
 
         <tr>
@@ -156,6 +242,122 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
         <tr>
             
+                <td class="name"><code>isDM</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">True if the toot is a direct message (DM) to the user.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isFollowed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">True if this toot is from a followed account or contains a followed tag.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isPrivate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">True if it's for followers only.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isTrending</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">True if it's a trending toot or contains any trending hashtags or links.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>numTimesShown</code></td>
             
 
@@ -212,6 +414,122 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
             
 
             <td class="description last">Tags that the user has participated in that exist in this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>popularity</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realToot</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">module:api/objects/toot~Toot</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The toot that was reblogged if it's a reblog, otherwise this toot.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realURI</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">URI for the realToot.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>realURL</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Default to this.realURI if url property is empty.</td>
         </tr>
 
     
@@ -283,6 +601,35 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
         <tr>
             
+                <td class="name"><code>replyMentions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The webfinger URIs of the accounts mentioned in the toot + the author prepended with @.</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>resolvedID</code></td>
             
 
@@ -308,6 +655,35 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
             
 
             <td class="description last">This Toot with URLs resolved to homeserver versions</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>score</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Current overall score for this toot.</td>
         </tr>
 
     
@@ -370,6 +746,35 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
             
 
             <td class="description last">Source of the toot (e.g. trending tag toots, home timeline, etc.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tootedAt</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Date</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Timestamp of toot's createdAt.</td>
         </tr>
 
     
@@ -463,6 +868,35 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
             
 
             <td class="description last">Tags that are trending in this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>withRetoot</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Returns the toot and the retoot, if it exists, as an array.</td>
         </tr>
 
     
@@ -657,120 +1091,6 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
         
             
-<h4 class="name" id="accounts"><span class="type-signature"></span>accounts<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Array with the author of the toot and (if it exists) the account that retooted it.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="ageInHours"><span class="type-signature"></span>ageInHours<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Age of this toot in hours
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
 <h4 class="name" id="attachmentType"><span class="type-signature"></span>attachmentType<span class="type-signature"></span></h4>
 
 
@@ -828,63 +1148,6 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
         
             
-<h4 class="name" id="author"><span class="type-signature"></span>author<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Return the account that posted this toot, not the account that reblogged it.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
 <h4 class="name" id="contentTagsParagraph"><span class="type-signature"></span>contentTagsParagraph<span class="type-signature"></span></h4>
 
 
@@ -892,690 +1155,6 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
 <div class="description">
     If the final <p> paragraph of the content is just hashtags, return it.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isDM"><span class="type-signature"></span>isDM<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    True if the toot is a direct message (DM) to the user.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isFollowed"><span class="type-signature"></span>isFollowed<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    True if this toot is from a followed account or contains a followed tag.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isPrivate"><span class="type-signature"></span>isPrivate<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    True if it's for followers only.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="isTrending"><span class="type-signature"></span>isTrending<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    True if it's a trending toot or contains any trending hashtags or links.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="popularity"><span class="type-signature"></span>popularity<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="realToot"><span class="type-signature"></span>realToot<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Return the toot that was reblogged if it's a reblog, otherwise return this toot.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="realURI"><span class="type-signature"></span>realURI<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    URI for the realToot. @returns {string}
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="realURL"><span class="type-signature"></span>realURL<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Default to this.realURI if url property is empty.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="replyMentions"><span class="type-signature"></span>replyMentions<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="score"><span class="type-signature"></span>score<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Current overall score for this toot.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="tootedAt"><span class="type-signature"></span>tootedAt<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="withRetoot"><span class="type-signature"></span>withRetoot<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Returns the toot and the retoot, if it exists, as an array.
 </div>
 
 
@@ -2957,7 +2536,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
 
     
-    <h4 class="name" id="getConversation"><span class="type-signature">(async) </span>getConversation<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>>}</span></h4>
+    <h4 class="name" id="getConversation"><span class="type-signature">(async) </span>getConversation<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;module:api/objects/toot~Toot>>}</span></h4>
     
 
     
@@ -3040,7 +2619,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>></span>
+<span class="param-type">Promise.&lt;Array.&lt;module:api/objects/toot~Toot>></span>
 
 
     </dd>
@@ -3131,7 +2710,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
             <td class="type">
             
                 
-<span class="param-type">ScoreName</span>
+<span class="param-type"><a href="global.html#ScoreName">ScoreName</a></span>
 
 
             
@@ -3638,7 +3217,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
 
     
-    <h4 class="name" id="resolve"><span class="type-signature">(async) </span>resolve<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>}</span></h4>
+    <h4 class="name" id="resolve"><span class="type-signature">(async) </span>resolve<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;module:api/objects/toot~Toot>}</span></h4>
     
 
     
@@ -3721,7 +3300,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Promise.&lt;module:api/objects/toot~Toot></span>
 
 
     </dd>
@@ -3840,7 +3419,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
 
     
-    <h4 class="name" id=".build"><span class="type-signature">(static) </span>build<span class="signature">(toot)</span><span class="type-signature"> &rarr; {<a href="module-Toot-Toot.html">module:Toot~Toot</a>}</span></h4>
+    <h4 class="name" id=".build"><span class="type-signature">(static) </span>build<span class="signature">(toot)</span><span class="type-signature"> &rarr; {module:api/objects/toot~Toot}</span></h4>
     
 
     
@@ -3976,7 +3555,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     </dt>
     <dd>
         
-<span class="param-type"><a href="module-Toot-Toot.html">module:Toot~Toot</a></span>
+<span class="param-type">module:api/objects/toot~Toot</span>
 
 
     </dd>
@@ -3994,7 +3573,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
 
     
-    <h4 class="name" id=".buildToots"><span class="type-signature">(async, static) </span>buildToots<span class="signature">(statuses, source, skipSort<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>>}</span></h4>
+    <h4 class="name" id=".buildToots"><span class="type-signature">(async, static) </span>buildToots<span class="signature">(statuses, source, skipSort<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;module:api/objects/toot~Toot>>}</span></h4>
     
 
     
@@ -4201,7 +3780,7 @@ Toots returned are sorted by score and should have most of their properties set 
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>></span>
+<span class="param-type">Promise.&lt;Array.&lt;module:api/objects/toot~Toot>></span>
 
 
     </dd>
@@ -4219,7 +3798,7 @@ Toots returned are sorted by score and should have most of their properties set 
     
 
     
-    <h4 class="name" id=".completeToots"><span class="type-signature">(async, static) </span>completeToots<span class="signature">(toots, logger, source<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>>}</span></h4>
+    <h4 class="name" id=".completeToots"><span class="type-signature">(async, static) </span>completeToots<span class="signature">(toots, logger, source<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;module:api/objects/toot~Toot>>}</span></h4>
     
 
     
@@ -4426,7 +4005,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>></span>
+<span class="param-type">Promise.&lt;Array.&lt;module:api/objects/toot~Toot>></span>
 
 
     </dd>
@@ -4444,7 +4023,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
 
     
-    <h4 class="name" id=".dedupeToots"><span class="type-signature">(static) </span>dedupeToots<span class="signature">(toots, inLogger<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>}</span></h4>
+    <h4 class="name" id=".dedupeToots"><span class="type-signature">(static) </span>dedupeToots<span class="signature">(toots, inLogger<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;module:api/objects/toot~Toot>}</span></h4>
     
 
     
@@ -4496,7 +4075,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
             
@@ -4623,7 +4202,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
     </dd>
@@ -4641,7 +4220,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
 
     
-    <h4 class="name" id=".onlyReplies"><span class="type-signature">(static) </span>onlyReplies<span class="signature">(toots)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>}</span></h4>
+    <h4 class="name" id=".onlyReplies"><span class="type-signature">(static) </span>onlyReplies<span class="signature">(toots)</span><span class="type-signature"> &rarr; {Array.&lt;module:api/objects/toot~Toot>}</span></h4>
     
 
     
@@ -4691,7 +4270,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
             
@@ -4777,7 +4356,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
     </dd>
@@ -4795,7 +4374,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
 
     
-    <h4 class="name" id=".onlyRetoots"><span class="type-signature">(static) </span>onlyRetoots<span class="signature">(toots)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>}</span></h4>
+    <h4 class="name" id=".onlyRetoots"><span class="type-signature">(static) </span>onlyRetoots<span class="signature">(toots)</span><span class="type-signature"> &rarr; {Array.&lt;module:api/objects/toot~Toot>}</span></h4>
     
 
     
@@ -4845,7 +4424,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
             
@@ -4931,7 +4510,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
     </dd>
@@ -4949,7 +4528,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
 
     
-    <h4 class="name" id=".removeInvalidToots"><span class="type-signature">(async, static) </span>removeInvalidToots<span class="signature">(toots, logger)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>>}</span></h4>
+    <h4 class="name" id=".removeInvalidToots"><span class="type-signature">(async, static) </span>removeInvalidToots<span class="signature">(toots, logger)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;module:api/objects/toot~Toot>>}</span></h4>
     
 
     
@@ -4999,7 +4578,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
             
@@ -5104,7 +4683,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>></span>
+<span class="param-type">Promise.&lt;Array.&lt;module:api/objects/toot~Toot>></span>
 
 
     </dd>
@@ -5122,7 +4701,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
 
     
-    <h4 class="name" id=".removeUsersOwnToots"><span class="type-signature">(static) </span>removeUsersOwnToots<span class="signature">(toots, logger)</span><span class="type-signature"> &rarr; {Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>>}</span></h4>
+    <h4 class="name" id=".removeUsersOwnToots"><span class="type-signature">(static) </span>removeUsersOwnToots<span class="signature">(toots, logger)</span><span class="type-signature"> &rarr; {Array.&lt;module:api/objects/toot~Toot>}</span></h4>
     
 
     
@@ -5172,7 +4751,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
             
@@ -5281,7 +4860,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
     </dd>
@@ -5349,7 +4928,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>></span>
+<span class="param-type">Array.&lt;module:api/objects/toot~Toot></span>
 
 
             
@@ -5372,7 +4951,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
             <td class="type">
             
                 
-<span class="param-type">KeysOfValueType.&lt;<a href="module-Toot-Toot.html">module:Toot~Toot</a>, (Array.&lt;any>|undefined)></span>
+<span class="param-type">KeysOfValueType.&lt;module:api/objects/toot~Toot, (Array.&lt;any>|undefined)></span>
 
 
             
@@ -5509,13 +5088,13 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Enums.html">Enums</a></li><li><a href="module-Filters.html">Filters</a></li><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Filters-BooleanFilter.html">BooleanFilter</a></li><li><a href="module-Filters-BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="Toot.html">Toot</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ALL_CACHE_KEYS">ALL_CACHE_KEYS</a></li><li><a href="global.html#AlgorithmStorageKey">AlgorithmStorageKey</a></li><li><a href="global.html#BooleanFilterName">BooleanFilterName</a></li><li><a href="global.html#CacheKey">CacheKey</a></li><li><a href="global.html#MediaCategory">MediaCategory</a></li><li><a href="global.html#NonScoreWeightName">NonScoreWeightName</a></li><li><a href="global.html#ScoreName">ScoreName</a></li><li><a href="global.html#TagTootsCacheKey">TagTootsCacheKey</a></li><li><a href="global.html#TrendingType">TrendingType</a></li><li><a href="global.html#TypeFilterName">TypeFilterName</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#isTypeFilterName">isTypeFilterName</a></li><li><a href="global.html#isValueInStringEnum">isValueInStringEnum</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 16:46:43 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 17:17:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
