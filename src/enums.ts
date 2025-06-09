@@ -1,6 +1,5 @@
 /**
- * Enums used by FediAlgo.
- * @module Enums
+ * @fileoverview Enums used by FediAlgo.
  */
 
 /**
@@ -141,6 +140,7 @@ export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilte
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
+ * @private
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
@@ -162,7 +162,7 @@ export function buildCacheKeyDict<T>(
  * @param {Record<string, E>} strEnum - The enum object.
  * @returns {(value: string) => boolean} The checker function.
  */
-export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((value: string) => boolean) {
+export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean) {
     const enumValues = new Set(Object.values(strEnum) as string[]);
-    return (value: string): value is E => enumValues.has(value);
+    return (str: string): str is E => enumValues.has(str);
 };

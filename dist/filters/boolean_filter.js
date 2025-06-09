@@ -5,10 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = void 0;
 /**
- * Feed filtering information related to a single criterion on which toots
+ * @fileoverview Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
- * @module Filters
  */
 const boolean_filter_option_list_1 = __importDefault(require("../api/boolean_filter_option_list"));
 const api_1 = __importDefault(require("../api/api"));
@@ -62,6 +61,7 @@ const TOOT_MATCHERS = {
 ;
 /**
  * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
+ * @class
  * @extends TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).

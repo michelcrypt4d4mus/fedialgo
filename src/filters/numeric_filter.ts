@@ -1,6 +1,5 @@
 /**
  * Put a minimum number on things like reblogs and replies.
- * @module Filters
  */
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
@@ -26,7 +25,7 @@ export interface NumericFilterArgs extends FilterArgs {
 /**
  * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
  * Allows filtering toots based on a minimum value for a given property.
- *
+ * @class
  * @extends TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).

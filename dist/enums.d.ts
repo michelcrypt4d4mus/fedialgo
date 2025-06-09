@@ -1,6 +1,5 @@
 /**
- * Enums used by FediAlgo.
- * @module Enums
+ * @fileoverview Enums used by FediAlgo.
  */
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
@@ -128,6 +127,7 @@ export declare const isTypeFilterName: (value: string) => boolean;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
+ * @private
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
@@ -139,4 +139,4 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * @param {Record<string, E>} strEnum - The enum object.
  * @returns {(value: string) => boolean} The checker function.
  */
-export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((value: string) => boolean);
+export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
