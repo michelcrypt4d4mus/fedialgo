@@ -497,7 +497,7 @@ exports.sortObjsByCreatedAt = sortObjsByCreatedAt;
  * @template T
  * @param {T[]} array - The array to split.
  * @param {(element: T) => boolean} condition - The condition function.
- * @returns {[T[], T[]]} The two arrays.
+ * @returns {T[][]} The two arrays.
  */
 function split(array, condition) {
     return [

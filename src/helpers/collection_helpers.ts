@@ -579,7 +579,7 @@ export function sortObjsByCreatedAt<T extends WithCreatedAt>(array: T[]): T[] {
  * @template T
  * @param {T[]} array - The array to split.
  * @param {(element: T) => boolean} condition - The condition function.
- * @returns {[T[], T[]]} The two arrays.
+ * @returns {T[][]} The two arrays.
  */
 export function split<T>(array: T[], condition: (element: T) => boolean): [T[], T[]] {
     return [
