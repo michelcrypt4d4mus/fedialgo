@@ -5,7 +5,18 @@
  */
 import Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
-import { type FilterArgs, type FilterTitle } from "../types";
+import { type FilterTitle } from "../types";
+/**
+ * Arguments used to configure a filter.
+ * @property {string} [description] - Optional description of the filter for display or documentation purposes.
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+ * @property {FilterTitle} title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
+ */
+export interface FilterArgs {
+    description?: string;
+    invertSelection?: boolean;
+    title: FilterTitle;
+}
 /**
  * Abstract base class representing a filter that can be applied to a Toot to determine
  * if it should be included in the timeline feed. Subclasses must implement the isAllowed method.
@@ -22,12 +33,9 @@ export default abstract class TootFilter {
     title: FilterTitle;
     /**
      * Constructs a TootFilter.
-     * @param {FilterArgs} param0 - The arguments for configuring the filter.
-     * @param {string} [param0.description] - Optional description of the filter.
-     * @param {boolean} [param0.invertSelection] - Whether to invert the filter logic.
-     * @param {FilterTitle} param0.title - The title or key for this filter.
+     * @param {FilterArgs} params - The arguments for configuring the filter.
      */
-    constructor({ description, invertSelection, title }: FilterArgs);
+    constructor(params: FilterArgs);
     /**
      * Determines if the given toot should appear in the timeline feed.
      * @abstract
