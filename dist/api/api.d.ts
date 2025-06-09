@@ -13,10 +13,10 @@ export interface ApiParams {
     moar?: boolean;
     skipCache?: boolean;
 }
-interface MaxIdParams extends ApiParams {
+interface ApiParamsWithMaxID extends ApiParams {
     maxId?: string | number | null;
 }
-interface HomeTimelineParams extends MaxIdParams {
+interface HomeTimelineParams extends ApiParamsWithMaxID {
     mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>;
 }
 export declare const BIG_NUMBER = 10000000000;
@@ -47,8 +47,8 @@ export default class MastoApi {
     getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]>;
     getFollowers(params?: ApiParams): Promise<Account[]>;
     getMutedAccounts(params?: ApiParams): Promise<Account[]>;
-    getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]>;
-    getRecentUserToots(params?: MaxIdParams): Promise<Toot[]>;
+    getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]>;
+    getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]>;
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]>;
     getUserData(force?: boolean): Promise<UserData>;

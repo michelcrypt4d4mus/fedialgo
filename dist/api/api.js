@@ -29,7 +29,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
-// import ScorerCache from "../scorer/scorer_cache";
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -768,25 +767,15 @@ exports.default = MastoApi;
 ;
 // Populate the various fetch options with basic defaults
 function fillInDefaultParams(params) {
-    let { cacheKey, isBackgroundFetch, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
+    let { cacheKey, logger, maxRecords } = params;
     const requestDefaults = config_1.config.api.data[cacheKey];
     const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
     const withDefaults = {
         ...params,
-        bustCache: params.bustCache || false,
-        fetch: params.fetch || null,
-        fetchGenerator: params.fetchGenerator || null,
-        breakIf: params.breakIf || null,
-        isBackgroundFetch: isBackgroundFetch || false,
         limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
         logger: logger || loggerForParams(params),
-        maxId: maxId || null,
         maxRecords: maxApiRecords,
         maxCacheRecords: requestDefaults?.maxCacheRecords,
-        moar: moar || false,
-        processFxn: params.processFxn || null,
-        skipCache: skipCache || false,
-        skipMutex: skipMutex || false,
     };
     return withDefaults;
 }

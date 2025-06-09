@@ -8,7 +8,6 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-// import ScorerCache from "../scorer/scorer_cache";
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import Storage, {
@@ -52,15 +51,11 @@ interface CachedRows<T> extends CacheTimestamp {
     rows: T[];                     // Cached rows of API objects
 };
 
-interface MinMaxIDParams {
-    maxIdForFetch: string | number | null,  // The max ID to use for the API request
-    minIdForFetch: string | number | null,
-};
-
 // Generic params for MastoApi methods that support backfilling via "moar" flag
 //   - bustCache: if true, don't use cached data and update the cache with the new data
 //   - maxId: optional maxId to use for pagination
 //   - maxRecords: optional max number of records to fetch
+//   - moar: if true, continue fetching from the max_id found in the cache
 //   - skipCache: if true, don't use cached data
 export interface ApiParams {
     bustCache?: boolean,
@@ -70,10 +65,15 @@ export interface ApiParams {
     skipCache?: boolean,
 };
 
-// Generic params that apply to a lot of methods in the MastoApi class
-//   - moar: if true, continue fetching from the max_id found in the cache
-interface MaxIdParams extends ApiParams {
+// Only a few endpoints support a max_id parameter, so we have a separate interface for those
+interface ApiParamsWithMaxID extends ApiParams {
     maxId?: string | number | null,
+};
+
+// Home timeline request params
+//   - mergeTootsToFeed: fxn to call to merge the fetched Toots into the main feed
+interface HomeTimelineParams extends ApiParamsWithMaxID {
+    mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>,
 };
 
 // Fetch up to maxRecords pages of a user's [whatever] (toots, notifications, etc.) from the API
@@ -84,13 +84,13 @@ interface MaxIdParams extends ApiParams {
 //   - label: if it's a StorageKey use it for caching, if it's a string just use it for logging
 //   - processFxn: optional function to process the object before storing and returning it
 //   - skipCache: if true, don't use cached data and don't lock the endpoint mutex when making requests
-interface FetchParams<T extends MastodonApiObject> extends MaxIdParams {
-    breakIf?: ((pageOfResults: T[], allResults: T[]) => Promise<true | undefined>) | null ,
+interface FetchParams<T extends MastodonApiObject> extends ApiParamsWithMaxID {
+    breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     cacheKey: CacheKey,
-    fetch?: ApiFetcher<T> | undefined | null,
-    fetchGenerator?: (() => ApiFetcher<T>) | undefined | null,
+    fetch?: ApiFetcher<T>,
+    fetchGenerator?: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
-    processFxn?: ((obj: T) => void) | null,
+    processFxn?: (obj: T) => void,
     skipMutex?: boolean,
 };
 
@@ -99,20 +99,21 @@ interface BackgroundFetchparams<T extends MastodonApiObject> extends FetchParams
 };
 
 // Same as FetchParams but all properties are required and we add 'limit'
-interface FetchParamsWithDefaults<T extends MastodonApiObject> extends Required<FetchParams<T>> {
+interface FetchParamsWithDefaults<T extends MastodonApiObject> extends FetchParams<T> {
     limit: number,
+    logger: Logger,
     maxCacheRecords?: number,
+    maxRecords: number,
+};
+
+interface MinMaxIDParams {
+    maxIdForFetch: string | number | null,  // The max ID to use for the API request
+    minIdForFetch: string | number | null,
 };
 
 // Same as FetchParams but with a few derived fields
 interface FetchParamsWithCacheData<T extends MastodonApiObject> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
     cacheResult: CachedRows<T> | null,
-};
-
-// Home timeline request params
-//   - mergeTootsToFeed: fxn to call to merge the fetched Toots into the main feed
-interface HomeTimelineParams extends MaxIdParams {
-    mergeTootsToFeed: (toots: Toot[], logger: Logger) => Promise<void>,
 };
 
 type FetchParamName = keyof FetchParamsWithCacheData<any>;
@@ -335,7 +336,7 @@ export default class MastoApi {
     }
 
     // Get the user's recent notifications
-    async getNotifications(params?: MaxIdParams): Promise<mastodon.v1.Notification[]> {
+    async getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]> {
         const notifs = await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             cacheKey: CacheKey.NOTIFICATIONS,
@@ -348,7 +349,7 @@ export default class MastoApi {
 
     // Get the user's recent toots
     // NOTE: the user's own Toots don't have completeProperties() called on them!
-    async getRecentUserToots(params?: MaxIdParams): Promise<Toot[]> {
+    async getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             cacheKey: CacheKey.RECENT_USER_TOOTS,
@@ -911,26 +912,16 @@ export default class MastoApi {
 
 // Populate the various fetch options with basic defaults
 function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
-    let { cacheKey, isBackgroundFetch, logger, maxId, maxRecords, moar, skipCache, skipMutex } = params;
+    let { cacheKey, logger, maxRecords } = params;
     const requestDefaults = config.api.data[cacheKey];
     const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
     const withDefaults: FetchParamsWithDefaults<T> = {
         ...params,
-        bustCache: params.bustCache || false,
-        fetch: params.fetch || null,
-        fetchGenerator: params.fetchGenerator || null,
-        breakIf: params.breakIf || null,
-        isBackgroundFetch: isBackgroundFetch || false,
         limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
         logger: logger || loggerForParams(params),
-        maxId: maxId || null,
         maxRecords: maxApiRecords,
         maxCacheRecords: requestDefaults?.maxCacheRecords,
-        moar: moar || false,
-        processFxn: params.processFxn || null,
-        skipCache: skipCache || false,
-        skipMutex: skipMutex || false,
     };
 
     return withDefaults;

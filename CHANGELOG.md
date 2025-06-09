@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Stop requiring all FetchParams to have a value
 
 ### v0.69.8
 * Convert `isBoolean/NumericFilterName` methods to static `TootFilter.isValidTitle()`
