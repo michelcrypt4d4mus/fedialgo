@@ -1,4 +1,4 @@
-/**
+/*
  * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
@@ -9,7 +9,6 @@ import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
-    type BooleanFilterOption,
     type NamedTootCount,
     type ObjListDataSource,
     type StringNumberDict,
@@ -170,10 +169,3 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         }, {} as Record<string, T>);
     }
 };
-
-
-/**
- * Special case of ObjWithCountList for BooleanFilterOption objects.
- * @extends {ObjWithCountList}
- */
-export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};

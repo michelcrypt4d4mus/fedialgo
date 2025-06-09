@@ -1,6 +1,6 @@
 /**
  * Put a minimum number on things like reblogs and replies.
- * @module Filters/NumericFilter
+ * @module Filters
  */
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
@@ -53,7 +53,7 @@ export default class NumericFilter extends TootFilter {
     }
 
     /**
-     * Determines if a toot passes the numeric filter.
+     * Returns true if the toot meets the filter criteria.
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot should appear in the timeline feed.
      */

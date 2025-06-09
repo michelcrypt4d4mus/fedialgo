@@ -1,6 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
+import BooleanFilterOptionList from "./boolean_filter_option_list";
+import { ObjList } from "./obj_with_counts_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { type AccountNames, type StringNumberDict, type TagWithUsageCounts } from "../types";

@@ -38,7 +38,7 @@ class NumericFilter extends toot_filter_1.default {
         this.value = value ?? 0;
     }
     /**
-     * Determines if a toot passes the numeric filter.
+     * Returns true if the toot meets the filter criteria.
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot should appear in the timeline feed.
      */
