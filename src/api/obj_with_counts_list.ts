@@ -1,4 +1,4 @@
-/*
+/**
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
