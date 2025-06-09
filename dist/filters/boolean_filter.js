@@ -10,8 +10,6 @@ exports.TYPE_FILTERS = void 0;
  * (e.g. language, hashtag, type of toot).
  */
 const boolean_filter_option_list_1 = __importDefault(require("../api/boolean_filter_option_list"));
-const api_1 = __importDefault(require("../api/api"));
-const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
@@ -175,22 +173,6 @@ class BooleanFilter extends toot_filter_1.default {
         const filterArgs = super.toArgs();
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
-    }
-    /**
-     * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
-     * Note this won't be completely up to date but should be good enough for most purposes.
-     * TODO: currently unused
-     * @returns {Promise<FilterOptionDataSources>}
-     */
-    static async filterOptionDataSources() {
-        const userData = await api_1.default.instance.getUserData();
-        return {
-            [enums_1.BooleanFilterName.LANGUAGE]: userData.languagesPostedIn,
-            [enums_1.ScoreName.FAVOURITED_ACCOUNTS]: userData.favouriteAccounts,
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: userData.favouritedTags,
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: await mastodon_server_1.default.fediverseTrendingTags(),
-        };
     }
     /**
      * Checks if a given property name is a valid numeric filter name.

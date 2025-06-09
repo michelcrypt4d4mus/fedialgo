@@ -206,24 +206,6 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Collate all the data sources that are used to populate properties of the same name for each BooleanFilterOption.
-     * Note this won't be completely up to date but should be good enough for most purposes.
-     * TODO: currently unused
-     * @returns {Promise<FilterOptionDataSources>}
-     */
-    static async filterOptionDataSources(): Promise<FilterOptionDataSources> {
-        const userData = await MastoApi.instance.getUserData();
-
-        return {
-            [BooleanFilterName.LANGUAGE]: userData.languagesPostedIn,
-            [ScoreName.FAVOURITED_ACCOUNTS]: userData.favouriteAccounts,
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: userData.favouritedTags,
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: userData.participatedTags,
-            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: await MastodonServer.fediverseTrendingTags(),
-        };
-    }
-
-    /**
      * Checks if a given property name is a valid numeric filter name.
      * @param {string} name - The property name to check.
      * @returns {boolean} True if the name is a filterable numeric property.
