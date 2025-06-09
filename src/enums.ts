@@ -162,7 +162,7 @@ export function buildCacheKeyDict<T>(
  * @param {Record<string, E>} strEnum - The enum object.
  * @returns {(value: string) => boolean} The checker function.
  */
-export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
+export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((value: string) => boolean) {
     const enumValues = new Set(Object.values(strEnum) as string[]);
     return (value: string): value is E => enumValues.has(value);
 };

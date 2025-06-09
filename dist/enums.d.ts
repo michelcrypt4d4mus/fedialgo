@@ -139,4 +139,4 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * @param {Record<string, E>} strEnum - The enum object.
  * @returns {(value: string) => boolean} The checker function.
  */
-export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
+export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((value: string) => boolean);
