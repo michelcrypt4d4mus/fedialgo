@@ -110,7 +110,7 @@ export default abstract class Scorer {
 
             // Sort feed based on score from high to low and return
             scoreLogger.trace(`Scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
-            toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
+            toots = toots.toSorted((a, b) => b.score - a.score);
         } catch (e) {
             if (e == E_CANCELED) {
                 scoreLogger.trace(`Mutex cancellation...`);
@@ -128,7 +128,7 @@ export default abstract class Scorer {
 
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
-        const realToot = toot.realToot();
+        const realToot = toot.realToot;
         // Do the scoring
         const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Find non scorer weights
@@ -174,7 +174,7 @@ export default abstract class Scorer {
         );
 
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), config.scoring.timeDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours, config.scoring.timeDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(scores, "weighted");
         const score = weightedScore * timeDecayMultiplier;
@@ -189,8 +189,8 @@ export default abstract class Scorer {
             weightedScore,
         } as TootScore;
 
-        // TODO: duping the score to realToot() is a hack that sucks
-        toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
+        // TODO: duping the score to realToot is a hack that sucks
+        toot.realToot.scoreInfo = toot.scoreInfo = scoreInfo;
     }
 
     // Add 1 so that time decay multiplier works even with scorers giving 0s

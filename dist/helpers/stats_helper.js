@@ -62,7 +62,7 @@ function scoreStats(toots, scoreType, scoreName, numPercentiles) {
         const sectionScores = segment.map(getScoreOfType);
         return {
             average: (0, collection_helpers_1.average)(sectionScores),
-            averageFinalScore: (0, collection_helpers_1.average)(segment.map((toot) => toot.getScore())),
+            averageFinalScore: (0, collection_helpers_1.average)(segment.map((toot) => toot.score)),
             count: segment.length,
             min: sectionScores[0],
             max: sectionScores.slice(-1)[0],

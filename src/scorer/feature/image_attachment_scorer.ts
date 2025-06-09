@@ -14,6 +14,6 @@ export default class ImageAttachmentScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return toot.realToot().imageAttachments.length;
+        return toot.realToot.imageAttachments.length;
     }
 };

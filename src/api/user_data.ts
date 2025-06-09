@@ -6,12 +6,11 @@ import { mastodon } from "masto";
 
 import Account from "./objects/account";
 import MastoApi from "./api";
-import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
+import ObjWithCountList, { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
-import { BooleanFilterOptionList } from "../filters/boolean_filter";
 import { config } from "../config";
 import { keyById } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
@@ -96,7 +95,7 @@ export default class UserData {
     // Add up the favourites, retoots, and replies for each account
     private populateFavouriteAccounts(data: UserApiData): void {
         const retootsAndFaves = [...Toot.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.author());
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.author);
         const followedAccountIdMap = keyById(data.followedAccounts);
 
         // TODO: Replies are imperfect, we only have inReplyToAccountId to work with. IDing ~1/3rd of the replies.

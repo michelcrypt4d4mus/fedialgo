@@ -13,8 +13,9 @@ export default class AuthorFollowersScorer extends FeatureScorer {
         super(ScoreName.AUTHOR_FOLLOWERS);
     }
 
+    // Use log base 10 of the number of followers as the score
     async _score(toot: Toot): Promise<number> {
-        const followerCount = toot.author().followersCount;
+        const followerCount = toot.author.followersCount;
         return followerCount > 0 ? Math.log10(followerCount) : 0;
     }
 };

@@ -46,34 +46,33 @@ export interface SerializableToot extends mastodon.v1.Status {
  * @typedef {object} TootObj
  */
 interface TootObj extends SerializableToot {
-    accounts: () => Account[];
-    ageInHours: () => number;
-    author: () => Account;
-    attachmentType: () => MediaCategory | undefined;
+    accounts: Account[];
+    attachmentType: MediaCategory | undefined;
+    author: Account;
+    contentTagsParagraph: string | undefined;
+    isDM: boolean;
+    isFollowed: boolean;
+    isPrivate: boolean;
+    isTrending: boolean;
+    popularity: number;
+    realToot: Toot;
+    realURI: string;
+    realURL: string;
+    score: number;
+    withRetoot: Toot[];
     containsString: (str: string) => boolean;
     containsTag: (tag: TagWithUsageCounts, fullScan?: boolean) => boolean;
     containsTagsMsg: () => string | undefined;
     contentNonTagsParagraphs: (fontSize?: number) => string;
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
-    contentTagsParagraph: () => string | undefined;
     contentWithEmojis: (fontSize?: number) => string;
     describe: () => string;
-    getScore: () => number;
     homeserverURL: () => Promise<string>;
-    isDM: () => boolean;
-    isFollowed: () => boolean;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
-    isPrivate: () => boolean;
-    isTrending: () => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
-    popularity: () => number;
-    realToot: () => Toot;
-    realURI: () => string;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
-    tootedAt: () => Date;
-    withRetoot: () => Toot[];
 }
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
@@ -111,9 +110,9 @@ export default class Toot implements TootObj {
     reblogged?: boolean | null;
     text?: string | null;
     url?: string | null;
-    numTimesShown: number;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];
+    numTimesShown: number;
     participatedTags?: TagWithUsageCounts[];
     reblogsBy: Account[];
     resolvedID?: string;
@@ -126,32 +125,37 @@ export default class Toot implements TootObj {
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
     private contentCache;
+    get accounts(): Account[];
+    get ageInHours(): number;
+    get author(): Account;
+    get isDM(): boolean;
+    get isFollowed(): boolean;
+    get isPrivate(): boolean;
+    get isTrending(): boolean;
+    get popularity(): number;
+    get realToot(): Toot;
+    get realURI(): string;
+    get realURL(): string;
+    get replyMentions(): string[];
+    get score(): number;
+    get tootedAt(): Date;
+    get withRetoot(): Toot[];
+    /**
+     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
+     * @returns {MediaCategory | undefined}
+     */
+    get attachmentType(): MediaCategory | undefined;
+    /**
+     * If the final <p> paragraph of the content is just hashtags, return it.
+     * @returns {string | undefined}
+     */
+    get contentTagsParagraph(): string | undefined;
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
      * @param {SerializableToot} toot - The toot data to build from.
      * @returns {Toot} The constructed Toot instance.
      */
     static build(toot: SerializableToot): Toot;
-    /**
-     * Get an array with the author of the toot and (if it exists) the account that retooted it.
-     * @returns {Account[]} Array of accounts.
-     */
-    accounts(): Account[];
-    /**
-     * Time since this toot was sent in hours.
-     * @returns {number} Age in hours.
-     */
-    ageInHours(): number;
-    /**
-     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
-     * @returns {MediaCategory | undefined}
-     */
-    attachmentType(): MediaCategory | undefined;
-    /**
-     * Return the account that posted this toot, not the account that reblogged it.
-     * @returns {Account}
-     */
-    author(): Account;
     /**
      * True if toot contains 'str' in the tags, the content, or the link preview card description.
      * @param {string} str - The string to search for.
@@ -194,11 +198,6 @@ export default class Toot implements TootObj {
      */
     contentShortened(maxChars?: number): string;
     /**
-     * If the final <p> paragraph of the content is just hashtags, return it.
-     * @returns {string | undefined}
-     */
-    contentTagsParagraph(): string | undefined;
-    /**
      * Replace custom emoji shortcodes (e.g. ":myemoji:") with image tags.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE]
      * @returns {string}
@@ -222,11 +221,6 @@ export default class Toot implements TootObj {
      */
     getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number;
     /**
-     * Get the overall score for this toot.
-     * @returns {number}
-     */
-    getScore(): number;
-    /**
      * Make an API call to get this toot's URL on the home server instead of on the toot's original server.
      *       this: https://fosstodon.org/@kate/114360290341300577
      *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
@@ -234,62 +228,17 @@ export default class Toot implements TootObj {
      */
     homeserverURL(): Promise<string>;
     /**
-     * Return true if it's a direct message.
-     * @returns {boolean}
-     */
-    isDM(): boolean;
-    /**
-     * Returns true if this toot is from a followed account or contains a followed tag.
-     * @returns {boolean}
-     */
-    isFollowed(): boolean;
-    /**
      * Return true if the toot should not be filtered out of the feed by the current filters.
      * @param {FeedFilterSettings} filters - The feed filter settings.
      * @returns {boolean}
      */
     isInTimeline(filters: FeedFilterSettings): boolean;
     /**
-     * Return true if it's for followers only.
-     * @returns {boolean}
-     */
-    isPrivate(): boolean;
-    /**
-     * Return true if it's a trending toot or contains any trending hashtags or links.
-     * @returns {boolean}
-     */
-    isTrending(): boolean;
-    /**
      * Return false if Toot should be discarded from feed altogether and permanently.
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean;
-    /**
-     * Sum of the trendingRank, numReblogs, replies, and local server favourites.
-     * @returns {number}
-     */
-    popularity(): number;
-    /**
-     * Return the toot that was reblogged if it's a reblog, otherwise return this toot.
-     * @returns {Toot}
-     */
-    realToot(): Toot;
-    /**
-     * URI for the toot.
-     * @returns {string}
-     */
-    realURI(): string;
-    /**
-     * Default to this.realURI() if url property is empty.
-     * @returns {string}
-     */
-    realURL(): string;
-    /**
-     * Return the webfinger URIs of the accounts mentioned in the toot + the author.
-     * @returns {string[]}
-     */
-    replyMentions(): string[];
     /**
      * Get Status obj for toot from user's home server so the property URLs point to the home server.
      * @returns {Promise<Toot>}
@@ -300,17 +249,6 @@ export default class Toot implements TootObj {
      * @returns {Promise<string>}
      */
     resolveID(): Promise<string>;
-    /**
-     * Returns the Date the toot was created.
-     * TODO: should this consider the values in reblogsBy?
-     * @returns {Date}
-     */
-    tootedAt(): Date;
-    /**
-     * Returns the toot and the retoot, if it exists, as an array.
-     * @returns {Toot[]}
-     */
-    withRetoot(): Toot[];
     private addEmojiHtmlTags;
     private attachmentsOfType;
     private completeProperties;

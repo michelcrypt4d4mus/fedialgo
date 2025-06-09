@@ -5,7 +5,7 @@
  */
 import MastoApi from '../api/api';
 import MastodonServer from '../api/mastodon_server';
-import ObjWithCountList from '../api/obj_with_counts_list';
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
@@ -15,7 +15,6 @@ import { config } from '../config';
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
-export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 
 /**
@@ -46,25 +45,25 @@ export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilte
  * @type {Record<TypeFilterName, TypeFilter>}
  */
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
-    [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot().audioAttachments?.length,
+    [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot.audioAttachments?.length,
     [TypeFilterName.BOT]:               (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
-    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
+    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM,
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
-    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [TypeFilterName.IMAGES]:            (toot) => !!toot.realToot().imageAttachments?.length,
-    [TypeFilterName.LINKS]:             (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
+    [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot.followedTags?.length,
+    [TypeFilterName.IMAGES]:            (toot) => !!toot.realToot.imageAttachments?.length,
+    [TypeFilterName.LINKS]:             (toot) => !!(toot.realToot.card || toot.realToot.trendingLinks?.length),
     [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
-    [TypeFilterName.POLLS]:             (toot) => !!toot.realToot().poll,
-    [TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
-    [TypeFilterName.PRIVATE]:           (toot) => !!toot.realToot().isPrivate(),
-    [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot().inReplyToId,
+    [TypeFilterName.POLLS]:             (toot) => !!toot.realToot.poll,
+    [TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot.participatedTags?.length,
+    [TypeFilterName.PRIVATE]:           (toot) => !!toot.realToot.isPrivate,
+    [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot.inReplyToId,
     [TypeFilterName.RETOOTS]:           (toot) => !!toot.reblog,
-    [TypeFilterName.SENSITIVE]:         (toot) => !!toot.realToot().sensitive,
-    [TypeFilterName.SPOILERED]:         (toot) => !!toot.realToot().spoilerText,
-    [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot().trendingLinks?.length,
-    [TypeFilterName.TRENDING_TAGS]:     (toot) => !!toot.realToot().trendingTags?.length,
-    [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot().trendingRank,
-    [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot().videoAttachments?.length,
+    [TypeFilterName.SENSITIVE]:         (toot) => !!toot.realToot.sensitive,
+    [TypeFilterName.SPOILERED]:         (toot) => !!toot.realToot.spoilerText,
+    [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot.trendingLinks?.length,
+    [TypeFilterName.TRENDING_TAGS]:     (toot) => !!toot.realToot.trendingTags?.length,
+    [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot.trendingRank,
+    [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot.videoAttachments?.length,
 };
 
 /**
@@ -73,19 +72,19 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
  */
 const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.APP]: (toot: Toot, selectedOptions: string[]) => {
-        return selectedOptions.includes(toot.realToot().application?.name);
+        return selectedOptions.includes(toot.realToot.application?.name);
     },
     [BooleanFilterName.HASHTAG]: (toot: Toot, selectedOptions: string[]) => {
-        return !!selectedOptions.find((v) => toot.realToot().containsString(v));
+        return !!selectedOptions.find((v) => toot.realToot.containsString(v));
     },
     [BooleanFilterName.LANGUAGE]: (toot: Toot, selectedOptions: string[]) => {
-        return selectedOptions.includes(toot.realToot().language || config.locale.defaultLanguage);
+        return selectedOptions.includes(toot.realToot.language || config.locale.defaultLanguage);
     },
     [BooleanFilterName.TYPE]: (toot: Toot, selectedOptions: string[]) => {
         return selectedOptions.some((v) => TYPE_FILTERS[v as TypeFilterName](toot));
     },
     [BooleanFilterName.USER]: (toot: Toot, selectedOptions: string[]) => {
-        return selectedOptions.includes(toot.realToot().account.webfingerURI);
+        return selectedOptions.includes(toot.realToot.account.webfingerURI);
     },
 };
 

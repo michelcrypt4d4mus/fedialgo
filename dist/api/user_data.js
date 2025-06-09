@@ -28,12 +28,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
-const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
+const obj_with_counts_list_1 = __importStar(require("./obj_with_counts_list"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importStar(require("./objects/toot"));
 const enums_1 = require("../enums");
-const boolean_filter_1 = require("../filters/boolean_filter");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
@@ -43,7 +42,7 @@ const logger = new logger_1.Logger("UserData");
 class UserData {
     lastUpdatedAt;
     // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
-    favouriteAccounts = new boolean_filter_1.BooleanFilterOptionList([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
+    favouriteAccounts = new obj_with_counts_list_1.BooleanFilterOptionList([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {};
     followedTags = new tag_list_1.default([], enums_1.ScoreName.FOLLOWED_TAGS);
@@ -95,7 +94,7 @@ class UserData {
     // Add up the favourites, retoots, and replies for each account
     populateFavouriteAccounts(data) {
         const retootsAndFaves = [...toot_1.default.onlyRetoots(data.recentToots), ...data.favouritedToots];
-        const retootAndFaveAccounts = retootsAndFaves.map(t => t.author());
+        const retootAndFaveAccounts = retootsAndFaves.map(t => t.author);
         const followedAccountIdMap = (0, collection_helpers_1.keyById)(data.followedAccounts);
         // TODO: Replies are imperfect, we only have inReplyToAccountId to work with. IDing ~1/3rd of the replies.
         // Currently that's only around 1/3rd of the replies.

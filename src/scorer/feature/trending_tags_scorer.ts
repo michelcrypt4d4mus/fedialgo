@@ -17,7 +17,7 @@ export default class TrendingTagsScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        const tags = toot.realToot().trendingTags || [];
+        const tags = toot.realToot.trendingTags || [];
         const tagScores = tags.map(tag => tag.numAccounts || 0);
         let score = sumArray(tagScores);
 

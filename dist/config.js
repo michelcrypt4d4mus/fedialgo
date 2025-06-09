@@ -6,7 +6,6 @@ exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_
  */
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const logger_1 = require("./helpers/logger");
 // Cachey keys for the fediverse wide trending data
 exports.FEDIVERSE_CACHE_KEYS = [
     enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
@@ -29,7 +28,7 @@ const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
 const DEFAULT_COUNTRY = DEFAULT_LOCALE.split("-")[1];
 const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
-const configLogger = new logger_1.Logger("Config");
+const LOG_PREFIX = '[Config]';
 ;
 ;
 ;
@@ -331,14 +330,14 @@ class Config {
     };
     constructor() {
         this.validate();
-        configLogger.debug(`validated:`, this);
+        console.debug(`${LOG_PREFIX} validated:`, this);
     }
     ;
     // Compute min value for FEDIVERSE_CACHE_KEYS minutesUntilStale
     minTrendingMinutesUntilStale() {
         const trendStalenesses = exports.FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
         if (trendStalenesses.length != exports.FEDIVERSE_CACHE_KEYS.length) {
-            configLogger.warn(`Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
+            console.warn(`${LOG_PREFIX} Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
             return 60;
         }
         else {
@@ -349,7 +348,7 @@ class Config {
     setLocale(locale) {
         locale ??= DEFAULT_LOCALE;
         if (!LOCALE_REGEX.test(locale)) {
-            configLogger.warn(`Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
+            console.warn(`${LOG_PREFIX} Invalid locale "${locale}", using default "${DEFAULT_LOCALE}"`);
             return;
         }
         this.locale.locale = locale;
@@ -360,7 +359,7 @@ class Config {
                 this.locale.language = language;
             }
             else {
-                configLogger.warn(`Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
+                console.warn(`${LOG_PREFIX} Language "${language}" unsupported, defaulting to "${this.locale.defaultLanguage}"`);
             }
         }
     }
@@ -373,10 +372,14 @@ class Config {
                 this.validate(value);
             }
             else if (typeof value == "number" && isNaN(value)) {
-                configLogger.logAndThrowError(`value at ${key} is NaN`);
+                const msg = `value at ${key} is NaN`;
+                console.error(`${LOG_PREFIX} ${msg}`);
+                throw new Error(msg);
             }
             else if (typeof value == "string" && value.length == 0) {
-                configLogger.logAndThrowError(`value at ${key} is empty string`);
+                const msg = `value at ${key} is empty string`;
+                console.error(`${LOG_PREFIX} ${msg}`);
+                throw new Error(msg);
             }
         });
     }
@@ -386,7 +389,7 @@ const config = new Config();
 exports.config = config;
 // Quick load mode settings
 if (environment_helpers_1.isQuickMode) {
-    configLogger.debug(`QUICK_MODE enabled, applying debug settings...`);
+    console.debug(`${LOG_PREFIX} QUICK_MODE enabled, applying debug settings...`);
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
@@ -396,7 +399,7 @@ if (environment_helpers_1.isQuickMode) {
 }
 // Debug mode settings
 if (environment_helpers_1.isDebugMode) {
-    configLogger.debug(`FEDIALGO_DEBUG mode enabled, applying debug settings...`);
+    console.debug(`${LOG_PREFIX} FEDIALGO_DEBUG mode enabled, applying debug settings...`);
     config.api.data[enums_1.CacheKey.FOLLOWED_ACCOUNTS].initialMaxRecords = 160;
     config.api.data[enums_1.CacheKey.FOLLOWED_TAGS].minutesUntilStale = 60;
     config.api.data[enums_1.CacheKey.FOLLOWERS].initialMaxRecords = 320;
@@ -410,7 +413,7 @@ if (environment_helpers_1.isDebugMode) {
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
-    configLogger.debug(`LOAD_TEST mode enabled, applying debug settings...`);
+    console.debug(`${LOG_PREFIX} LOAD_TEST mode enabled, applying debug settings...`);
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2500;
     config.toots.maxTimelineLength = 5000;
     config.api.maxRecordsForFeatureScoring = 15000;

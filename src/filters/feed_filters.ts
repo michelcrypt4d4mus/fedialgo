@@ -2,13 +2,14 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import Account from "../api/objects/account";
-import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterOptionList, isBooleanFilterName } from "./boolean_filter";
+import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
 import MastoApi from "../api/api";
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
+import { BooleanFilterOptionList } from "../api/obj_with_counts_list";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
@@ -142,10 +143,10 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     };
 
     toots.forEach(toot => {
-        const decorateThisAccount = (option: BooleanFilterOption) => decorateAccount(option, toot.author());
-        optionLists[BooleanFilterName.USER].incrementCount(toot.author().webfingerURI, decorateThisAccount);
-        optionLists[BooleanFilterName.APP].incrementCount(toot.realToot().application.name);
-        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot().language!, decorateLanguage);
+        const decorateThisAccount = (option: BooleanFilterOption) => decorateAccount(option, toot.author);
+        optionLists[BooleanFilterName.USER].incrementCount(toot.author.webfingerURI, decorateThisAccount);
+        optionLists[BooleanFilterName.APP].incrementCount(toot.realToot.application.name);
+        optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot.language!, decorateLanguage);
 
         // Aggregate counts for each kind ("type") of toot
         Object.entries(TYPE_FILTERS).forEach(([name, typeFilter]) => {
@@ -157,7 +158,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         // Count tags // TODO: this only counts actual tags whereas the demo app filters based on
         // containsString() so the counts don't match. To fix this we'd have to go back over the toots
         // and check for each tag but that is for now too slow.
-        toot.realToot().tags.forEach((tag) => {
+        toot.realToot.tags.forEach((tag) => {
             // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config.locale.language) {
                 suppressedNonLatinTags[tag.language] ??= {};
@@ -196,7 +197,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 
 //     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].options).forEach((tagName) => {
 //         toots.forEach((toot) => {
-//             if (toot.realToot().containsString(tagName)) {
+//             if (toot.realToot.containsString(tagName)) {
 //                 incrementCount(newTootTagCounts, tagName);
 //             }
 //         })

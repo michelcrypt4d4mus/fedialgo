@@ -2,7 +2,7 @@
  * Typescript type definitions.
  */
 import { mastodon } from 'masto';
-import { Mutex, MutexInterface, SemaphoreInterface } from 'async-mutex';
+import { MutexInterface, SemaphoreInterface } from 'async-mutex';
 
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs } from './filters/boolean_filter';

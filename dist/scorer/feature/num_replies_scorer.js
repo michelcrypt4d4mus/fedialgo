@@ -14,7 +14,7 @@ class NumRepliesScorer extends feature_scorer_1.default {
         super(enums_1.ScoreName.NUM_REPLIES);
     }
     async _score(toot) {
-        return toot.realToot().repliesCount || 0;
+        return toot.realToot.repliesCount || 0;
     }
 }
 exports.default = NumRepliesScorer;

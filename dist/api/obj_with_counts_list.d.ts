@@ -1,6 +1,6 @@
 import { Logger } from '../helpers/logger';
 import { ScoreName } from "../enums";
-import { type ObjListDataSource, type NamedTootCount, type StringNumberDict } from "../types";
+import { type BooleanFilterOption, type ObjListDataSource, type NamedTootCount, type StringNumberDict } from "../types";
 export type ObjList = ObjWithCountList<NamedTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;
 export default class ObjWithCountList<T extends NamedTootCount> {
@@ -26,4 +26,6 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     removeMutedTags(): Promise<void>;
     topObjs(maxObjs?: number): T[];
     private objNameDict;
+}
+export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
 }

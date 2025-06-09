@@ -21,6 +21,6 @@ export default class FavouritedTagsScorer extends FeatureScorer {
     };
 
     async _score(toot: Toot) {
-        return sumArray(toot.realToot().tags.map(tag => this.scoreData[tag.name] || 0));
+        return sumArray(toot.realToot.tags.map(tag => this.scoreData[tag.name] || 0));
     }
 };
