@@ -94,6 +94,7 @@ export type ScoreStats = {
     weighted: MinMaxAvgScore[];
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
+export type ScoreType = keyof WeightedScore;
 export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink);
 export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
 export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);

@@ -58,6 +58,7 @@ import {
     type FeedFilterSettings,
     type KeysOfValueType,
     type MastodonTag,
+    type ScoreType,
     type StatusList,
     type TagWithUsageCounts,
     type TootLike,
@@ -497,11 +498,11 @@ export default class Toot implements TootObj {
 
     /**
      * Get an individual score for this toot.
-     * @param {keyof WeightedScore} scoreType - The score type.
+     * @param {ScoreType} scoreType - The score type.
      * @param {ScoreName} name - The score name.
      * @returns {number}
      */
-    getIndividualScore(scoreType: keyof WeightedScore, name: ScoreName): number {
+    getIndividualScore(scoreType: ScoreType, name: ScoreName): number {
         if (isNumber(this.scoreInfo?.scores?.[name]?.[scoreType])) {
             return this.scoreInfo!.scores[name][scoreType];
         } else {

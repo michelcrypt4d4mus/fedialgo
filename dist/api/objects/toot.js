@@ -382,7 +382,7 @@ class Toot {
     }
     /**
      * Get an individual score for this toot.
-     * @param {keyof WeightedScore} scoreType - The score type.
+     * @param {ScoreType} scoreType - The score type.
      * @param {ScoreName} name - The score name.
      * @returns {number}
      */
