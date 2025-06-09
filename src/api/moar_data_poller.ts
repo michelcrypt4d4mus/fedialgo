@@ -10,9 +10,9 @@ import { ageString } from '../helpers/time_helpers';
 import { config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
-import { type MastodonApiObject } from '../types';
+import { type MastodonApiObj } from '../types';
 
-type Poller = (params?: ApiParams) => Promise<MastodonApiObject[]>;
+type Poller = (params?: ApiParams) => Promise<MastodonApiObj[]>;
 
 export const GET_MOAR_DATA = "getMoarData()";
 export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;

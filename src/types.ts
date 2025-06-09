@@ -78,7 +78,7 @@ export type KeysOfValueType<T, SuperClass> = Exclude<
     undefined
 >;
 
-export type MastodonApiObject = (
+export type MastodonApiObj = (
     MastodonObjWithID |
     mastodon.v1.Tag |
     mastodon.v1.TrendLink
