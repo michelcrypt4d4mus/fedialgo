@@ -133,13 +133,13 @@ export default class Toot implements TootObj {
     get isPrivate(): boolean;
     get isTrending(): boolean;
     get popularity(): number;
-    get replyMentions(): string[];
-    get tootedAt(): Date;
-    get withRetoot(): Toot[];
     get realToot(): Toot;
     get realURI(): string;
     get realURL(): string;
+    get replyMentions(): string[];
     get score(): number;
+    get tootedAt(): Date;
+    get withRetoot(): Toot[];
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
      * @returns {MediaCategory | undefined}

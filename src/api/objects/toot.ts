@@ -246,7 +246,7 @@ export default class Toot implements TootObj {
     private contentCache: TootCache = {};
 
     // Array with the author of the toot and (if it exists) the account that retooted it.
-    get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)}
+    get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)};
     // Age of this toot in hours
     get ageInHours(): number { return ageInHours(this.createdAt) };
     // Return the account that posted this toot, not the account that reblogged it.
@@ -254,27 +254,27 @@ export default class Toot implements TootObj {
     // True if the toot is a direct message (DM) to the user.
     get isDM() { return this.visibility === TootVisibility.DIRECT_MSG };
     // True if this toot is from a followed account or contains a followed tag.
-    get isFollowed() { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) }
+    get isFollowed() { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) };
     // True if it's for followers only.
     get isPrivate() { return this.visibility === TootVisibility.PRIVATE };
     // True if it's a trending toot or contains any trending hashtags or links.
     get isTrending() { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length) };
     // Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
     get popularity() { return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]) };
-    // Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
-    get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(at) }
-    // Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
-    get tootedAt(): Date { return new Date(this.createdAt) };
-    // Returns the toot and the retoot, if it exists, as an array.
-    get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
     // Return the toot that was reblogged if it's a reblog, otherwise return this toot.
     get realToot(): Toot { return this.reblog ?? this };
     // URI for the realToot.
     get realURI(): string { return this.realToot.uri };
     // Default to this.realURI if url property is empty.
     get realURL(): string { return this.realToot.url || this.realURI };
+    // Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
+    get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(at) };
     // Current overall score for this toot.
     get score(): number { return this.scoreInfo?.score || 0 };
+    // Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
+    get tootedAt(): Date { return new Date(this.createdAt) };
+    // Returns the toot and the retoot, if it exists, as an array.
+    get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
 
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.

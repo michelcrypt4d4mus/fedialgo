@@ -134,6 +134,7 @@ class Toot {
     contentCache = {};
     // Array with the author of the toot and (if it exists) the account that retooted it.
     get accounts() { return this.withRetoot.map((toot) => toot.account); }
+    ;
     // Age of this toot in hours
     get ageInHours() { return (0, time_helpers_1.ageInHours)(this.createdAt); }
     ;
@@ -145,6 +146,7 @@ class Toot {
     ;
     // True if this toot is from a followed account or contains a followed tag.
     get isFollowed() { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length); }
+    ;
     // True if it's for followers only.
     get isPrivate() { return this.visibility === TootVisibility.PRIVATE; }
     ;
@@ -153,14 +155,6 @@ class Toot {
     ;
     // Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
     get popularity() { return (0, collection_helpers_1.sumArray)([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]); }
-    ;
-    // Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
-    get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(string_helpers_1.at); }
-    // Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
-    get tootedAt() { return new Date(this.createdAt); }
-    ;
-    // Returns the toot and the retoot, if it exists, as an array.
-    get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
     ;
     // Return the toot that was reblogged if it's a reblog, otherwise return this toot.
     get realToot() { return this.reblog ?? this; }
@@ -171,8 +165,17 @@ class Toot {
     // Default to this.realURI if url property is empty.
     get realURL() { return this.realToot.url || this.realURI; }
     ;
+    // Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
+    get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(string_helpers_1.at); }
+    ;
     // Current overall score for this toot.
     get score() { return this.scoreInfo?.score || 0; }
+    ;
+    // Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
+    get tootedAt() { return new Date(this.createdAt); }
+    ;
+    // Returns the toot and the retoot, if it exists, as an array.
+    get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
     ;
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
