@@ -66,6 +66,505 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
 
 
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>completedAt</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Timestamp a full deep inspection of the toot was completed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>followedTags</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;MastodonTag></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Array of tags that the user follows that exist in this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>numTimesShown</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Managed in client app. # of times the Toot has been shown to the user.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>participatedTags</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;TagWithUsageCounts></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Tags that the user has participated in that exist in this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>reblog</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">SerializableToot</span>
+|
+
+<span class="param-type">null</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The toot that was retooted (if any)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>reblogsBy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;AccountLike></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The accounts that retooted this toot (if any)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>resolvedID</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">This Toot with URLs resolved to homeserver versions</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>scoreInfo</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">TootScore</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Scoring info for weighting/sorting this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>sources</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Source of the toot (e.g. trending tag toots, home timeline, etc.)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>trendingLinks</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;TrendingLink></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Links that are trending in this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>trendingRank</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Most trending on a server gets a 10, next is a 9, etc.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>trendingTags</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;TagWithUsageCounts></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Tags that are trending in this toot</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>audioAttachments</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;mastodon.v1.MediaAttachment></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>imageAttachments</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;mastodon.v1.MediaAttachment></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>videoAttachments</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;mastodon.v1.MediaAttachment></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
 <dl class="details">
 
     
@@ -102,7 +601,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line86">line 86</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line101">line 101</a>
     </li></ul></dd>
     
 
@@ -207,7 +706,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line138">line 138</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line153">line 153</a>
     </li></ul></dd>
     
 
@@ -269,7 +768,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line141">line 141</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line156">line 156</a>
     </li></ul></dd>
     
 
@@ -331,7 +830,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line186">line 186</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line201">line 201</a>
     </li></ul></dd>
     
 
@@ -393,7 +892,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line144">line 144</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line159">line 159</a>
     </li></ul></dd>
     
 
@@ -455,7 +954,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line201">line 201</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line216">line 216</a>
     </li></ul></dd>
     
 
@@ -517,7 +1016,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line147">line 147</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -579,7 +1078,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line150">line 150</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line165">line 165</a>
     </li></ul></dd>
     
 
@@ -641,7 +1140,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line153">line 153</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line168">line 168</a>
     </li></ul></dd>
     
 
@@ -703,7 +1202,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line156">line 156</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line171">line 171</a>
     </li></ul></dd>
     
 
@@ -765,7 +1264,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line159">line 159</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line174">line 174</a>
     </li></ul></dd>
     
 
@@ -827,7 +1326,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line162">line 162</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line177">line 177</a>
     </li></ul></dd>
     
 
@@ -889,7 +1388,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line165">line 165</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line180">line 180</a>
     </li></ul></dd>
     
 
@@ -951,7 +1450,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line168">line 168</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line183">line 183</a>
     </li></ul></dd>
     
 
@@ -1013,7 +1512,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line171">line 171</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line186">line 186</a>
     </li></ul></dd>
     
 
@@ -1075,7 +1574,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line174">line 174</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line189">line 189</a>
     </li></ul></dd>
     
 
@@ -1137,7 +1636,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line177">line 177</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line192">line 192</a>
     </li></ul></dd>
     
 
@@ -1199,7 +1698,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line180">line 180</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line195">line 195</a>
     </li></ul></dd>
     
 
@@ -1328,7 +1827,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line273">line 273</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line288">line 288</a>
     </li></ul></dd>
     
 
@@ -1526,7 +2025,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line282">line 282</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line297">line 297</a>
     </li></ul></dd>
     
 
@@ -1632,7 +2131,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line298">line 298</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line313">line 313</a>
     </li></ul></dd>
     
 
@@ -1741,7 +2240,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line311">line 311</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line326">line 326</a>
     </li></ul></dd>
     
 
@@ -1916,7 +2415,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line319">line 319</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line334">line 334</a>
     </li></ul></dd>
     
 
@@ -2091,7 +2590,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line330">line 330</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line345">line 345</a>
     </li></ul></dd>
     
 
@@ -2258,7 +2757,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line338">line 338</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line353">line 353</a>
     </li></ul></dd>
     
 
@@ -2433,7 +2932,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line357">line 357</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line372">line 372</a>
     </li></ul></dd>
     
 
@@ -2539,7 +3038,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line367">line 367</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line382">line 382</a>
     </li></ul></dd>
     
 
@@ -2645,7 +3144,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line375">line 375</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line390">line 390</a>
     </li></ul></dd>
     
 
@@ -2823,7 +3322,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line391">line 391</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line406">line 406</a>
     </li></ul></dd>
     
 
@@ -2931,7 +3430,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line406">line 406</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line421">line 421</a>
     </li></ul></dd>
     
 
@@ -3090,7 +3589,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line416">line 416</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line431">line 431</a>
     </li></ul></dd>
     
 
@@ -3245,7 +3744,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line425">line 425</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line440">line 440</a>
     </li></ul></dd>
     
 
@@ -3351,7 +3850,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line458">line 458</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line473">line 473</a>
     </li></ul></dd>
     
 
@@ -3457,7 +3956,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line474">line 474</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line489">line 489</a>
     </li></ul></dd>
     
 
@@ -3612,7 +4111,7 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line210">line 210</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line225">line 225</a>
     </li></ul></dd>
     
 
@@ -3846,7 +4345,7 @@ Toots returned are sorted by score and should have most of their properties set 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line712">line 712</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line727">line 727</a>
     </li></ul></dd>
     
 
@@ -4076,7 +4575,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line739">line 739</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line754">line 754</a>
     </li></ul></dd>
     
 
@@ -4274,7 +4773,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line771">line 771</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line786">line 786</a>
     </li></ul></dd>
     
 
@@ -4433,7 +4932,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line879">line 879</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line894">line 894</a>
     </li></ul></dd>
     
 
@@ -4592,7 +5091,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line871">line 871</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line886">line 886</a>
     </li></ul></dd>
     
 
@@ -4774,7 +5273,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line851">line 851</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line866">line 866</a>
     </li></ul></dd>
     
 
@@ -4952,7 +5451,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line861">line 861</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line876">line 876</a>
     </li></ul></dd>
     
 
@@ -5157,7 +5656,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line890">line 890</a>
+        <a href="api_objects_toot.js.html">api/objects/toot.js</a>, <a href="api_objects_toot.js.html#line905">line 905</a>
     </li></ul></dd>
     
 
@@ -5231,7 +5730,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 04:03:49 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 04:07:14 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
