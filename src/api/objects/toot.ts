@@ -865,7 +865,7 @@ export default class Toot implements TootObj {
      */
     static async buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]> {
         if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
-        const logger = tootLogger.tempLogger(source, `buildToots()`);
+        const logger = tootLogger.tempLogger(source, `buildToots`);
         const startedAt = new Date();
 
         // NOTE: this calls completeToots() with isDeepInspect = false. You must later call it with true
