@@ -126,19 +126,33 @@ export default class Toot implements TootObj {
     videoAttachments: mastodon.v1.MediaAttachment[];
     private contentCache;
     get accounts(): Account[];
+    /** Age of this toot in hours */
     get ageInHours(): number;
+    /** Return the account that posted this toot, not the account that reblogged it. */
     get author(): Account;
+    /** True if the toot is a direct message (DM) to the user. */
     get isDM(): boolean;
+    /** True if this toot is from a followed account or contains a followed tag. */
     get isFollowed(): boolean;
+    /** True if it's for followers only. */
     get isPrivate(): boolean;
+    /** True if it's a trending toot or contains any trending hashtags or links. */
     get isTrending(): boolean;
+    /** Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused. */
     get popularity(): number;
+    /** Return the toot that was reblogged if it's a reblog, otherwise return this toot. */
     get realToot(): Toot;
+    /** URI for the realToot. @returns {string} */
     get realURI(): string;
+    /** Default to this.realURI if url property is empty. */
     get realURL(): string;
+    /** Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @. */
     get replyMentions(): string[];
+    /** Current overall score for this toot. */
     get score(): number;
+    /** Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy? */
     get tootedAt(): Date;
+    /** Returns the toot and the retoot, if it exists, as an array. */
     get withRetoot(): Toot[];
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.

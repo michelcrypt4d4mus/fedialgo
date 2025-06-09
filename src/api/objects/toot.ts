@@ -115,6 +115,7 @@ const TAG_ONLY_STRINGS = new Set([
 const tootLogger = new Logger("Toot");
 const repairLogger = tootLogger.tempLogger("repairToot");
 
+
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo.
  * @typedef {object} SerializableToot
@@ -264,7 +265,7 @@ export default class Toot implements TootObj {
     get popularity() { return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]) };
     /** Return the toot that was reblogged if it's a reblog, otherwise return this toot. */
     get realToot(): Toot { return this.reblog ?? this };
-    /** URI for the realToot. */
+    /** URI for the realToot. @returns {string} */
     get realURI(): string { return this.realToot.uri };
     /** Default to this.realURI if url property is empty. */
     get realURL(): string { return this.realToot.url || this.realURI };
@@ -848,9 +849,9 @@ export default class Toot implements TootObj {
         })
     }
 
-    ///////////////////////////////
-    //       Class methods       //
-    ///////////////////////////////
+    ////////////////////////////////
+    //       Static methods       //
+    ////////////////////////////////
 
     /**
      * Build array of new Toot objects from an array of Status objects (or Toots).

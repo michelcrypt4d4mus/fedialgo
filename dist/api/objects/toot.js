@@ -135,46 +135,46 @@ class Toot {
     // Array with the author of the toot and (if it exists) the account that retooted it.
     get accounts() { return this.withRetoot.map((toot) => toot.account); }
     ;
-    // Age of this toot in hours
+    /** Age of this toot in hours */
     get ageInHours() { return (0, time_helpers_1.ageInHours)(this.createdAt); }
     ;
-    // Return the account that posted this toot, not the account that reblogged it.
+    /** Return the account that posted this toot, not the account that reblogged it. */
     get author() { return this.realToot.account; }
     ;
-    // True if the toot is a direct message (DM) to the user.
+    /** True if the toot is a direct message (DM) to the user. */
     get isDM() { return this.visibility === TootVisibility.DIRECT_MSG; }
     ;
-    // True if this toot is from a followed account or contains a followed tag.
+    /** True if this toot is from a followed account or contains a followed tag. */
     get isFollowed() { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length); }
     ;
-    // True if it's for followers only.
+    /** True if it's for followers only. */
     get isPrivate() { return this.visibility === TootVisibility.PRIVATE; }
     ;
-    // True if it's a trending toot or contains any trending hashtags or links.
+    /** True if it's a trending toot or contains any trending hashtags or links. */
     get isTrending() { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length); }
     ;
-    // Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
+    /** Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused. */
     get popularity() { return (0, collection_helpers_1.sumArray)([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]); }
     ;
-    // Return the toot that was reblogged if it's a reblog, otherwise return this toot.
+    /** Return the toot that was reblogged if it's a reblog, otherwise return this toot. */
     get realToot() { return this.reblog ?? this; }
     ;
-    // URI for the realToot.
+    /** URI for the realToot. @returns {string} */
     get realURI() { return this.realToot.uri; }
     ;
-    // Default to this.realURI if url property is empty.
+    /** Default to this.realURI if url property is empty. */
     get realURL() { return this.realToot.url || this.realURI; }
     ;
-    // Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
+    /** Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @. */
     get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(string_helpers_1.at); }
     ;
-    // Current overall score for this toot.
+    /** Current overall score for this toot. */
     get score() { return this.scoreInfo?.score || 0; }
     ;
-    // Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
+    /** Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy? */
     get tootedAt() { return new Date(this.createdAt); }
     ;
-    // Returns the toot and the retoot, if it exists, as an array.
+    /** Returns the toot and the retoot, if it exists, as an array. */
     get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
     ;
     /**
@@ -696,9 +696,9 @@ class Toot {
             }
         });
     }
-    ///////////////////////////////
-    //       Class methods       //
-    ///////////////////////////////
+    ////////////////////////////////
+    //       Static methods       //
+    ////////////////////////////////
     /**
      * Build array of new Toot objects from an array of Status objects (or Toots).
      * Toots returned are sorted by score and should have most of their properties set correctly.
