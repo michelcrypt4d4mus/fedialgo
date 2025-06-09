@@ -164,15 +164,18 @@ await algorithm.reset();
 await algorithm.reset(true);
 ```
 
-## `Toot` API
+## `fedialgo` Functions And Types Documentation
+There is some documentation of various classes and methods you might want to access while working with `fedialgo` generated from JSDoc comments in the code available [here](https://michelcrypt4d4mus.github.io/fedialgo/).
+
+#### `Toot` Object API
 The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details. In particular note that you can mark a `Toot` object's `numTimesShown` property, at which point the `AlreadyShownScorer` will return non-zero values for that Toot.
 
 ```typescript
 timelineFeed[0].numTimesShown = 1;
 ```
 
-## Other Data Available From `TheAlgorithm`
-FediAlgo exports a number of types and enums; check the bottom of [`index.ts`](src/index.ts) for details on what is available.
+#### Other Data Available From `TheAlgorithm`
+FediAlgo exports a number of types and enums; check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/) or look at the bottom of [`index.ts`](src/index.ts) for details on what is available.
 `TheAlgorithm` objects also provide a bunch of data besides the timeline should you choose to access it.
 
 #### Fediverse Trending Data
