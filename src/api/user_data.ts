@@ -161,7 +161,7 @@ export default class UserData {
 
 
 // extract information for language BoooleanFilterOption
-function tootLanguageOption (toot: Toot): BooleanFilterOption {
+function tootLanguageOption(toot: Toot): BooleanFilterOption {
     if (!toot.language) {
         logger.warn("Toot has no language set, using default language instead", toot);
         toot.language = config.locale.defaultLanguage;

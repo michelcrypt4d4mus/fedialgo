@@ -9,13 +9,12 @@ import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums
 import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
-import { type BooleanFilterOption, type FilterOptionDataSource } from "../types";
+import { type BooleanFilterOption } from "../types";
 
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-
 
 // Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
 // and a function that matches the toot.
