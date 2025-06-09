@@ -62,21 +62,37 @@ interface TootObj extends SerializableToot {
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
  * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
+ *
  * @class
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
+ * @property {Account[]} accounts - Array with the author of the toot and (if it exists) the account that retooted it.
+ * @property {number} ageInHours - Age of this toot in hours.
+ * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
+ * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
+ * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
+ * @property {boolean} isPrivate - True if it's for followers only.
+ * @property {boolean} isTrending - True if it's a trending toot or contains any trending hashtags or links.
  * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
  * @property {TagWithUsageCounts[]} [participatedTags] - Tags that the user has participated in that exist in this toot
+ * @property {number} popularity - Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
+ * @property {Toot} realToot - The toot that was reblogged if it's a reblog, otherwise this toot.
+ * @property {string} realURI - URI for the realToot.
+ * @property {string} realURL - Default to this.realURI if url property is empty.
  * @property {SerializableToot | null} [reblog] - The toot that was retooted (if any)
  * @property {AccountLike[]} [reblogsBy] - The accounts that retooted this toot (if any)
+ * @property {string[]} replyMentions - The webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
  * @property {string} [resolvedID] - This Toot with URLs resolved to homeserver versions
+ * @property {number} score - Current overall score for this toot.
  * @property {TootScore} [scoreInfo] - Scoring info for weighting/sorting this toot
  * @property {string[]} [sources] - Source of the toot (e.g. trending tag toots, home timeline, etc.)
+ * @property {Date} tootedAt - Timestamp of toot's createdAt.
  * @property {TrendingLink[]} [trendingLinks] - Links that are trending in this toot
  * @property {number} [trendingRank] - Most trending on a server gets a 10, next is a 9, etc.
  * @property {TagWithUsageCounts[]} [trendingTags] - Tags that are trending in this toot
+ * @property {Toot[]} withRetoot - Returns the toot and the retoot, if it exists, as an array.
  * @property {mastodon.v1.MediaAttachment[]} [audioAttachments]
  * @property {mastodon.v1.MediaAttachment[]} [imageAttachments]
  * @property {mastodon.v1.MediaAttachment[]} [videoAttachments]
@@ -127,37 +143,22 @@ export default class Toot implements TootObj {
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
-    private contentCache;
-    /** Array with the author of the toot and (if it exists) the account that retooted it. */
     get accounts(): Account[];
-    /** Age of this toot in hours */
     get ageInHours(): number;
-    /** Return the account that posted this toot, not the account that reblogged it. */
     get author(): Account;
-    /** True if the toot is a direct message (DM) to the user. */
     get isDM(): boolean;
-    /** True if this toot is from a followed account or contains a followed tag. */
     get isFollowed(): boolean;
-    /** True if it's for followers only. */
     get isPrivate(): boolean;
-    /** True if it's a trending toot or contains any trending hashtags or links. */
     get isTrending(): boolean;
-    /** Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused. */
     get popularity(): number;
-    /** Return the toot that was reblogged if it's a reblog, otherwise return this toot. */
     get realToot(): Toot;
-    /** URI for the realToot. @returns {string} */
     get realURI(): string;
-    /** Default to this.realURI if url property is empty. */
     get realURL(): string;
-    /** Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @. */
     get replyMentions(): string[];
-    /** Current overall score for this toot. */
     get score(): number;
-    /** Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy? */
     get tootedAt(): Date;
-    /** Returns the toot and the retoot, if it exists, as an array. */
     get withRetoot(): Toot[];
+    private contentCache;
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
      * @returns {MediaCategory | undefined}
