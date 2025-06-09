@@ -109,7 +109,12 @@ export default class BooleanFilter extends TootFilter {
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
 
-    constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs) {
+    /**
+     * Creates a BooleanFilter instance.
+     * @param {BooleanFilterArgs} params - The filter arguments.
+     */
+    constructor(params: BooleanFilterArgs) {
+        const { title, invertSelection, selectedOptions } = params;
         let optionInfo = new BooleanFilterOptionList([], title);
         let description: string;
 

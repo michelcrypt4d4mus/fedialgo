@@ -90,7 +90,12 @@ class BooleanFilter extends toot_filter_1.default {
         this._options = optionList;
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
-    constructor({ title, invertSelection, selectedOptions }) {
+    /**
+     * Creates a BooleanFilter instance.
+     * @param {BooleanFilterArgs} params - The filter arguments.
+     */
+    constructor(params) {
+        const { title, invertSelection, selectedOptions } = params;
         let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
