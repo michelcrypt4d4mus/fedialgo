@@ -29,7 +29,7 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-Filters_BooleanFilter.html">Filters/BooleanFilter</a>~</span>BooleanFilter<span class="signature">(params)</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="module-Filters.html">Filters</a>~</span>BooleanFilter<span class="signature">(params)</span><span class="type-signature"></span></h2>
         
             <div class="class-description">BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).</div>
         
@@ -114,6 +114,157 @@
 </table>
 
 
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>description</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional description of the filter for display or documentation purposes.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>invertSelection</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If true, the filter logic is inverted (e.g., exclude instead of include).</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>options</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">BooleanFilterOptionList</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The BooleanFilterOptions available for this filter.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selectedOptions</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The names of the options selected for use in filtering.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -209,201 +360,10 @@
 
 
 <div class="description">
-    Get the current options list.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="options"><span class="type-signature"></span>options<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
     Set the options list and remove invalid selected options.
 </div>
 
 
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="selectedOptions"><span class="type-signature"></span>selectedOptions<span class="type-signature"> :Array.&lt;string></span></h4>
-
-
-
-
-<div class="description">
-    Which options are selected for use in the filter.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Array.&lt;string></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="title"><span class="type-signature"></span>title<span class="type-signature"> :BooleanFilterName</span></h4>
-
-
-
-
-<div class="description">
-    The filter title/category.
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">BooleanFilterName</span>
-
-
-        </li>
-    </ul>
 
 
 
@@ -761,7 +721,7 @@
     
 
     
-    <h4 class="name" id="optionListWithMinToots"><span class="type-signature"></span>optionListWithMinToots<span class="signature">(options, minToots<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a>}</span></h4>
+    <h4 class="name" id="optionListWithMinToots"><span class="type-signature"></span>optionListWithMinToots<span class="signature">(options, minToots<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {BooleanFilterOptionList}</span></h4>
     
 
     
@@ -948,7 +908,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></span>
+<span class="param-type">BooleanFilterOptionList</span>
 
 
     </dd>
@@ -966,7 +926,7 @@
     
 
     
-    <h4 class="name" id="optionsSortedByName"><span class="type-signature"></span>optionsSortedByName<span class="signature">(minToots<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a>}</span></h4>
+    <h4 class="name" id="optionsSortedByName"><span class="type-signature"></span>optionsSortedByName<span class="signature">(minToots<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {BooleanFilterOptionList}</span></h4>
     
 
     
@@ -1118,7 +1078,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></span>
+<span class="param-type">BooleanFilterOptionList</span>
 
 
     </dd>
@@ -1136,7 +1096,7 @@
     
 
     
-    <h4 class="name" id="optionsSortedByValue"><span class="type-signature"></span>optionsSortedByValue<span class="signature">(minToots<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {<a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a>}</span></h4>
+    <h4 class="name" id="optionsSortedByValue"><span class="type-signature"></span>optionsSortedByValue<span class="signature">(minToots<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {BooleanFilterOptionList}</span></h4>
     
 
     
@@ -1288,7 +1248,7 @@
     </dt>
     <dd>
         
-<span class="param-type"><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></span>
+<span class="param-type">BooleanFilterOptionList</span>
 
 
     </dd>
@@ -1829,13 +1789,13 @@ TODO: currently unused
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Enums.html">Enums</a></li><li><a href="module-Filters_BooleanFilter.html">Filters/BooleanFilter</a></li><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Filters_BooleanFilter-BooleanFilter.html">BooleanFilter</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#api_1">api_1</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#user_data_1">user_data_1</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Enums.html">Enums</a></li><li><a href="module-Filters.html">Filters</a></li><li><a href="module-Toot.html">Toot</a></li><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Filters-BooleanFilter.html">BooleanFilter</a></li><li><a href="module-Filters-BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#api_1">api_1</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 16:11:47 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 16:23:35 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
