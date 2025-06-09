@@ -136,7 +136,6 @@ const EMPTY_TRENDING_DATA = {
  * - Provides methods for updating filters, weights, and retrieving current state
  * - Exposes utility methods for stats, server info, and tag URLs
  *
- * Properties:
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
  * @property {boolean} isLoading - Whether a feed load is in progress*
@@ -149,7 +148,9 @@ const EMPTY_TRENDING_DATA = {
  * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 class TheAlgorithm {
+    /** Static boolean to indicate if FEDIALGO_DEBUG is enabled */
     static isDebugMode = environment_helpers_1.isDebugMode;
+    /** Static dictionary of preset weight configurations for scoring. */
     static weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds

@@ -69,7 +69,6 @@ interface AlgorithmArgs {
  * - Provides methods for updating filters, weights, and retrieving current state
  * - Exposes utility methods for stats, server info, and tag URLs
  *
- * Properties:
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
  * @property {boolean} isLoading - Whether a feed load is in progress*
@@ -82,7 +81,9 @@ interface AlgorithmArgs {
  * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 declare class TheAlgorithm {
+    /** Static boolean to indicate if FEDIALGO_DEBUG is enabled */
     static readonly isDebugMode: boolean;
+    /** Static dictionary of preset weight configurations for scoring. */
     static readonly weightPresets: WeightPresets;
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
