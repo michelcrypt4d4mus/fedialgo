@@ -44,7 +44,6 @@ interface UserApiData {
  * from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
  * for use in scoring and filtering algorithms.
  *
- * Properties:
  * @property {BooleanFilterOptionList} favouriteAccounts - Accounts the user has favourited, retooted, or replied to.
  * @property {TagList} favouritedTags - List of tags the user has favourited.
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
@@ -53,17 +52,17 @@ interface UserApiData {
  * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted, keyed by account name.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
- * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user (currently unused).
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 export default class UserData {
-    favouriteAccounts: BooleanFilterOptionList = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
-    favouritedTags: TagList = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+    favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
+    favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
-    followedTags: TagList = new TagList([], ScoreName.FOLLOWED_TAGS);
+    followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
     languagesPostedIn: ObjList = new ObjWithCountList([], BooleanFilterName.LANGUAGE);
     mutedAccounts: AccountNames = {};
-    participatedTags: TagList = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
-    preferredLanguage: string = config.locale.defaultLanguage;
+    participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    preferredLanguage = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
 
     private lastUpdatedAt?: Date | null;
