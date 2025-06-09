@@ -64,15 +64,21 @@ export type FeedFilterSettingsSerialized = {
  * of all boolean and numeric filters applied to a feed, as well as the arguments needed to reconstruct them.
  *
  * @extends FeedFilterSettingsSerialized
- * @property {BooleanFilters} booleanFilters - The map of boolean filter names to BooleanFilter instances.
- * @property {NumericFilters} numericFilters - The map of toot number property names to NumericFilter instances.
+ * @property {BooleanFilters} booleanFilters - Map of boolean filter names to BooleanFilter instances.
+ * @property {NumericFilters} numericFilters - Map of toot number property names to NumericFilter instances.
  */
 export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
 };
 
-export type FilterArgs = {
+/**
+ * Arguments used to configure a filter.
+ * @property {string} [description] - Optional description of the filter for display or documentation purposes.
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+ * @property {FilterTitle} title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
+ */
+export interface FilterArgs {
     description?: string;
     invertSelection?: boolean;
     title: FilterTitle;

@@ -15,7 +15,6 @@ export const FILTERABLE_SCORES: TootNumberProp[] = [
 
 /**
  * Arguments for constructing a NumericFilter.
- * @interface
  * @extends FilterArgs
  * @property {number} [value] - The minimum value for the filter.
  */
@@ -77,7 +76,7 @@ export default class NumericFilter extends TootFilter {
 
     /**
      * Serializes the filter settings for storage (e.g., local storage).
-     * @returns {NumericFilterArgs} The arguments representing the filter state.
+     * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs(): NumericFilterArgs {
         const filterArgs = super.toArgs() as NumericFilterArgs;

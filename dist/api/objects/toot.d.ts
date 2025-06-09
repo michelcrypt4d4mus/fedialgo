@@ -6,7 +6,8 @@ import { type AccountLike, type FeedFilterSettings, type MastodonTag, type Score
 export declare const JUST_MUTING = "justMuting";
 export declare const UNKNOWN = "unknown";
 /**
- * Extension of mastodon.v1.Status data object with additional properties used by fedialgo.
+ * Extension of mastodon.v1.Status data object with additional properties used by fedialgo
+ * that should be serialized to storage.
  * @typedef {object} SerializableToot
  */
 export interface SerializableToot extends mastodon.v1.Status {
@@ -28,6 +29,7 @@ export interface SerializableToot extends mastodon.v1.Status {
 }
 /**
  * Interface for Toot object with additional helper methods.
+ * @interface
  * @typedef {object} TootObj
  */
 interface TootObj extends SerializableToot {

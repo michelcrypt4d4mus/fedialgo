@@ -60,7 +60,7 @@ class NumericFilter extends toot_filter_1.default {
     }
     /**
      * Serializes the filter settings for storage (e.g., local storage).
-     * @returns {NumericFilterArgs} The arguments representing the filter state.
+     * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs() {
         const filterArgs = super.toArgs();
