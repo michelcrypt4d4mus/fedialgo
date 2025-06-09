@@ -1,6 +1,6 @@
 /**
  * Enums used by FediAlgo.
- * @module Toot
+ * @module Enums
  */
 
 /**
