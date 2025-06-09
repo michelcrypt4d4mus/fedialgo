@@ -1,6 +1,7 @@
 /**
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
+ * @module ObjWithCountList
  */
 import UserData from "./user_data";
 import { isNumber } from "../helpers/math_helper";
@@ -25,16 +26,16 @@ export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this
  * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
  *
  * @template T extends NamedTootCount
+ * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
- * @property {number} length - The number of objects in the list.
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
  * @property {ListSource} source - The source of the list (for logging/context).
  * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
  */
 export default class ObjWithCountList<T extends NamedTootCount> {
-    logger: Logger;
     length: number;
+    logger: Logger;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: ListSource;
 
@@ -174,6 +175,6 @@ export default class ObjWithCountList<T extends NamedTootCount> {
 
 /**
  * Special case of ObjWithCountList for BooleanFilterOption objects.
- * @extends {ObjWithCountList<BooleanFilterOption>}
+ * @extends {ObjWithCountList}
  */
 export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
