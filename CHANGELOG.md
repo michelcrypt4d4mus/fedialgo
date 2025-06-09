@@ -1,6 +1,6 @@
 # NEXT RELEASE
 * Convert `TheAlgorithm.getTimeline()` to a getter named `timeline`, getApiErrorMsgs() to apiErrorMsgs, isLoading() and serverInfo() to getters
-
+* Convert `Toot` object's `author()` `realToot()`, `realURI()`, `realURL()` to getters
 * Rename `ObjWithTootCount` to `NamedTootCount`, `WithCounts` to `TootCounts`
 * Upgrade `masto.js` to 7.1.0
 

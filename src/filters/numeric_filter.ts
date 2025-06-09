@@ -38,7 +38,7 @@ export default class NumericFilter extends TootFilter {
     // Return true if the toot should appear in the timeline feed
     isAllowed(toot: Toot): boolean {
         if (this.invertSelection && this.value === 0) return true;  // 0 doesn't work as a maximum
-        const propertyValue = toot.realToot()[this.title];
+        const propertyValue = toot.realToot[this.title];
 
         if (!propertyValue && propertyValue !== 0) {
             let msg = `No value found for ${this.title} (interrupted scoring?) in toot: ${toot.describe()}`;

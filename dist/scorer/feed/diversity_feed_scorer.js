@@ -27,10 +27,10 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         const trendingTagsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
         // Count how many times each account and each trending tag are seen in the feed
         sortedToots.forEach((toot) => {
-            toot.withRetoot().forEach((t) => accountsInFeed.incrementCount(t.account.webfingerURI));
+            toot.withRetoot.forEach((t) => accountsInFeed.incrementCount(t.account.webfingerURI));
             // Penalties for trending tags are similar to those for accounts but we base the max penalty
             // on the TrendingTag's numAccounts property (the fediverse-wide number of accounts using that tag)
-            toot.realToot().trendingTags.forEach((tag) => {
+            toot.realToot.trendingTags.forEach((tag) => {
                 const penalizedTag = trendingTagsInFeed.incrementCount(tag.name);
                 penalizedTag.numAccounts = Math.max(tag.numAccounts || 0, penalizedTag.numAccounts || 0);
                 penalizedTag.penaltyIncrement = penalizedTag.numAccounts / penalizedTag.numToots;
@@ -41,12 +41,12 @@ class DiversityFeedScorer extends feed_scorer_1.default {
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce((tootScores, toot) => {
-            toot.withRetoot().forEach((t) => {
+            toot.withRetoot.forEach((t) => {
                 const penalty = this.computePenalty(accountsInFeed, t.account.webfingerURI);
                 (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, penalty);
             });
             // Additional penalties for trending tags
-            (toot.realToot().trendingTags || []).forEach((tag) => {
+            (toot.realToot.trendingTags || []).forEach((tag) => {
                 const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
                 // Don't apply penalty to followed accounts/tags
                 if (!toot.isFollowed()) {

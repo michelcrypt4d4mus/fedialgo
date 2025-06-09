@@ -14,7 +14,7 @@ class NumRetootsScorer extends feature_scorer_1.default {
         super(enums_1.ScoreName.NUM_RETOOTS);
     }
     async _score(toot) {
-        return toot.realToot().reblogsCount || 0;
+        return toot.realToot.reblogsCount || 0;
     }
 }
 exports.default = NumRetootsScorer;

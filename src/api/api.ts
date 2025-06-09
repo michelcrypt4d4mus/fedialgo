@@ -494,9 +494,9 @@ export default class MastoApi {
     // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
     //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async resolveToot(toot: Toot): Promise<Toot> {
-        const logger = getLogger('resolveToot()', toot.realURI());
+        const logger = getLogger('resolveToot()', toot.realURI);
         logger.trace(`called for`, toot);
-        const tootURI = toot.realURI();
+        const tootURI = toot.realURI;
         const urlDomain = extractDomain(tootURI);
         if (urlDomain == this.homeDomain) return toot;
         const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});

@@ -13,8 +13,9 @@ class AuthorFollowersScorer extends feature_scorer_1.default {
     constructor() {
         super(enums_1.ScoreName.AUTHOR_FOLLOWERS);
     }
+    // Use log base 10 of the number of followers as the score
     async _score(toot) {
-        const followerCount = toot.author().followersCount;
+        const followerCount = toot.author.followersCount;
         return followerCount > 0 ? Math.log10(followerCount) : 0;
     }
 }

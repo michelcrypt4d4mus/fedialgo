@@ -59,7 +59,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
         // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
         let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
         const isRetooter = (retootsPct > config.participatedTags.minPctToCountRetoots);
-        toots = isRetooter ? toots.map(toot => toot.realToot()) : toots;
+        toots = isRetooter ? toots.map(toot => toot.realToot) : toots;
 
         const tagList = new TagList([], source);
         const tags = toots.flatMap(toot => toot.tags);

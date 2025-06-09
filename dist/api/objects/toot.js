@@ -130,6 +130,15 @@ class Toot {
     audioAttachments;
     imageAttachments;
     videoAttachments;
+    // Return the toot that was reblogged if it's a reblog, otherwise return this toot.
+    get realToot() { return this.reblog ?? this; }
+    ;
+    // URI for the realToot.
+    get realURI() { return this.realToot.uri; }
+    ;
+    // Default to this.realURI if url property is empty.
+    get realURL() { return this.realToot.url || this.realURI; }
+    ;
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
     contentCache = {};
     /**
@@ -199,16 +208,13 @@ class Toot {
      * Get an array with the author of the toot and (if it exists) the account that retooted it.
      * @returns {Account[]} Array of accounts.
      */
-    accounts() {
-        return this.withRetoot().map((toot) => toot.account);
-    }
-    /**
-     * Time since this toot was sent in hours.
-     * @returns {number} Age in hours.
-     */
-    ageInHours() {
-        return (0, time_helpers_1.ageInHours)(this.tootedAt());
-    }
+    // Get an array with the author of the toot and (if it exists) the account that retooted it.
+    get accounts() { return this.withRetoot.map((toot) => toot.account); }
+    get ageInHours() { return (0, time_helpers_1.ageInHours)(this.createdAt); }
+    ;
+    // Return the account that posted this toot, not the account that reblogged it.
+    get author() { return this.realToot.account; }
+    ;
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
      * @returns {MediaCategory | undefined}
@@ -223,13 +229,6 @@ class Toot {
         else if (this.audioAttachments.length > 0) {
             return enums_1.MediaCategory.AUDIO;
         }
-    }
-    /**
-     * Return the account that posted this toot, not the account that reblogged it.
-     * @returns {Account}
-     */
-    author() {
-        return this.realToot().account;
     }
     /**
      * True if toot contains 'str' in the tags, the content, or the link preview card description.
@@ -308,7 +307,7 @@ class Toot {
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
             let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
-            content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.author().describe()}>`;
+            content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.author.describe()}>`;
         }
         else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
@@ -388,7 +387,7 @@ class Toot {
      */
     async homeserverURL() {
         const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
-        tootLogger.debug(`<homeserverURL()> converted '${this.realURL()}' to '${homeURL}'`);
+        tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
     }
     /**
@@ -403,7 +402,7 @@ class Toot {
      * @returns {boolean}
      */
     isFollowed() {
-        return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot().followedTags?.length);
+        return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot.followedTags?.length);
     }
     /**
      * Return true if the toot should not be filtered out of the feed by the current filters.
@@ -435,10 +434,10 @@ class Toot {
      */
     isValidForFeed(serverSideFilters) {
         if (this.reblog?.muted || this.muted) {
-            tootLogger.trace(`Removing toot from muted account (${this.author().describe()}):`, this);
+            tootLogger.trace(`Removing toot from muted account (${this.author.describe()}):`, this);
             return false;
         }
-        else if (Date.now() < this.tootedAt().getTime()) {
+        else if (Date.now() < this.tootedAt.getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
             tootLogger.warn(`Removing toot with future timestamp:`, this);
             return false;
@@ -450,13 +449,13 @@ class Toot {
             tootLogger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
             return false;
         }
-        else if (this.tootedAt() < (0, time_helpers_1.timelineCutoffAt)()) {
-            tootLogger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt());
+        else if (this.tootedAt < (0, time_helpers_1.timelineCutoffAt)()) {
+            tootLogger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt);
             return false;
         }
         // Return false if toot matches any server side filters
         return !serverSideFilters.some((filter) => (filter.keywords.some((keyword) => {
-            if (this.realToot().containsString(keyword.keyword)) {
+            if (this.realToot.containsString(keyword.keyword)) {
                 tootLogger.trace(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
                 return true;
             }
@@ -470,32 +469,11 @@ class Toot {
         return (0, collection_helpers_1.sumArray)([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]);
     }
     /**
-     * Return the toot that was reblogged if it's a reblog, otherwise return this toot.
-     * @returns {Toot}
-     */
-    realToot() {
-        return this.reblog ?? this;
-    }
-    /**
-     * URI for the toot.
-     * @returns {string}
-     */
-    realURI() {
-        return this.realToot().uri;
-    }
-    /**
-     * Default to this.realURI() if url property is empty.
-     * @returns {string}
-     */
-    realURL() {
-        return this.realToot().url || this.realURI();
-    }
-    /**
      * Return the webfinger URIs of the accounts mentioned in the toot + the author.
      * @returns {string[]}
      */
     replyMentions() {
-        return [this.author().webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(string_helpers_1.at);
+        return [this.author.webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(string_helpers_1.at);
     }
     /**
      * Get Status obj for toot from user's home server so the property URLs point to the home server.
@@ -521,21 +499,15 @@ class Toot {
         this.resolvedID ||= (await this.resolve()).id;
         return this.resolvedID;
     }
-    /**
-     * Returns the Date the toot was created.
-     * TODO: should this consider the values in reblogsBy?
-     * @returns {Date}
-     */
-    tootedAt() {
-        return new Date(this.createdAt);
-    }
+    // * TODO: should this consider the values in reblogsBy?
+    get tootedAt() { return new Date(this.createdAt); }
+    ;
     /**
      * Returns the toot and the retoot, if it exists, as an array.
      * @returns {Toot[]}
      */
-    withRetoot() {
-        return [this, ...(this.reblog ? [this.reblog] : [])];
-    }
+    get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
+    ;
     //////////////////////////////
     //     Private methods      //
     //////////////////////////////
@@ -561,7 +533,7 @@ class Toot {
             }
         }
         const isDeepInspect = !source;
-        this.muted ||= (this.author().webfingerURI in userData.mutedAccounts);
+        this.muted ||= (this.author.webfingerURI in userData.mutedAccounts);
         this.account.isFollowed ||= (this.account.webfingerURI in userData.followedAccounts);
         if (this.reblog) {
             this.reblog.account.isFollowed ||= (this.reblog.account.webfingerURI in userData.followedAccounts);
@@ -569,7 +541,7 @@ class Toot {
         // TODO: We handled muted/followed before checking if complete so we can refresh mutes & follows which sucks
         if (this.isComplete())
             return;
-        const toot = this.realToot(); // Retoots never have their own tags, etc.
+        const toot = this.realToot; // Retoots never have their own tags, etc.
         // containsString() matched way too many toots so we use containsTag() for participated tags
         // TODO: things might be fast enough to try this again
         toot.participatedTags = userData.participatedTags.filter(tag => toot.containsTag(tag)).objs;
@@ -609,7 +581,7 @@ class Toot {
     }
     // Return the toot's 'content' field stripped of HTML tags and emojis
     contentString() {
-        return (0, string_helpers_1.htmlToText)(this.realToot().contentWithEmojis());
+        return (0, string_helpers_1.htmlToText)(this.realToot.contentWithEmojis());
     }
     // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
     contentStripped() {
@@ -833,15 +805,15 @@ class Toot {
     static dedupeToots(toots, inLogger) {
         inLogger ||= tootLogger;
         const logger = inLogger.tempLogger('dedupeToots()');
-        const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI());
+        const tootsByURI = (0, collection_helpers_1.groupBy)(toots, toot => toot.realURI);
         // Collect the properties of a single Toot from all the instances of the same URI (we can
         // encounter the same Toot both in the user's feed as well as in a Trending toot list).
         Object.values(tootsByURI).forEach((uriToots) => {
             if (uriToots.length == 1)
                 return; // If there's only one toot, nothing to do
-            const firstCompleted = uriToots.find(toot => !!toot.realToot().completedAt);
+            const firstCompleted = uriToots.find(toot => !!toot.realToot.completedAt);
             const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
-            const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot().trendingRank); // TODO: should probably use most recent toot
+            const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot.trendingRank); // TODO: should probably use most recent toot
             // Deal with array properties that we want to collate
             const uniqFiltered = this.uniqFlatMap(uriToots, "filtered", (f) => f.filter.id);
             const uniqFollowedTags = this.uniqFlatMap(uriToots, "followedTags", (t) => t.name);
@@ -857,29 +829,29 @@ class Toot {
             const isFollowed = (uri) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
             // Counts may increase over time w/repeated fetches so we collate the max
             const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
-                propValues[propName] = Math.max(...uriToots.map(t => t.realToot()[propName] || 0));
+                propValues[propName] = Math.max(...uriToots.map(t => t.realToot[propName] || 0));
                 return propValues;
             }, {});
             uriToots.forEach((toot) => {
                 // propsThatChange are only set on the realToot
-                toot.realToot().favouritesCount = propsThatChange.favouritesCount;
-                toot.realToot().numTimesShown = propsThatChange.numTimesShown;
-                toot.realToot().reblogsCount = propsThatChange.reblogsCount;
-                toot.realToot().repliesCount = propsThatChange.repliesCount;
+                toot.realToot.favouritesCount = propsThatChange.favouritesCount;
+                toot.realToot.numTimesShown = propsThatChange.numTimesShown;
+                toot.realToot.reblogsCount = propsThatChange.reblogsCount;
+                toot.realToot.repliesCount = propsThatChange.repliesCount;
                 // Props set on first found
-                toot.realToot().completedAt ??= firstCompleted?.completedAt; // DON'T automatically copy to base toot - some fields may need setting later
-                toot.realToot().trendingRank ??= firstTrendingRankToot?.trendingRank;
+                toot.realToot.completedAt ??= firstCompleted?.completedAt; // DON'T automatically copy to base toot - some fields may need setting later
+                toot.realToot.trendingRank ??= firstTrendingRankToot?.trendingRank;
                 toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
                 // Tags + sources + server side filter matches
-                toot.realToot().followedTags = uniqFollowedTags;
-                toot.realToot().trendingLinks = uniqTrendingLinks;
-                toot.realToot().trendingTags = uniqTrendingTags;
+                toot.realToot.followedTags = uniqFollowedTags;
+                toot.realToot.trendingLinks = uniqTrendingLinks;
+                toot.realToot.trendingTags = uniqTrendingTags;
                 toot.filtered = uniqFiltered;
                 toot.sources = uniqSources;
                 // Booleans usually only set on the realToot
-                toot.realToot().bookmarked = uriToots.some(toot => toot.realToot().bookmarked);
-                toot.realToot().favourited = uriToots.some(toot => toot.realToot().favourited);
-                toot.realToot().reblogged = uriToots.some(toot => toot.realToot().reblogged);
+                toot.realToot.bookmarked = uriToots.some(toot => toot.realToot.bookmarked);
+                toot.realToot.favourited = uriToots.some(toot => toot.realToot.favourited);
+                toot.realToot.reblogged = uriToots.some(toot => toot.realToot.reblogged);
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted); // Liberally set muted on retoots and real toots
                 // Reblog props
@@ -892,7 +864,7 @@ class Toot {
                 }
             });
         });
-        // Choose the most recent retoot from the group of toots with the same realURI() value
+        // Choose the most recent retoot from the group of toots with the same realURI value
         const deduped = Object.values(tootsByURI).map((toots) => {
             const mostRecent = (0, exports.mostRecentToot)(toots);
             // Skip logging this in production

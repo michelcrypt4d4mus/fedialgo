@@ -389,9 +389,9 @@ class MastoApi {
     // transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
     //                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
     async resolveToot(toot) {
-        const logger = getLogger('resolveToot()', toot.realURI());
+        const logger = getLogger('resolveToot()', toot.realURI);
         logger.trace(`called for`, toot);
-        const tootURI = toot.realURI();
+        const tootURI = toot.realURI;
         const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
         if (urlDomain == this.homeDomain)
             return toot;

@@ -46,9 +46,12 @@ export interface SerializableToot extends mastodon.v1.Status {
  * @typedef {object} TootObj
  */
 interface TootObj extends SerializableToot {
-    accounts: () => Account[];
-    ageInHours: () => number;
-    author: () => Account;
+    accounts: Account[];
+    author: Account;
+    realToot: Toot;
+    realURI: string;
+    realURL: string;
+    withRetoot: Toot[];
     attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: TagWithUsageCounts, fullScan?: boolean) => boolean;
@@ -68,12 +71,8 @@ interface TootObj extends SerializableToot {
     isTrending: () => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     popularity: () => number;
-    realToot: () => Toot;
-    realURI: () => string;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
-    tootedAt: () => Date;
-    withRetoot: () => Toot[];
 }
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
@@ -125,6 +124,9 @@ export default class Toot implements TootObj {
     audioAttachments: mastodon.v1.MediaAttachment[];
     imageAttachments: mastodon.v1.MediaAttachment[];
     videoAttachments: mastodon.v1.MediaAttachment[];
+    get realToot(): Toot;
+    get realURI(): string;
+    get realURL(): string;
     private contentCache;
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
@@ -136,22 +138,14 @@ export default class Toot implements TootObj {
      * Get an array with the author of the toot and (if it exists) the account that retooted it.
      * @returns {Account[]} Array of accounts.
      */
-    accounts(): Account[];
-    /**
-     * Time since this toot was sent in hours.
-     * @returns {number} Age in hours.
-     */
-    ageInHours(): number;
+    get accounts(): Account[];
+    get ageInHours(): number;
+    get author(): Account;
     /**
      * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
      * @returns {MediaCategory | undefined}
      */
     attachmentType(): MediaCategory | undefined;
-    /**
-     * Return the account that posted this toot, not the account that reblogged it.
-     * @returns {Account}
-     */
-    author(): Account;
     /**
      * True if toot contains 'str' in the tags, the content, or the link preview card description.
      * @param {string} str - The string to search for.
@@ -271,21 +265,6 @@ export default class Toot implements TootObj {
      */
     popularity(): number;
     /**
-     * Return the toot that was reblogged if it's a reblog, otherwise return this toot.
-     * @returns {Toot}
-     */
-    realToot(): Toot;
-    /**
-     * URI for the toot.
-     * @returns {string}
-     */
-    realURI(): string;
-    /**
-     * Default to this.realURI() if url property is empty.
-     * @returns {string}
-     */
-    realURL(): string;
-    /**
      * Return the webfinger URIs of the accounts mentioned in the toot + the author.
      * @returns {string[]}
      */
@@ -300,17 +279,12 @@ export default class Toot implements TootObj {
      * @returns {Promise<string>}
      */
     resolveID(): Promise<string>;
-    /**
-     * Returns the Date the toot was created.
-     * TODO: should this consider the values in reblogsBy?
-     * @returns {Date}
-     */
-    tootedAt(): Date;
+    get tootedAt(): Date;
     /**
      * Returns the toot and the retoot, if it exists, as an array.
      * @returns {Toot[]}
      */
-    withRetoot(): Toot[];
+    get withRetoot(): Toot[];
     private addEmojiHtmlTags;
     private attachmentsOfType;
     private completeProperties;

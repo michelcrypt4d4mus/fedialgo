@@ -32,25 +32,25 @@ exports.isTypeFilterName = isTypeFilterName;
  * @type {Record<TypeFilterName, TypeFilter>}
  */
 exports.TYPE_FILTERS = {
-    [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments?.length,
+    [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot.audioAttachments?.length,
     [enums_1.TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
     [enums_1.TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
     [enums_1.TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
-    [enums_1.TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [enums_1.TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments?.length,
-    [enums_1.TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
+    [enums_1.TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot.followedTags?.length,
+    [enums_1.TypeFilterName.IMAGES]: (toot) => !!toot.realToot.imageAttachments?.length,
+    [enums_1.TypeFilterName.LINKS]: (toot) => !!(toot.realToot.card || toot.realToot.trendingLinks?.length),
     [enums_1.TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
-    [enums_1.TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
-    [enums_1.TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
-    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot().isPrivate(),
-    [enums_1.TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
+    [enums_1.TypeFilterName.POLLS]: (toot) => !!toot.realToot.poll,
+    [enums_1.TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot.participatedTags?.length,
+    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot.isPrivate(),
+    [enums_1.TypeFilterName.REPLIES]: (toot) => !!toot.realToot.inReplyToId,
     [enums_1.TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
-    [enums_1.TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
-    [enums_1.TypeFilterName.SPOILERED]: (toot) => !!toot.realToot().spoilerText,
-    [enums_1.TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
-    [enums_1.TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot().trendingTags?.length,
-    [enums_1.TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
-    [enums_1.TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments?.length,
+    [enums_1.TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot.sensitive,
+    [enums_1.TypeFilterName.SPOILERED]: (toot) => !!toot.realToot.spoilerText,
+    [enums_1.TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot.trendingLinks?.length,
+    [enums_1.TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot.trendingTags?.length,
+    [enums_1.TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot.trendingRank,
+    [enums_1.TypeFilterName.VIDEOS]: (toot) => !!toot.realToot.videoAttachments?.length,
 };
 /**
  * Matchers for each BooleanFilterName.
@@ -58,19 +58,19 @@ exports.TYPE_FILTERS = {
  */
 const TOOT_MATCHERS = {
     [enums_1.BooleanFilterName.APP]: (toot, selectedOptions) => {
-        return selectedOptions.includes(toot.realToot().application?.name);
+        return selectedOptions.includes(toot.realToot.application?.name);
     },
     [enums_1.BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
-        return !!selectedOptions.find((v) => toot.realToot().containsString(v));
+        return !!selectedOptions.find((v) => toot.realToot.containsString(v));
     },
     [enums_1.BooleanFilterName.LANGUAGE]: (toot, selectedOptions) => {
-        return selectedOptions.includes(toot.realToot().language || config_1.config.locale.defaultLanguage);
+        return selectedOptions.includes(toot.realToot.language || config_1.config.locale.defaultLanguage);
     },
     [enums_1.BooleanFilterName.TYPE]: (toot, selectedOptions) => {
         return selectedOptions.some((v) => exports.TYPE_FILTERS[v](toot));
     },
     [enums_1.BooleanFilterName.USER]: (toot, selectedOptions) => {
-        return selectedOptions.includes(toot.realToot().account.webfingerURI);
+        return selectedOptions.includes(toot.realToot.account.webfingerURI);
     },
 };
 ;

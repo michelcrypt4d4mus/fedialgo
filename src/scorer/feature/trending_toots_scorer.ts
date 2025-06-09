@@ -15,6 +15,6 @@ export default class TrendingTootScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot) {
-        return toot.realToot().trendingRank || 0;
+        return toot.realToot.trendingRank || 0;
     }
 };

@@ -80,10 +80,10 @@ export function uniquifyTrendingObjs<T extends TrendingWithHistory>(
 // TODO: maybe we should add the # of servers to the avg?
 // TODO: maybe rename this file 'trending_helpers.ts' or similar since Toots don't have a trending history
 export function setTrendingRankToAvg(rankedToots: Toot[]): void {
-    const tootsByURI = groupBy<Toot>(rankedToots, toot => toot.realURI());
+    const tootsByURI = groupBy<Toot>(rankedToots, toot => toot.realURI);
 
     Object.values(tootsByURI).forEach((uriToots) => {
-        const avgScore = average(uriToots.map(t => t.realToot().trendingRank) as number[]);
+        const avgScore = average(uriToots.map(t => t.realToot.trendingRank) as number[]);
 
         uriToots.forEach((toot) => {
             toot.trendingRank = avgScore;

@@ -16,7 +16,7 @@ class NumFavouritesScorer extends feature_scorer_1.default {
         super(enums_1.ScoreName.NUM_FAVOURITES);
     }
     async _score(toot) {
-        return toot.realToot().favouritesCount || 0;
+        return toot.realToot.favouritesCount || 0;
     }
 }
 exports.default = NumFavouritesScorer;

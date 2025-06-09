@@ -104,7 +104,7 @@ class Scorer {
     ////////////////////////////////
     // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
-        const realToot = toot.realToot();
+        const realToot = toot.realToot;
         // Do the scoring
         const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Find non scorer weights
@@ -141,7 +141,7 @@ class Scorer {
             return scoreDict;
         }, {});
         // Multiple weighted score by time decay penalty to get a final weightedScore
-        const decayExponent = -1 * Math.pow(toot.ageInHours(), config_1.config.scoring.timeDecayExponent);
+        const decayExponent = -1 * Math.pow(toot.ageInHours, config_1.config.scoring.timeDecayExponent);
         const timeDecayMultiplier = Math.pow(timeDecayWeight + 1, decayExponent);
         const weightedScore = this.sumScores(scores, "weighted");
         const score = weightedScore * timeDecayMultiplier;
@@ -154,8 +154,8 @@ class Scorer {
             trendingMultiplier,
             weightedScore,
         };
-        // TODO: duping the score to realToot() is a hack that sucks
-        toot.realToot().scoreInfo = toot.scoreInfo = scoreInfo;
+        // TODO: duping the score to realToot is a hack that sucks
+        toot.realToot.scoreInfo = toot.scoreInfo = scoreInfo;
     }
     // Add 1 so that time decay multiplier works even with scorers giving 0s
     static sumScores(scores, scoreType) {

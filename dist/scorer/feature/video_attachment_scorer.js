@@ -14,7 +14,7 @@ class VideoAttachmentScorer extends feature_scorer_1.default {
         super(enums_1.ScoreName.VIDEO_ATTACHMENTS);
     }
     async _score(toot) {
-        return toot.realToot().videoAttachments.length;
+        return toot.realToot.videoAttachments.length;
     }
 }
 exports.default = VideoAttachmentScorer;

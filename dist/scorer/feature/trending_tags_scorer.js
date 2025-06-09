@@ -17,7 +17,7 @@ class TrendingTagsScorer extends feature_scorer_1.default {
         super(enums_1.ScoreName.TRENDING_TAGS);
     }
     async _score(toot) {
-        const tags = toot.realToot().trendingTags || [];
+        const tags = toot.realToot.trendingTags || [];
         const tagScores = tags.map(tag => tag.numAccounts || 0);
         let score = (0, collection_helpers_1.sumArray)(tagScores);
         // If the toot is tag spam reduce the score
