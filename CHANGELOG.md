@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.69.8
+* Convert `isBoolean/NumericFilterName` methods to static `TootFilter.isValidTitle()`
+
 ### v0.69.7
 * JSDoc for Account
 
