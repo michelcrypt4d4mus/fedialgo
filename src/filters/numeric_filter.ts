@@ -12,12 +12,7 @@ export const FILTERABLE_SCORES: TootNumberProp[] = [
     "favouritesCount",
 ];
 
-/**
- * Arguments for constructing a NumericFilter.
- * @extends FilterArgs
- * @property {number} [value] - The minimum value for the filter.
- */
-export interface NumericFilterArgs extends FilterArgs {
+export interface NumericFilterArgs extends Omit<FilterArgs, "description"> {
     value?: number;
 };
 
@@ -38,6 +33,9 @@ export default class NumericFilter extends TootFilter {
 
     /**
      * @param {NumericFilterArgs} params - The filter arguments.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {TootNumberProp} params.title - Toot property to filter on (e.g., 'repliesCount').
+     * @param {number} [params.value] - The minimum value for the filter.
      */
     constructor(params: NumericFilterArgs) {
         const { invertSelection, title, value } = params;

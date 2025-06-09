@@ -59,13 +59,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     },
 };
 
-/**
- * Arguments for BooleanFilter constructor.
- * @interface
- * @property {string[]} [selectedOptions] - The selected options.
- * @property {BooleanFilterName} title - The filter title.
- */
-export interface BooleanFilterArgs extends FilterArgs {
+export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
     selectedOptions?: string[];
     title: BooleanFilterName;
 };
@@ -98,6 +92,9 @@ export default class BooleanFilter extends TootFilter {
 
     /**
      * @param {BooleanFilterArgs} params - The filter arguments.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {string[]} [params.selectedOptions] - The selected options.
+     * @param {BooleanFilterName} params.title - The filter title.
      */
     constructor(params: BooleanFilterArgs) {
         const { title, invertSelection, selectedOptions } = params;

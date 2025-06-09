@@ -7,13 +7,6 @@ import { Logger } from '../helpers/logger';
 import { split } from '../helpers/collection_helpers';
 import { type FilterTitle } from "../types";
 
-/**
- * Arguments used to configure a filter.
- * @interface
- * @property {string} [description] - Optional description of the filter for display or documentation purposes.
- * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
- * @property {FilterTitle} title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
- */
 export interface FilterArgs {
     description?: string;
     invertSelection?: boolean;
@@ -38,6 +31,9 @@ export default abstract class TootFilter {
 
     /**
      * @param {FilterArgs} params - The arguments for configuring the filter.
+     * @param {string} [params.description] - Optional description of the filter for display or documentation purposes.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {FilterTitle} params.title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
      */
     constructor(params: FilterArgs) {
         const { description, invertSelection, title } = params

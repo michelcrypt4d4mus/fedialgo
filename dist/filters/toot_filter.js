@@ -19,6 +19,9 @@ class TootFilter {
     title;
     /**
      * @param {FilterArgs} params - The arguments for configuring the filter.
+     * @param {string} [params.description] - Optional description of the filter for display or documentation purposes.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {FilterTitle} params.title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
      */
     constructor(params) {
         const { description, invertSelection, title } = params;

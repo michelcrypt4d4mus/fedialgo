@@ -10,13 +10,7 @@ import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { type BooleanFilterOption } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
-/**
- * Arguments for BooleanFilter constructor.
- * @interface
- * @property {string[]} [selectedOptions] - The selected options.
- * @property {BooleanFilterName} title - The filter title.
- */
-export interface BooleanFilterArgs extends FilterArgs {
+export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
     selectedOptions?: string[];
     title: BooleanFilterName;
 }
@@ -41,6 +35,9 @@ export default class BooleanFilter extends TootFilter {
     set options(optionList: BooleanFilterOptionList);
     /**
      * @param {BooleanFilterArgs} params - The filter arguments.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {string[]} [params.selectedOptions] - The selected options.
+     * @param {BooleanFilterName} params.title - The filter title.
      */
     constructor(params: BooleanFilterArgs);
     /**
