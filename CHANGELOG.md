@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.69.11
+(Demo App) Go back to logging out after NetworkErrors
+
 ### v0.69.10 - v0.69.9
 * Stop requiring all `FetchParams` to have a value
 * Make `TheAlgorithm.weightPresets` into a static variable
