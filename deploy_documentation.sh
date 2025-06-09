@@ -22,6 +22,7 @@ git checkout $GITHUB_PAGES_BRANCH
 git merge $MASTER_BRANCH --no-edit
 
 set +e
+rm -fr docs/
 npm run docs
 git add -A docs/
 set -e
