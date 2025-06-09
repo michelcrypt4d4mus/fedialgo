@@ -16,21 +16,18 @@ exports.FILTERABLE_SCORES = [
  * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
  * Allows filtering toots based on a minimum value for a given property.
  * @extends TootFilter
+ * @property {TootNumberProp} title - The property of the toot to filter on (e.g., 'repliesCount').
+ * @property {number} value - The minimum value required for the toot property for the toot to be included in the timeline.
  */
 class NumericFilter extends toot_filter_1.default {
-    /**
-     * The property of the toot to filter on (e.g., 'repliesCount').
-     */
     title;
-    /**
-     * The minimum value required for the toot property for the toot to be included in the timeline.
-     */
     value;
     /**
      * Creates a NumericFilter instance.
      * @param {NumericFilterArgs} param0 - The filter arguments.
      */
-    constructor({ invertSelection, title, value }) {
+    constructor(params) {
+        const { invertSelection, title, value } = params;
         const titleStr = title;
         super({
             description: `Minimum number of ${titleStr.replace(/Count$/, '')}`,

@@ -43,7 +43,11 @@ export default class BooleanFilter extends TootFilter {
      * @param {BooleanFilterOptionList} optionList
      */
     set options(optionList: BooleanFilterOptionList);
-    constructor({ title, invertSelection, selectedOptions }: BooleanFilterArgs);
+    /**
+     * Creates a BooleanFilter instance.
+     * @param {BooleanFilterArgs} params - The filter arguments.
+     */
+    constructor(params: BooleanFilterArgs);
     /**
      * Return true if the toot matches the filter.
      * @param {Toot} toot - The toot to check.

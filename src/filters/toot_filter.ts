@@ -7,7 +7,6 @@ import Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
 import { type FilterTitle } from "../types";
 
-
 /**
  * Arguments used to configure a filter.
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.

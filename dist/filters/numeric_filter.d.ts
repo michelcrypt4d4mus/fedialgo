@@ -18,21 +18,17 @@ export interface NumericFilterArgs extends FilterArgs {
  * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
  * Allows filtering toots based on a minimum value for a given property.
  * @extends TootFilter
+ * @property {TootNumberProp} title - The property of the toot to filter on (e.g., 'repliesCount').
+ * @property {number} value - The minimum value required for the toot property for the toot to be included in the timeline.
  */
 export default class NumericFilter extends TootFilter {
-    /**
-     * The property of the toot to filter on (e.g., 'repliesCount').
-     */
     title: TootNumberProp;
-    /**
-     * The minimum value required for the toot property for the toot to be included in the timeline.
-     */
     value: number;
     /**
      * Creates a NumericFilter instance.
      * @param {NumericFilterArgs} param0 - The filter arguments.
      */
-    constructor({ invertSelection, title, value }: NumericFilterArgs);
+    constructor(params: NumericFilterArgs);
     /**
      * Determines if a toot passes the numeric filter.
      * @param {Toot} toot - The toot to check.
