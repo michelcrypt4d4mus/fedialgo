@@ -2,7 +2,7 @@
     "plugins": ["jsdoc-plugin-typescript"],
     "source": {
         "include": ["dist"],
-        "includePattern": "(account|api|collection_helpers|config|enums|index|obj_with_counts_list|toot|tag_list|types|user_data|(boolean|numeric)_filter)\\.[jt]sx?$",
+        "includePattern": "(account|api|(boolean|numeric)_filter|collection_helpers|config|enums|index|obj_with_counts_list|toot|tag_list|types|user_data)\\.[jt]sx?$",
         "excludePattern": "(^|\\/|\\\\)_"
     },
     "opts": {

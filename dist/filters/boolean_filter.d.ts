@@ -1,8 +1,8 @@
-import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TypeFilter = (toot: Toot) => boolean;

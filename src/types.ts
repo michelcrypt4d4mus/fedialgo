@@ -70,7 +70,6 @@ export type FilterArgs = {
     title: FilterTitle;
 };
 
-
 // Extract the keys of T that are of a type that's a subclass of TypeCondition
 // https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
 export type KeysOfValueType<T, SuperClass> = Exclude<
@@ -78,9 +77,13 @@ export type KeysOfValueType<T, SuperClass> = Exclude<
     undefined
 >;
 
-export type MastodonApiObject = (
+/**
+ * Union type representing any object that can be returned from the Mastodon API and handled by the app
+ * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
+ */
+export type MastodonApiObj = (
     MastodonObjWithID |
-    mastodon.v1.Tag |
+    MastodonTag |
     mastodon.v1.TrendLink
 );
 
@@ -94,6 +97,12 @@ export type MastodonObjWithID = (
     mastodon.v2.Filter
 );
 
+/**
+ * Local extension to the Mastodon Instance type that adds some additional properties
+ * @extends {mastodon.v2.Instance}
+ * @property {number} [followedPctOfMAU] - Pct of the instance's monthly active users (MAU) the user follows
+ * @property {number} [MAU] - Monthly active users of the instance, if available
+ */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;  // MAU data is buried in the Instance hierarchy so this just a copy on the top level

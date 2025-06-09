@@ -12,9 +12,9 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = void 0;
  */
 const api_1 = __importDefault(require("../api/api"));
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
-const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
+const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");

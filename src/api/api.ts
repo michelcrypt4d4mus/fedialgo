@@ -35,7 +35,7 @@ import {
 } from "../helpers/collection_helpers";
 import {
     type ConcurrencyLockRelease,
-    type MastodonApiObject,
+    type MastodonApiObj,
     type MastodonObjWithID,
     type MastodonTag,
     type MinMaxID,
@@ -104,7 +104,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  * @property {(obj: T) => void} [processFxn] - Optional function to process the object before storing and returning it.
  * @property {boolean} [skipMutex] - If true, don't lock the endpoint mutex when making requests.
  */
-interface FetchParams<T extends MastodonApiObject> extends ApiParamsWithMaxID {
+interface FetchParams<T extends MastodonApiObj> extends ApiParamsWithMaxID {
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     cacheKey: CacheKey,
     fetch?: ApiFetcher<T>,
@@ -120,7 +120,7 @@ interface FetchParams<T extends MastodonApiObject> extends ApiParamsWithMaxID {
  * @extends FetchParams<T>
  * @property {number} minRecords - Minimum number of records to fetch.
  */
-interface BackgroundFetchparams<T extends MastodonApiObject> extends FetchParams<T> {
+interface BackgroundFetchparams<T extends MastodonApiObj> extends FetchParams<T> {
     minRecords: number,
 };
 
@@ -133,7 +133,7 @@ interface BackgroundFetchparams<T extends MastodonApiObject> extends FetchParams
  * @property {number} [maxCacheRecords] - Optional maximum number of records to keep in the cache.
  * @property {number} maxRecords - Maximum number of records to fetch.
  */
-interface FetchParamsWithDefaults<T extends MastodonApiObject> extends FetchParams<T> {
+interface FetchParamsWithDefaults<T extends MastodonApiObj> extends FetchParams<T> {
     limit: number,
     logger: Logger,
     maxCacheRecords?: number,
@@ -157,7 +157,7 @@ interface MinMaxIDParams {
  * @extends MinMaxIDParams
  * @property {CachedRows<T> | null} cacheResult - The cached result for the request, if any.
  */
-interface FetchParamsWithCacheData<T extends MastodonApiObject> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
+interface FetchParamsWithCacheData<T extends MastodonApiObj> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
     cacheResult: CachedRows<T> | null,
 };
 
@@ -725,11 +725,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
-    private async fetchApiObjs<T extends MastodonApiObject>(
+    private async fetchApiObjs<T extends MastodonApiObj>(
         params: FetchParamsWithCacheData<T>
-    ): Promise<MastodonApiObject[]> {
+    ): Promise<MastodonApiObj[]> {
         this.validateFetchParams<T>(params);
         let { breakIf, cacheKey, fetch, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
 
@@ -778,11 +778,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
-     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
-    private async getApiObjsAndUpdate<T extends MastodonApiObject>(
+    private async getApiObjsAndUpdate<T extends MastodonApiObj>(
         inParams: FetchParams<T>
-    ): Promise<MastodonApiObject[]> {
+    ): Promise<MastodonApiObj[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         let { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
@@ -816,11 +816,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
-    private async getApiObjs<T extends MastodonApiObject>(
+    private async getApiObjs<T extends MastodonApiObj>(
         params: FetchParamsWithCacheData<T>
-    ): Promise<MastodonApiObject[]> {
+    ): Promise<MastodonApiObj[]> {
         let { cacheKey, isBackgroundFetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
         logger = logger.tempLogger('getApiObjs');
         params = { ...params, logger };
@@ -882,7 +882,7 @@ export default class MastoApi {
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
      * @returns {Promise<T[]>} Array of API objects.
      */
-    private async getWithBackgroundFetch<T extends MastodonApiObject>(
+    private async getWithBackgroundFetch<T extends MastodonApiObj>(
         params: BackgroundFetchparams<T>
     ): Promise<T[]> {
         const { minRecords } = params;
@@ -925,7 +925,7 @@ export default class MastoApi {
      * @param {FetchParams<T>} inParams - Fetch parameters.
      * @returns {Promise<FetchParamsWithCacheData<T>>} Completed fetch parameters with cache data.
      */
-    private async addCacheDataToParams<T extends MastodonApiObject>(
+    private async addCacheDataToParams<T extends MastodonApiObj>(
         inParams: FetchParams<T>
     ): Promise<FetchParamsWithCacheData<T>> {
         const params = this.fillInDefaultParams<T>(inParams);
@@ -971,7 +971,7 @@ export default class MastoApi {
      * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
      * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
      */
-    private async getCacheResult<T extends MastodonApiObject>(
+    private async getCacheResult<T extends MastodonApiObj>(
         params: FetchParamsWithDefaults<T>
     ): Promise<CachedRows<T> | null> {
         const { bustCache, cacheKey, skipCache } = params;
@@ -1002,7 +1002,7 @@ export default class MastoApi {
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
-    private handleApiError<T extends MastodonApiObject>(
+    private handleApiError<T extends MastodonApiObj>(
         params: Partial<FetchParamsWithCacheData<T>>,
         rows: T[],
         err: Error | unknown,
@@ -1040,11 +1040,11 @@ export default class MastoApi {
      * Constructs Account or Toot objects from API objects, or returns the object as-is.
      * @private
      * @param {CacheKey} key - The cache key.
-     * @param {MastodonApiObject[]} objects - Array of API objects.
+     * @param {MastodonApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
-     * @returns {MastodonApiObject[]} Array of constructed objects.
+     * @returns {MastodonApiObj[]} Array of constructed objects.
      */
-    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObject[], logger: Logger): MastodonApiObject[] {
+    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObj[], logger: Logger): MastodonApiObj[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             const accounts = objects.map(o => Account.build(o as mastodon.v1.Account));
             return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);
@@ -1064,7 +1064,7 @@ export default class MastoApi {
      * @param {FetchParams<T>} params - Fetch parameters.
      * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
      */
-    private fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
+    private fillInDefaultParams<T extends MastodonApiObj>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
         let { cacheKey, logger, maxRecords } = params;
         const requestDefaults = config.api.data[cacheKey];
         const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
@@ -1086,7 +1086,7 @@ export default class MastoApi {
      * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
-    private loggerForParams<T extends MastodonApiObject>(params: Omit<FetchParams<T>, "fetch">): Logger {
+    private loggerForParams<T extends MastodonApiObj>(params: Omit<FetchParams<T>, "fetch">): Logger {
         const { cacheKey, isBackgroundFetch, moar } = params;
         return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
     }
@@ -1098,7 +1098,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {boolean} True if cached rows should be returned.
      */
-    private shouldReturnCachedRows<T extends MastodonApiObject>(params: FetchParamsWithCacheData<T>) {
+    private shouldReturnCachedRows<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>) {
         const { cacheResult, moar } = params;
         return cacheResult?.rows && !cacheResult.isStale && !moar;
     }
@@ -1109,7 +1109,7 @@ export default class MastoApi {
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
-    private validateFetchParams<T extends MastodonApiObject>(params: FetchParamsWithCacheData<T>): void {
+    private validateFetchParams<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): void {
         let { cacheKey, fetch, fetchGenerator, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
         logger = logger.tempLogger('validateFetchParams');
 

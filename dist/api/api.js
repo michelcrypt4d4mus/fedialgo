@@ -568,7 +568,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
     async fetchApiObjs(params) {
         this.validateFetchParams(params);
@@ -614,7 +614,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
-     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
     async getApiObjsAndUpdate(inParams) {
         const paramsWithCache = await this.addCacheDataToParams(inParams);
@@ -650,7 +650,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
     async getApiObjs(params) {
         let { cacheKey, isBackgroundFetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
@@ -853,9 +853,9 @@ class MastoApi {
      * Constructs Account or Toot objects from API objects, or returns the object as-is.
      * @private
      * @param {CacheKey} key - The cache key.
-     * @param {MastodonApiObject[]} objects - Array of API objects.
+     * @param {MastodonApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
-     * @returns {MastodonApiObject[]} Array of constructed objects.
+     * @returns {MastodonApiObj[]} Array of constructed objects.
      */
     buildFromApiObjects(key, objects, logger) {
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
