@@ -28,6 +28,10 @@ const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT = { year: "numeric", month: "short", day: "numeric" };
 const logger = new logger_1.Logger("Account");
 ;
+/**
+ * Class representing a Mastodon Account with helper methods and additional properties.
+ * @implements {AccountObj}
+ */
 class Account {
     id;
     username;
@@ -62,7 +66,55 @@ class Account {
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
     webfingerURI;
-    // Alternate constructor because class-transformer doesn't work with constructor arguments
+    /**
+     * Returns the account properties used in BooleanFilter.
+     * @returns {BooleanFilterOption}
+     */
+    get asBooleanFilterOption() {
+        return {
+            name: this.webfingerURI,
+            displayName: this.displayName,
+            displayNameWithEmoji: this.displayNameWithEmojis(),
+            isFollowed: this.isFollowed,
+        };
+    }
+    /**
+     * Returns the account's home server domain (e.g. 'journa.host').
+     * @returns {string}
+     */
+    get homeserver() { return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server"; }
+    ;
+    /**
+     * Returns the URL to the account on the user's home server.
+     * @returns {string}
+     */
+    get homserverURL() {
+        if (this.homeserver == api_1.default.instance.homeDomain) {
+            return this.url;
+        }
+        else {
+            return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
+        }
+    }
+    /**
+     * Returns HTML combining the note property with creation date, followers, and toots count.
+     * @returns {string}
+     */
+    get noteWithAccountInfo() {
+        let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ];
+        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
+    }
+    /**
+     * Alternate constructor because class-transformer doesn't work with constructor arguments.
+     * @param {AccountLike} account - The account data to build from.
+     * @returns {Account} The constructed Account instance.
+     */
     static build(account) {
         const accountObj = new Account();
         accountObj.id = account.id;
@@ -99,87 +151,76 @@ class Account {
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
     }
-    // e.g. "Foobar (@foobar@mastodon.social)"
+    /**
+     * Returns a string description of the account (e.g. "Foobar (@foobar@mastodon.social)").
+     * @returns {string}
+     */
     describe() {
         return `${this.displayName} (${this.webfingerURI})`;
     }
-    // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
-    displayNameFullHTML() {
-        return this.displayNameWithEmojis() + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
+    /**
+     * Returns the display name with emojis and webfinger URI in HTML.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @returns {string}
+     */
+    displayNameFullHTML(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        return this.displayNameWithEmojis(fontSize) + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
     }
-    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
+    /**
+     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @returns {string}
+     */
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
-        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(this.displayName, this.emojis || [], fontSize);
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(this.displayName, this.emojis || [], fontSize);
     }
-    // Get the account's instance info from the API (note some servers don't provide this)
+    /**
+     * Gets the account's instance info from the API (note some servers don't provide this).
+     * @returns {Promise<InstanceResponse>}
+     */
     async homeInstanceInfo() {
-        const server = new mastodon_server_1.default(this.homeserver());
+        const server = new mastodon_server_1.default(this.homeserver);
         return await server.fetchServerInfo();
     }
-    // 'https://journa.host/@dell' -> 'journa.host'
-    homeserver() {
-        return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server";
-    }
-    // Return the URL to the account on the fedialgo user's home server
-    homserverURL() {
-        if (this.homeserver() == api_1.default.instance.homeDomain) {
-            return this.url;
-        }
-        else {
-            return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
-        }
-    }
-    // Returns HTML combining the "note" property with the creation date, followers and toots count
-    noteWithAccountInfo() {
-        let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
-        const createdAt = new Date(this.createdAt);
-        const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
-            `${this.followersCount.toLocaleString()} Followers`,
-            `${this.statusesCount.toLocaleString()} Toots`,
-        ];
-        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
-    }
-    ;
-    // Extract the Account properties that are used in BooleanFilter
-    toBooleanFilterOption() {
-        return {
-            name: this.webfingerURI,
-            displayName: this.displayName,
-            displayNameWithEmoji: this.displayNameWithEmojis(),
-            isFollowed: this.isFollowed,
-        };
-    }
-    // On the local server you just get the username so need to add the server domain
+    /**
+     * Builds the webfinger URI for the account.
+     * @returns {string}
+     */
     buildWebfingerURI() {
         if (this.acct.includes("@")) {
             return this.acct.toLowerCase();
         }
         else {
-            return `${this.acct}@${this.homeserver()}`.toLowerCase();
+            return `${this.acct}@${this.homeserver}`.toLowerCase();
         }
     }
     ////////////////////////////
     //     Static Methods     //
     ////////////////////////////
-    // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
+    /**
+     * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @returns {AccountNames} Dictionary from webfingerURI to Account.
+     */
     static buildAccountNames(accounts) {
         return (0, collection_helpers_1.keyByProperty)(accounts, acct => acct.webfingerURI);
     }
-    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
-    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
+    /**
+     * Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @returns {StringNumberDict} Dictionary from webfingerURI to count.
+     */
     static countAccounts(accounts) {
         return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
-            if (!accountWithCount.account.webfingerURI) {
-                const account = Account.build(accountWithCount.account);
-                const webfingerURI = account.buildWebfingerURI();
-                logger.warn(`countAccounts() - Account has no webfingerURI, setting to ${webfingerURI}`);
-                accountWithCount.account.webfingerURI = webfingerURI;
-            }
             counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
             return counts;
         }, {});
     }
+    /**
+     * Dictionary from account's webfingerURI to an object with the account and count.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @returns {AccountCount} Dictionary from webfingerURI to {account, count}.
+     */
     static countAccountsWithObj(accounts) {
         return accounts.reduce((counts, account) => {
             counts[account.webfingerURI] ??= { account, count: 0 };
@@ -187,6 +228,11 @@ class Account {
             return counts;
         }, {});
     }
+    /**
+     * Logs all suspended accounts in the provided array.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
+     */
     static logSuspendedAccounts(accounts, logPrefix = 'logSuspendedAccounts()') {
         accounts.filter(a => !!a.suspended).forEach(a => {
             console.warn(`${(0, string_helpers_1.bracketed)(logPrefix)} Found suspended account:`, a);

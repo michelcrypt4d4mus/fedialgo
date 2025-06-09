@@ -258,7 +258,7 @@ export default class MastodonServer {
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
-        const followedUserDomainCounts = countValues<Account>(follows, account => account.homeserver());
+        const followedUserDomainCounts = countValues<Account>(follows, account => account.homeserver);
         let mostFollowedDomains = sortKeysByValue(followedUserDomainCounts)
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
         mostFollowedDomains = mostFollowedDomains.slice(0, config.fediverse.numServersToCheck);

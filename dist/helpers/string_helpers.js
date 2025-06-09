@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImageTags = exports.suffixedInt = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.isNull = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImgTags = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.suffixedInt = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.isNull = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
@@ -73,6 +73,9 @@ exports.prefixed = prefixed;
 // Doublequotes
 const quoted = (str) => (0, exports.isNull)(str) ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;
+// 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc.
+const suffixedInt = (n) => `${n}${(0, exports.ordinalSuffix)(n)}`;
+exports.suffixedInt = suffixedInt;
 // Collapse whitespace in a string
 const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g, ",").trim();
 exports.collapseWhitespace = collapseWhitespace;
@@ -179,12 +182,8 @@ const ordinalSuffix = (n) => {
     }
 };
 exports.ordinalSuffix = ordinalSuffix;
-const suffixedInt = (n) => {
-    return `${n}${(0, exports.ordinalSuffix)(n)}`;
-};
-exports.suffixedInt = suffixedInt;
 // Replace custom emoji shortcodes like :smile: with <img> tags
-function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DEFAULT_FONT_SIZE) {
+function replaceEmojiShortcodesWithImgTags(html, emojis, fontSize = exports.DEFAULT_FONT_SIZE) {
     const fontSizeStr = `${fontSize}px`;
     emojis.forEach((emoji) => {
         const shortcode = `:${emoji.shortcode}:`;
@@ -192,7 +191,7 @@ function replaceEmojiShortcodesWithImageTags(html, emojis, fontSize = exports.DE
     });
     return html;
 }
-exports.replaceEmojiShortcodesWithImageTags = replaceEmojiShortcodesWithImageTags;
+exports.replaceEmojiShortcodesWithImgTags = replaceEmojiShortcodesWithImgTags;
 ;
 // Replace https links with [link to DOMAIN], e.g.
 // "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"

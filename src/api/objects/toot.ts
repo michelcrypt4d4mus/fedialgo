@@ -49,7 +49,7 @@ import {
     removeLinks,
     removeMentions,
     removeTags,
-    replaceEmojiShortcodesWithImageTags,
+    replaceEmojiShortcodesWithImgTags,
     replaceHttpsLinks,
     wordRegex,
 } from "../../helpers/string_helpers";
@@ -517,7 +517,7 @@ export default class Toot implements TootObj {
      * @returns {Promise<string>} The home server URL.
      */
     async homeserverURL(): Promise<string> {
-        const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
+        const homeURL = `${this.account.homserverURL}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
     }
@@ -599,7 +599,7 @@ export default class Toot implements TootObj {
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string
     private addEmojiHtmlTags(str: string, fontSize: number = DEFAULT_FONT_SIZE): string {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return replaceEmojiShortcodesWithImageTags(str, emojis, fontSize);
+        return replaceEmojiShortcodesWithImgTags(str, emojis, fontSize);
     }
 
     // return MediaAttachmentType objects with type == attachmentType

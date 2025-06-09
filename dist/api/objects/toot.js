@@ -402,7 +402,7 @@ class Toot {
      * @returns {Promise<string>} The home server URL.
      */
     async homeserverURL() {
-        const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
+        const homeURL = `${this.account.homserverURL}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
     }
@@ -479,7 +479,7 @@ class Toot {
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string
     addEmojiHtmlTags(str, fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return (0, string_helpers_1.replaceEmojiShortcodesWithImageTags)(str, emojis, fontSize);
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(str, emojis, fontSize);
     }
     // return MediaAttachmentType objects with type == attachmentType
     attachmentsOfType(attachmentType) {
