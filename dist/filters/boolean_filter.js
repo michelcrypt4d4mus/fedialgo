@@ -8,6 +8,7 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = void 0;
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
+ * @module Filters
  */
 const api_1 = __importDefault(require("../api/api"));
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
