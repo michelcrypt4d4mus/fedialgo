@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Special case of ObjWithCountList for lists of Tag objects.
- * @module ObjWithCountList
  */
 const api_1 = __importDefault(require("./api"));
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));

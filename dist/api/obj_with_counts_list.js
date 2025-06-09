@@ -5,9 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BooleanFilterOptionList = void 0;
 /**
- * A list of things with a name and a 'numToots' property that can be used
+ * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
- * @module ObjWithCountList
  */
 const user_data_1 = __importDefault(require("./user_data"));
 const math_helper_1 = require("../helpers/math_helper");

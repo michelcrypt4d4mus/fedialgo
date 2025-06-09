@@ -1,6 +1,5 @@
 /**
  * Special case of ObjWithCountList for lists of Tag objects.
- * @module ObjWithCountList
  */
 import MastoApi from "./api";
 import ObjWithCountList, { ListSource } from "./obj_with_counts_list";

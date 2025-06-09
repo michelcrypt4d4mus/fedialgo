@@ -2,7 +2,7 @@
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
- * @module Filters
+ * @module Filters/BooleanFilter
  */
 import MastoApi from '../api/api';
 import MastodonServer from '../api/mastodon_server';
