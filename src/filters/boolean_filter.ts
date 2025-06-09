@@ -16,33 +16,16 @@ import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
-
-/**
- * Function type for matching a toot against selected options.
- * @callback TootMatcher
- * @param {Toot} toot - The toot to check.
- * @param {string[]} selectedOptions - The selected options.
- * @returns {boolean} True if the toot matches.
- */
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
-
-/**
- * Function type for matching a toot based on a filter for what type of Toot it is.
- * @callback TypeFilter
- * @param {Toot} toot - The toot to check.
- * @returns {boolean} True if the toot matches the type.
- */
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 
 export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
-/**
- * Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
- * and a function that matches the toot.
- * @type {Record<TypeFilterName, TypeFilter>}
- */
+
+// Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
+// and a function that matches the toot.
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot.audioAttachments?.length,
     [TypeFilterName.BOT]:               (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
@@ -65,10 +48,7 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot.videoAttachments?.length,
 };
 
-/**
- * Matchers for each BooleanFilterName.
- * @type {Record<BooleanFilterName, TootMatcher>}
- */
+// Matchers for each BooleanFilterName.
 const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.APP]: (toot: Toot, selectedOptions: string[]) => {
         return selectedOptions.includes(toot.realToot.application?.name);

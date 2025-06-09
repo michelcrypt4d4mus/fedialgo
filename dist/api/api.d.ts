@@ -291,6 +291,20 @@ export default class MastoApi {
      */
     private buildFromApiObjects;
     /**
+     * Populates fetch options with basic defaults for API requests.
+     * @template T
+     * @param {FetchParams<T>} params - Fetch parameters.
+     * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
+     */
+    private fillInDefaultParams;
+    /**
+     * Returns a logger instance for the given fetch parameters.
+     * @template T
+     * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
+     * @returns {Logger} Logger instance.
+     */
+    private loggerForParams;
+    /**
      * Returns true if the cache is fresh and we don't need to fetch more data.
      * @private
      * @template T

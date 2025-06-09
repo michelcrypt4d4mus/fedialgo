@@ -5,10 +5,7 @@ import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { type FilterArgs, type TootNumberProp } from "../types";
 
-/**
- * List of toot numeric properties that can be filtered.
- * @type {TootNumberProp[]}
- */
+// List of toot numeric properties that can be filtered.
 export const FILTERABLE_SCORES: TootNumberProp[] = [
     "repliesCount",
     "reblogsCount",

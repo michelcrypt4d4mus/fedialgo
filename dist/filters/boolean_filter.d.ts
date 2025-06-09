@@ -5,19 +5,8 @@ import TootFilter from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
-/**
- * Function type for matching a toot based on a filter for what type of Toot it is.
- * @callback TypeFilter
- * @param {Toot} toot - The toot to check.
- * @returns {boolean} True if the toot matches the type.
- */
 type TypeFilter = (toot: Toot) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
-/**
- * Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
- * and a function that matches the toot.
- * @type {Record<TypeFilterName, TypeFilter>}
- */
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 /**
  * Arguments for BooleanFilter constructor.

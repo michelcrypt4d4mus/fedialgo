@@ -20,11 +20,8 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 const isTypeFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.TypeFilterName)(value);
 exports.isTypeFilterName = isTypeFilterName;
-/**
- * Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
- * and a function that matches the toot.
- * @type {Record<TypeFilterName, TypeFilter>}
- */
+// Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
+// and a function that matches the toot.
 exports.TYPE_FILTERS = {
     [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot.audioAttachments?.length,
     [enums_1.TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
@@ -46,10 +43,7 @@ exports.TYPE_FILTERS = {
     [enums_1.TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot.trendingRank,
     [enums_1.TypeFilterName.VIDEOS]: (toot) => !!toot.realToot.videoAttachments?.length,
 };
-/**
- * Matchers for each BooleanFilterName.
- * @type {Record<BooleanFilterName, TootMatcher>}
- */
+// Matchers for each BooleanFilterName.
 const TOOT_MATCHERS = {
     [enums_1.BooleanFilterName.APP]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot.application?.name);
