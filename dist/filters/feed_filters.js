@@ -202,8 +202,7 @@ function populateMissingFilters(filters) {
         filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ title: scoreName });
     });
     Object.values(enums_1.BooleanFilterName).forEach((booleanFilterName) => {
-        const filter = filters.booleanFilters[booleanFilterName];
-        if (!filter) {
+        if (!filters.booleanFilters[booleanFilterName]) {
             filterLogger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
             filters.booleanFilters[booleanFilterName] = new boolean_filter_1.default({ title: booleanFilterName });
             return;

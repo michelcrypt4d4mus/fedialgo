@@ -223,9 +223,7 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
     });
 
     Object.values(BooleanFilterName).forEach((booleanFilterName) => {
-        const filter = filters.booleanFilters[booleanFilterName];
-
-        if (!filter) {
+        if (!filters.booleanFilters[booleanFilterName]) {
             filterLogger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
             filters.booleanFilters[booleanFilterName] = new BooleanFilter({title: booleanFilterName});
             return;
