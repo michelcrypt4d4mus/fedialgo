@@ -15,7 +15,7 @@ type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 /**
  * Arguments for BooleanFilter constructor.
- * @typedef {object} BooleanFilterArgs
+ * @interface
  * @property {string[]} [selectedOptions] - The selected options.
  * @property {BooleanFilterName} title - The filter title.
  */
@@ -42,7 +42,6 @@ export default class BooleanFilter extends TootFilter {
      */
     set options(optionList: BooleanFilterOptionList);
     /**
-     * Creates a BooleanFilter instance.
      * @param {BooleanFilterArgs} params - The filter arguments.
      */
     constructor(params: BooleanFilterArgs);

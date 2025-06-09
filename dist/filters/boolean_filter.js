@@ -83,7 +83,6 @@ class BooleanFilter extends toot_filter_1.default {
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
     /**
-     * Creates a BooleanFilter instance.
      * @param {BooleanFilterArgs} params - The filter arguments.
      */
     constructor(params) {

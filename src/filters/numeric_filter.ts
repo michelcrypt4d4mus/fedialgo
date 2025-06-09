@@ -26,7 +26,10 @@ export interface NumericFilterArgs extends FilterArgs {
 /**
  * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
  * Allows filtering toots based on a minimum value for a given property.
+ *
  * @extends TootFilter
+ * @property {string} [description] - Optional description of the filter for display or documentation purposes.
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {TootNumberProp} title - The property of the toot to filter on (e.g., 'repliesCount').
  * @property {number} value - The minimum value required for the toot property for the toot to be included in the timeline.
  */
@@ -35,8 +38,7 @@ export default class NumericFilter extends TootFilter {
     value: number;
 
     /**
-     * Creates a NumericFilter instance.
-     * @param {NumericFilterArgs} param0 - The filter arguments.
+     * @param {NumericFilterArgs} params - The filter arguments.
      */
     constructor(params: NumericFilterArgs) {
         const { invertSelection, title, value } = params;
@@ -53,7 +55,7 @@ export default class NumericFilter extends TootFilter {
     }
 
     /**
-     * Returns true if the toot meets the filter criteria.
+     * Check if the toot meets the filter criterion.
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot should appear in the timeline feed.
      */
@@ -73,7 +75,7 @@ export default class NumericFilter extends TootFilter {
     }
 
     /**
-     * Serializes the filter settings for storage (e.g., local storage).
+     * Serializes the filter state for storage (e.g., local storage).
      * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs(): NumericFilterArgs {
@@ -95,7 +97,7 @@ export default class NumericFilter extends TootFilter {
      * @param {string} name - The property name to check.
      * @returns {boolean} True if the name is a filterable numeric property.
      */
-    static isValidTitle(name: string) {
+    static isValidTitle(name: string): boolean {
         return FILTERABLE_SCORES.includes(name as TootNumberProp);
     }
 };
