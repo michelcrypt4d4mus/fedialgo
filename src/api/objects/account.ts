@@ -22,6 +22,7 @@ type AccountCount = Record<string, {account: Account, count: number, isFollowed?
 
 const logger = new Logger("Account");
 
+
 /**
  * Interface for Account object with additional helper methods and properties.
  * @typedef {object} AccountObj
@@ -54,7 +55,9 @@ interface AccountObj extends mastodon.v1.Account {
 
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
+ * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
  * @implements {AccountObj}
+ * @extends {mastodon.v1.Account}
  */
 export default class Account implements AccountObj {
     id!: string;
@@ -216,10 +219,7 @@ export default class Account implements AccountObj {
         return await server.fetchServerInfo();
     }
 
-    /**
-     * Builds the webfinger URI for the account.
-     * @returns {string}
-     */
+    /** Builds the webfinger URI for the account. */
     private buildWebfingerURI(): string {
         if (this.acct.includes("@")) {
             return this.acct.toLowerCase();
