@@ -5,7 +5,7 @@ const logger_1 = require("../helpers/logger");
 /**
  * Abstract base class representing a filter that can be applied to a Toot to determine
  * if it should be included in the timeline feed. Subclasses must implement the isAllowed method.
- * @abstract
+ * @class
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.

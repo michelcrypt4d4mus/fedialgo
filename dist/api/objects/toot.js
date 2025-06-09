@@ -79,6 +79,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
  * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
+ * @class
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
@@ -922,8 +923,8 @@ __decorate([
 ], Toot.prototype, "reblogsBy", void 0);
 ;
 /**
- * @private
  * Get the Date the toot was created.
+ * @private
  * @param {TootLike} toot - The toot object.
  * @returns {Date}
  */
@@ -931,22 +932,23 @@ const tootedAt = (toot) => new Date(toot.createdAt);
 exports.tootedAt = tootedAt;
 /**
  * Get the earliest toot from a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
  */
 const earliestToot = (toots) => sortByCreatedAt(toots)[0];
 exports.earliestToot = earliestToot;
 /**
- * @private
  * Get the most recent toot from a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
  */
 const mostRecentToot = (toots) => sortByCreatedAt(toots).slice(-1)[0];
 exports.mostRecentToot = mostRecentToot;
 /**
- * @private
  * Returns array with oldest toot first.
+ * @private
  * @template T
  * @param {T} toots - List of toots.
  * @returns {T}
@@ -957,8 +959,8 @@ function sortByCreatedAt(toots) {
 exports.sortByCreatedAt = sortByCreatedAt;
 ;
 /**
- * @private
  * Get the Date of the earliest toot in a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
  */
@@ -968,8 +970,8 @@ const earliestTootedAt = (toots) => {
 };
 exports.earliestTootedAt = earliestTootedAt;
 /**
- * @private
  * Get the Date of the most recent toot in a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
  */

@@ -118,7 +118,6 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo
  * that should be serialized to storage.
- * @typedef {object} SerializableToot
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
@@ -139,9 +138,8 @@ export interface SerializableToot extends mastodon.v1.Status {
 };
 
 /**
- * Interface for Toot object with additional helper methods.
+ * Interface for mastodon.v1.Status object with additional helper methods.
  * @interface
- * @typedef {object} TootObj
  */
 interface TootObj extends SerializableToot {
     // Getters
@@ -175,9 +173,11 @@ interface TootObj extends SerializableToot {
     resolveID: () => Promise<string>;
 };
 
+
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
  * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
+ * @class
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
@@ -1076,8 +1076,8 @@ export default class Toot implements TootObj {
 };
 
 /**
- * @private
  * Get the Date the toot was created.
+ * @private
  * @param {TootLike} toot - The toot object.
  * @returns {Date}
  */
@@ -1085,22 +1085,23 @@ export const tootedAt = (toot: TootLike): Date => new Date(toot.createdAt);
 
 /**
  * Get the earliest toot from a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
  */
 export const earliestToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots)[0];
 
 /**
- * @private
  * Get the most recent toot from a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
  */
 export const mostRecentToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots).slice(-1)[0];
 
 /**
- * @private
  * Returns array with oldest toot first.
+ * @private
  * @template T
  * @param {T} toots - List of toots.
  * @returns {T}
@@ -1110,8 +1111,8 @@ export function sortByCreatedAt<T extends StatusList>(toots: T): T {
 };
 
 /**
- * @private
  * Get the Date of the earliest toot in a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
  */
@@ -1121,8 +1122,8 @@ export const earliestTootedAt = (toots: StatusList): Date | null => {
 };
 
 /**
- * @private
  * Get the Date of the most recent toot in a list.
+ * @private
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
  */

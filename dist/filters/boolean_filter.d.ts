@@ -24,6 +24,7 @@ export interface BooleanFilterArgs extends FilterArgs {
 }
 /**
  * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
+ * @class
  * @extends TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
