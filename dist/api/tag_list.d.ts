@@ -1,6 +1,10 @@
 import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
 import { type MastodonTag, type NamedTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
+/**
+ * Special case of ObjWithCountList for lists of TagWithUsageCounts objects.
+ * @extends {ObjWithCountList}
+ */
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ListSource);
     static fromFavourites(): Promise<TagList>;

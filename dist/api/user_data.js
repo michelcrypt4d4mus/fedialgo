@@ -39,9 +39,27 @@ const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
 const logger = new logger_1.Logger("UserData");
 ;
+/**
+ * Represents background and scoring-related data about the current Fedialgo user.
+ * Used as a central source of user context for scoring, filtering, and personalization.
+ *
+ * This class aggregates and manages user-related data such as favourited accounts, followed tags,
+ * muted accounts, languages posted in, and server-side filters. It provides methods to build user data
+ * from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
+ * for use in scoring and filtering algorithms.
+ *
+ * Properties:
+ * @property {BooleanFilterOptionList} favouriteAccounts - Accounts the user has favourited, retooted, or replied to.
+ * @property {TagList} favouritedTags - List of tags the user has favourited.
+ * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
+ * @property {TagList} followedTags - List of tags the user follows.
+ * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
+ * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted, keyed by account name.
+ * @property {TagList} participatedTags - List of tags the user has participated in.
+ * @property {string} preferredLanguage - The user's preferred language (ISO code).
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user (currently unused).
+ */
 class UserData {
-    lastUpdatedAt;
-    // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
     favouriteAccounts = new obj_with_counts_list_1.BooleanFilterOptionList([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {};
@@ -51,6 +69,7 @@ class UserData {
     participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = []; // TODO: currently unused, only here for getCurrentState() by client app
+    lastUpdatedAt;
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build() {
         const responses = await Promise.all([

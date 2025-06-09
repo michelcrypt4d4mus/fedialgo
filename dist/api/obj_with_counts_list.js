@@ -13,6 +13,19 @@ const math_helper_1 = require("../helpers/math_helper");
 const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
+/**
+ * A generic list class for objects with a name and a 'numToots' property.
+ * Supports both dictionary and sorted list operations, and provides utility methods
+ * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
+ *
+ * @template T extends NamedTootCount
+ * @property {Logger} logger - Logger instance for this list.
+ * @property {number} length - The number of objects in the list.
+ * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
+ * @property {ListSource} source - The source of the list (for logging/context).
+ * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
+ * @property {T[]} objs - The array of objects in the list.
+ */
 class ObjWithCountList {
     logger;
     length;

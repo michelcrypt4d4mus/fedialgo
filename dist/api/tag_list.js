@@ -14,6 +14,10 @@ const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
 const logger = new logger_1.Logger("TagList");
+/**
+ * Special case of ObjWithCountList for lists of TagWithUsageCounts objects.
+ * @extends {ObjWithCountList}
+ */
 class TagList extends obj_with_counts_list_1.default {
     constructor(tags, label) {
         super(tags.map(tag_1.repairTag), label);
