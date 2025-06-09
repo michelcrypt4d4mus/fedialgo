@@ -7,6 +7,7 @@ exports.BooleanFilterOptionList = void 0;
 /**
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
+ * @module ObjWithCountList
  */
 const user_data_1 = __importDefault(require("./user_data"));
 const math_helper_1 = require("../helpers/math_helper");
@@ -19,16 +20,16 @@ const string_helpers_1 = require("../helpers/string_helpers");
  * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
  *
  * @template T extends NamedTootCount
+ * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
- * @property {number} length - The number of objects in the list.
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
  * @property {ListSource} source - The source of the list (for logging/context).
  * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
  */
 class ObjWithCountList {
-    logger;
     length;
+    logger;
     nameDict = {}; // Dict of obj.names to objs
     source;
     get maxNumToots() { return this._maxNumToots; }
@@ -153,7 +154,7 @@ exports.default = ObjWithCountList;
 ;
 /**
  * Special case of ObjWithCountList for BooleanFilterOption objects.
- * @extends {ObjWithCountList<BooleanFilterOption>}
+ * @extends {ObjWithCountList}
  */
 class BooleanFilterOptionList extends ObjWithCountList {
 }
