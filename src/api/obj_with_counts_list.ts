@@ -1,6 +1,7 @@
 /**
  * A list of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
+ * @module ObjWithCountList
  */
 import UserData from "./user_data";
 import { isNumber } from "../helpers/math_helper";
