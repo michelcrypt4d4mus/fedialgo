@@ -4,7 +4,6 @@ exports.WEIGHT_PRESETS = exports.DEFAULT_WEIGHTS = exports.isWeightPresetLabel =
 /*
  * Preset configurations to simplify user weight management.
  */
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const enums_1 = require("../enums");
 var WeightPresetLabel;
 (function (WeightPresetLabel) {
@@ -17,7 +16,7 @@ var WeightPresetLabel;
     WeightPresetLabel["TRENDING"] = "Trending";
 })(WeightPresetLabel || (exports.WeightPresetLabel = WeightPresetLabel = {}));
 ;
-const isWeightPresetLabel = (value) => (0, collection_helpers_1.isValueInStringEnum)(WeightPresetLabel)(value);
+const isWeightPresetLabel = (value) => (0, enums_1.isValueInStringEnum)(WeightPresetLabel)(value);
 exports.isWeightPresetLabel = isWeightPresetLabel;
 exports.DEFAULT_WEIGHTS = {
     // Global modifiers that affect all weighted scores

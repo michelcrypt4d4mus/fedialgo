@@ -135,13 +135,6 @@ export declare function incrementCount(counts: StringNumberDict, k?: CountKey | 
  */
 export declare function decrementCount(counts: StringNumberDict, k?: CountKey | null, increment?: number): StringNumberDict;
 /**
- * Generate a function to check if a value exists in a string enum.
- * @template E
- * @param {Record<string, E>} strEnum - The enum object.
- * @returns {(value: string) => value is E} The checker function.
- */
-export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
-/**
  * Builds a dictionary from an array keyed by id.
  * @template T
  * @param {T[]} array - Array of objects with id property.

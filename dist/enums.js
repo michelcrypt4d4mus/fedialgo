@@ -1,12 +1,15 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.buildCacheKeyDict = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
-/*
- * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
+/**
+ * Enums used by FediAlgo.
+ * @module Toot
  */
-// Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
-// Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
-// This should live in Storage.ts but that creates a circular dependency with config.ts
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+/**
+ * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
+ * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
+ * Used for Storage and cache management.
+ */
 var CacheKey;
 (function (CacheKey) {
     CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
@@ -27,6 +30,7 @@ var CacheKey;
     CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;
+/** Enum of cache keys for hashtag-related Toot lists. */
 var TagTootsCacheKey;
 (function (TagTootsCacheKey) {
     TagTootsCacheKey["FAVOURITED_TAG_TOOTS"] = "FavouritedHashtagToots";
@@ -34,17 +38,9 @@ var TagTootsCacheKey;
     TagTootsCacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
 })(TagTootsCacheKey || (exports.TagTootsCacheKey = TagTootsCacheKey = {}));
 ;
+/** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
 exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
-// Build a dictionary of whatever fxn() returns for each ApiCacheKey
-function buildCacheKeyDict(fxn, keys) {
-    return (keys || exports.ALL_CACHE_KEYS).reduce((dict, key) => {
-        dict[key] = fxn(key);
-        return dict;
-    }, {});
-}
-exports.buildCacheKeyDict = buildCacheKeyDict;
-;
-// Storage keys but not for the API cache, for user data etc.
+/** Enum of storage keys for user data and app state (not API cache). */
 var AlgorithmStorageKey;
 (function (AlgorithmStorageKey) {
     AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
@@ -53,7 +49,10 @@ var AlgorithmStorageKey;
     AlgorithmStorageKey["WEIGHTS"] = "Weights";
 })(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
 ;
-// Order currently influences the order of the score weighting sliders in the demo app
+/**
+ * Enum of non-score weight names (used for sliders and scoring adjustments).
+ * Order influences the order of the score weighting sliders in the demo app.
+ */
 var NonScoreWeightName;
 (function (NonScoreWeightName) {
     NonScoreWeightName["TIME_DECAY"] = "TimeDecay";
@@ -61,7 +60,7 @@ var NonScoreWeightName;
     NonScoreWeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
 })(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
 ;
-// There's a scorer for each of these ScoreNames
+/** Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering. */
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
@@ -89,7 +88,7 @@ var ScoreName;
     ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
 })(ScoreName || (exports.ScoreName = ScoreName = {}));
 ;
-// Mastodon API media category strings
+/** Enum of Mastodon API media category strings. */
 var MediaCategory;
 (function (MediaCategory) {
     MediaCategory["AUDIO"] = "audio";
@@ -97,7 +96,7 @@ var MediaCategory;
     MediaCategory["VIDEO"] = "video";
 })(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 ;
-// Kinds of trending data that can be fetched
+/** Enum of trending data types that can be fetched from the API. */
 var TrendingType;
 (function (TrendingType) {
     TrendingType["LINKS"] = "links";
@@ -106,7 +105,7 @@ var TrendingType;
     TrendingType["TAGS"] = "tags";
 })(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
-// Filters
+/** Enum of boolean filter names for filtering toots by property. */
 var BooleanFilterName;
 (function (BooleanFilterName) {
     BooleanFilterName["HASHTAG"] = "hashtag";
@@ -116,7 +115,10 @@ var BooleanFilterName;
     BooleanFilterName["APP"] = "app";
 })(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
 ;
-// The values have spaces to make them more usable in the demo app's presentation
+/**
+ * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
+ * The values have spaces for better presentation in the demo app.
+ */
 var TypeFilterName;
 (function (TypeFilterName) {
     TypeFilterName["AUDIO"] = "audio";
@@ -139,5 +141,35 @@ var TypeFilterName;
     TypeFilterName["TRENDING_TOOTS"] = "trending toots";
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
+;
+/** Returns true if string is an element of TypeFilterName enum. */
+const isTypeFilterName = (value) => isValueInStringEnum(TypeFilterName)(value);
+exports.isTypeFilterName = isTypeFilterName;
+/**
+ * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @template T
+ * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
+ * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
+ */
+function buildCacheKeyDict(fxn, keys) {
+    return (keys || exports.ALL_CACHE_KEYS).reduce((dict, key) => {
+        dict[key] = fxn(key);
+        return dict;
+    }, {});
+}
+exports.buildCacheKeyDict = buildCacheKeyDict;
+;
+/**
+ * Generate a function to check if a value exists in a string enum.
+ * @template E
+ * @param {Record<string, E>} strEnum - The enum object.
+ * @returns {(value: string) => value is E} The checker function.
+ */
+function isValueInStringEnum(strEnum) {
+    const enumValues = new Set(Object.values(strEnum));
+    return (value) => enumValues.has(value);
+}
+exports.isValueInStringEnum = isValueInStringEnum;
 ;
 //# sourceMappingURL=enums.js.map

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.isValueInStringEnum = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.divideDicts = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.divideDicts = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
 /**
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
@@ -304,18 +304,6 @@ function decrementCount(counts, k, increment = 1) {
     return incrementCount(counts, k, -1 * increment);
 }
 exports.decrementCount = decrementCount;
-;
-/**
- * Generate a function to check if a value exists in a string enum.
- * @template E
- * @param {Record<string, E>} strEnum - The enum object.
- * @returns {(value: string) => value is E} The checker function.
- */
-function isValueInStringEnum(strEnum) {
-    const enumValues = new Set(Object.values(strEnum));
-    return (value) => enumValues.has(value);
-}
-exports.isValueInStringEnum = isValueInStringEnum;
 ;
 /**
  * Builds a dictionary from an array keyed by id.

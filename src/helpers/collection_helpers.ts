@@ -354,18 +354,6 @@ export function decrementCount(counts: StringNumberDict, k?: CountKey | null, in
 
 
 /**
- * Generate a function to check if a value exists in a string enum.
- * @template E
- * @param {Record<string, E>} strEnum - The enum object.
- * @returns {(value: string) => value is E} The checker function.
- */
-export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
-    const enumValues = new Set(Object.values(strEnum) as string[]);
-    return (value: string): value is E => enumValues.has(value);
-};
-
-
-/**
  * Builds a dictionary from an array keyed by id.
  * @template T
  * @param {T[]} array - Array of objects with id property.

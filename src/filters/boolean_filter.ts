@@ -9,11 +9,10 @@ import MastodonServer from '../api/mastodon_server';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
-import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName, isValueInStringEnum } from '../enums';
 import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
-import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
@@ -21,8 +20,6 @@ type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
-
-export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
 
 
 // Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
@@ -78,6 +75,7 @@ export interface BooleanFilterArgs extends FilterArgs {
     selectedOptions?: string[];
     title: BooleanFilterName;
 };
+
 
 /**
  * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).

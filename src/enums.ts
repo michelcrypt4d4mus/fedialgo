@@ -1,10 +1,13 @@
-
-/*
- * Holds a few enums to keep types.ts clean and avoid some potential circular dependencies.
+/**
+ * Enums used by FediAlgo.
+ * @module Toot
  */
-// Keys used to cache Mastodon API data in the browser's IndexedDB via localForage
-// Keys that contain Toots should end with "_TOOTS", likewise for Account objects w/"_ACCOUNTS"
-// This should live in Storage.ts but that creates a circular dependency with config.ts
+
+/**
+ * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
+ * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
+ * Used for Storage and cache management.
+ */
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     FAVOURITED_TOOTS = 'FavouritedToots',
@@ -24,28 +27,19 @@ export enum CacheKey {
     TIMELINE_TOOTS = 'TimelineToots',// The entire timeline (home timeline + trending toots etc.)
 };
 
+/** Enum of cache keys for hashtag-related Toot lists. */
 export enum TagTootsCacheKey {
     FAVOURITED_TAG_TOOTS = 'FavouritedHashtagToots',
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
     TRENDING_TAG_TOOTS = 'TrendingTagToots'
 };
 
+/** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+/** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
 export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
 
-// Build a dictionary of whatever fxn() returns for each ApiCacheKey
-export function buildCacheKeyDict<T>(
-    fxn: (key?: ApiCacheKey) => T,
-    keys?: ApiCacheKey[]
-): Record<ApiCacheKey, T> {
-    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
-        dict[key] = fxn(key);
-        return dict;
-    }, {} as Record<ApiCacheKey, T>);
-};
-
-
-// Storage keys but not for the API cache, for user data etc.
+/** Enum of storage keys for user data and app state (not API cache). */
 export enum AlgorithmStorageKey {
     APP_OPENS = 'AppOpens',
     FILTERS = 'Filters',
@@ -53,14 +47,17 @@ export enum AlgorithmStorageKey {
     WEIGHTS = 'Weights'
 };
 
-// Order currently influences the order of the score weighting sliders in the demo app
+/**
+ * Enum of non-score weight names (used for sliders and scoring adjustments).
+ * Order influences the order of the score weighting sliders in the demo app.
+ */
 export enum NonScoreWeightName {
     TIME_DECAY = 'TimeDecay',
     TRENDING = 'Trending',
     OUTLIER_DAMPENER = 'OutlierDampener'
 };
 
-// There's a scorer for each of these ScoreNames
+/** Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering. */
 export enum ScoreName {
     ALREADY_SHOWN = 'AlreadyShown',
     AUTHOR_FOLLOWERS = 'AuthorFollowers',
@@ -87,14 +84,14 @@ export enum ScoreName {
     VIDEO_ATTACHMENTS = 'VideoAttachments'
 };
 
-// Mastodon API media category strings
+/** Enum of Mastodon API media category strings. */
 export enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
     VIDEO = "video"
 };
 
-// Kinds of trending data that can be fetched
+/** Enum of trending data types that can be fetched from the API. */
 export enum TrendingType {
     LINKS = "links",
     SERVERS = 'servers',// Not necessarily really a trending data type but for now...
@@ -102,8 +99,7 @@ export enum TrendingType {
     TAGS = "tags"
 };
 
-
-// Filters
+/** Enum of boolean filter names for filtering toots by property. */
 export enum BooleanFilterName {
     HASHTAG = 'hashtag',
     LANGUAGE = 'language',
@@ -112,7 +108,10 @@ export enum BooleanFilterName {
     APP = 'app'
 };
 
-// The values have spaces to make them more usable in the demo app's presentation
+/**
+ * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
+ * The values have spaces for better presentation in the demo app.
+ */
 export enum TypeFilterName {
     AUDIO = 'audio',
     BOT = 'bot',
@@ -133,4 +132,37 @@ export enum TypeFilterName {
     TRENDING_TAGS = 'trending hashtags',
     TRENDING_TOOTS = 'trending toots',
     VIDEOS = 'videos'
+};
+
+/** Returns true if string is an element of TypeFilterName enum. */
+export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
+
+
+/**
+ * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @template T
+ * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
+ * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
+ */
+export function buildCacheKeyDict<T>(
+    fxn: (key?: ApiCacheKey) => T,
+    keys?: ApiCacheKey[]
+): Record<ApiCacheKey, T> {
+    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
+        dict[key] = fxn(key);
+        return dict;
+    }, {} as Record<ApiCacheKey, T>);
+};
+
+
+/**
+ * Generate a function to check if a value exists in a string enum.
+ * @template E
+ * @param {Record<string, E>} strEnum - The enum object.
+ * @returns {(value: string) => value is E} The checker function.
+ */
+export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>) {
+    const enumValues = new Set(Object.values(strEnum) as string[]);
+    return (value: string): value is E => enumValues.has(value);
 };

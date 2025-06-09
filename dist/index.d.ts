@@ -36,8 +36,8 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_hel
 import { FILTER_OPTION_DATA_SOURCES } from './types';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { Logger } from './helpers/logger';
-import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCacheKey } from "./enums";
-import { isValueInStringEnum, makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
+import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCacheKey, isValueInStringEnum } from "./enums";
+import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
 import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightName, type Weights, type WeightInfoDict } from "./types";
 declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
 declare const READY_TO_LOAD_MSG = "Ready to load";
