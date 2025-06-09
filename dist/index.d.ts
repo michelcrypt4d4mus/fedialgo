@@ -70,18 +70,15 @@ interface AlgorithmArgs {
  * - Exposes utility methods for stats, server info, and tag URLs
  *
  * Properties:
+ * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
+ * @property {boolean} isLoading - Whether a feed load is in progress*
  * @property {number | null} lastLoadTimeInSeconds - Duration of the last load in seconds
  * @property {string | null} loadingStatus - String describing load activity
- * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
- * @property {WeightPresets} weightPresets - Preset weight configurations
- * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  * @property {Toot[]} timeline - The current filtered timeline
- * @property {Toot[]} feed - The full set of toots in the feed (private)
- * @property {Toot[]} homeFeed - The subset of toots from the home timeline (private)
+ * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
  * @property {UserData} userData - User data for scoring and filtering
- * @property {boolean} isLoading - Whether a feed load is in progress
- * @property {string[]} apiErrorMsgs - API error messages
+ * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 declare class TheAlgorithm {
     static isDebugMode: boolean;
@@ -117,6 +114,11 @@ declare class TheAlgorithm {
      * @returns {Promise<TheAlgorithm>} TheAlgorithm instance.
      */
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
+    /**
+     * Private constructor for TheAlgorithm. Use TheAlgorithm.create() to instantiate.
+     *
+     * @param {AlgorithmArgs} params - The parameters for algorithm creation, including API client, user, and optional timeline callback.
+     */
     private constructor();
     /**
      * Trigger the retrieval of the user's timeline from all the sources.
