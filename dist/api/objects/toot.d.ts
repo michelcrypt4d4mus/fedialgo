@@ -142,7 +142,7 @@ export default class Toot implements TootObj {
     get popularity(): number;
     /** Return the toot that was reblogged if it's a reblog, otherwise return this toot. */
     get realToot(): Toot;
-    /** URI for the realToot. */
+    /** URI for the realToot. @returns {string} */
     get realURI(): string;
     /** Default to this.realURI if url property is empty. */
     get realURL(): string;

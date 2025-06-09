@@ -159,7 +159,7 @@ class Toot {
     /** Return the toot that was reblogged if it's a reblog, otherwise return this toot. */
     get realToot() { return this.reblog ?? this; }
     ;
-    /** URI for the realToot. */
+    /** URI for the realToot. @returns {string} */
     get realURI() { return this.realToot.uri; }
     ;
     /** Default to this.realURI if url property is empty. */
@@ -696,9 +696,9 @@ class Toot {
             }
         });
     }
-    ///////////////////////////////
-    //       Class methods       //
-    ///////////////////////////////
+    ////////////////////////////////
+    //       Static methods       //
+    ////////////////////////////////
     /**
      * Build array of new Toot objects from an array of Status objects (or Toots).
      * Toots returned are sorted by score and should have most of their properties set correctly.
