@@ -1,7 +1,7 @@
 "use strict";
 /**
  * Enums used by FediAlgo.
- * @module Toot
+ * @module Enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
