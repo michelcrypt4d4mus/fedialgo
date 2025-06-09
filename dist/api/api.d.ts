@@ -24,58 +24,313 @@ export declare const FULL_HISTORY_PARAMS: {
     maxRecords: number;
     moar: boolean;
 };
+/**
+ * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
+ * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
+ */
 export default class MastoApi {
     #private;
+    /** Mastodon REST API client instance. */
     api: mastodon.rest.Client;
+    /** Errors encountered while using the API. */
     apiErrors: Error[];
+    /** The Fedialgo user's home server domain. */
     homeDomain: string;
+    /** API logger. */
     logger: Logger;
+    /** The Fedialgo user's Account object'. */
     user: Account;
+    /** The Fedialgo user's historical info. */
     userData?: UserData;
+    /** Tracks the amount of time spent waiting for each endpoint's API responses. */
     waitTimes: Record<ApiCacheKey, WaitTime>;
     private apiMutexes;
     private cacheMutexes;
     private requestSemphore;
+    /**
+     * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
+     * If an instance already exists, logs a warning and does nothing.
+     * Loads user data from storage and assigns it to the instance.
+     * @param {mastodon.rest.Client} api - The Mastodon REST API client.
+     * @param {Account} user - The authenticated user account.
+     * @returns {Promise<void>} Resolves when initialization is complete.
+     */
     static init(api: mastodon.rest.Client, user: Account): Promise<void>;
+    /**
+     * Returns the singleton instance of MastoApi.
+     * @returns {MastoApi}
+     * @throws {Error} If the instance has not been initialized.
+     */
     static get instance(): MastoApi;
+    /**
+     * Private constructor for MastoApi.
+     * @param {mastodon.rest.Client} api - Mastodon REST API client.
+     * @param {Account} user - The authenticated user account.
+     */
     private constructor();
+    /**
+     * Fetches the user's home timeline feed (recent toots from followed accounts and hashtags).
+     * @param {HomeTimelineParams} params - Parameters for fetching the home feed.
+     * @returns {Promise<Toot[]>} Array of Toots in the home feed.
+     */
     fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]>;
+    /**
+     * Gets the accounts blocked by the user (does not include muted accounts).
+     * @returns {Promise<Account[]>} Array of blocked accounts.
+     */
     getBlockedAccounts(): Promise<Account[]>;
+    /**
+     * Generic data getter for cacheable toots with custom fetch logic.
+     * Used for various hashtag feeds (participated, trending, favourited).
+     * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
+     * @param {ApiCacheKey} cacheKey - Cache key for storage.
+     * @param {number} maxRecords - Maximum number of records to fetch.
+     * @returns {Promise<Toot[]>} Array of Toots.
+     */
     getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
+    /**
+     * Gets the toots recently favourited by the user.
+     * @param {ApiParams} [params] - Optional parameters.
+     * @returns {Promise<Toot[]>} Array of favourited Toots.
+     */
     getFavouritedToots(params?: ApiParams): Promise<Toot[]>;
+    /**
+     * Gets the accounts followed by the user.
+     * @param {ApiParams} [params] - Optional parameters.
+     * @returns {Promise<Account[]>} Array of followed accounts.
+     */
     getFollowedAccounts(params?: ApiParams): Promise<Account[]>;
+    /**
+     * Gets the hashtags followed by the user.
+     * @param {ApiParams} [params] - Optional parameters.
+     * @returns {Promise<mastodon.v1.Tag[]>} Array of followed tags.
+     */
     getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]>;
+    /**
+     * Gets the followers of the Fedialgo user.
+     * @param {ApiParams} [params] - Optional parameters.
+     * @returns {Promise<Account[]>} Array of follower accounts.
+     */
     getFollowers(params?: ApiParams): Promise<Account[]>;
+    /**
+     * Gets all muted accounts (including fully blocked accounts).
+     * @param {ApiParams} [params] - Optional parameters.
+     * @returns {Promise<Account[]>} Array of muted and blocked accounts.
+     */
     getMutedAccounts(params?: ApiParams): Promise<Account[]>;
+    /**
+     * Gets the user's recent notifications.
+     * @param {ApiParamsWithMaxID} [params] - Optional parameters.
+     * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
+     */
     getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]>;
+    /**
+     * Gets the user's recent toots.
+     * @param {ApiParamsWithMaxID} [params] - Optional parameters.
+     * @returns {Promise<Toot[]>} Array of recent user Toots.
+     */
     getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]>;
+    /**
+     * Retrieves content-based feed filters set up by the user on the server.
+     * @returns {Promise<mastodon.v2.Filter[]>} Array of server-side filters.
+     */
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
+    /**
+     * Gets the latest toots for a given tag using both the Search API and tag timeline API.
+     * The two APIs give results with surprisingly little overlap (~80% of toots are unique).
+     * @param {string} tagName - The tag to search for.
+     * @param {Logger} logger - Logger instance for logging.
+     * @param {number} [numToots] - Number of toots to fetch.
+     * @returns {Promise<TootLike[]>} Array of TootLike objects.
+     */
     getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]>;
+    /**
+     * Retrieves background data about the user for scoring, etc. Caches as an instance variable.
+     * @param {boolean} [force] - If true, forces a refresh from the API.
+     * @returns {Promise<UserData>} The user data object.
+     */
     getUserData(force?: boolean): Promise<UserData>;
+    /**
+     * Fetches toots from the tag timeline API (different from the search API).
+     * Concurrency is managed by a semaphore. See https://docs.joinmastodon.org/methods/v1/timelines/#tag
+     * TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
+     * @param {string} tagName - The tag to fetch toots for.
+     * @param {Logger} logger - Logger instance for logging.
+     * @param {number} [maxRecords] - Maximum number of records to fetch.
+     * @returns {Promise<Toot[]>} Array of Toots.
+     */
     hashtagTimelineToots(tagName: string, logger: Logger, maxRecords?: number): Promise<Toot[]>;
+    /**
+     * Retrieves the user's home instance (mastodon server) configuration from the API.
+     * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
+     */
     instanceInfo(): Promise<mastodon.v2.Instance>;
+    /**
+     * Locks all API and cache mutexes for cache state operations.
+     * @returns {Promise<ConcurrencyLockRelease[]>} Array of lock release functions.
+     */
     lockAllMutexes(): Promise<ConcurrencyLockRelease[]>;
+    /**
+     * Resolves a foreign server toot URI to one on the user's local server using the v2 search API.
+     * transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
+     *                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+     * @param {Toot} toot - The toot to resolve.
+     * @returns {Promise<Toot>} The resolved toot.
+     */
     resolveToot(toot: Toot): Promise<Toot>;
+    /**
+     * Performs a keyword substring search for toots using the search API.
+     * @param {string} searchStr - The string to search for.
+     * @param {Logger} logger - Logger instance for logging.
+     * @param {number} [maxRecords] - Maximum number of records to fetch.
+     * @returns {Promise<mastodon.v1.Status[]>} Array of status objects.
+     */
     searchForToots(searchStr: string, logger: Logger, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    /**
+     * Resets the API state, clearing errors and user data, and resetting concurrency.
+     */
     reset(): void;
+    /**
+     * Sets the concurrency for the request semaphore.
+     * @param {number} concurrency - The new concurrency value.
+     */
     setSemaphoreConcurrency(concurrency: number): void;
+    /**
+     * Returns the URL for a tag on the user's home server.
+     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @returns {string} The tag URL.
+     */
     tagUrl(tag: MastodonTag | string): string;
+    /**
+     * Returns the URL for a given API endpoint on the user's home server.
+     * @private
+     * @param {string} endpoint - The API endpoint.
+     * @returns {string} The full endpoint URL.
+     */
     private endpointURL;
+    /**
+     * Checks if the config supports min/max ID for a given cache key.
+     * @private
+     * @param {CacheKey} cacheKey - The cache key.
+     * @returns {boolean} True if min/max ID is supported.
+     */
     private supportsMinMaxId;
+    /**
+     * Pure fetch of API records, no caching or background updates.
+     * @private
+     * @template T
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     */
     private fetchApiObjs;
+    /**
+     * Returns cached rows immediately if they exist, triggers background update if stale.
+     * @private
+     * @template T
+     * @param {FetchParams<T>} inParams - Fetch parameters.
+     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     */
     private getApiObjsAndUpdate;
+    /**
+     * Generic Mastodon API fetcher. Uses cache if possible, fetches from API if cache is empty or stale.
+     * @private
+     * @template T
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {Promise<MastodonApiObject[]>} Array of API objects.
+     */
     private getApiObjs;
+    /**
+     * Gets maxRecords, and if not more than minRecords, launches a background fetch.
+     * @private
+     * @template T
+     * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
+     * @returns {Promise<T[]>} Array of API objects.
+     */
     private getWithBackgroundFetch;
+    /**
+     * Builds API request parameters for pagination.
+     * @private
+     * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
+     * @returns {mastodon.DefaultPaginationParams} API pagination parameters.
+     */
     private buildParams;
+    /**
+     * Fills in defaults in params and derives min/maxIdForFetch from cached data if appropriate.
+     * @private
+     * @template T
+     * @param {FetchParams<T>} inParams - Fetch parameters.
+     * @returns {Promise<FetchParamsWithCacheData<T>>} Completed fetch parameters with cache data.
+     */
     private addCacheDataToParams;
+    /**
+     * Loads rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
+     * @private
+     * @template T
+     * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
+     * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
+     */
     private getCacheResult;
+    /**
+     * Handles API errors and decides which rows to keep (cache, new, or both).
+     * TODO: handle rate limiting errors.
+     * @private
+     * @template T
+     * @param {Partial<FetchParamsWithCacheData<T>>} params - Partial fetch parameters.
+     * @param {T[]} rows - Rows fetched so far.
+     * @param {Error | unknown} err - The error encountered.
+     * @returns {T[]} Array of rows to use.
+     */
     private handleApiError;
+    /**
+     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * @private
+     * @param {CacheKey} key - The cache key.
+     * @param {MastodonApiObject[]} objects - Array of API objects.
+     * @param {Logger} logger - Logger instance.
+     * @returns {MastodonApiObject[]} Array of constructed objects.
+     */
     private buildFromApiObjects;
+    /**
+     * Returns true if the cache is fresh and we don't need to fetch more data.
+     * @private
+     * @template T
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {boolean} True if cached rows should be returned.
+     */
     private shouldReturnCachedRows;
+    /**
+     * Validates that the fetch parameters are valid and work together.
+     * @private
+     * @template T
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     */
     private validateFetchParams;
+    /**
+     * Throws if the error is an access token revoked error, otherwise logs and moves on.
+     * @param {Logger} logger - Logger instance.
+     * @param {unknown} error - The error to check.
+     * @param {string} msg - Message to log.
+     * @throws {unknown} If the error is an access token revoked error.
+     */
     static throwIfAccessTokenRevoked(logger: Logger, error: unknown, msg: string): void;
+    /**
+     * Throws a sanitized rate limit error if detected, otherwise logs and throws the original error.
+     * @param {unknown} error - The error to check.
+     * @param {string} msg - Message to log.
+     * @throws {string|unknown} Throws a user-friendly rate limit warning or the original error.
+     */
     static throwSanitizedRateLimitError(error: unknown, msg: string): void;
 }
+/**
+ * Returns true if the error is an access token revoked error.
+ * @param {Error | unknown} e - The error to check.
+ * @returns {boolean} True if the error is an access token revoked error.
+ */
 export declare function isAccessTokenRevokedError(e: Error | unknown): boolean;
+/**
+ * Returns true if the error is a rate limit error.
+ * @param {Error | unknown} e - The error to check.
+ * @returns {boolean} True if the error is a rate limit error.
+ */
 export declare function isRateLimitError(e: Error | unknown): boolean;
 export {};
