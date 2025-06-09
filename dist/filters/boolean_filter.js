@@ -4,14 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = void 0;
-/**
- * @fileoverview Feed filtering information related to a single criterion on which toots
- * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language, hashtag, type of toot).
- */
-const boolean_filter_option_list_1 = __importDefault(require("../api/boolean_filter_option_list"));
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
+const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
@@ -85,7 +80,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     constructor(params) {
         const { title, invertSelection, selectedOptions } = params;
-        let optionInfo = new boolean_filter_option_list_1.default([], title);
+        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -126,7 +121,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new boolean_filter_option_list_1.default(options, this.title);
+        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
     }
     /**
      * Return options sorted by name, filtered by minToots (selected options are always included).

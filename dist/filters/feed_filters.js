@@ -28,12 +28,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = exports.DEFAULT_FILTERS = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
-const boolean_filter_option_list_1 = __importDefault(require("../api/boolean_filter_option_list"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tags_for_fetching_toots_1 = __importDefault(require("../api/tags_for_fetching_toots"));
 const enums_1 = require("../enums");
+const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
@@ -82,8 +82,8 @@ function repairFilterSettings(filters) {
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
     }
-    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, boolean_filter_1.default.isValidTitle);
-    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.default.isValidTitle);
+    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, boolean_filter_1.default);
+    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.default);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
     if (wasChanged) {
@@ -104,7 +104,7 @@ async function updateBooleanFilterOptions(filters, toots) {
     const userData = await api_1.default.instance.getUserData();
     const suppressedNonLatinTags = {};
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
-        lists[filterName] = new boolean_filter_option_list_1.default([], filterName);
+        lists[filterName] = new obj_with_counts_list_1.BooleanFilterOptionList([], filterName);
         return lists;
     }, {});
     const decorateAccount = (accountOption, account) => {
@@ -210,8 +210,8 @@ function populateMissingFilters(filters) {
     });
 }
 // Remove any filter args from the list whose title is invalid
-function removeInvalidFilterArgs(args, titleValidator) {
-    const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => titleValidator(arg.title));
+function removeInvalidFilterArgs(args, filterCls) {
+    const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => filterCls.isValidTitle(arg.title));
     if (invalidArgs.length > 0) {
         filterLogger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
     }

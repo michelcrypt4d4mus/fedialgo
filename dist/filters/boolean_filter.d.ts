@@ -3,10 +3,10 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import BooleanFilterOptionList from "../api/boolean_filter_option_list";
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { type BooleanFilterOption } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;

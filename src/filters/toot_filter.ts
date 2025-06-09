@@ -63,4 +63,9 @@ export default abstract class TootFilter {
             title: this.title,
         };
     }
+
+    /** Must be overridden in subclasses. */
+    static isValidTitle(name: string): boolean {
+        throw new Error("isValidTitle() must be implemented in subclasses");
+    }
 };

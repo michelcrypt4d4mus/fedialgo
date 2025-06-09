@@ -5,9 +5,8 @@
 import { mastodon } from "masto";
 
 import Account from "./objects/account";
-import BooleanFilterOptionList from "./boolean_filter_option_list";
 import MastoApi from "./api";
-import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
+import ObjWithCountList, { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";

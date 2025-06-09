@@ -3,18 +3,14 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import BooleanFilterOptionList from "../api/boolean_filter_option_list";
-import MastoApi from '../api/api';
-import MastodonServer from '../api/mastodon_server';
-import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
-import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName, isValueInStringEnum } from '../enums';
+import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums';
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { type BooleanFilterOption, type FilterOptionDataSource } from "../types";
 
-type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;
 type TypeFilter = (toot: Toot) => boolean;
 

@@ -9,6 +9,7 @@ import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
+    type BooleanFilterOption,
     type NamedTootCount,
     type ObjListDataSource,
     type StringNumberDict,
@@ -170,3 +171,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         }, {} as Record<string, T>);
     }
 };
+
+
+// TODO: This has to be here for circular dependency reasons
+export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
