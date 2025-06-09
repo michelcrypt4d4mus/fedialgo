@@ -31,7 +31,8 @@ interface AccountObj extends mastodon.v1.Account {
     homserverURL: string;
     isFollowed?: boolean;
     isFollower?: boolean;
-    noteWithAccountInfo?: () => string;
+    noteWithAccountInfo: string;
+    asBooleanFilterOption: BooleanFilterOption;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
@@ -71,6 +72,16 @@ export default class Account implements AccountObj {
     isFollower!: boolean;  // Is this account following the user?
     webfingerURI!: string;
 
+    // Extract the Account properties that are used in BooleanFilter
+    get asBooleanFilterOption(): BooleanFilterOption {
+        return {
+            name: this.webfingerURI,
+            displayName: this.displayName,
+            displayNameWithEmoji: this.displayNameWithEmojis(),
+            isFollowed: this.isFollowed,
+        };
+    }
+
     // 'https://journa.host/@dell' -> 'journa.host'
     get homeserver(): string { return extractDomain(this.url) || "unknown.server" };
 
@@ -81,6 +92,20 @@ export default class Account implements AccountObj {
         } else {
             return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
         }
+    }
+
+    // Returns HTML combining the "note" property with the creation date, followers and toots count
+    get noteWithAccountInfo(): string {
+        let txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ]
+
+        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
 
     // Alternate constructor because class-transformer doesn't work with constructor arguments
@@ -142,30 +167,6 @@ export default class Account implements AccountObj {
         return await server.fetchServerInfo();
     }
 
-    // Returns HTML combining the "note" property with the creation date, followers and toots count
-    noteWithAccountInfo(): string {
-        let txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
-        const createdAt = new Date(this.createdAt);
-
-        const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config.locale.locale, ACCOUNT_CREATION_FMT)}`,
-            `${this.followersCount.toLocaleString()} Followers`,
-            `${this.statusesCount.toLocaleString()} Toots`,
-        ]
-
-        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
-    };
-
-    // Extract the Account properties that are used in BooleanFilter
-    toBooleanFilterOption(): BooleanFilterOption {
-        return {
-            name: this.webfingerURI,
-            displayName: this.displayName,
-            displayNameWithEmoji: this.displayNameWithEmojis(),
-            isFollowed: this.isFollowed,
-        };
-    }
-
     // On the local server you just get the username so need to add the server domain
     private buildWebfingerURI(): string {
         if (this.acct.includes("@")) {
@@ -189,13 +190,6 @@ export default class Account implements AccountObj {
     static countAccounts(accounts: Account[]): StringNumberDict {
         return Object.values(this.countAccountsWithObj(accounts)).reduce(
             (counts, accountWithCount) => {
-                if (!accountWithCount.account.webfingerURI) {
-                    const account = Account.build(accountWithCount.account);
-                    const webfingerURI = account.buildWebfingerURI();
-                    logger.warn(`countAccounts() - Account has no webfingerURI, setting to ${webfingerURI}`);
-                    accountWithCount.account.webfingerURI = webfingerURI;
-                }
-
                 counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
                 return counts;
             },

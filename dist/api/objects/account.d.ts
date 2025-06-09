@@ -15,7 +15,8 @@ interface AccountObj extends mastodon.v1.Account {
     homserverURL: string;
     isFollowed?: boolean;
     isFollower?: boolean;
-    noteWithAccountInfo?: () => string;
+    noteWithAccountInfo: string;
+    asBooleanFilterOption: BooleanFilterOption;
     webfingerURI: string;
 }
 export default class Account implements AccountObj {
@@ -48,15 +49,15 @@ export default class Account implements AccountObj {
     isFollowed: boolean;
     isFollower: boolean;
     webfingerURI: string;
+    get asBooleanFilterOption(): BooleanFilterOption;
     get homeserver(): string;
     get homserverURL(): string;
+    get noteWithAccountInfo(): string;
     static build(account: AccountLike): Account;
     describe(): string;
     displayNameFullHTML(fontSize?: number): string;
     displayNameWithEmojis(fontSize?: number): string;
     homeInstanceInfo(): Promise<InstanceResponse>;
-    noteWithAccountInfo(): string;
-    toBooleanFilterOption(): BooleanFilterOption;
     private buildWebfingerURI;
     static buildAccountNames(accounts: Account[]): AccountNames;
     static countAccounts(accounts: Account[]): StringNumberDict;

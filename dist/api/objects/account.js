@@ -62,6 +62,15 @@ class Account {
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
     webfingerURI;
+    // Extract the Account properties that are used in BooleanFilter
+    get asBooleanFilterOption() {
+        return {
+            name: this.webfingerURI,
+            displayName: this.displayName,
+            displayNameWithEmoji: this.displayNameWithEmojis(),
+            isFollowed: this.isFollowed,
+        };
+    }
     // 'https://journa.host/@dell' -> 'journa.host'
     get homeserver() { return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server"; }
     ;
@@ -73,6 +82,17 @@ class Account {
         else {
             return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
         }
+    }
+    // Returns HTML combining the "note" property with the creation date, followers and toots count
+    get noteWithAccountInfo() {
+        let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ];
+        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account) {
@@ -128,27 +148,6 @@ class Account {
         const server = new mastodon_server_1.default(this.homeserver);
         return await server.fetchServerInfo();
     }
-    // Returns HTML combining the "note" property with the creation date, followers and toots count
-    noteWithAccountInfo() {
-        let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
-        const createdAt = new Date(this.createdAt);
-        const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
-            `${this.followersCount.toLocaleString()} Followers`,
-            `${this.statusesCount.toLocaleString()} Toots`,
-        ];
-        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
-    }
-    ;
-    // Extract the Account properties that are used in BooleanFilter
-    toBooleanFilterOption() {
-        return {
-            name: this.webfingerURI,
-            displayName: this.displayName,
-            displayNameWithEmoji: this.displayNameWithEmojis(),
-            isFollowed: this.isFollowed,
-        };
-    }
     // On the local server you just get the username so need to add the server domain
     buildWebfingerURI() {
         if (this.acct.includes("@")) {
@@ -169,12 +168,6 @@ class Account {
     // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
     static countAccounts(accounts) {
         return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
-            if (!accountWithCount.account.webfingerURI) {
-                const account = Account.build(accountWithCount.account);
-                const webfingerURI = account.buildWebfingerURI();
-                logger.warn(`countAccounts() - Account has no webfingerURI, setting to ${webfingerURI}`);
-                accountWithCount.account.webfingerURI = webfingerURI;
-            }
             counts[accountWithCount.account.webfingerURI] = accountWithCount.count;
             return counts;
         }, {});
