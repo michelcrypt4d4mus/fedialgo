@@ -1,12 +1,14 @@
 # NEXT RELEASE
+
+### v0.69.9
 * Stop requiring all `FetchParams` to have a value
-* Make TheAlgorithm.weightPresets into a static variable
+* Make `TheAlgorithm.weightPresets` into a static variable
 
 ### v0.69.8
 * Convert `isBoolean/NumericFilterName` methods to static `TootFilter.isValidTitle()`
 
 ### v0.69.7
-* JSDoc for Account
+* JSDoc comments for `Account`
 
 ### v0.69.6
 * Convert `TheAlgorithm.getTimeline()` to a getter named `timeline`, `getApiErrorMsgs()` to `apiErrorMsgs`, `isLoading()` and `serverInfo()` to getters
