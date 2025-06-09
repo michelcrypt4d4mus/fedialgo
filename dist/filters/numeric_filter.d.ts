@@ -1,10 +1,6 @@
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
 import { type FilterArgs, type TootNumberProp } from "../types";
-/**
- * List of toot numeric properties that can be filtered.
- * @type {TootNumberProp[]}
- */
 export declare const FILTERABLE_SCORES: TootNumberProp[];
 /**
  * Arguments for constructing a NumericFilter.

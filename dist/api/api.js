@@ -135,7 +135,7 @@ class MastoApi {
     async fetchHomeFeed(params) {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const cacheKey = enums_1.CacheKey.HOME_TIMELINE_TOOTS;
-        const logger = loggerForParams({ ...params, cacheKey });
+        const logger = this.loggerForParams({ ...params, cacheKey });
         const startedAt = new Date();
         let homeTimelineToots = await Storage_1.default.getCoerced(cacheKey);
         let allNewToots = [];
@@ -710,7 +710,7 @@ class MastoApi {
      */
     async getWithBackgroundFetch(params) {
         const { minRecords } = params;
-        const logger = loggerForParams(params).tempLogger('getWithBackgroundFetch');
+        const logger = this.loggerForParams(params).tempLogger('getWithBackgroundFetch');
         if (!params.fetchGenerator)
             logger.logAndThrowError(`Missing fetchGenerator!`, params);
         logger.trace(`Called with minRecords ${minRecords}`);
@@ -749,7 +749,7 @@ class MastoApi {
      * @returns {Promise<FetchParamsWithCacheData<T>>} Completed fetch parameters with cache data.
      */
     async addCacheDataToParams(inParams) {
-        const params = fillInDefaultParams(inParams);
+        const params = this.fillInDefaultParams(inParams);
         let { logger, maxId, maxRecords, moar } = params;
         const cacheResult = await this.getCacheResult(params);
         const minMaxIdParams = { maxIdForFetch: null, minIdForFetch: null };
@@ -874,6 +874,35 @@ class MastoApi {
         }
     }
     /**
+     * Populates fetch options with basic defaults for API requests.
+     * @template T
+     * @param {FetchParams<T>} params - Fetch parameters.
+     * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
+     */
+    fillInDefaultParams(params) {
+        let { cacheKey, logger, maxRecords } = params;
+        const requestDefaults = config_1.config.api.data[cacheKey];
+        const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
+        const withDefaults = {
+            ...params,
+            limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
+            logger: logger || this.loggerForParams(params),
+            maxRecords: maxApiRecords,
+            maxCacheRecords: requestDefaults?.maxCacheRecords,
+        };
+        return withDefaults;
+    }
+    /**
+     * Returns a logger instance for the given fetch parameters.
+     * @template T
+     * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
+     * @returns {Logger} Logger instance.
+     */
+    loggerForParams(params) {
+        const { cacheKey, isBackgroundFetch, moar } = params;
+        return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
+    }
+    /**
      * Returns true if the cache is fresh and we don't need to fetch more data.
      * @private
      * @template T
@@ -952,36 +981,6 @@ class MastoApi {
 }
 exports.default = MastoApi;
 ;
-/**
- * Populates fetch options with basic defaults for API requests.
- * @template T
- * @param {FetchParams<T>} params - Fetch parameters.
- * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
- */
-function fillInDefaultParams(params) {
-    let { cacheKey, logger, maxRecords } = params;
-    const requestDefaults = config_1.config.api.data[cacheKey];
-    const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
-    const withDefaults = {
-        ...params,
-        limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config_1.config.api.defaultRecordsPerPage),
-        logger: logger || loggerForParams(params),
-        maxRecords: maxApiRecords,
-        maxCacheRecords: requestDefaults?.maxCacheRecords,
-    };
-    return withDefaults;
-}
-;
-/**
- * Returns a logger instance for the given fetch parameters.
- * @template T
- * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
- * @returns {Logger} Logger instance.
- */
-function loggerForParams(params) {
-    const { cacheKey, isBackgroundFetch, moar } = params;
-    return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
-}
 /**
  * Returns true if the error is an access token revoked error.
  * @param {Error | unknown} e - The error to check.

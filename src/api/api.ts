@@ -209,7 +209,7 @@ export default class MastoApi {
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
         const cacheKey = CacheKey.HOME_TIMELINE_TOOTS;
-        const logger = loggerForParams({ ...params, cacheKey });
+        const logger = this.loggerForParams({ ...params, cacheKey });
         const startedAt = new Date();
 
         let homeTimelineToots = await Storage.getCoerced<Toot>(cacheKey);
@@ -841,7 +841,7 @@ export default class MastoApi {
         params: BackgroundFetchparams<T>
     ): Promise<T[]> {
         const { minRecords } = params;
-        const logger = loggerForParams(params).tempLogger('getWithBackgroundFetch');
+        const logger = this.loggerForParams(params).tempLogger('getWithBackgroundFetch');
         if (!params.fetchGenerator) logger.logAndThrowError(`Missing fetchGenerator!`, params);
         logger.trace(`Called with minRecords ${minRecords}`);
         const objs = await this.getApiObjsAndUpdate<T>(params) as T[];
@@ -883,7 +883,7 @@ export default class MastoApi {
     private async addCacheDataToParams<T extends MastodonApiObject>(
         inParams: FetchParams<T>
     ): Promise<FetchParamsWithCacheData<T>> {
-        const params = fillInDefaultParams<T>(inParams);
+        const params = this.fillInDefaultParams<T>(inParams);
         let { logger, maxId, maxRecords, moar } = params;
         const cacheResult = await this.getCacheResult<T>(params);
         const minMaxIdParams: MinMaxIDParams = {maxIdForFetch: null, minIdForFetch: null};
@@ -1014,6 +1014,39 @@ export default class MastoApi {
     }
 
     /**
+     * Populates fetch options with basic defaults for API requests.
+     * @template T
+     * @param {FetchParams<T>} params - Fetch parameters.
+     * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
+     */
+    private fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
+        let { cacheKey, logger, maxRecords } = params;
+        const requestDefaults = config.api.data[cacheKey];
+        const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
+
+        const withDefaults: FetchParamsWithDefaults<T> = {
+            ...params,
+            limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
+            logger: logger || this.loggerForParams(params),
+            maxRecords: maxApiRecords,
+            maxCacheRecords: requestDefaults?.maxCacheRecords,
+        };
+
+        return withDefaults;
+    }
+
+    /**
+     * Returns a logger instance for the given fetch parameters.
+     * @template T
+     * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
+     * @returns {Logger} Logger instance.
+     */
+    private loggerForParams<T extends MastodonApiObject>(params: Omit<FetchParams<T>, "fetch">): Logger {
+        const { cacheKey, isBackgroundFetch, moar } = params;
+        return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
+    }
+
+    /**
      * Returns true if the cache is fresh and we don't need to fetch more data.
      * @private
      * @template T
@@ -1095,38 +1128,6 @@ export default class MastoApi {
     }
 };
 
-/**
- * Populates fetch options with basic defaults for API requests.
- * @template T
- * @param {FetchParams<T>} params - Fetch parameters.
- * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
- */
-function fillInDefaultParams<T extends MastodonApiObject>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
-    let { cacheKey, logger, maxRecords } = params;
-    const requestDefaults = config.api.data[cacheKey];
-    const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
-
-    const withDefaults: FetchParamsWithDefaults<T> = {
-        ...params,
-        limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
-        logger: logger || loggerForParams(params),
-        maxRecords: maxApiRecords,
-        maxCacheRecords: requestDefaults?.maxCacheRecords,
-    };
-
-    return withDefaults;
-};
-
-/**
- * Returns a logger instance for the given fetch parameters.
- * @template T
- * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
- * @returns {Logger} Logger instance.
- */
-function loggerForParams<T extends MastodonApiObject>(params: Omit<FetchParams<T>, "fetch">): Logger {
-    const { cacheKey, isBackgroundFetch, moar } = params;
-    return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
-}
 
 /**
  * Returns true if the error is an access token revoked error.

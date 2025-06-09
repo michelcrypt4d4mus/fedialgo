@@ -5,10 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FILTERABLE_SCORES = void 0;
 const toot_filter_1 = __importDefault(require("./toot_filter"));
-/**
- * List of toot numeric properties that can be filtered.
- * @type {TootNumberProp[]}
- */
+// List of toot numeric properties that can be filtered.
 exports.FILTERABLE_SCORES = [
     "repliesCount",
     "reblogsCount",
