@@ -10,5 +10,10 @@
         "encoding": "utf8",
         "recurse": true,
         "template": "./jsdoc_template"
+    },
+    "templates": {
+        "default": {
+            "outputSourceFiles": false
+        }
     }
 }
