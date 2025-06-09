@@ -2,9 +2,9 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import Account from "../api/objects/account";
-import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
+import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs } from "./boolean_filter";
 import MastoApi from "../api/api";
-import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
+import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
@@ -79,8 +79,8 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
         wasChanged = true;
     }
 
-    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, isBooleanFilterName);
-    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, isNumericFilterName);
+    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, BooleanFilter.isValidTitle);
+    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, NumericFilter.isValidTitle);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
 

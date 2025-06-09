@@ -16,13 +16,6 @@ export const FILTERABLE_SCORES: TootNumberProp[] = [
 ];
 
 /**
- * Checks if a given property name is a valid numeric filter name.
- * @param {string} name - The property name to check.
- * @returns {boolean} True if the name is a filterable numeric property.
- */
-export const isNumericFilterName = (name: string) => FILTERABLE_SCORES.includes(name as TootNumberProp);
-
-/**
  * Arguments for constructing a NumericFilter.
  * @interface
  * @extends FilterArgs
@@ -100,5 +93,14 @@ export default class NumericFilter extends TootFilter {
      */
     updateValue(newValue: number): void {
         this.value = newValue;
+    }
+
+    /**
+     * Checks if a given property name is a valid numeric filter name.
+     * @param {string} name - The property name to check.
+     * @returns {boolean} True if the name is a filterable numeric property.
+     */
+    static isValidTitle(name: string) {
+        return FILTERABLE_SCORES.includes(name as TootNumberProp);
     }
 };

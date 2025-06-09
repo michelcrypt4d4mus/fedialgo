@@ -12,7 +12,6 @@ type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptio
  * @returns {boolean} True if the toot matches the type.
  */
 type TypeFilter = (toot: Toot) => boolean;
-export declare const isBooleanFilterName: (value: string) => boolean;
 export declare const isTypeFilterName: (value: string) => boolean;
 /**
  * Type-based filters for toots. Defining a new filter just requires adding a new TypeFilterName
@@ -106,5 +105,11 @@ export default class BooleanFilter extends TootFilter {
      * @returns {Promise<FilterOptionDataSources>}
      */
     static filterOptionDataSources(): Promise<FilterOptionDataSources>;
+    /**
+     * Checks if a given property name is a valid numeric filter name.
+     * @param {string} name - The property name to check.
+     * @returns {boolean} True if the name is a filterable numeric property.
+     */
+    static isValidTitle(name: string): boolean;
 }
 export {};
