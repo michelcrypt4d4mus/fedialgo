@@ -15,7 +15,10 @@ exports.FILTERABLE_SCORES = [
 /**
  * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
  * Allows filtering toots based on a minimum value for a given property.
+ *
  * @extends TootFilter
+ * @property {string} [description] - Optional description of the filter for display or documentation purposes.
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {TootNumberProp} title - The property of the toot to filter on (e.g., 'repliesCount').
  * @property {number} value - The minimum value required for the toot property for the toot to be included in the timeline.
  */
@@ -23,8 +26,7 @@ class NumericFilter extends toot_filter_1.default {
     title;
     value;
     /**
-     * Creates a NumericFilter instance.
-     * @param {NumericFilterArgs} param0 - The filter arguments.
+     * @param {NumericFilterArgs} params - The filter arguments.
      */
     constructor(params) {
         const { invertSelection, title, value } = params;
@@ -38,7 +40,7 @@ class NumericFilter extends toot_filter_1.default {
         this.value = value ?? 0;
     }
     /**
-     * Returns true if the toot meets the filter criteria.
+     * Check if the toot meets the filter criterion.
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot should appear in the timeline feed.
      */
@@ -56,7 +58,7 @@ class NumericFilter extends toot_filter_1.default {
         return this.invertSelection ? !isOK : isOK;
     }
     /**
-     * Serializes the filter settings for storage (e.g., local storage).
+     * Serializes the filter state for storage (e.g., local storage).
      * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs() {

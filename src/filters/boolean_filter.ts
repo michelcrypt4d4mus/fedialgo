@@ -67,7 +67,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
 
 /**
  * Arguments for BooleanFilter constructor.
- * @typedef {object} BooleanFilterArgs
+ * @interface
  * @property {string[]} [selectedOptions] - The selected options.
  * @property {BooleanFilterName} title - The filter title.
  */
@@ -102,7 +102,6 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Creates a BooleanFilter instance.
      * @param {BooleanFilterArgs} params - The filter arguments.
      */
     constructor(params: BooleanFilterArgs) {
@@ -178,7 +177,7 @@ export default class BooleanFilter extends TootFilter {
      * @param {string} optionName - The option name.
      * @param {boolean} isSelected - If true, add the option; if false, remove it.
      */
-    updateOption(optionName: string, isSelected: boolean) {
+    updateOption(optionName: string, isSelected: boolean): void {
         this.logger.debug(`Updating options for ${this.title} with ${optionName} and ${isSelected}`);
 
         if (isSelected && !this.isOptionEnabled(optionName)) {
@@ -229,7 +228,7 @@ export default class BooleanFilter extends TootFilter {
      * @param {string} name - The property name to check.
      * @returns {boolean} True if the name is a filterable numeric property.
      */
-    static isValidTitle(name: string) {
+    static isValidTitle(name: string): boolean {
         return isValueInStringEnum(BooleanFilterName)(name);
     }
 };

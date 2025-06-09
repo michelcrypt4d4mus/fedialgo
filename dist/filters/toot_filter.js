@@ -17,7 +17,6 @@ class TootFilter {
     logger;
     title;
     /**
-     * Constructs a TootFilter.
      * @param {FilterArgs} params - The arguments for configuring the filter.
      */
     constructor(params) {

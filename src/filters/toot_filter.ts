@@ -9,6 +9,7 @@ import { type FilterTitle } from "../types";
 
 /**
  * Arguments used to configure a filter.
+ * @interface
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {FilterTitle} title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
@@ -36,7 +37,6 @@ export default abstract class TootFilter {
     title: FilterTitle;
 
     /**
-     * Constructs a TootFilter.
      * @param {FilterArgs} params - The arguments for configuring the filter.
      */
     constructor(params: FilterArgs) {
@@ -49,7 +49,6 @@ export default abstract class TootFilter {
 
     /**
      * Determines if the given toot should appear in the timeline feed.
-     * @abstract
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot is allowed, false otherwise.
      */
