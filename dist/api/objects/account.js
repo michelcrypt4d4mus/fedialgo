@@ -30,7 +30,9 @@ const logger = new logger_1.Logger("Account");
 ;
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
+ * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
  * @implements {AccountObj}
+ * @extends {mastodon.v1.Account}
  */
 class Account {
     id;
@@ -182,10 +184,7 @@ class Account {
         const server = new mastodon_server_1.default(this.homeserver);
         return await server.fetchServerInfo();
     }
-    /**
-     * Builds the webfinger URI for the account.
-     * @returns {string}
-     */
+    /** Builds the webfinger URI for the account. */
     buildWebfingerURI() {
         if (this.acct.includes("@")) {
             return this.acct.toLowerCase();

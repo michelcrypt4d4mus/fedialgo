@@ -79,7 +79,9 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 ;
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
+ * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
  * @implements {TootObj}
+ * @extends {mastodon.v1.Status}
  */
 class Toot {
     // Props from mastodon.v1.Status

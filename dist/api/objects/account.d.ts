@@ -36,7 +36,9 @@ interface AccountObj extends mastodon.v1.Account {
 }
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
+ * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
  * @implements {AccountObj}
+ * @extends {mastodon.v1.Account}
  */
 export default class Account implements AccountObj {
     id: string;
@@ -116,10 +118,7 @@ export default class Account implements AccountObj {
      * @returns {Promise<InstanceResponse>}
      */
     homeInstanceInfo(): Promise<InstanceResponse>;
-    /**
-     * Builds the webfinger URI for the account.
-     * @returns {string}
-     */
+    /** Builds the webfinger URI for the account. */
     private buildWebfingerURI;
     /**
      * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.
