@@ -1,6 +1,6 @@
 /**
  * Enums used by FediAlgo.
- * @module Toot
+ * @module Enums
  */
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
