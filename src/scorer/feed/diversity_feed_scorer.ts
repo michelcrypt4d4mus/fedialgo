@@ -61,7 +61,7 @@ export default class DiversityFeedScorer extends FeedScorer {
                     const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
 
                     // Don't apply penalty to followed accounts/tags
-                    if (!toot.isFollowed()) {
+                    if (!toot.isFollowed) {
                         incrementCount(tootScores, toot.uri, penalty);
                     }
                 })

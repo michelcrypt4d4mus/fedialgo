@@ -49,7 +49,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
             (toot.realToot.trendingTags || []).forEach((tag) => {
                 const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
                 // Don't apply penalty to followed accounts/tags
-                if (!toot.isFollowed()) {
+                if (!toot.isFollowed) {
                     (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, penalty);
                 }
             });

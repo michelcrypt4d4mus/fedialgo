@@ -2,13 +2,14 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import Account from "../api/objects/account";
-import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, BooleanFilterOptionList, isBooleanFilterName } from "./boolean_filter";
+import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs, isBooleanFilterName } from "./boolean_filter";
 import MastoApi from "../api/api";
 import NumericFilter, { FILTERABLE_SCORES, isNumericFilterName } from "./numeric_filter";
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
+import { BooleanFilterOptionList } from "../api/obj_with_counts_list";
 import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";

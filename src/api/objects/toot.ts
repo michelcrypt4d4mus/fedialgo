@@ -158,31 +158,31 @@ export interface SerializableToot extends mastodon.v1.Status {
 interface TootObj extends SerializableToot {
     // Getters
     accounts: Account[];
+    attachmentType: MediaCategory | undefined;
     author: Account;
+    contentTagsParagraph: string | undefined;
+    isDM: boolean;
+    isFollowed: boolean;
+    isPrivate: boolean;
+    isTrending: boolean;
+    popularity: number;
     realToot: Toot;
     realURI: string;
     realURL: string;
+    score: number;
     withRetoot: Toot[];
     // Methods
-    attachmentType: () => MediaCategory | undefined;
     containsString: (str: string) => boolean;
     containsTag: (tag: TagWithUsageCounts, fullScan?: boolean) => boolean;
     containsTagsMsg: () => string | undefined;
     contentNonTagsParagraphs: (fontSize?: number) => string;
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
-    contentTagsParagraph: () => string | undefined;
     contentWithEmojis: (fontSize?: number) => string;
     describe: () => string;
-    getScore: () => number;
     homeserverURL: () => Promise<string>;
-    isDM: () => boolean;
-    isFollowed: () => boolean;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
-    isPrivate: () => boolean;
-    isTrending: () => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
-    popularity: () => number;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
 };
@@ -227,9 +227,9 @@ export default class Toot implements TootObj {
     url?: string | null;
 
     // extensions to mastodon.v1.Status. Most of these are set in completeProperties()
-    numTimesShown!: number;
     completedAt?: string;
     followedTags?: mastodon.v1.Tag[];            // Array of tags that the user follows that exist in this toot
+    numTimesShown!: number;
     participatedTags?: TagWithUsageCounts[];     // Array of tags that the user has participated in that exist in this toot
     @Type(() => Account) reblogsBy!: Account[];  // The accounts that retooted this toot
     resolvedID?: string;                         // This Toot with URLs resolved to homeserver versions
@@ -242,16 +242,62 @@ export default class Toot implements TootObj {
     imageAttachments!: mastodon.v1.MediaAttachment[];
     videoAttachments!: mastodon.v1.MediaAttachment[];
 
+    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
+    private contentCache: TootCache = {};
+
+    // Array with the author of the toot and (if it exists) the account that retooted it.
+    get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)}
+    // Age of this toot in hours
+    get ageInHours(): number { return ageInHours(this.createdAt) };
+    // Return the account that posted this toot, not the account that reblogged it.
+    get author(): Account { return this.realToot.account };
+    // True if the toot is a direct message (DM) to the user.
+    get isDM() { return this.visibility === TootVisibility.DIRECT_MSG };
+    // True if this toot is from a followed account or contains a followed tag.
+    get isFollowed() { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) }
+    // True if it's for followers only.
+    get isPrivate() { return this.visibility === TootVisibility.PRIVATE };
+    // True if it's a trending toot or contains any trending hashtags or links.
+    get isTrending() { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length) };
+    // Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
+    get popularity() { return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]) };
+    // Get the webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
+    get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(at) }
+    // Timestamp of toot's createdAt // * TODO: should this consider the values in reblogsBy?
+    get tootedAt(): Date { return new Date(this.createdAt) };
+    // Returns the toot and the retoot, if it exists, as an array.
+    get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
     // Return the toot that was reblogged if it's a reblog, otherwise return this toot.
     get realToot(): Toot { return this.reblog ?? this };
     // URI for the realToot.
     get realURI(): string { return this.realToot.uri };
     // Default to this.realURI if url property is empty.
     get realURL(): string { return this.realToot.url || this.realURI };
+    // Current overall score for this toot.
+    get score(): number { return this.scoreInfo?.score || 0 };
 
+    /**
+     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
+     * @returns {MediaCategory | undefined}
+     */
+    get attachmentType(): MediaCategory | undefined {
+        if (this.imageAttachments.length > 0) {
+            return MediaCategory.IMAGE;
+        } else if (this.videoAttachments.length > 0) {
+            return MediaCategory.VIDEO;
+        } else if (this.audioAttachments.length > 0) {
+            return MediaCategory.AUDIO;
+        }
+    }
 
-    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
-    private contentCache: TootCache = {};
+    /**
+     * If the final <p> paragraph of the content is just hashtags, return it.
+     * @returns {string | undefined}
+     */
+    get contentTagsParagraph(): string | undefined {
+        const finalParagraph = this.contentParagraphs().slice(-1)[0];
+        return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;
+    }
 
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
@@ -276,7 +322,7 @@ export default class Toot implements TootObj {
         tootObj.inReplyToAccountId = toot.inReplyToAccountId;
         tootObj.inReplyToId = toot.inReplyToId;
         tootObj.language = toot.language;
-        tootObj.mediaAttachments = toot.mediaAttachments;
+        tootObj.mediaAttachments = toot.mediaAttachments || [];
         tootObj.mentions = toot.mentions;
         tootObj.muted = toot.muted;
         tootObj.pinned = toot.pinned;
@@ -318,31 +364,6 @@ export default class Toot implements TootObj {
         }
 
         return tootObj;
-    }
-
-    /**
-     * Get an array with the author of the toot and (if it exists) the account that retooted it.
-     * @returns {Account[]} Array of accounts.
-     */
-
-    // Get an array with the author of the toot and (if it exists) the account that retooted it.
-    get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)}
-    get ageInHours(): number { return ageInHours(this.createdAt) };
-    // Return the account that posted this toot, not the account that reblogged it.
-    get author(): Account { return this.realToot.account };
-
-    /**
-     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
-     * @returns {MediaCategory | undefined}
-     */
-    attachmentType(): MediaCategory | undefined {
-        if (this.imageAttachments.length > 0) {
-            return MediaCategory.IMAGE;
-        } else if (this.videoAttachments.length > 0) {
-            return MediaCategory.VIDEO;
-        } else if (this.audioAttachments.length > 0) {
-            return MediaCategory.AUDIO;
-        }
     }
 
     /**
@@ -403,7 +424,7 @@ export default class Toot implements TootObj {
      */
     contentNonTagsParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string {
         const paragraphs = this.contentParagraphs(fontSize);
-        if (this.contentTagsParagraph()) paragraphs.pop();  // Remove the last paragraph if it's just hashtags
+        if (this.contentTagsParagraph) paragraphs.pop();  // Remove the last paragraph if it's just hashtags
         return paragraphs.join("\n");
     }
 
@@ -428,25 +449,13 @@ export default class Toot implements TootObj {
 
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            let mediaType = this.attachmentType() ? `${this.attachmentType()}` : "empty";
+            let mediaType = this.attachmentType ? `${this.attachmentType}` : "empty";
             content = `<${capitalCase(mediaType)} post by ${this.author.describe()}>`;
         } else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
             content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
         }
 
         return content;
-    }
-
-    /**
-     * If the final <p> paragraph of the content is just hashtags, return it.
-     * @returns {string | undefined}
-     */
-    contentTagsParagraph(): string | undefined {
-        const finalParagraph = this.contentParagraphs().slice(-1)[0];
-
-        if (HASHTAG_PARAGRAPH_REGEX.test(finalParagraph)) {
-            return finalParagraph;
-        }
     }
 
     /**
@@ -502,14 +511,6 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Get the overall score for this toot.
-     * @returns {number}
-     */
-    getScore(): number {
-        return this.scoreInfo?.score || 0;
-    }
-
-    /**
      * Make an API call to get this toot's URL on the home server instead of on the toot's original server.
      *       this: https://fosstodon.org/@kate/114360290341300577
      *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
@@ -522,22 +523,6 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Return true if it's a direct message.
-     * @returns {boolean}
-     */
-    isDM(): boolean {
-        return this.visibility === TootVisibility.DIRECT_MSG;
-    }
-
-    /**
-     * Returns true if this toot is from a followed account or contains a followed tag.
-     * @returns {boolean}
-     */
-    isFollowed(): boolean {
-        return !!(this.account.isFollowed || this.reblog?.account.isFollowed || this.realToot.followedTags?.length);
-    }
-
-    /**
      * Return true if the toot should not be filtered out of the feed by the current filters.
      * @param {FeedFilterSettings} filters - The feed filter settings.
      * @returns {boolean}
@@ -545,22 +530,6 @@ export default class Toot implements TootObj {
     isInTimeline(filters: FeedFilterSettings): boolean {
         let isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
         return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
-    }
-
-    /**
-     * Return true if it's for followers only.
-     * @returns {boolean}
-     */
-    isPrivate(): boolean {
-        return this.visibility === TootVisibility.PRIVATE;
-    }
-
-    /**
-     * Return true if it's a trending toot or contains any trending hashtags or links.
-     * @returns {boolean}
-     */
-    isTrending(): boolean {
-        return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length);
     }
 
     /**
@@ -599,22 +568,6 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Sum of the trendingRank, numReblogs, replies, and local server favourites.
-     * @returns {number}
-     */
-    popularity(): number {
-        return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]);
-    }
-
-    /**
-     * Return the webfinger URIs of the accounts mentioned in the toot + the author.
-     * @returns {string[]}
-     */
-    replyMentions(): string[] {
-        return [this.author.webfingerURI].concat((this.mentions || []).map((mention) => mention.acct)).map(at);
-    }
-
-    /**
      * Get Status obj for toot from user's home server so the property URLs point to the home server.
      * @returns {Promise<Toot>}
      */
@@ -639,15 +592,6 @@ export default class Toot implements TootObj {
         return this.resolvedID;
     }
 
-    // * TODO: should this consider the values in reblogsBy?
-    get tootedAt(): Date { return new Date(this.createdAt) };
-
-    /**
-     * Returns the toot and the retoot, if it exists, as an array.
-     * @returns {Toot[]}
-     */
-    get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
-
     //////////////////////////////
     //     Private methods      //
     //////////////////////////////
@@ -660,8 +604,7 @@ export default class Toot implements TootObj {
 
     // return MediaAttachmentType objects with type == attachmentType
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): mastodon.v1.MediaAttachment[] {
-        const mediaAttachments = this.reblog?.mediaAttachments ?? this.mediaAttachments;
-        return mediaAttachments.filter(attachment => attachment.type == attachmentType);
+        return this.realToot.mediaAttachments.filter(attachment => attachment.type == attachmentType);
     }
 
     // Some properties cannot be repaired and/or set until info about the user is available.
@@ -930,7 +873,7 @@ export default class Toot implements TootObj {
 
         // Make a first pass at scoring with whatever scorers are ready to score
         await Scorer.scoreToots(toots, false);
-        if (!skipSort) toots.sort((a, b) => b.getScore() - a.getScore());
+        if (!skipSort) toots.sort((a, b) => b.score - a.score);
         logger.trace(`${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }

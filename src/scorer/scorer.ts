@@ -110,7 +110,7 @@ export default abstract class Scorer {
 
             // Sort feed based on score from high to low and return
             scoreLogger.trace(`Scored ${toots.length} toots ${ageString(startedAt)} (${scorers.length} scorers)`);
-            toots = toots.toSorted((a, b) => b.getScore() - a.getScore());
+            toots = toots.toSorted((a, b) => b.score - a.score);
         } catch (e) {
             if (e == E_CANCELED) {
                 scoreLogger.trace(`Mutex cancellation...`);

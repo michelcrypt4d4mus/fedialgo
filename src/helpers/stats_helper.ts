@@ -68,7 +68,7 @@ function scoreStats(
 
         return {
             average: average(sectionScores),
-            averageFinalScore: average(segment.map((toot) => toot.getScore())),
+            averageFinalScore: average(segment.map((toot) => toot.score)),
             count: segment.length,
             min: sectionScores[0],
             max: sectionScores.slice(-1)[0],

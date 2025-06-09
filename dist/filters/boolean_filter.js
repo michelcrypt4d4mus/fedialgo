@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.BooleanFilterOptionList = void 0;
+exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = void 0;
 /**
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
@@ -11,16 +11,12 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  */
 const api_1 = __importDefault(require("../api/api"));
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
-const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
+const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-class BooleanFilterOptionList extends obj_with_counts_list_1.default {
-}
-exports.BooleanFilterOptionList = BooleanFilterOptionList;
-;
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
@@ -34,7 +30,7 @@ exports.isTypeFilterName = isTypeFilterName;
 exports.TYPE_FILTERS = {
     [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot.audioAttachments?.length,
     [enums_1.TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
-    [enums_1.TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
+    [enums_1.TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM,
     [enums_1.TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [enums_1.TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot.followedTags?.length,
     [enums_1.TypeFilterName.IMAGES]: (toot) => !!toot.realToot.imageAttachments?.length,
@@ -42,7 +38,7 @@ exports.TYPE_FILTERS = {
     [enums_1.TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
     [enums_1.TypeFilterName.POLLS]: (toot) => !!toot.realToot.poll,
     [enums_1.TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot.participatedTags?.length,
-    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot.isPrivate(),
+    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot.isPrivate,
     [enums_1.TypeFilterName.REPLIES]: (toot) => !!toot.realToot.inReplyToId,
     [enums_1.TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
     [enums_1.TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot.sensitive,
@@ -105,7 +101,7 @@ class BooleanFilter extends toot_filter_1.default {
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
     constructor({ title, invertSelection, selectedOptions }) {
-        let optionInfo = new BooleanFilterOptionList([], title);
+        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -146,7 +142,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new BooleanFilterOptionList(options, this.title);
+        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
     }
     /**
      * Return options sorted by name, filtered by minToots (selected options are always included).

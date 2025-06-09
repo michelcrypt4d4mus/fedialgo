@@ -9,6 +9,7 @@ import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
+    type BooleanFilterOption,
     type ObjListDataSource,
     type NamedTootCount,
     type StringNumberDict,
@@ -148,3 +149,7 @@ function completeObjWithTootCounts(obj: NamedTootCount): NamedTootCount {
     obj.regex ||= wordRegex(obj.name);
     return obj;
 };
+
+
+// This has to live here for circular dependency reasons.
+export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};

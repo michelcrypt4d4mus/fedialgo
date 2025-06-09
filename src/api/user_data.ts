@@ -6,12 +6,11 @@ import { mastodon } from "masto";
 
 import Account from "./objects/account";
 import MastoApi from "./api";
-import ObjWithCountList, { ObjList } from "./obj_with_counts_list";
+import ObjWithCountList, { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
-import { BooleanFilterOptionList } from "../filters/boolean_filter";
 import { config } from "../config";
 import { keyById } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";

@@ -5,7 +5,7 @@
  */
 import MastoApi from '../api/api';
 import MastodonServer from '../api/mastodon_server';
-import ObjWithCountList from '../api/obj_with_counts_list';
+import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
 import TootFilter from "./toot_filter";
@@ -15,7 +15,6 @@ import { config } from '../config';
 import { isValueInStringEnum } from "../helpers/collection_helpers";
 import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
 
-export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 
 /**
@@ -48,7 +47,7 @@ export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilte
 export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.AUDIO]:             (toot) => !!toot.realToot.audioAttachments?.length,
     [TypeFilterName.BOT]:               (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
-    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM(),
+    [TypeFilterName.DIRECT_MESSAGE]:    (toot) => toot.isDM,
     [TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
     [TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot.followedTags?.length,
     [TypeFilterName.IMAGES]:            (toot) => !!toot.realToot.imageAttachments?.length,
@@ -56,7 +55,7 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.MENTIONS]:          (toot) => toot.containsUserMention(),
     [TypeFilterName.POLLS]:             (toot) => !!toot.realToot.poll,
     [TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot.participatedTags?.length,
-    [TypeFilterName.PRIVATE]:           (toot) => !!toot.realToot.isPrivate(),
+    [TypeFilterName.PRIVATE]:           (toot) => !!toot.realToot.isPrivate,
     [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot.inReplyToId,
     [TypeFilterName.RETOOTS]:           (toot) => !!toot.reblog,
     [TypeFilterName.SENSITIVE]:         (toot) => !!toot.realToot.sensitive,
