@@ -38,9 +38,9 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     length: number;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: ListSource;
+
     get maxNumToots(): number | undefined { return this._maxNumToots };
     get objs(): T[] { return this._objs };
-
     private _maxNumToots?: number; // Cached max numToots value, if it exists
     private _objs: T[];
 
@@ -53,7 +53,8 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     }
 
     constructor(objs: T[], source: ListSource) {
-        this._objs = objs.map(completeObjWithTootCounts) as T[];
+        objs.forEach(obj => this.completeObjWithTootCounts(obj));
+        this._objs = objs;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this.source = source;
@@ -70,7 +71,12 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         return new ObjWithCountList<T>(this.objs.filter(predicate), this.source);
     }
 
-    // Return the tag if it exists in 'tags' array, otherwise undefined.
+    /**
+     * Returns the object in the list with the given name, or undefined if not found.
+     * Name matching is case-insensitive.
+     * @param {string} name - The name of the object to retrieve.
+     * @returns {T | undefined} The object with the specified name, or undefined if not found.
+     */
     getObj(name: string): T | undefined {
         return this.nameDict[name.toLowerCase()];
     }
@@ -138,14 +144,24 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         this.removeKeywords(await UserData.getMutedKeywords());
     };
 
-    // Return numTags tags sorted by numAccounts if it exists, otherwise numToots, then by name
-    // If 'numTags' is not set return all tags.
+    /**
+     * Returns the object in the list with the given name, or undefined if not found.
+     * Name matching is case-insensitive.
+     * @param {number} [maxObjs] - Optional maximum number of objects to return.
+     * @returns {T[]]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
+     */
     topObjs(maxObjs?: number): T[] {
         const sortBy = (this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots");
         const sortByAndName = [sortBy, "name"] as (keyof T)[]
         this.objs = sortObjsByProps(Object.values(this.objs), sortByAndName, [false, true]);
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
     }
+
+    // Lowercase the name and set the regex property if it doesn't exist.
+    private completeObjWithTootCounts(obj: T): void {
+        obj.name = obj.name.toLowerCase();
+        obj.regex ||= wordRegex(obj.name);
+    };
 
     // Return a dictionary of tag names to tags
     private objNameDict(): Record<string, T> {
@@ -157,12 +173,8 @@ export default class ObjWithCountList<T extends NamedTootCount> {
 };
 
 
-function completeObjWithTootCounts(obj: NamedTootCount): NamedTootCount {
-    obj.name = obj.name.toLowerCase();
-    obj.regex ||= wordRegex(obj.name);
-    return obj;
-};
-
-
-// This has to live here for circular dependency reasons.
+/**
+ * Special case of ObjWithCountList for BooleanFilterOption objects.
+ * @extends {ObjWithCountList<BooleanFilterOption>}
+ */
 export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};

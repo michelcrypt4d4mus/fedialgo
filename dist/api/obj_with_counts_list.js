@@ -45,7 +45,8 @@ class ObjWithCountList {
         this._maxNumToots = this.maxValue("numToots");
     }
     constructor(objs, source) {
-        this._objs = objs.map(completeObjWithTootCounts);
+        objs.forEach(obj => this.completeObjWithTootCounts(obj));
+        this._objs = objs;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this.source = source;
@@ -59,7 +60,12 @@ class ObjWithCountList {
     filter(predicate) {
         return new ObjWithCountList(this.objs.filter(predicate), this.source);
     }
-    // Return the tag if it exists in 'tags' array, otherwise undefined.
+    /**
+     * Returns the object in the list with the given name, or undefined if not found.
+     * Name matching is case-insensitive.
+     * @param {string} name - The name of the object to retrieve.
+     * @returns {T | undefined} The object with the specified name, or undefined if not found.
+     */
     getObj(name) {
         return this.nameDict[name.toLowerCase()];
     }
@@ -117,14 +123,24 @@ class ObjWithCountList {
         this.removeKeywords(await user_data_1.default.getMutedKeywords());
     }
     ;
-    // Return numTags tags sorted by numAccounts if it exists, otherwise numToots, then by name
-    // If 'numTags' is not set return all tags.
+    /**
+     * Returns the object in the list with the given name, or undefined if not found.
+     * Name matching is case-insensitive.
+     * @param {number} [maxObjs] - Optional maximum number of objects to return.
+     * @returns {T[]]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
+     */
     topObjs(maxObjs) {
         const sortBy = (this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots");
         const sortByAndName = [sortBy, "name"];
         this.objs = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.objs), sortByAndName, [false, true]);
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
     }
+    // Lowercase the name and set the regex property if it doesn't exist.
+    completeObjWithTootCounts(obj) {
+        obj.name = obj.name.toLowerCase();
+        obj.regex ||= (0, string_helpers_1.wordRegex)(obj.name);
+    }
+    ;
     // Return a dictionary of tag names to tags
     objNameDict() {
         return this.objs.reduce((objNames, obj) => {
@@ -135,13 +151,10 @@ class ObjWithCountList {
 }
 exports.default = ObjWithCountList;
 ;
-function completeObjWithTootCounts(obj) {
-    obj.name = obj.name.toLowerCase();
-    obj.regex ||= (0, string_helpers_1.wordRegex)(obj.name);
-    return obj;
-}
-;
-// This has to live here for circular dependency reasons.
+/**
+ * Special case of ObjWithCountList for BooleanFilterOption objects.
+ * @extends {ObjWithCountList<BooleanFilterOption>}
+ */
 class BooleanFilterOptionList extends ObjWithCountList {
 }
 exports.BooleanFilterOptionList = BooleanFilterOptionList;

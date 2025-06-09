@@ -29,6 +29,12 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     constructor(objs: T[], source: ListSource);
     addObjs(objs: T[]): void;
     filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
+    /**
+     * Returns the object in the list with the given name, or undefined if not found.
+     * Name matching is case-insensitive.
+     * @param {string} name - The name of the object to retrieve.
+     * @returns {T | undefined} The object with the specified name, or undefined if not found.
+     */
     getObj(name: string): T | undefined;
     incrementCount(name: string, newObjDecorator?: (obj: T) => void): T;
     map<U>(callback: (obj: T, i?: number) => U): U[];
@@ -37,8 +43,19 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void;
     removeKeywords(keywords: string[]): void;
     removeMutedTags(): Promise<void>;
+    /**
+     * Returns the object in the list with the given name, or undefined if not found.
+     * Name matching is case-insensitive.
+     * @param {number} [maxObjs] - Optional maximum number of objects to return.
+     * @returns {T[]]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
+     */
     topObjs(maxObjs?: number): T[];
+    private completeObjWithTootCounts;
     private objNameDict;
 }
+/**
+ * Special case of ObjWithCountList for BooleanFilterOption objects.
+ * @extends {ObjWithCountList<BooleanFilterOption>}
+ */
 export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
 }
