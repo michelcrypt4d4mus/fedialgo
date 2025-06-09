@@ -145,8 +145,8 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     };
 
     /**
-     * Returns the object in the list with the given name, or undefined if not found.
-     * Name matching is case-insensitive.
+     * Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,
+     * and then by name. If maxObjs is provided, returns only the top maxObjs objects.
      * @param {number} [maxObjs] - Optional maximum number of objects to return.
      * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
