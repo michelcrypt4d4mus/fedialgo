@@ -4,7 +4,6 @@ import { type AccountLike, type AccountNames, type BooleanFilterOption, type Str
 type AccountCount = Record<string, {
     account: Account;
     count: number;
-    isFollowed?: boolean;
 }>;
 /**
  * Interface for Account object with additional helper methods and properties.
