@@ -145,11 +145,12 @@ interface AlgorithmArgs {
  * @property {Toot[]} timeline - The current filtered timeline
  * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
  * @property {UserData} userData - User data for scoring and filtering
+ * @property {Scorer[]} weightedScorers - List of all scorers that can be weighted by user
  * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 class TheAlgorithm {
-    static isDebugMode = isDebugMode;
-    static weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
+    static readonly isDebugMode = isDebugMode;
+    static readonly weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
 
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
@@ -252,8 +253,7 @@ class TheAlgorithm {
 
     /**
      * Private constructor for TheAlgorithm. Use TheAlgorithm.create() to instantiate.
-     *
-     * @param {AlgorithmArgs} params - The parameters for algorithm creation, including API client, user, and optional timeline callback.
+     * @param {AlgorithmArgs} params - Constructor params (API client, user, and optional timeline callback/locale).
      */
     private constructor(params: AlgorithmArgs) {
         this.api = params.api;
