@@ -2,7 +2,6 @@
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 import MastoApi from "./api";
-import MastodonServer from "./mastodon_server";
 import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
 import UserData from "./user_data";
@@ -20,6 +19,10 @@ import {
 const logger = new Logger("TagList");
 
 
+/**
+ * Special case of ObjWithCountList for lists of TagWithUsageCounts objects.
+ * @extends {ObjWithCountList}
+ */
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ListSource) {
         super(tags.map(repairTag), label);
