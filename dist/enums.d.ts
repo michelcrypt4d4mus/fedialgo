@@ -137,6 +137,6 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * Generate a function to check if a value exists in a string enum.
  * @template E
  * @param {Record<string, E>} strEnum - The enum object.
- * @returns {(value: string) => value is E} The checker function.
+ * @returns {(value: string) => boolean} The checker function.
  */
-export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): (value: string) => value is E;
+export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((value: string) => boolean);
