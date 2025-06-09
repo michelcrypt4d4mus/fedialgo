@@ -77,6 +77,9 @@ class BooleanFilter extends toot_filter_1.default {
     }
     /**
      * @param {BooleanFilterArgs} params - The filter arguments.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {string[]} [params.selectedOptions] - The selected options.
+     * @param {BooleanFilterName} params.title - The filter title.
      */
     constructor(params) {
         const { title, invertSelection, selectedOptions } = params;

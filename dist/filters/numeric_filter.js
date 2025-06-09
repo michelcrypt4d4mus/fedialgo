@@ -27,6 +27,9 @@ class NumericFilter extends toot_filter_1.default {
     value;
     /**
      * @param {NumericFilterArgs} params - The filter arguments.
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {TootNumberProp} params.title - Toot property to filter on (e.g., 'repliesCount').
+     * @param {number} [params.value] - The minimum value for the filter.
      */
     constructor(params) {
         const { invertSelection, title, value } = params;
