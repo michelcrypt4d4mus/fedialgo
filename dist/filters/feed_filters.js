@@ -82,8 +82,8 @@ function repairFilterSettings(filters) {
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
     }
-    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, boolean_filter_1.default);
-    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, numeric_filter_1.default);
+    const validBooleanFilterArgs = boolean_filter_1.default.removeInvalidFilterArgs(filters.booleanFilterArgs, filterLogger);
+    const validNumericFilterArgs = numeric_filter_1.default.removeInvalidFilterArgs(filters.numericFilterArgs, filterLogger);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
     if (wasChanged) {
@@ -208,13 +208,5 @@ function populateMissingFilters(filters) {
             return;
         }
     });
-}
-// Remove any filter args from the list whose title is invalid
-function removeInvalidFilterArgs(args, filterCls) {
-    const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => filterCls.isValidTitle(arg.title));
-    if (invalidArgs.length > 0) {
-        filterLogger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
-    }
-    return validArgs;
 }
 //# sourceMappingURL=feed_filters.js.map

@@ -4,6 +4,7 @@
  */
 import Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
+import { split } from '../helpers/collection_helpers';
 import { type FilterTitle } from "../types";
 
 /**
@@ -67,5 +68,18 @@ export default abstract class TootFilter {
     /** Must be overridden in subclasses. */
     static isValidTitle(name: string): boolean {
         throw new Error("isValidTitle() must be implemented in subclasses");
+    }
+
+    /** Remove any filter args from the list whose title is invalid */
+    static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[] {
+        const [validArgs, invalidArgs] = split(args, arg => this.isValidTitle(arg.title));
+
+        if (invalidArgs.length > 0) {
+            logger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+        } else {
+            logger.trace("All filter args are valid.");
+        }
+
+        return validArgs;
     }
 };

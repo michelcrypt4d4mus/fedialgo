@@ -48,4 +48,6 @@ export default abstract class TootFilter {
     toArgs(): FilterArgs;
     /** Must be overridden in subclasses. */
     static isValidTitle(name: string): boolean;
+    /** Remove any filter args from the list whose title is invalid */
+    static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[];
 }

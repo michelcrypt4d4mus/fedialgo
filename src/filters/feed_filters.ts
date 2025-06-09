@@ -80,8 +80,8 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
         wasChanged = true;
     }
 
-    const validBooleanFilterArgs = removeInvalidFilterArgs(filters.booleanFilterArgs, BooleanFilter);
-    const validNumericFilterArgs = removeInvalidFilterArgs(filters.numericFilterArgs, NumericFilter);
+    const validBooleanFilterArgs = BooleanFilter.removeInvalidFilterArgs(filters.booleanFilterArgs, filterLogger);
+    const validNumericFilterArgs = NumericFilter.removeInvalidFilterArgs(filters.numericFilterArgs, filterLogger);
     wasChanged ||= validBooleanFilterArgs.length !== filters.booleanFilterArgs.length;
     wasChanged ||= validNumericFilterArgs.length !== filters.numericFilterArgs.length;
 
@@ -229,19 +229,4 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
             return;
         }
     });
-}
-
-
-// Remove any filter args from the list whose title is invalid
-function removeInvalidFilterArgs(
-    args: FilterArgs[],
-    filterCls: typeof BooleanFilter | typeof NumericFilter
-): FilterArgs[] {
-    const [validArgs, invalidArgs] = split(args, arg => filterCls.isValidTitle(arg.title));
-
-    if (invalidArgs.length > 0) {
-        filterLogger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
-    }
-
-    return validArgs;
 }
