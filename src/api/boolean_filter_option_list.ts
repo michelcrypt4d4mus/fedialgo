@@ -6,7 +6,7 @@ import type { BooleanFilterOption } from "../types";
 
 
 /**
- * Special case of ObjWithCountList for BooleanFilterOption objects.
+ * Subclass of ObjWithCountList for BooleanFilterOption objects.
  * @extends {ObjWithCountList}
  */
 export default class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
