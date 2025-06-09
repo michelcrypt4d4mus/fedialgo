@@ -16,6 +16,7 @@ assert_repo_is_ready() {
 
 
 assert_repo_is_ready
+npm run build
 git checkout $GITHUB_PAGES_BRANCH
 git merge $MASTER_BRANCH --no-edit
 set +e
