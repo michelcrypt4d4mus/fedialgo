@@ -3,8 +3,8 @@
  * @module Filters
  */
 import Toot from '../api/objects/toot';
-import TootFilter from "./toot_filter";
-import { type FilterArgs, type TootNumberProp } from "../types";
+import TootFilter, { type FilterArgs } from "./toot_filter";
+import { type TootNumberProp } from "../types";
 export declare const FILTERABLE_SCORES: TootNumberProp[];
 /**
  * Arguments for constructing a NumericFilter.

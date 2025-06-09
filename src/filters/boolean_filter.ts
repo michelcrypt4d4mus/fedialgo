@@ -8,12 +8,12 @@ import MastoApi from '../api/api';
 import MastodonServer from '../api/mastodon_server';
 import TagList from '../api/tag_list';
 import Toot from '../api/objects/toot';
-import TootFilter from "./toot_filter";
+import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey, TypeFilterName, isValueInStringEnum } from '../enums';
 import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
-import { type BooleanFilterOption, type FilterArgs, type FilterOptionDataSource } from "../types";
+import { type BooleanFilterOption, type FilterOptionDataSource } from "../types";
 
 type FilterOptionDataSources = Record<FilterOptionDataSource, BooleanFilterOptionList | TagList>;
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;

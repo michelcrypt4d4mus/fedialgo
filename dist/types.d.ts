@@ -52,17 +52,6 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
 }
-/**
- * Arguments used to configure a filter.
- * @property {string} [description] - Optional description of the filter for display or documentation purposes.
- * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
- * @property {FilterTitle} title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
- */
-export interface FilterArgs {
-    description?: string;
-    invertSelection?: boolean;
-    title: FilterTitle;
-}
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;

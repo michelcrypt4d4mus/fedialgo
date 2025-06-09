@@ -14,11 +14,11 @@ import { config } from "../config";
 import { incrementCount, split, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
+import { type FilterArgs } from './toot_filter';
 import {
     type BooleanFilterOption,
     type BooleanFilters,
     type FeedFilterSettings,
-    type FilterArgs,
     type NumericFilters,
     type StringNumberDict,
     type TootNumberProp,
