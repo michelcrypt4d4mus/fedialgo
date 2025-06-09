@@ -71,6 +71,7 @@ type TootsConfig = {
     completeAfterMinutes: number;
     maxAgeInDays: number;
     maxTimelineLength: number;
+    minCharsForLanguageDetect: number;
     saveChangesIntervalSeconds: number;
     truncateFullTimelineToLength: number;
 };
@@ -164,7 +165,9 @@ declare class Config implements ConfigType {
         batchCompleteSleepBetweenMS: number;
         completeAfterMinutes: number;
         maxAgeInDays: number;
+        maxContentPreviewChars: number;
         maxTimelineLength: number;
+        minCharsForLanguageDetect: number;
         saveChangesIntervalSeconds: number;
         truncateFullTimelineToLength: number;
     };

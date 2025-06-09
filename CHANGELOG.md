@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Move minCharsForLanguageDetect and maxContentPreviewChars to TootsConfig
 
 ### v0.69.11
 (Demo App) Go back to logging out after NetworkErrors

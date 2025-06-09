@@ -104,6 +104,7 @@ type TootsConfig = {
     completeAfterMinutes: number;
     maxAgeInDays: number;
     maxTimelineLength: number;
+    minCharsForLanguageDetect: number;
     saveChangesIntervalSeconds: number;
     truncateFullTimelineToLength: number;
 };
@@ -416,7 +417,9 @@ class Config implements ConfigType {
         batchCompleteSleepBetweenMS: 150,       // How long to wait between batches of Toot.completeProperties() calls
         completeAfterMinutes: MINUTES_IN_DAY,   // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
+        maxContentPreviewChars: 110,            // How many characters to show in a Toot preview
         maxTimelineLength: 3_000,               // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
+        minCharsForLanguageDetect: 8,           // Minimum number of characters in a toot before we try to detect its language
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
         truncateFullTimelineToLength: 2_000,    // If on startup the timeline is full, truncate it to this length
     }

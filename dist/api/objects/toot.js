@@ -53,9 +53,7 @@ var TootCacheKey;
 ;
 exports.JUST_MUTING = "justMuting"; // Used in the filter settings to indicate that the user is just muting this toot
 exports.UNKNOWN = "unknown";
-const MAX_CONTENT_PREVIEW_CHARS = 110;
 const MAX_ID_IDX = 2;
-const MIN_CHARS_FOR_LANG_DETECT = 8;
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
@@ -353,7 +351,7 @@ class Toot {
      * @returns {string}
      */
     contentShortened(maxChars) {
-        maxChars ||= MAX_CONTENT_PREVIEW_CHARS;
+        maxChars ||= config_1.config.toots.maxContentPreviewChars;
         let content = this.contentString();
         content = (0, string_helpers_1.replaceHttpsLinks)(content);
         // Fill in placeholders if content string is empty, truncate it if it's too long
@@ -361,8 +359,8 @@ class Toot {
             let mediaType = this.attachmentType ? `${this.attachmentType}` : "empty";
             content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.author.describe()}>`;
         }
-        else if (content.length > MAX_CONTENT_PREVIEW_CHARS) {
-            content = `${content.slice(0, MAX_CONTENT_PREVIEW_CHARS)}...`;
+        else if (content.length > maxChars) {
+            content = `${content.slice(0, maxChars)}...`;
         }
         return content;
     }
@@ -587,8 +585,8 @@ class Toot {
     // Figure out an appropriate language for the toot based on the content.
     determineLanguage() {
         const text = this.contentStripped();
-        // if (this.isUsersOwnToot() || text.length < MIN_CHARS_FOR_LANG_DETECT) {
-        if (text.length < MIN_CHARS_FOR_LANG_DETECT) {
+        // if (this.isUsersOwnToot() || text.length < config.toots.minCharsForLanguageDetect) {
+        if (text.length < config_1.config.toots.minCharsForLanguageDetect) {
             this.language ??= config_1.config.locale.defaultLanguage;
             return;
         }
@@ -598,7 +596,7 @@ class Toot {
         const logTrace = (msg) => repairLogger.trace(`${msg} for "${text}"`, langLogObj);
         // If there's nothing detected log a warning (if text is long enough) and set language to default
         if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
-            if (text.length > (MIN_CHARS_FOR_LANG_DETECT * 2)) {
+            if (text.length > (config_1.config.toots.minCharsForLanguageDetect * 2)) {
                 repairLogger.warn(`no language detected`, langLogObj);
             }
             this.language ??= config_1.config.locale.defaultLanguage;
@@ -631,7 +629,7 @@ class Toot {
             return;
         }
         if (this.language) {
-            if (text.length > (2 * MIN_CHARS_FOR_LANG_DETECT)) {
+            if (text.length > (2 * config_1.config.toots.minCharsForLanguageDetect)) {
                 logTrace(`No guess good enough to override language "${this.language}" for "${text}"`);
             }
         }
