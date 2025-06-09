@@ -11,8 +11,8 @@ interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
     homeInstanceInfo?: () => Promise<InstanceResponse>;
-    homeserver?: () => string;
-    homserverURL?: () => string;
+    homeserver: string;
+    homserverURL: string;
     isFollowed?: boolean;
     isFollower?: boolean;
     noteWithAccountInfo?: () => string;
@@ -48,13 +48,13 @@ export default class Account implements AccountObj {
     isFollowed: boolean;
     isFollower: boolean;
     webfingerURI: string;
+    get homeserver(): string;
+    get homserverURL(): string;
     static build(account: AccountLike): Account;
     describe(): string;
-    displayNameFullHTML(): string;
+    displayNameFullHTML(fontSize?: number): string;
     displayNameWithEmojis(fontSize?: number): string;
     homeInstanceInfo(): Promise<InstanceResponse>;
-    homeserver(): string;
-    homserverURL(): string;
     noteWithAccountInfo(): string;
     toBooleanFilterOption(): BooleanFilterOption;
     private buildWebfingerURI;

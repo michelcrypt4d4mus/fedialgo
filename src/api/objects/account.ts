@@ -27,8 +27,8 @@ interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
     homeInstanceInfo?: () => Promise<InstanceResponse>;
-    homeserver?: () => string;
-    homserverURL?: () => string;
+    homeserver: string;
+    homserverURL: string;
     isFollowed?: boolean;
     isFollower?: boolean;
     noteWithAccountInfo?: () => string;
@@ -70,6 +70,18 @@ export default class Account implements AccountObj {
     isFollowed!: boolean;  // Is this account followed by the user?
     isFollower!: boolean;  // Is this account following the user?
     webfingerURI!: string;
+
+    // 'https://journa.host/@dell' -> 'journa.host'
+    get homeserver(): string { return extractDomain(this.url) || "unknown.server" };
+
+    // Return the URL to the account on the fedialgo user's home server
+    get homserverURL(): string {
+        if (this.homeserver == MastoApi.instance.homeDomain) {
+            return this.url;
+        } else {
+            return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
+        }
+    }
 
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account: AccountLike): Account {
@@ -115,8 +127,8 @@ export default class Account implements AccountObj {
     }
 
     // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
-    displayNameFullHTML(): string {
-        return this.displayNameWithEmojis() + encode(` (@${this.webfingerURI})`);
+    displayNameFullHTML(fontSize: number = DEFAULT_FONT_SIZE): string {
+        return this.displayNameWithEmojis(fontSize) + encode(` (@${this.webfingerURI})`);
     }
 
     // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
@@ -126,22 +138,8 @@ export default class Account implements AccountObj {
 
     // Get the account's instance info from the API (note some servers don't provide this)
     async homeInstanceInfo(): Promise<InstanceResponse> {
-        const server = new MastodonServer(this.homeserver());
+        const server = new MastodonServer(this.homeserver);
         return await server.fetchServerInfo();
-    }
-
-    // 'https://journa.host/@dell' -> 'journa.host'
-    homeserver(): string {
-        return extractDomain(this.url) || "unknown.server";
-    }
-
-    // Return the URL to the account on the fedialgo user's home server
-    homserverURL(): string {
-        if (this.homeserver() == MastoApi.instance.homeDomain) {
-            return this.url;
-        } else {
-            return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
-        }
     }
 
     // Returns HTML combining the "note" property with the creation date, followers and toots count
@@ -173,7 +171,7 @@ export default class Account implements AccountObj {
         if (this.acct.includes("@")) {
             return this.acct.toLowerCase();
         } else {
-            return `${this.acct}@${this.homeserver()}`.toLowerCase();
+            return `${this.acct}@${this.homeserver}`.toLowerCase();
         }
     }
 

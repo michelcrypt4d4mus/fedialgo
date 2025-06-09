@@ -62,6 +62,18 @@ class Account {
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
     webfingerURI;
+    // 'https://journa.host/@dell' -> 'journa.host'
+    get homeserver() { return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server"; }
+    ;
+    // Return the URL to the account on the fedialgo user's home server
+    get homserverURL() {
+        if (this.homeserver == api_1.default.instance.homeDomain) {
+            return this.url;
+        }
+        else {
+            return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
+        }
+    }
     // Alternate constructor because class-transformer doesn't work with constructor arguments
     static build(account) {
         const accountObj = new Account();
@@ -104,8 +116,8 @@ class Account {
         return `${this.displayName} (${this.webfingerURI})`;
     }
     // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
-    displayNameFullHTML() {
-        return this.displayNameWithEmojis() + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
+    displayNameFullHTML(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        return this.displayNameWithEmojis(fontSize) + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
     }
     // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -113,21 +125,8 @@ class Account {
     }
     // Get the account's instance info from the API (note some servers don't provide this)
     async homeInstanceInfo() {
-        const server = new mastodon_server_1.default(this.homeserver());
+        const server = new mastodon_server_1.default(this.homeserver);
         return await server.fetchServerInfo();
-    }
-    // 'https://journa.host/@dell' -> 'journa.host'
-    homeserver() {
-        return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server";
-    }
-    // Return the URL to the account on the fedialgo user's home server
-    homserverURL() {
-        if (this.homeserver() == api_1.default.instance.homeDomain) {
-            return this.url;
-        }
-        else {
-            return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
-        }
     }
     // Returns HTML combining the "note" property with the creation date, followers and toots count
     noteWithAccountInfo() {
@@ -156,7 +155,7 @@ class Account {
             return this.acct.toLowerCase();
         }
         else {
-            return `${this.acct}@${this.homeserver()}`.toLowerCase();
+            return `${this.acct}@${this.homeserver}`.toLowerCase();
         }
     }
     ////////////////////////////

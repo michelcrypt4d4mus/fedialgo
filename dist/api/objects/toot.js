@@ -402,7 +402,7 @@ class Toot {
      * @returns {Promise<string>} The home server URL.
      */
     async homeserverURL() {
-        const homeURL = `${this.account.homserverURL()}/${await this.resolveID()}`;
+        const homeURL = `${this.account.homserverURL}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
     }
