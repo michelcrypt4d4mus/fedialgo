@@ -1,6 +1,10 @@
 import { Logger } from './logger';
 import { type ApiCacheKey } from '../enums';
-import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromisesResults, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+type PromisesResults<T> = {
+    fulfilled: T[];
+    rejectedReasons: any[];
+};
 /**
  * Adds up an arbitrary number of StringNumberDicts, returning a new dict.
  * @param {...StringNumberDict[]} dicts - Dictionaries to sum.
@@ -304,3 +308,4 @@ export declare function zipArrays<T>(array1: string[], array2: T[]): Record<stri
  * @returns {Promise<Record<string, T>>} The results dictionary.
  */
 export declare function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>, logger?: Logger): Promise<Record<string, T>>;
+export {};

@@ -43,7 +43,6 @@ export type FeedFilterSettingsSerialized = {
  * Represents the full set of filter settings for a feed, including both the serialized filter arguments
  * and the instantiated filter objects themselves. This is used to store and manage the current state
  * of all boolean and numeric filters applied to a feed, as well as the arguments needed to reconstruct them.
- *
  * @extends FeedFilterSettingsSerialized
  * @property {BooleanFilters} booleanFilters - Map of boolean filter names to BooleanFilter instances.
  * @property {NumericFilters} numericFilters - Map of toot number property names to NumericFilter instances.
@@ -52,6 +51,10 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
 }
+/**
+ * Utility type to extract the keys of T that are of a type that's a subclass of TypeCondition
+ * https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
+ */
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;
@@ -91,18 +94,6 @@ export interface NamedTootCount extends TootCount {
     name: string;
 }
 export type ObjListDataSource = (FilterOptionDataSource | FilterTitle | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.FOLLOWED_TAGS);
-export interface PromiseFulfilledResult<T> {
-    status: "fulfilled";
-    value: T;
-}
-export interface PromiseRejectedResult {
-    status: "rejected";
-    reason: any;
-}
-export type PromisesResults<T> = {
-    fulfilled: T[];
-    rejectedReasons: any[];
-};
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
     weighted: MinMaxAvgScore[];

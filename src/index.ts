@@ -653,8 +653,9 @@ class TheAlgorithm {
     private async finishFeedUpdate(): Promise<void> {
         const logger = this.logger.tempLogger(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        logger.debug(`${FINALIZING_SCORES_MSG}...`);
+
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
+        logger.debug(`${this.loadingStatus}...`);
         await Toot.completeToots(this.feed, logger);
         this.feed = await Toot.removeInvalidToots(this.feed, logger);
         await updateBooleanFilterOptions(this.filters, this.feed);

@@ -65,7 +65,6 @@ export type FeedFilterSettingsSerialized = {
  * Represents the full set of filter settings for a feed, including both the serialized filter arguments
  * and the instantiated filter objects themselves. This is used to store and manage the current state
  * of all boolean and numeric filters applied to a feed, as well as the arguments needed to reconstruct them.
- *
  * @extends FeedFilterSettingsSerialized
  * @property {BooleanFilters} booleanFilters - Map of boolean filter names to BooleanFilter instances.
  * @property {NumericFilters} numericFilters - Map of toot number property names to NumericFilter instances.
@@ -75,12 +74,16 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     numericFilters: NumericFilters;
 };
 
-// Extract the keys of T that are of a type that's a subclass of TypeCondition
-// https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
+
+/**
+ * Utility type to extract the keys of T that are of a type that's a subclass of TypeCondition
+ * https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
+ */
 export type KeysOfValueType<T, SuperClass> = Exclude<
     {[K in keyof T]: T[K] extends SuperClass ? K : never}[keyof T],
     undefined
 >;
+
 
 /**
  * Union type representing any object that can be returned from the Mastodon API and handled by the app
@@ -144,15 +147,6 @@ export type ObjListDataSource = (
   | CacheKey.FEDIVERSE_TRENDING_TAGS
   | ScoreName.FOLLOWED_TAGS
 );
-
-// Unfortunately these types, returned by Promise.allSettled(), are not exported anywhere so we're manually recreating...
-export interface PromiseFulfilledResult<T> {status: "fulfilled", value: T};
-export interface PromiseRejectedResult {status: "rejected", reason: any};
-
-export type PromisesResults<T> = {
-    fulfilled: T[],
-    rejectedReasons: any[],
-};
 
 export type ScoreStats = {
     raw: MinMaxAvgScore[];
