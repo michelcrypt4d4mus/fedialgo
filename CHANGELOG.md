@@ -1,9 +1,9 @@
 # NEXT RELEASE
 
 ### v0.69.6
-* Convert `TheAlgorithm.getTimeline()` to a getter named `timeline`, getApiErrorMsgs() to apiErrorMsgs, isLoading() and serverInfo() to getters
+* Convert `TheAlgorithm.getTimeline()` to a getter named `timeline`, `getApiErrorMsgs()` to `apiErrorMsgs`, `isLoading()` and `serverInfo()` to getters
 * Convert `Toot` object's `attachmentType`, `author()`, `contentTagParagraph()`, `isDM()`, `isFollowed()`, `isPrivate()`, `realToot()`, `realURI()`, `realURL()` to getters
-* Convert Account object's homeserver(), homeserverURL(), noteWithAccountInfo() to getters
+* Convert `Account` object's `homeserver()`, `homeserverURL()`, `noteWithAccountInfo()` to getters
 * Convert `Toot.getScore()` to `score` getter
 * Rename `ObjWithTootCount` to `NamedTootCount`, `WithCounts` to `TootCounts`
 * Upgrade `masto.js` to 7.1.0
