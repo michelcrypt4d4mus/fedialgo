@@ -922,6 +922,7 @@ __decorate([
 ], Toot.prototype, "reblogsBy", void 0);
 ;
 /**
+ * @private
  * Get the Date the toot was created.
  * @param {TootLike} toot - The toot object.
  * @returns {Date}
@@ -936,6 +937,7 @@ exports.tootedAt = tootedAt;
 const earliestToot = (toots) => sortByCreatedAt(toots)[0];
 exports.earliestToot = earliestToot;
 /**
+ * @private
  * Get the most recent toot from a list.
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
@@ -943,6 +945,7 @@ exports.earliestToot = earliestToot;
 const mostRecentToot = (toots) => sortByCreatedAt(toots).slice(-1)[0];
 exports.mostRecentToot = mostRecentToot;
 /**
+ * @private
  * Returns array with oldest toot first.
  * @template T
  * @param {T} toots - List of toots.
@@ -954,6 +957,7 @@ function sortByCreatedAt(toots) {
 exports.sortByCreatedAt = sortByCreatedAt;
 ;
 /**
+ * @private
  * Get the Date of the earliest toot in a list.
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
@@ -964,6 +968,7 @@ const earliestTootedAt = (toots) => {
 };
 exports.earliestTootedAt = earliestTootedAt;
 /**
+ * @private
  * Get the Date of the most recent toot in a list.
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}

@@ -1,5 +1,5 @@
 /**
- * Enums used by FediAlgo.
+ * @fileoverview Enums used by FediAlgo.
  */
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
@@ -125,6 +125,7 @@ export declare enum TypeFilterName {
 /** Returns true if string is an element of TypeFilterName enum. */
 export declare const isTypeFilterName: (value: string) => boolean;
 /**
+ * @private
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.

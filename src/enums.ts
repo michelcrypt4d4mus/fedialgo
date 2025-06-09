@@ -1,5 +1,5 @@
 /**
- * Enums used by FediAlgo.
+ * @fileoverview Enums used by FediAlgo.
  */
 
 /**
@@ -138,6 +138,7 @@ export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilte
 
 
 /**
+ * @private
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.

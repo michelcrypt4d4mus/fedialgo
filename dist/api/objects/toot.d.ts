@@ -341,6 +341,7 @@ export default class Toot implements TootObj {
     private static uniqFlatMap;
 }
 /**
+ * @private
  * Get the Date the toot was created.
  * @param {TootLike} toot - The toot object.
  * @returns {Date}
@@ -353,12 +354,14 @@ export declare const tootedAt: (toot: TootLike) => Date;
  */
 export declare const earliestToot: (toots: StatusList) => TootLike | null;
 /**
+ * @private
  * Get the most recent toot from a list.
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
  */
 export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
 /**
+ * @private
  * Returns array with oldest toot first.
  * @template T
  * @param {T} toots - List of toots.
@@ -366,12 +369,14 @@ export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
  */
 export declare function sortByCreatedAt<T extends StatusList>(toots: T): T;
 /**
+ * @private
  * Get the Date of the earliest toot in a list.
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
  */
 export declare const earliestTootedAt: (toots: StatusList) => Date | null;
 /**
+ * @private
  * Get the Date of the most recent toot in a list.
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}

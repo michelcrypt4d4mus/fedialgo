@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Enums used by FediAlgo.
+ * @fileoverview Enums used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
@@ -145,6 +145,7 @@ var TypeFilterName;
 const isTypeFilterName = (value) => isValueInStringEnum(TypeFilterName)(value);
 exports.isTypeFilterName = isTypeFilterName;
 /**
+ * @private
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.

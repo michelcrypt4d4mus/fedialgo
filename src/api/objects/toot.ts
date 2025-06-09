@@ -1076,6 +1076,7 @@ export default class Toot implements TootObj {
 };
 
 /**
+ * @private
  * Get the Date the toot was created.
  * @param {TootLike} toot - The toot object.
  * @returns {Date}
@@ -1090,6 +1091,7 @@ export const tootedAt = (toot: TootLike): Date => new Date(toot.createdAt);
 export const earliestToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots)[0];
 
 /**
+ * @private
  * Get the most recent toot from a list.
  * @param {StatusList} toots - List of toots.
  * @returns {TootLike | null}
@@ -1097,6 +1099,7 @@ export const earliestToot = (toots: StatusList): TootLike | null => sortByCreate
 export const mostRecentToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots).slice(-1)[0];
 
 /**
+ * @private
  * Returns array with oldest toot first.
  * @template T
  * @param {T} toots - List of toots.
@@ -1107,6 +1110,7 @@ export function sortByCreatedAt<T extends StatusList>(toots: T): T {
 };
 
 /**
+ * @private
  * Get the Date of the earliest toot in a list.
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
@@ -1117,6 +1121,7 @@ export const earliestTootedAt = (toots: StatusList): Date | null => {
 };
 
 /**
+ * @private
  * Get the Date of the most recent toot in a list.
  * @param {StatusList} toots - List of toots.
  * @returns {Date | null}
