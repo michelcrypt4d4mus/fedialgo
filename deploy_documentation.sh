@@ -20,9 +20,12 @@ npm run build
 rm -fr docs/
 git checkout $GITHUB_PAGES_BRANCH
 git merge $MASTER_BRANCH --no-edit
+
 set +e
 npm run docs
+git add -A docs/
 set -e
+
 git commit -am"Build documentation" --no-verify
 git push origin $GITHUB_PAGES_BRANCH
 git checkout $MASTER_BRANCH
