@@ -8,7 +8,7 @@ import { Type } from "class-transformer";
 import MastoApi from "../api";
 import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
-import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImageTags } from "../../helpers/string_helpers";
+import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
 import { Logger } from "../../helpers/logger";
 import { type AccountLike, type AccountNames, type BooleanFilterOption,type StringNumberDict } from "../../types";
@@ -22,6 +22,21 @@ type AccountCount = Record<string, {account: Account, count: number, isFollowed?
 
 const logger = new Logger("Account");
 
+/**
+ * Interface for Account object with additional helper methods and properties.
+ * @typedef {object} AccountObj
+ * @property {() => string} [describe] - Returns a string description of the account.
+ * @property {() => string} [displayNameFullHTML] - Returns the display name with emojis and webfinger URI in HTML.
+ * @property {() => string} [displayNameWithEmojis] - Returns the display name with custom emojis as <img> tags.
+ * @property {() => Promise<InstanceResponse>} [homeInstanceInfo] - Gets the account's instance info from the API.
+ * @property {string} homeserver - The account's home server domain.
+ * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {boolean} [isFollowed] - Whether this account is followed by the user.
+ * @property {boolean} [isFollower] - Whether this account is following the user.
+ * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
+ * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
+ * @property {string} webfingerURI - The webfinger URI for the account.
+ */
 interface AccountObj extends mastodon.v1.Account {
     describe?: () => string;
     displayNameFullHTML?: () => string;
@@ -37,6 +52,10 @@ interface AccountObj extends mastodon.v1.Account {
 };
 
 
+/**
+ * Class representing a Mastodon Account with helper methods and additional properties.
+ * @implements {AccountObj}
+ */
 export default class Account implements AccountObj {
     id!: string;
     username!: string;
@@ -72,7 +91,10 @@ export default class Account implements AccountObj {
     isFollower!: boolean;  // Is this account following the user?
     webfingerURI!: string;
 
-    // Extract the Account properties that are used in BooleanFilter
+    /**
+     * Returns the account properties used in BooleanFilter.
+     * @returns {BooleanFilterOption}
+     */
     get asBooleanFilterOption(): BooleanFilterOption {
         return {
             name: this.webfingerURI,
@@ -82,10 +104,16 @@ export default class Account implements AccountObj {
         };
     }
 
-    // 'https://journa.host/@dell' -> 'journa.host'
+    /**
+     * Returns the account's home server domain (e.g. 'journa.host').
+     * @returns {string}
+     */
     get homeserver(): string { return extractDomain(this.url) || "unknown.server" };
 
-    // Return the URL to the account on the fedialgo user's home server
+    /**
+     * Returns the URL to the account on the user's home server.
+     * @returns {string}
+     */
     get homserverURL(): string {
         if (this.homeserver == MastoApi.instance.homeDomain) {
             return this.url;
@@ -94,7 +122,10 @@ export default class Account implements AccountObj {
         }
     }
 
-    // Returns HTML combining the "note" property with the creation date, followers and toots count
+    /**
+     * Returns HTML combining the note property with creation date, followers, and toots count.
+     * @returns {string}
+     */
     get noteWithAccountInfo(): string {
         let txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);
@@ -108,7 +139,11 @@ export default class Account implements AccountObj {
         return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
 
-    // Alternate constructor because class-transformer doesn't work with constructor arguments
+    /**
+     * Alternate constructor because class-transformer doesn't work with constructor arguments.
+     * @param {AccountLike} account - The account data to build from.
+     * @returns {Account} The constructed Account instance.
+     */
     static build(account: AccountLike): Account {
         const accountObj = new Account();
         accountObj.id = account.id;
@@ -146,28 +181,45 @@ export default class Account implements AccountObj {
         return accountObj;
     }
 
-    // e.g. "Foobar (@foobar@mastodon.social)"
+    /**
+     * Returns a string description of the account (e.g. "Foobar (@foobar@mastodon.social)").
+     * @returns {string}
+     */
     describe(): string {
         return `${this.displayName} (${this.webfingerURI})`;
     }
 
-    // HTML encoded displayNameWithEmojis() + " (@webfingerURI)"
+    /**
+     * Returns the display name with emojis and webfinger URI in HTML.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @returns {string}
+     */
     displayNameFullHTML(fontSize: number = DEFAULT_FONT_SIZE): string {
         return this.displayNameWithEmojis(fontSize) + encode(` (@${this.webfingerURI})`);
     }
 
-    // return HTML-ish string of displayName prop but with the custom emojis replaced with <img> tags
+    /**
+     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @returns {string}
+     */
     displayNameWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
-        return replaceEmojiShortcodesWithImageTags(this.displayName, this.emojis || [], fontSize);
+        return replaceEmojiShortcodesWithImgTags(this.displayName, this.emojis || [], fontSize);
     }
 
-    // Get the account's instance info from the API (note some servers don't provide this)
+    /**
+     * Gets the account's instance info from the API (note some servers don't provide this).
+     * @returns {Promise<InstanceResponse>}
+     */
     async homeInstanceInfo(): Promise<InstanceResponse> {
         const server = new MastodonServer(this.homeserver);
         return await server.fetchServerInfo();
     }
 
-    // On the local server you just get the username so need to add the server domain
+    /**
+     * Builds the webfinger URI for the account.
+     * @returns {string}
+     */
     private buildWebfingerURI(): string {
         if (this.acct.includes("@")) {
             return this.acct.toLowerCase();
@@ -180,13 +232,20 @@ export default class Account implements AccountObj {
     //     Static Methods     //
     ////////////////////////////
 
-    // Build a dictionary from the Account.webfingerURI to the Account object for easy lookup
+    /**
+     * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @returns {AccountNames} Dictionary from webfingerURI to Account.
+     */
     static buildAccountNames(accounts: Account[]): AccountNames {
         return keyByProperty<Account>(accounts, acct => acct.webfingerURI);
     }
 
-    // Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument
-    // (Often it's just 1 time per webfingerURI and we are using this to make a quick lookup dictionary)
+    /**
+     * Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @returns {StringNumberDict} Dictionary from webfingerURI to count.
+     */
     static countAccounts(accounts: Account[]): StringNumberDict {
         return Object.values(this.countAccountsWithObj(accounts)).reduce(
             (counts, accountWithCount) => {
@@ -197,6 +256,11 @@ export default class Account implements AccountObj {
         );
     }
 
+    /**
+     * Dictionary from account's webfingerURI to an object with the account and count.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @returns {AccountCount} Dictionary from webfingerURI to {account, count}.
+     */
     static countAccountsWithObj(accounts: Account[]): AccountCount {
         return accounts.reduce((counts, account) => {
             counts[account.webfingerURI] ??= {account, count: 0};
@@ -205,6 +269,11 @@ export default class Account implements AccountObj {
         }, {} as AccountCount);
     }
 
+    /**
+     * Logs all suspended accounts in the provided array.
+     * @param {Account[]} accounts - Array of Account objects.
+     * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
+     */
     static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
         accounts.filter(a => !!a.suspended).forEach(a => {
             console.warn(`${bracketed(logPrefix)} Found suspended account:`, a);

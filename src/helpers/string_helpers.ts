@@ -69,6 +69,8 @@ export const bracketed = (str: string): string => str.startsWith('[') ? str : `[
 export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} ${msg}`;
 // Doublequotes
 export const quoted = (str: string | null): string => isNull(str) ? NULL : `"${str}"`;
+// 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc.
+export const suffixedInt = (n: number): string => `${n}${ordinalSuffix(n)}`;
 
 // Collapse whitespace in a string
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
@@ -176,13 +178,8 @@ export const ordinalSuffix = (n: number): string => {
 };
 
 
-export const suffixedInt = (n: number): string => {
-    return `${n}${ordinalSuffix(n)}`;
-};
-
-
 // Replace custom emoji shortcodes like :smile: with <img> tags
-export function replaceEmojiShortcodesWithImageTags(
+export function replaceEmojiShortcodesWithImgTags(
     html: string,
     emojis: mastodon.v1.CustomEmoji[],
     fontSize: number = DEFAULT_FONT_SIZE
