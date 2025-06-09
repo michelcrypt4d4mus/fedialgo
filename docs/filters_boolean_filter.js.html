@@ -31,7 +31,7 @@ var __importDefault = (this &amp;&amp; this.__importDefault) || function (mod) {
     return (mod &amp;&amp; mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = exports.BooleanFilterOptionList = void 0;
+exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = void 0;
 /**
  * Feed filtering information related to a single criterion on which toots
  * can be filtered inclusively or exclusively based on an array of strings
@@ -39,16 +39,12 @@ exports.TYPE_FILTERS = exports.isTypeFilterName = exports.isBooleanFilterName = 
  */
 const api_1 = __importDefault(require("../api/api"));
 const mastodon_server_1 = __importDefault(require("../api/mastodon_server"));
-const obj_with_counts_list_1 = __importDefault(require("../api/obj_with_counts_list"));
+const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-class BooleanFilterOptionList extends obj_with_counts_list_1.default {
-}
-exports.BooleanFilterOptionList = BooleanFilterOptionList;
-;
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
 const isBooleanFilterName = (value) => (0, collection_helpers_1.isValueInStringEnum)(enums_1.BooleanFilterName)(value);
 exports.isBooleanFilterName = isBooleanFilterName;
@@ -60,25 +56,25 @@ exports.isTypeFilterName = isTypeFilterName;
  * @type {Record&lt;TypeFilterName, TypeFilter>}
  */
 exports.TYPE_FILTERS = {
-    [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot().audioAttachments?.length,
+    [enums_1.TypeFilterName.AUDIO]: (toot) => !!toot.realToot.audioAttachments?.length,
     [enums_1.TypeFilterName.BOT]: (toot) => !!(toot.account.bot || toot.reblog?.account.bot),
-    [enums_1.TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM(),
+    [enums_1.TypeFilterName.DIRECT_MESSAGE]: (toot) => toot.isDM,
     [enums_1.TypeFilterName.FOLLOWED_ACCOUNTS]: (toot) => !!(toot.account.isFollowed || toot.reblog?.account.isFollowed),
-    [enums_1.TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot().followedTags?.length,
-    [enums_1.TypeFilterName.IMAGES]: (toot) => !!toot.realToot().imageAttachments?.length,
-    [enums_1.TypeFilterName.LINKS]: (toot) => !!(toot.realToot().card || toot.realToot().trendingLinks?.length),
+    [enums_1.TypeFilterName.FOLLOWED_HASHTAGS]: (toot) => !!toot.realToot.followedTags?.length,
+    [enums_1.TypeFilterName.IMAGES]: (toot) => !!toot.realToot.imageAttachments?.length,
+    [enums_1.TypeFilterName.LINKS]: (toot) => !!(toot.realToot.card || toot.realToot.trendingLinks?.length),
     [enums_1.TypeFilterName.MENTIONS]: (toot) => toot.containsUserMention(),
-    [enums_1.TypeFilterName.POLLS]: (toot) => !!toot.realToot().poll,
-    [enums_1.TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot().participatedTags?.length,
-    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot().isPrivate(),
-    [enums_1.TypeFilterName.REPLIES]: (toot) => !!toot.realToot().inReplyToId,
+    [enums_1.TypeFilterName.POLLS]: (toot) => !!toot.realToot.poll,
+    [enums_1.TypeFilterName.PARTICIPATED_TAGS]: (toot) => !!toot.realToot.participatedTags?.length,
+    [enums_1.TypeFilterName.PRIVATE]: (toot) => !!toot.realToot.isPrivate,
+    [enums_1.TypeFilterName.REPLIES]: (toot) => !!toot.realToot.inReplyToId,
     [enums_1.TypeFilterName.RETOOTS]: (toot) => !!toot.reblog,
-    [enums_1.TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot().sensitive,
-    [enums_1.TypeFilterName.SPOILERED]: (toot) => !!toot.realToot().spoilerText,
-    [enums_1.TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot().trendingLinks?.length,
-    [enums_1.TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot().trendingTags?.length,
-    [enums_1.TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot().trendingRank,
-    [enums_1.TypeFilterName.VIDEOS]: (toot) => !!toot.realToot().videoAttachments?.length,
+    [enums_1.TypeFilterName.SENSITIVE]: (toot) => !!toot.realToot.sensitive,
+    [enums_1.TypeFilterName.SPOILERED]: (toot) => !!toot.realToot.spoilerText,
+    [enums_1.TypeFilterName.TRENDING_LINKS]: (toot) => !!toot.realToot.trendingLinks?.length,
+    [enums_1.TypeFilterName.TRENDING_TAGS]: (toot) => !!toot.realToot.trendingTags?.length,
+    [enums_1.TypeFilterName.TRENDING_TOOTS]: (toot) => !!toot.realToot.trendingRank,
+    [enums_1.TypeFilterName.VIDEOS]: (toot) => !!toot.realToot.videoAttachments?.length,
 };
 /**
  * Matchers for each BooleanFilterName.
@@ -86,19 +82,19 @@ exports.TYPE_FILTERS = {
  */
 const TOOT_MATCHERS = {
     [enums_1.BooleanFilterName.APP]: (toot, selectedOptions) => {
-        return selectedOptions.includes(toot.realToot().application?.name);
+        return selectedOptions.includes(toot.realToot.application?.name);
     },
     [enums_1.BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
-        return !!selectedOptions.find((v) => toot.realToot().containsString(v));
+        return !!selectedOptions.find((v) => toot.realToot.containsString(v));
     },
     [enums_1.BooleanFilterName.LANGUAGE]: (toot, selectedOptions) => {
-        return selectedOptions.includes(toot.realToot().language || config_1.config.locale.defaultLanguage);
+        return selectedOptions.includes(toot.realToot.language || config_1.config.locale.defaultLanguage);
     },
     [enums_1.BooleanFilterName.TYPE]: (toot, selectedOptions) => {
         return selectedOptions.some((v) => exports.TYPE_FILTERS[v](toot));
     },
     [enums_1.BooleanFilterName.USER]: (toot, selectedOptions) => {
-        return selectedOptions.includes(toot.realToot().account.webfingerURI);
+        return selectedOptions.includes(toot.realToot.account.webfingerURI);
     },
 };
 ;
@@ -133,7 +129,7 @@ class BooleanFilter extends toot_filter_1.default {
         this.selectedOptions = this.selectedOptions.filter((v) => !optionList.getObj(v));
     }
     constructor({ title, invertSelection, selectedOptions }) {
-        let optionInfo = new BooleanFilterOptionList([], title);
+        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], title);
         let description;
         if (title == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -174,7 +170,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new BooleanFilterOptionList(options, this.title);
+        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
     }
     /**
      * Return options sorted by name, filtered by minToots (selected options are always included).
@@ -251,13 +247,13 @@ exports.default = BooleanFilter;
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Toot.html">Toot</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#TOOT_MATCHERS">TOOT_MATCHERS</a></li><li><a href="global.html#TYPE_FILTERS">TYPE_FILTERS</a></li><li><a href="global.html#api_1">api_1</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Toot.html">Toot</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="UserData.html">UserData</a></li><li><a href="module-Toot-Toot.html">Toot</a></li></ul><h3>Global</h3><ul><li><a href="global.html#TOOT_MATCHERS">TOOT_MATCHERS</a></li><li><a href="global.html#TYPE_FILTERS">TYPE_FILTERS</a></li><li><a href="global.html#api_1">api_1</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Jun 08 2025 20:17:58 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Jun 08 2025 21:27:05 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
