@@ -34,19 +34,38 @@ interface UserApiData {
     serverSideFilters: mastodon.v2.Filter[];
 };
 
-
+/**
+ * Represents background and scoring-related data about the current Fedialgo user.
+ * Used as a central source of user context for scoring, filtering, and personalization.
+ *
+ * This class aggregates and manages user-related data such as favourited accounts, followed tags,
+ * muted accounts, languages posted in, and server-side filters. It provides methods to build user data
+ * from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
+ * for use in scoring and filtering algorithms.
+ *
+ * Properties:
+ * @property {BooleanFilterOptionList} favouriteAccounts - Accounts the user has favourited, retooted, or replied to.
+ * @property {TagList} favouritedTags - List of tags the user has favourited.
+ * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
+ * @property {TagList} followedTags - List of tags the user follows.
+ * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
+ * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted, keyed by account name.
+ * @property {TagList} participatedTags - List of tags the user has participated in.
+ * @property {string} preferredLanguage - The user's preferred language (ISO code).
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user (currently unused).
+ */
 export default class UserData {
-    lastUpdatedAt?: Date | null;
-    // numToots in favouriteAccounts is the sum of retoots, favourites, and replies to that account
-    favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
-    favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+    favouriteAccounts: BooleanFilterOptionList = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
+    favouritedTags: TagList = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
-    followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
+    followedTags: TagList = new TagList([], ScoreName.FOLLOWED_TAGS);
     languagesPostedIn: ObjList = new ObjWithCountList([], BooleanFilterName.LANGUAGE);
     mutedAccounts: AccountNames = {};
-    participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
-    preferredLanguage = config.locale.defaultLanguage;
+    participatedTags: TagList = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    preferredLanguage: string = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
+
+    private lastUpdatedAt?: Date | null;
 
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build(): Promise<UserData> {
