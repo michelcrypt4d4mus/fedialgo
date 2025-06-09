@@ -21,7 +21,7 @@ git merge $MASTER_BRANCH --no-edit
 set +e
 npm run docs
 set -e
-git commit -am"Build documentation"
+git commit -am"Build documentation" --no-verify
 git push origin $GITHUB_PAGES_BRANCH
 git checkout $MASTER_BRANCH
 
