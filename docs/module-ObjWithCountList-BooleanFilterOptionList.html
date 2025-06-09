@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FediAlgo Global</title>
+    <title>FediAlgo Class: BooleanFilterOptionList</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Global</h1>
+    <h1 class="page-title">Class: BooleanFilterOptionList</h1>
 
     
 
@@ -28,7 +28,10 @@
 
 <header>
     
-        <h2></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-ObjWithCountList.html">ObjWithCountList</a>~</span>BooleanFilterOptionList<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">Special case of ObjWithCountList for BooleanFilterOption objects.</div>
         
     
 </header>
@@ -38,76 +41,23 @@
     
         
 
-        
+    
+    <h2>Constructor</h2>
+    
 
-
-<dl class="details">
-
+    
+    <h4 class="name" id="BooleanFilterOptionList"><span class="type-signature"></span>new BooleanFilterOptionList<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="api_1"><span class="type-signature">(constant) </span>api_1<span class="type-signature"></span></h4>
 
 
 
 
-<div class="description">
-    Feed filtering information related to a single criterion on which toots
-can be filtered inclusively or exclusively based on an array of strings
-(e.g. language, hashtag, type of toot).
-</div>
+
+
+
 
 
 
@@ -144,7 +94,7 @@ can be filtered inclusively or exclusively based on an array of strings
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="filters_boolean_filter.js.html">filters/boolean_filter.js</a>, <a href="filters_boolean_filter.js.html#line12">line 12</a>
+        <a href="api_obj_with_counts_list.js.html">api/obj_with_counts_list.js</a>, <a href="api_obj_with_counts_list.js.html#line159">line 159</a>
     </li></ul></dd>
     
 
@@ -160,7 +110,46 @@ can be filtered inclusively or exclusively based on an array of strings
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
         
+
+
+    <ul>
+        <li><a href="module-ObjWithCountList-ObjWithCountList.html">module:ObjWithCountList~ObjWithCountList</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
     
 
     
@@ -172,7 +161,7 @@ can be filtered inclusively or exclusively based on an array of strings
     
 
     
-    <h4 class="name" id="isAccessTokenRevokedError"><span class="type-signature"></span>isAccessTokenRevokedError<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="getObj"><span class="type-signature"></span>getObj<span class="signature">(name)</span><span class="type-signature"> &rarr; {T|undefined}</span></h4>
     
 
     
@@ -180,7 +169,8 @@ can be filtered inclusively or exclusively based on an array of strings
 
 
 <div class="description">
-    Returns true if the error is an access token revoked error.
+    Returns the object in the list with the given name, or undefined if not found.
+Name matching is case-insensitive.
 </div>
 
 
@@ -216,16 +206,13 @@ can be filtered inclusively or exclusively based on an array of strings
 
         <tr>
             
-                <td class="name"><code>e</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Error</span>
-|
-
-<span class="param-type">unknown</span>
+<span class="param-type">string</span>
 
 
             
@@ -235,7 +222,7 @@ can be filtered inclusively or exclusively based on an array of strings
 
             
 
-            <td class="description last">The error to check.</td>
+            <td class="description last">The name of the object to retrieve.</td>
         </tr>
 
     
@@ -255,6 +242,11 @@ can be filtered inclusively or exclusively based on an array of strings
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="module-ObjWithCountList-ObjWithCountList.html#getObj">module:ObjWithCountList~ObjWithCountList#getObj</a>
+    </li></ul></dd>
     
 
     
@@ -276,7 +268,7 @@ can be filtered inclusively or exclusively based on an array of strings
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_api.js.html">api/api.js</a>, <a href="api_api.js.html#line989">line 989</a>
+        <a href="api_obj_with_counts_list.js.html">api/obj_with_counts_list.js</a>, <a href="api_obj_with_counts_list.js.html#line70">line 70</a>
     </li></ul></dd>
     
 
@@ -305,7 +297,7 @@ can be filtered inclusively or exclusively based on an array of strings
 
         
 <div class="param-desc">
-    True if the error is an access token revoked error.
+    The object with the specified name, or undefined if not found.
 </div>
 
 
@@ -316,7 +308,10 @@ can be filtered inclusively or exclusively based on an array of strings
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
+<span class="param-type">T</span>
+|
+
+<span class="param-type">undefined</span>
 
 
     </dd>
@@ -334,7 +329,7 @@ can be filtered inclusively or exclusively based on an array of strings
     
 
     
-    <h4 class="name" id="isRateLimitError"><span class="type-signature"></span>isRateLimitError<span class="signature">(e)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="topObjs"><span class="type-signature"></span>topObjs<span class="signature">(maxObjs<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -342,7 +337,8 @@ can be filtered inclusively or exclusively based on an array of strings
 
 
 <div class="description">
-    Returns true if the error is a rate limit error.
+    Returns the object in the list with the given name, or undefined if not found.
+Name matching is case-insensitive.
 </div>
 
 
@@ -366,6 +362,8 @@ can be filtered inclusively or exclusively based on an array of strings
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -378,26 +376,33 @@ can be filtered inclusively or exclusively based on an array of strings
 
         <tr>
             
-                <td class="name"><code>e</code></td>
+                <td class="name"><code>maxObjs</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Error</span>
-|
-
-<span class="param-type">unknown</span>
+<span class="param-type">number</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">The error to check.</td>
+            <td class="description last">Optional maximum number of objects to return.</td>
         </tr>
 
     
@@ -417,6 +422,11 @@ can be filtered inclusively or exclusively based on an array of strings
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="module-ObjWithCountList-ObjWithCountList.html#topObjs">module:ObjWithCountList~ObjWithCountList#topObjs</a>
+    </li></ul></dd>
     
 
     
@@ -438,7 +448,7 @@ can be filtered inclusively or exclusively based on an array of strings
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="api_api.js.html">api/api.js</a>, <a href="api_api.js.html#line1003">line 1003</a>
+        <a href="api_obj_with_counts_list.js.html">api/obj_with_counts_list.js</a>, <a href="api_obj_with_counts_list.js.html#line133">line 133</a>
     </li></ul></dd>
     
 
@@ -466,23 +476,7 @@ can be filtered inclusively or exclusively based on an array of strings
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    True if the error is a rate limit error.
-</div>
 
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
 
     
 
