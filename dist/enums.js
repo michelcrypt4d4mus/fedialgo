@@ -1,6 +1,6 @@
 "use strict";
-/**
- * @fileoverview Enums used by FediAlgo.
+/*
+ * Enums used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;

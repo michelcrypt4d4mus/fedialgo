@@ -1,7 +1,4 @@
 /**
- * @fileoverview Enums used by FediAlgo.
- */
-/**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.

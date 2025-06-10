@@ -311,9 +311,7 @@ class TheAlgorithm {
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ]);
 
-        // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
-        // and the load could still be going, but then how do we mark the load as finished?
-        const allResults = await Promise.all(dataLoads);
+        const allResults = await Promise.allSettled(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
     }
@@ -373,7 +371,7 @@ class TheAlgorithm {
         this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
 
         try {
-            const _allResults = await Promise.all([
+            const _allResults = await Promise.allSettled([
                 MastoApi.instance.getFavouritedToots(FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 MastoApi.instance.getNotifications({maxRecords: MAX_ENDPOINT_RECORDS_TO_PULL, moar: true}),
@@ -411,7 +409,7 @@ class TheAlgorithm {
             Algorithm: this.statusDict(),
             Api: {
                 errors: this.apiErrorMsgs,
-                waitTimes: MastoApi.instance.waitTimes
+                waitTimes: MastoApi.instance.waitTimes,
             },
             Config: config,
             Filters: this.filters,
@@ -549,7 +547,7 @@ class TheAlgorithm {
     }
 
     /**
-     * Get the URL for a tag.
+     * Get the URL for a tag on the user's home instance (aka "server").
      * @param {string | MastodonTag} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
