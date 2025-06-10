@@ -88,13 +88,13 @@ import {
     type TrendingLink,
     type TrendingObj,
     type TrendingWithHistory,
+    type WeightInfoDict,
     type WeightName,
     type Weights,
-    type WeightInfoDict,
 } from "./types";
 
 const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
-const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
+const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
@@ -846,7 +846,6 @@ export {
     TrendingType,
     TypeFilterName,
     WeightName,
-    WeightPresetLabel,
     // Helpers
     extractDomain,
     isAccessTokenRevokedError,

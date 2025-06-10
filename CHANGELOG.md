@@ -1,9 +1,10 @@
 # NEXT RELEASE
 
-### v0.69.15
+### v0.69.16
+* Allow `TRENDING` weight of 0
 
-### v0.69.14
-* Add input validation for updateUserWeights()
+### v0.69.15
+* Add input validation for `updateUserWeights()`
 * Get rid of `skipSort` param; introduce `TootSource` type
 
 ### v0.69.13

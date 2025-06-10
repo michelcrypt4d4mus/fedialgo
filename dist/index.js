@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.WeightPresetLabel = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
+exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -90,7 +90,6 @@ Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true,
 const moar_data_poller_1 = require("./api/moar_data_poller");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
-Object.defineProperty(exports, "WeightPresetLabel", { enumerable: true, get: function () { return weight_presets_1.WeightPresetLabel; } });
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const stats_helper_1 = require("./helpers/stats_helper");
@@ -109,7 +108,7 @@ Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: 
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
 const types_2 = require("./types");
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
-const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
+const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";

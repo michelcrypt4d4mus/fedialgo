@@ -111,7 +111,7 @@ class Scorer {
                 throw new Error(`Invalid weight name: ${weightName}`);
             if (!(0, lodash_1.isFinite)(value))
                 throw new Error(`Weight ${weightName} is missing from weights object!`);
-            if ((0, enums_1.isNonScoreWeightName)(weightName) && value <= 0) {
+            if ((0, enums_1.isNonScoreWeightName)(weightName) && weightName != enums_1.NonScoreWeightName.TRENDING && value <= 0) {
                 throw new Error(`Non-score weight ${weightName} must be greater than 0!`);
             }
         });
