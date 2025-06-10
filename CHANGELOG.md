@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Use Promise.allSettled() to ensure we wait for all loads to complete before marking state as not loading any more
+
+### v0.69.12
+* Use `Promise.allSettled()` to ensure we wait for all loads to complete before marking state as not loading any more
 * Move `minCharsForLanguageDetect` and `maxContentPreviewChars` to `TootsConfig`
 
 ### v0.69.11
