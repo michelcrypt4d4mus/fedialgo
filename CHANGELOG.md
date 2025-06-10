@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Allow TRENDING weight of 0
+
+### v0.69.16
+* Allow `TRENDING` weight of 0
 
 ### v0.69.15
 * Add input validation for `updateUserWeights()`
