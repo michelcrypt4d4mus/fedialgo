@@ -23,15 +23,15 @@ import {
     type TootNumberProp,
 } from "../types";
 
-type FilterOptions = Record<BooleanFilterName, BooleanFilterOptionList>;
 type DictOfDicts = Record<string, StringNumberDict>;
+type FilterOptions = Record<BooleanFilterName, BooleanFilterOptionList>;
 
-export const DEFAULT_FILTERS = {
+const DEFAULT_FILTERS: FeedFilterSettings = {
     booleanFilterArgs: [],
     booleanFilters: {} as BooleanFilters,
     numericFilterArgs: [],
     numericFilters: {} as NumericFilters,
-} as FeedFilterSettings;
+};
 
 const logger = new Logger('feed_filters.ts');
 
@@ -39,7 +39,7 @@ const logger = new Logger('feed_filters.ts');
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 export function buildNewFilterSettings(): FeedFilterSettings {
-    const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)) as FeedFilterSettings; // Deep copy
+    const filters: FeedFilterSettings = JSON.parse(JSON.stringify(DEFAULT_FILTERS)); // Deep copy
     populateMissingFilters(filters);
     return filters;
 }
