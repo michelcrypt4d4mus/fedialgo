@@ -366,7 +366,6 @@ class MastoApi {
      * @returns {Promise<TootLike[]>} Array of TootLike objects.
      */
     async getStatusesForTag(tagName, logger, numToots) {
-        numToots ||= config_1.config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
         const results = await (0, collection_helpers_1.getPromiseResults)([
             this.searchForToots(tagName, logger.tempLogger('search'), numToots),
