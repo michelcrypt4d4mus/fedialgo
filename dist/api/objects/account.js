@@ -31,15 +31,15 @@ const logger = new logger_1.Logger("Account");
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
  * Extends base Mastodon Account. The base class's properties are not documented here;
- * see https://docs.joinmastodon.org/entities/Account/ for details.
+ * see {@link https://docs.joinmastodon.org/entities/Account/ the official docs} for details.
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - Whether this account is followed by the user.
- * @property {boolean} [isFollower] - Whether this account is following the user.
+ * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */

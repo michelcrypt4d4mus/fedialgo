@@ -175,7 +175,7 @@ interface TootObj extends SerializableToot {
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
  * Extends the base Mastodon Status object. The base class's properties are not documented here; see
- * https://docs.joinmastodon.org/entities/Status/ for details.
+ * {@link https://docs.joinmastodon.org/entities/Status/ the official docs} for details.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
