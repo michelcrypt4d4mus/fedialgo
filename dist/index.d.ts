@@ -38,8 +38,8 @@ import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { Logger } from './helpers/logger';
 import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCacheKey, isValueInStringEnum } from "./enums";
 import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
-import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightName, type Weights, type WeightInfoDict } from "./types";
-declare const GET_FEED_BUSY_MSG = "called while load is still in progress. Consider using the setTimelineInApp() callback.";
+import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
+declare const GET_FEED_BUSY_MSG = "Load in progress (consider using the setTimelineInApp() callback instead)";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -237,5 +237,5 @@ declare class TheAlgorithm {
     private enableMoarDataBackgroundPoller;
 }
 export default TheAlgorithm;
-export { FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, ObjWithCountList, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, WeightPresetLabel, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
+export { FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, ObjWithCountList, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
 sortKeysByValue, timeString, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, };

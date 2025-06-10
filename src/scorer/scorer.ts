@@ -134,7 +134,7 @@ export default abstract class Scorer {
             if (!isWeightName(weightName)) throw new Error(`Invalid weight name: ${weightName}`);
             if (!isFinite(value)) throw new Error(`Weight ${weightName} is missing from weights object!`);
 
-            if (isNonScoreWeightName(weightName) && value <= 0) {
+            if (isNonScoreWeightName(weightName) && weightName != NonScoreWeightName.TRENDING && value <= 0) {
                 throw new Error(`Non-score weight ${weightName} must be greater than 0!`);
             }
         });
