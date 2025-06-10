@@ -141,6 +141,242 @@ Handles caching, concurrency, and provides methods for fetching and updating Mas
 
 
 
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>api</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">mastodon.rest.Client</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The Mastodon REST API client instance.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>apiErrors</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;Error></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Array of errors encountered while using the API.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>homeDomain</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The Fedialgo user's home server domain.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>logger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Logger</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">API logger instance.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Account.html">Account</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The Fedialgo user's Account object.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userData</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="UserData.html">UserData</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The Fedialgo user's historical info.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>waitTimes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Record.&lt;<a href="global.html#CacheKey">CacheKey</a>, WaitTime></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Tracks the amount of time spent waiting for each endpoint's API responses.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
 <dl class="details">
 
     
@@ -194,6 +430,8 @@ Handles caching, concurrency, and provides methods for fetching and updating Mas
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
     
     </div>
@@ -212,405 +450,6 @@ Handles caching, concurrency, and provides methods for fetching and updating Mas
 
     
         <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="api"><span class="type-signature"></span>api<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Mastodon REST API client instance.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="apiErrors"><span class="type-signature"></span>apiErrors<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Errors encountered while using the API.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="homeDomain"><span class="type-signature"></span>homeDomain<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    The Fedialgo user's home server domain.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="logger"><span class="type-signature"></span>logger<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    API logger.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="user"><span class="type-signature"></span>user<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    The Fedialgo user's Account object'.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="userData"><span class="type-signature"></span>userData<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    The Fedialgo user's historical info.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="waitTimes"><span class="type-signature"></span>waitTimes<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Tracks the amount of time spent waiting for each endpoint's API responses.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
 
         
             
@@ -829,6 +668,8 @@ Handles caching, concurrency, and provides methods for fetching and updating Mas
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -983,6 +824,8 @@ Handles caching, concurrency, and provides methods for fetching and updating Mas
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -1087,6 +930,8 @@ Handles caching, concurrency, and provides methods for fetching and updating Mas
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -1289,6 +1134,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -1454,6 +1301,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -1621,6 +1470,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -1786,6 +1637,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -1953,6 +1806,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -2118,6 +1973,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -2285,6 +2142,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -2451,6 +2310,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -2555,6 +2416,8 @@ Used for various hashtag feeds (participated, trending, favourited).
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -2785,6 +2648,8 @@ The two APIs give results with surprisingly little overlap (~80% of toots are un
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -2950,6 +2815,8 @@ The two APIs give results with surprisingly little overlap (~80% of toots are un
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -3181,6 +3048,8 @@ TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -3286,6 +3155,8 @@ TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -3390,6 +3261,8 @@ TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -3545,6 +3418,8 @@ TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -3627,6 +3502,8 @@ TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -3783,6 +3660,8 @@ transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -4012,6 +3891,8 @@ transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -4143,6 +4024,8 @@ transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -4300,6 +4183,8 @@ transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -4479,6 +4364,8 @@ Loads user data from storage and assigns it to the instance.
 
 
 
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -4687,6 +4574,8 @@ Loads user data from storage and assigns it to the instance.
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
             
 
@@ -4874,6 +4763,8 @@ Loads user data from storage and assigns it to the instance.
 
 
 
+<hr align="left" class="methodSeparator" />
+
         
     
 
@@ -4896,7 +4787,7 @@ Loads user data from storage and assigns it to the instance.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 19:40:59 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jun 09 2025 20:27:49 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
