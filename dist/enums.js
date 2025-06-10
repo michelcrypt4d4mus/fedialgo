@@ -1,6 +1,6 @@
 "use strict";
 /*
- * Enums used by FediAlgo.
+ * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName = exports.isScoreName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.ALL_CACHE_KEYS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;

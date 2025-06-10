@@ -1,5 +1,5 @@
 /*
- * Enums used by FediAlgo.
+ * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 
 /**
