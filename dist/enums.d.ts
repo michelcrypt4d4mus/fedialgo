@@ -3,6 +3,7 @@
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
  * @enum {string}
+ * @private
  */
 export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
@@ -22,17 +23,24 @@ export declare enum CacheKey {
     SERVER_SIDE_FILTERS = "ServerFilters",
     TIMELINE_TOOTS = "TimelineToots"
 }
-/** Enum of cache keys for hashtag-related Toot lists. */
+/**
+ * Enum of cache keys for hashtag-related lists of Toots
+ * @enum {string}
+ */
 export declare enum TagTootsCacheKey {
     FAVOURITED_TAG_TOOTS = "FavouritedHashtagToots",
     PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     TRENDING_TAG_TOOTS = "TrendingTagToots"
 }
-/** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
+/**
+ * Type representing any valid API cache key (CacheKey or TagTootsCacheKey).
+ * @private
+ */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
-/** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
-/** Enum of storage keys for user data and app state (not API cache). */
+/**
+ * Enum of storage keys for user data and app state (not API cache).
+ * @private
+ */
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",
     FILTERS = "Filters",
@@ -49,7 +57,10 @@ export declare enum NonScoreWeightName {
     TRENDING = "Trending",
     OUTLIER_DAMPENER = "OutlierDampener"
 }
-/** Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering. */
+/**
+ * Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering.
+ * @enum {string}
+ */
 export declare enum ScoreName {
     ALREADY_SHOWN = "AlreadyShown",
     AUTHOR_FOLLOWERS = "AuthorFollowers",
@@ -75,20 +86,29 @@ export declare enum ScoreName {
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = "VideoAttachments"
 }
-/** Enum of Mastodon API media category strings. */
+/**
+ * Enum of Mastodon API media category strings.
+ * @enum {string}
+ */
 export declare enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
     VIDEO = "video"
 }
-/** Enum of trending data types that can be fetched from the API. */
+/**
+ * Enum of trending data types that can be fetched from the API. *
+ * @enum {string}
+ */
 export declare enum TrendingType {
     LINKS = "links",
     SERVERS = "servers",
     STATUSES = "statuses",
     TAGS = "tags"
 }
-/** Enum of boolean filter names for filtering toots by property. */
+/**
+ * Enum of boolean filter names for filtering toots by property.
+ * @enum {string}
+ */
 export declare enum BooleanFilterName {
     HASHTAG = "hashtag",
     LANGUAGE = "language",
@@ -122,6 +142,11 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trending toots",
     VIDEOS = "videos"
 }
+/**
+ * Array of all cache keys (CacheKey and TagTootsCacheKey values).
+ * @private
+ */
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T

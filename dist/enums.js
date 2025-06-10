@@ -3,12 +3,13 @@
  * Enums used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName = exports.isScoreName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName = exports.isScoreName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.ALL_CACHE_KEYS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
  * @enum {string}
+ * @private
  */
 var CacheKey;
 (function (CacheKey) {
@@ -30,7 +31,10 @@ var CacheKey;
     CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;
-/** Enum of cache keys for hashtag-related Toot lists. */
+/**
+ * Enum of cache keys for hashtag-related lists of Toots
+ * @enum {string}
+ */
 var TagTootsCacheKey;
 (function (TagTootsCacheKey) {
     TagTootsCacheKey["FAVOURITED_TAG_TOOTS"] = "FavouritedHashtagToots";
@@ -38,9 +42,10 @@ var TagTootsCacheKey;
     TagTootsCacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
 })(TagTootsCacheKey || (exports.TagTootsCacheKey = TagTootsCacheKey = {}));
 ;
-/** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
-/** Enum of storage keys for user data and app state (not API cache). */
+/**
+ * Enum of storage keys for user data and app state (not API cache).
+ * @private
+ */
 var AlgorithmStorageKey;
 (function (AlgorithmStorageKey) {
     AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
@@ -61,7 +66,10 @@ var NonScoreWeightName;
     NonScoreWeightName["OUTLIER_DAMPENER"] = "OutlierDampener";
 })(NonScoreWeightName || (exports.NonScoreWeightName = NonScoreWeightName = {}));
 ;
-/** Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering. */
+/**
+ * Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering.
+ * @enum {string}
+ */
 var ScoreName;
 (function (ScoreName) {
     ScoreName["ALREADY_SHOWN"] = "AlreadyShown";
@@ -89,7 +97,10 @@ var ScoreName;
     ScoreName["VIDEO_ATTACHMENTS"] = "VideoAttachments";
 })(ScoreName || (exports.ScoreName = ScoreName = {}));
 ;
-/** Enum of Mastodon API media category strings. */
+/**
+ * Enum of Mastodon API media category strings.
+ * @enum {string}
+ */
 var MediaCategory;
 (function (MediaCategory) {
     MediaCategory["AUDIO"] = "audio";
@@ -97,7 +108,10 @@ var MediaCategory;
     MediaCategory["VIDEO"] = "video";
 })(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 ;
-/** Enum of trending data types that can be fetched from the API. */
+/**
+ * Enum of trending data types that can be fetched from the API. *
+ * @enum {string}
+ */
 var TrendingType;
 (function (TrendingType) {
     TrendingType["LINKS"] = "links";
@@ -106,7 +120,10 @@ var TrendingType;
     TrendingType["TAGS"] = "tags";
 })(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
-/** Enum of boolean filter names for filtering toots by property. */
+/**
+ * Enum of boolean filter names for filtering toots by property.
+ * @enum {string}
+ */
 var BooleanFilterName;
 (function (BooleanFilterName) {
     BooleanFilterName["HASHTAG"] = "hashtag";
@@ -144,6 +161,11 @@ var TypeFilterName;
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
+/**
+ * Array of all cache keys (CacheKey and TagTootsCacheKey values).
+ * @private
+ */
+exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T

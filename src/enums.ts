@@ -7,6 +7,7 @@
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
  * @enum {string}
+ * @private
  */
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
@@ -27,19 +28,27 @@ export enum CacheKey {
     TIMELINE_TOOTS = 'TimelineToots',// The entire timeline (home timeline + trending toots etc.)
 };
 
-/** Enum of cache keys for hashtag-related Toot lists. */
+/**
+ * Enum of cache keys for hashtag-related lists of Toots
+ * @enum {string}
+ */
 export enum TagTootsCacheKey {
     FAVOURITED_TAG_TOOTS = 'FavouritedHashtagToots',
     PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
     TRENDING_TAG_TOOTS = 'TrendingTagToots'
 };
 
-/** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
+/**
+ * Type representing any valid API cache key (CacheKey or TagTootsCacheKey).
+ * @private
+ */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
-/** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
 
-/** Enum of storage keys for user data and app state (not API cache). */
+
+/**
+ * Enum of storage keys for user data and app state (not API cache).
+ * @private
+ */
 export enum AlgorithmStorageKey {
     APP_OPENS = 'AppOpens',
     FILTERS = 'Filters',
@@ -58,7 +67,10 @@ export enum NonScoreWeightName {
     OUTLIER_DAMPENER = 'OutlierDampener'
 };
 
-/** Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering. */
+/**
+ * Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering.
+ * @enum {string}
+ */
 export enum ScoreName {
     ALREADY_SHOWN = 'AlreadyShown',
     AUTHOR_FOLLOWERS = 'AuthorFollowers',
@@ -86,14 +98,20 @@ export enum ScoreName {
 };
 
 
-/** Enum of Mastodon API media category strings. */
+/**
+ * Enum of Mastodon API media category strings.
+ * @enum {string}
+ */
 export enum MediaCategory {
     AUDIO = "audio",
     IMAGE = "image",
     VIDEO = "video"
 };
 
-/** Enum of trending data types that can be fetched from the API. */
+/**
+ * Enum of trending data types that can be fetched from the API. *
+ * @enum {string}
+ */
 export enum TrendingType {
     LINKS = "links",
     SERVERS = 'servers',// Not necessarily really a trending data type but for now...
@@ -101,7 +119,10 @@ export enum TrendingType {
     TAGS = "tags"
 };
 
-/** Enum of boolean filter names for filtering toots by property. */
+/**
+ * Enum of boolean filter names for filtering toots by property.
+ * @enum {string}
+ */
 export enum BooleanFilterName {
     HASHTAG = 'hashtag',
     LANGUAGE = 'language',
@@ -136,6 +157,13 @@ export enum TypeFilterName {
     TRENDING_TOOTS = 'trending toots',
     VIDEOS = 'videos'
 };
+
+
+/**
+ * Array of all cache keys (CacheKey and TagTootsCacheKey values).
+ * @private
+ */
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
 
 
 /**
