@@ -13,24 +13,25 @@ interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
     homeInstanceInfo?: () => Promise<InstanceResponse>;
+    asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
     localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
     noteWithAccountInfo: string;
-    asBooleanFilterOption: BooleanFilterOption;
     webfingerURI: string;
 }
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
- * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
+ * Extends base Mastodon Account. The base class's properties are not documented here;
+ * see https://docs.joinmastodon.org/entities/Account/ for details.
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
- * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {string} localServerUrl - The account's URL on the user's home server.
  * @property {boolean} [isFollowed] - Whether this account is followed by the user.
  * @property {boolean} [isFollower] - Whether this account is following the user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
@@ -74,10 +75,6 @@ export default class Account implements AccountObj {
     get description(): string;
     get homeserver(): string;
     get localServerUrl(): string;
-    /**
-     * Returns HTML combining the note property with creation date, followers, and toots count.
-     * @returns {string}
-     */
     get noteWithAccountInfo(): string;
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
