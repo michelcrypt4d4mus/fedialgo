@@ -31,7 +31,8 @@
         <h2><span class="attribs"><span class="type-signature"></span></span>Toot<span class="signature">()</span><span class="type-signature"></span></h2>
         
             <div class="class-description">Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
-Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/</div>
+Extends the base Mastodon Status object. The base class's properties are not documented here; see
+https://docs.joinmastodon.org/entities/Status/ for details.</div>
         
     
 </header>
@@ -151,6 +152,37 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
         <tr>
             
+                <td class="name"><code>attachmentType</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">MediaAttachmentType</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The type of media in the toot (image, video, audio, etc.).</td>
+        </tr>
+
+    
+
+        <tr>
+            
                 <td class="name"><code>author</code></td>
             
 
@@ -205,6 +237,66 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
             
 
             <td class="description last">Timestamp a full deep inspection of the toot was completed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>contentTagsParagraph</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The content of last paragraph in the Toot but only if it's just hashtags links.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>description</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">A string describing the toot, including author, content, and createdAt.</td>
         </tr>
 
     
@@ -1089,124 +1181,6 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="attachmentType"><span class="type-signature"></span>attachmentType<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="contentTagsParagraph"><span class="type-signature"></span>contentTagsParagraph<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    If the final <p> paragraph of the content is just hashtags, return it.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -1572,7 +1546,8 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
 
 
 <div class="description">
-    Generate a string describing the followed and trending tags in the toot.
+    Generate a string describing the followed, trending, and participated tags in the toot.
+TODO: add favourited tags?
 </div>
 
 
@@ -2453,109 +2428,6 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     
 
     
-    <h4 class="name" id="describe"><span class="type-signature"></span>describe<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    String that describes the toot in not so many characters.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">string</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="getConversation"><span class="type-signature">(async) </span>getConversation<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;module:api/objects/toot~Toot>>}</span></h4>
     
 
@@ -2815,115 +2687,6 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     <dd>
         
 <span class="param-type">number</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="homeserverURL"><span class="type-signature">(async) </span>homeserverURL<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;string>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Make an API call to get this toot's URL on the home server instead of on the toot's original server.
-      this: https://fosstodon.org/@kate/114360290341300577
-   becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    The home server URL.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;string></span>
 
 
     </dd>
@@ -3228,6 +2991,115 @@ Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/
     <dd>
         
 <span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="localServerUrl"><span class="type-signature">(async) </span>localServerUrl<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;string>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
+      this: https://fosstodon.org/@kate/114360290341300577
+   becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The home server URL.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;string></span>
 
 
     </dd>
@@ -5095,7 +4967,7 @@ If 'source' arg is provided we set it as the Toot.source prop and avoid doing an
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Jun 10 2025 03:57:32 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Jun 10 2025 05:25:06 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
