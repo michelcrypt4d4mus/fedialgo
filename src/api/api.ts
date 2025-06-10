@@ -691,11 +691,20 @@ export default class MastoApi {
     }
 
     /**
-     * Returns the URL for a tag on the user's home server.
+     * Returns the URL for an account on the Feialgo user's home server.
      * @param {MastodonTag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
-    tagUrl(tag: MastodonTag | string) {
+    accountUrl(account: Account): string {
+        return account.homeserver == this.homeDomain ? account.url : this.endpointURL(`@${account.webfingerURI}`);
+    }
+
+    /**
+     * Returns the URL for a tag on the Feialgo user's home server.
+     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @returns {string} The tag URL.
+     */
+    tagUrl(tag: MastodonTag | string): string {
         return `${this.endpointURL(TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
     }
 
@@ -709,14 +718,14 @@ export default class MastoApi {
      * @param {string} endpoint - The API endpoint.
      * @returns {string} The full endpoint URL.
      */
-    private endpointURL = (endpoint: string) => `https://${this.homeDomain}/${endpoint}`;
+    private endpointURL = (endpoint: string): string => `https://${this.homeDomain}/${endpoint}`;
     /**
      * Checks if the config supports min/max ID for a given cache key.
      * @private
      * @param {CacheKey} cacheKey - The cache key.
      * @returns {boolean} True if min/max ID is supported.
      */
-    private supportsMinMaxId = (cacheKey: CacheKey) => !!config.api.data[cacheKey]?.supportsMinMaxId;
+    private supportsMinMaxId = (cacheKey: CacheKey): boolean => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
     /**
      * Pure fetch of API records, no caching or background updates.

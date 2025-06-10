@@ -33,6 +33,14 @@ const logger = new logger_1.Logger("Account");
  * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
+ * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
+ * @property {string} description - A string describing the account (displayName + webfingerURI).
+ * @property {string} homeserver - The account's home server domain.
+ * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {boolean} [isFollowed] - Whether this account is followed by the user.
+ * @property {boolean} [isFollower] - Whether this account is following the user.
+ * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
+ * @property {string} webfingerURI - The webfinger URI for the account.
  */
 class Account {
     id;
@@ -80,24 +88,12 @@ class Account {
             isFollowed: this.isFollowed,
         };
     }
-    /**
-     * Returns the account's home server domain (e.g. 'journa.host').
-     * @returns {string}
-     */
+    get description() { return `${this.displayName} (${this.webfingerURI})`; }
+    ;
     get homeserver() { return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server"; }
     ;
-    /**
-     * Returns the URL to the account on the user's home server.
-     * @returns {string}
-     */
-    get homserverURL() {
-        if (this.homeserver == api_1.default.instance.homeDomain) {
-            return this.url;
-        }
-        else {
-            return `https://${api_1.default.instance.homeDomain}/@${this.webfingerURI}`;
-        }
-    }
+    get localServerUrl() { return api_1.default.instance.accountUrl(this); }
+    ;
     /**
      * Returns HTML combining the note property with creation date, followers, and toots count.
      * @returns {string}
@@ -152,13 +148,6 @@ class Account {
         accountObj.isFollower = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
-    }
-    /**
-     * Returns a string description of the account (e.g. "Foobar (@foobar@mastodon.social)").
-     * @returns {string}
-     */
-    describe() {
-        return `${this.displayName} (${this.webfingerURI})`;
     }
     /**
      * Returns the display name with emojis and webfinger URI in HTML.

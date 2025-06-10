@@ -6,28 +6,16 @@ type AccountCount = Record<string, {
     count: number;
 }>;
 /**
- * Interface for Account object with additional helper methods and properties.
- * @interface
- * @typedef {object} AccountObj
- * @property {() => string} [describe] - Returns a string description of the account.
- * @property {() => string} [displayNameFullHTML] - Returns the display name with emojis and webfinger URI in HTML.
- * @property {() => string} [displayNameWithEmojis] - Returns the display name with custom emojis as <img> tags.
- * @property {() => Promise<InstanceResponse>} [homeInstanceInfo] - Gets the account's instance info from the API.
- * @property {string} homeserver - The account's home server domain.
- * @property {string} homserverURL - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - Whether this account is followed by the user.
- * @property {boolean} [isFollower] - Whether this account is following the user.
- * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
- * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
- * @property {string} webfingerURI - The webfinger URI for the account.
+ * Interface for mastodon.v1.Account object extending with additional helper methods and properties.
+
  */
 interface AccountObj extends mastodon.v1.Account {
-    describe?: () => string;
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
     homeInstanceInfo?: () => Promise<InstanceResponse>;
+    description: string;
     homeserver: string;
-    homserverURL: string;
+    localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
     noteWithAccountInfo: string;
@@ -39,6 +27,14 @@ interface AccountObj extends mastodon.v1.Account {
  * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
+ * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
+ * @property {string} description - A string describing the account (displayName + webfingerURI).
+ * @property {string} homeserver - The account's home server domain.
+ * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {boolean} [isFollowed] - Whether this account is followed by the user.
+ * @property {boolean} [isFollower] - Whether this account is following the user.
+ * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
+ * @property {string} webfingerURI - The webfinger URI for the account.
  */
 export default class Account implements AccountObj {
     id: string;
@@ -75,16 +71,9 @@ export default class Account implements AccountObj {
      * @returns {BooleanFilterOption}
      */
     get asBooleanFilterOption(): BooleanFilterOption;
-    /**
-     * Returns the account's home server domain (e.g. 'journa.host').
-     * @returns {string}
-     */
+    get description(): string;
     get homeserver(): string;
-    /**
-     * Returns the URL to the account on the user's home server.
-     * @returns {string}
-     */
-    get homserverURL(): string;
+    get localServerUrl(): string;
     /**
      * Returns HTML combining the note property with creation date, followers, and toots count.
      * @returns {string}
@@ -96,11 +85,6 @@ export default class Account implements AccountObj {
      * @returns {Account} The constructed Account instance.
      */
     static build(account: AccountLike): Account;
-    /**
-     * Returns a string description of the account (e.g. "Foobar (@foobar@mastodon.social)").
-     * @returns {string}
-     */
-    describe(): string;
     /**
      * Returns the display name with emojis and webfinger URI in HTML.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE]

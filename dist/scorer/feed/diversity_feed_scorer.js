@@ -64,7 +64,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 this.scoreData[toot.uri] = 0;
             }
             else {
-                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.describe()}:`, toot);
+                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.description}:`, toot);
             }
             return 0;
         }
