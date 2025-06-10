@@ -973,7 +973,7 @@ export default class Toot implements TootObj {
                 toot.realToot.favourited = uriToots.some(toot => toot.realToot.favourited);
                 toot.realToot.reblogged = uriToots.some(toot => toot.realToot.reblogged);
                 toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
-                toot.muted = uriToots.some(toot => toot.muted);  // Liberally set muted on retoots and real toots
+                toot.muted = uriToots.some(toot => toot.muted || toot.realToot.muted);  // Liberally set muted on retoots and real toots
 
                 // Reblog props
                 if (toot.reblog) {

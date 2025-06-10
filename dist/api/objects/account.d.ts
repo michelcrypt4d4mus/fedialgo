@@ -59,18 +59,14 @@ export default class Account implements AccountObj {
     avatarStatic: string;
     header: string;
     headerStatic: string;
-    noindex?: boolean;
-    moved?: Account | null;
-    suspended?: boolean | null;
     limited?: boolean | null;
+    moved?: Account | null;
+    noindex?: boolean;
     roles: mastodon.v1.Account["roles"];
-    isFollowed: boolean;
-    isFollower: boolean;
+    suspended?: boolean | null;
+    isFollowed?: boolean;
+    isFollower?: boolean;
     webfingerURI: string;
-    /**
-     * Returns the account properties used in BooleanFilter.
-     * @returns {BooleanFilterOption}
-     */
     get asBooleanFilterOption(): BooleanFilterOption;
     get description(): string;
     get homeserver(): string;
