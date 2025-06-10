@@ -3,6 +3,7 @@
  * Includes methods for scoring, filtering, deduplication, and property repair.
  */
 import { capitalCase } from "change-case";
+import { isFinite } from "lodash";
 import { mastodon } from "masto";
 import { Type } from 'class-transformer';
 
@@ -15,7 +16,6 @@ import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } fr
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
-import { isNumber } from "../../helpers/math_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
@@ -506,7 +506,7 @@ export default class Toot implements TootObj {
      * @returns {number}
      */
     getIndividualScore(scoreType: ScoreType, name: ScoreName): number {
-        if (isNumber(this.scoreInfo?.scores?.[name]?.[scoreType])) {
+        if (isFinite(this.scoreInfo?.scores?.[name]?.[scoreType])) {
             return this.scoreInfo!.scores[name][scoreType];
         } else {
             tootLogger.trace(`no score available for ${scoreType}/${name}:`, this);

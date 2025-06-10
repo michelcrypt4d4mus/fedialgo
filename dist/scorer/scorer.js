@@ -7,6 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Base class for Toot scorers.
  */
 const async_mutex_1 = require("async-mutex");
+const lodash_1 = require("lodash");
 const scorer_cache_1 = __importDefault(require("./scorer_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -99,13 +100,27 @@ class Scorer {
         }
         return toots;
     }
+    /**
+     * Check that the weights object contains valid weight names and values.
+     * @param weights - Weights object to validate.
+     * @throws {Error} If any weight is invalid or missing.
+     */
+    static validateWeights(weights) {
+        Object.entries(weights).forEach(([weightName, value]) => {
+            if (!(0, enums_1.isWeightName)(weightName))
+                throw new Error(`Invalid weight name: ${weightName}`);
+            if (!(0, lodash_1.isFinite)(value))
+                throw new Error(`Weight ${weightName} is missing from weights object!`);
+            if ((0, enums_1.isNonScoreWeightName)(weightName) && value <= 0) {
+                throw new Error(`Non-score weight ${weightName} must be greater than 0!`);
+            }
+        });
+    }
     ////////////////////////////////
     //   Private static methods   //
     ////////////////////////////////
     // Add all the score info to a Toot's scoreInfo property
     static async decorateWithScoreInfo(toot, scorers) {
-        const realToot = toot.realToot;
-        // Do the scoring
         const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Find non scorer weights
         const userWeights = await Storage_1.default.getWeights();

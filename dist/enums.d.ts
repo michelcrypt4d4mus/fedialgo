@@ -122,8 +122,6 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trending toots",
     VIDEOS = "videos"
 }
-/** Returns true if string is an element of TypeFilterName enum. */
-export declare const isTypeFilterName: (value: string) => boolean;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
@@ -140,3 +138,7 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * @returns {(value: string) => boolean} The checker function.
  */
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
+export declare const isScoreName: (str: string) => boolean;
+export declare const isNonScoreWeightName: (str: string) => boolean;
+export declare const isTypeFilterName: (str: string) => boolean;
+export declare const isWeightName: (str: string) => boolean;

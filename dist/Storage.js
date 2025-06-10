@@ -32,6 +32,7 @@ exports.STORAGE_KEYS_WITH_UNIQUE_IDS = exports.STORAGE_KEYS_WITH_ACCOUNTS = expo
  */
 const localforage_1 = __importDefault(require("localforage"));
 const class_transformer_1 = require("class-transformer");
+const lodash_1 = require("lodash");
 const account_1 = __importDefault(require("./api/objects/account"));
 const api_1 = __importDefault(require("./api/api"));
 const tag_list_1 = __importDefault(require("./api/tag_list"));
@@ -46,8 +47,8 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const math_helper_2 = require("./helpers/math_helper");
 const logger_1 = require("./helpers/logger");
+const math_helper_2 = require("./helpers/math_helper");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
     name: string_helpers_1.FEDIALGO,
@@ -166,7 +167,7 @@ class Storage {
         // If there are stored weights set any missing values to the default (possible in case of upgrades)
         Object.entries(weight_presets_1.DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key];
-            if (!(0, math_helper_2.isNumber)(value)) {
+            if (!(0, lodash_1.isFinite)(value)) {
                 logger.warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key] = weight_presets_1.DEFAULT_WEIGHTS[key];
                 shouldSave = true;

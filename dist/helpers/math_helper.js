@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.isNumberOrNumberString = exports.isNumber = exports.BytesDict = void 0;
+exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.isNumberOrNumberString = exports.BytesDict = void 0;
 /*
  * Math and numbers.
  */
+const lodash_1 = require("lodash");
 const string_helpers_1 = require("./string_helpers");
 const log_helpers_1 = require("./log_helpers");
 const collection_helpers_1 = require("./collection_helpers");
@@ -35,11 +36,10 @@ class BytesDict {
 }
 exports.BytesDict = BytesDict;
 ;
-// Returns true if it's a digits striing or if it's a number besides NaN or Infinity
-const isNumber = (n) => typeof n == "number" ? !isNaN(n) && isFinite(n) : false;
-exports.isNumber = isNumber;
 // Same as isNumber() but accepts a numerical string as well
-const isNumberOrNumberString = (n) => typeof n == "string" ? NUMBER_REGEX.test(n) : (0, exports.isNumber)(n);
+const isNumberOrNumberString = (n) => {
+    return typeof n == "string" ? NUMBER_REGEX.test(n) : (0, lodash_1.isFinite)(n);
+};
 exports.isNumberOrNumberString = isNumberOrNumberString;
 // Use TextEncoder to get the byte length of an object
 function sizeFromTextEncoder(obj) {

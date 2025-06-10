@@ -545,6 +545,7 @@ class TheAlgorithm {
      */
     async updateUserWeights(userWeights: Weights): Promise<Toot[]> {
         this.logger.log("updateUserWeights() called with weights:", userWeights);
+        Scorer.validateWeights(userWeights);
         await Storage.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }

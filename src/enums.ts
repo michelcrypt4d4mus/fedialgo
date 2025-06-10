@@ -85,6 +85,7 @@ export enum ScoreName {
     VIDEO_ATTACHMENTS = 'VideoAttachments'
 };
 
+
 /** Enum of Mastodon API media category strings. */
 export enum MediaCategory {
     AUDIO = "audio",
@@ -136,9 +137,6 @@ export enum TypeFilterName {
     VIDEOS = 'videos'
 };
 
-/** Returns true if string is an element of TypeFilterName enum. */
-export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
-
 
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
@@ -169,3 +167,10 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
     const enumValues = new Set(Object.values(strEnum) as string[]);
     return (str: string): str is E => enumValues.has(str);
 };
+
+
+// Helper functions to check if a string is a valid enum value
+export const isScoreName = isValueInStringEnum(ScoreName);
+export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
+export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);

@@ -3,7 +3,7 @@
  * Enums used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName = exports.isScoreName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
@@ -144,9 +144,6 @@ var TypeFilterName;
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
-/** Returns true if string is an element of TypeFilterName enum. */
-const isTypeFilterName = (value) => isValueInStringEnum(TypeFilterName)(value);
-exports.isTypeFilterName = isTypeFilterName;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
@@ -175,4 +172,10 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
+// Helper functions to check if a string is a valid enum value
+exports.isScoreName = isValueInStringEnum(ScoreName);
+exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
+const isWeightName = (str) => (0, exports.isScoreName)(str) || (0, exports.isNonScoreWeightName)(str);
+exports.isWeightName = isWeightName;
 //# sourceMappingURL=enums.js.map

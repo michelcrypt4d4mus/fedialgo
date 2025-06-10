@@ -524,6 +524,7 @@ class TheAlgorithm {
      */
     async updateUserWeights(userWeights) {
         this.logger.log("updateUserWeights() called with weights:", userWeights);
+        scorer_1.default.validateWeights(userWeights);
         await Storage_1.default.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }

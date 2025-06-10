@@ -11,7 +11,6 @@ export declare class BytesDict {
     toDict(): StringNumberDict;
     toBytesStringDict(): Record<string, string>;
 }
-export declare const isNumber: (n: any) => boolean;
 export declare const isNumberOrNumberString: (n: string | OptionalNumber) => boolean;
 export declare function sizeFromTextEncoder(obj: object): number;
 export declare function sizeFromBufferByteLength(obj: object): number;

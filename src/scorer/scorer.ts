@@ -2,6 +2,7 @@
  * Base class for Toot scorers.
  */
 import { E_CANCELED, Mutex, MutexInterface } from 'async-mutex';
+import { isFinite } from 'lodash';
 
 import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
@@ -11,7 +12,7 @@ import { batchMap, sumArray } from "../helpers/collection_helpers";
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
 import { Logger } from '../helpers/logger';
-import { ScoreName, NonScoreWeightName } from '../enums';
+import { NonScoreWeightName, ScoreName, isNonScoreWeightName, isWeightName } from '../enums';
 import {
     type ScoreType,
     type StringNumberDict,
@@ -19,6 +20,7 @@ import {
     type TootScores,
     type WeightInfo,
     type WeightName,
+    type Weights,
 } from "../types";
 
 // Local constants
@@ -122,15 +124,30 @@ export default abstract class Scorer {
         return toots;
     }
 
+    /**
+     * Check that the weights object contains valid weight names and values.
+     * @param weights - Weights object to validate.
+     * @throws {Error} If any weight is invalid or missing.
+     */
+    static validateWeights(weights: Weights) {
+        Object.entries(weights).forEach(([weightName, value]) => {
+            if (!isWeightName(weightName)) throw new Error(`Invalid weight name: ${weightName}`);
+            if (!isFinite(value)) throw new Error(`Weight ${weightName} is missing from weights object!`);
+
+            if (isNonScoreWeightName(weightName) && value <= 0) {
+                throw new Error(`Non-score weight ${weightName} must be greater than 0!`);
+            }
+        });
+    }
+
     ////////////////////////////////
     //   Private static methods   //
     ////////////////////////////////
 
     // Add all the score info to a Toot's scoreInfo property
     private static async decorateWithScoreInfo(toot: Toot, scorers: Scorer[]): Promise<void> {
-        const realToot = toot.realToot;
-        // Do the scoring
         const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
+
         // Find non scorer weights
         const userWeights = await Storage.getWeights();
         const getWeight = (weightKey: WeightName) => userWeights[weightKey] ?? DEFAULT_WEIGHTS[weightKey];
