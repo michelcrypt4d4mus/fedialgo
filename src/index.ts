@@ -107,14 +107,8 @@ const EMPTY_TRENDING_DATA: TrendingData = {
     toots: []
 };
 
-/**
- * Arguments for constructing a TheAlgorithm instance.
- * @typedef {object} AlgorithmArgs
- * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
- * @property {mastodon.v1.Account} user - The Mastodon user account for which to build the feed.
- * @property {string} [locale] - Optional locale string for date formatting.
- * @property {(feed: Toot[]) => void} [setTimelineInApp] - Optional callback to set the feed in the consuming app.
- */
+const trendingTootsLogger = new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)
+
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -304,10 +298,8 @@ class TheAlgorithm {
         };
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(TagTootsCacheKey.TRENDING_TAG_TOOTS),
+            ...Object.values(TagTootsCacheKey).map(hashtagToots),
+            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ]);

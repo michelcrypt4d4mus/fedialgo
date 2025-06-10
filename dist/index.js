@@ -122,6 +122,7 @@ const EMPTY_TRENDING_DATA = {
     servers: {},
     toots: []
 };
+const trendingTootsLogger = new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
 ;
 /**
  * Main class for scoring, sorting, and managing a Mastodon feed made of Toot objects.
@@ -290,10 +291,8 @@ class TheAlgorithm {
             return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
+            ...Object.values(enums_1.TagTootsCacheKey).map(hashtagToots),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ]);
