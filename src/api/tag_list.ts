@@ -21,7 +21,7 @@ const logger = new Logger("TagList");
 
 /**
  * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
- * @extends ObjWithCountList
+ * @augments ObjWithCountList
  */
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ListSource) {

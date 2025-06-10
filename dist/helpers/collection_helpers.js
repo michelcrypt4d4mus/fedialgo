@@ -15,6 +15,8 @@ const api_1 = require("../api/api");
 const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
+;
+;
 const BATCH_MAP = "batchMap()";
 /**
  * Adds up an arbitrary number of StringNumberDicts, returning a new dict.

@@ -136,7 +136,6 @@ interface AlgorithmArgs {
  * - Provides methods for updating filters, weights, and retrieving current state
  * - Exposes utility methods for stats, server info, and tag URLs
  *
- * Properties:
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
  * @property {boolean} isLoading - Whether a feed load is in progress*
@@ -149,8 +148,16 @@ interface AlgorithmArgs {
  * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 class TheAlgorithm {
-    static readonly isDebugMode = isDebugMode;
-    static readonly weightPresets: WeightPresets = JSON.parse(JSON.stringify(WEIGHT_PRESETS));
+    /**
+     * True if FEDIALGO_DEBUG environment var was set at compile time.
+     * @returns {boolean}
+     */
+    static get isDebugMode(): boolean { return isDebugMode };
+    /**
+     * Dictionary of preset weight configurations for scoring.
+     * @returns {WeightPresets}
+     */
+    static get weightPresets(): WeightPresets { return WEIGHT_PRESETS };
 
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
@@ -653,8 +660,9 @@ class TheAlgorithm {
     private async finishFeedUpdate(): Promise<void> {
         const logger = this.logger.tempLogger(`finishFeedUpdate()`);
         this.loadingStatus = FINALIZING_SCORES_MSG;
-        logger.debug(`${FINALIZING_SCORES_MSG}...`);
+
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
+        logger.debug(`${this.loadingStatus}...`);
         await Toot.completeToots(this.feed, logger);
         this.feed = await Toot.removeInvalidToots(this.feed, logger);
         await updateBooleanFilterOptions(this.filters, this.feed);

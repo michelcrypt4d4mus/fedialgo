@@ -24,7 +24,6 @@ export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this
  * Supports both dictionary and sorted list operations, and provides utility methods
  * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
  *
- * @class
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.

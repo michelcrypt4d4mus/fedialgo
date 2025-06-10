@@ -92,9 +92,14 @@ function repairFilterSettings(filters) {
     return wasChanged;
 }
 exports.repairFilterSettings = repairFilterSettings;
-// Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
-// Note that this shouldn't need to be called when initializing from storage because the filter options
-// will all have been stored and reloaded along with the feed that birthed those filter options.
+/**
+ * Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options
+ * Note that this shouldn't need to be called when initializing from storage because the filter options
+ * will all have been stored and reloaded along with the feed that birthed those filter options.
+ * @param {FeedFilterSettings} filters - The filter settings to update with new options.
+ * @param {Toot[]} toots - The toots to analyze for filter options.
+ * @returns {Promise<void>} A promise that resolves when the filter options have been updated.
+ */
 async function updateBooleanFilterOptions(filters, toots) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
@@ -163,7 +168,6 @@ async function updateBooleanFilterOptions(filters, toots) {
     logSuppressedHashtags(suppressedNonLatinTags);
     await Storage_1.default.setFilters(filters);
     logger.trace(`Updated filters:`, filters);
-    return filters;
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 // We have to rescan the toots to get the tag counts because the tag counts are built with

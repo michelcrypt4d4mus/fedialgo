@@ -3,7 +3,7 @@ import Toot from "./objects/toot";
 import { type MastodonTag, type NamedTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
 /**
  * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
- * @extends ObjWithCountList
+ * @augments ObjWithCountList
  */
 export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ListSource);

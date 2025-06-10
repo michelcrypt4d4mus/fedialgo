@@ -16,14 +16,20 @@ import {
     type MastodonObjWithID,
     type MinMax,
     type MinMaxID,
-    type PromiseFulfilledResult,
-    type PromiseRejectedResult,
-    type PromisesResults,
     type StringDict,
     type StringNumberDict,
     type Weights,
     type WithCreatedAt,
 } from "../types";
+
+// Unfortunately these types, returned by Promise.allSettled(), are not exported anywhere so we're manually recreating...
+interface PromiseFulfilledResult<T> { status: "fulfilled", value: T };
+interface PromiseRejectedResult { status: "rejected", reason: unknown };
+
+type PromisesResults<T> = {
+    fulfilled: T[];
+    rejectedReasons: any[];
+};
 
 const BATCH_MAP = "batchMap()";
 

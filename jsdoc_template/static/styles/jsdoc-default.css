@@ -356,3 +356,10 @@ tr > th:last-child { border-right: 1px solid #ddd; }
 .disabled {
     color: #454545;
 }
+
+hr.methodSeparator {
+    /* background-color: #929493;
+    border-color: #929493;
+    color: #929493; */
+    width: 60%;
+}

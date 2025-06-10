@@ -49,7 +49,7 @@ type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => mastodon.Pagi
 /**
  * Represents cached rows of API objects, including optional min/max ID information and cache timestamp.
  * @template T
- * @extends CacheTimestamp
+ * @augments CacheTimestamp
  * @property {MinMaxID | null} [minMaxId] - The min/max ID in the cache if supported by the request.
  * @property {T[]} rows - Cached rows of API objects.
  */
@@ -76,7 +76,7 @@ export interface ApiParams {
 
 /**
  * Parameters for endpoints that support a max_id parameter, extending ApiParams.
- * @extends ApiParams
+ * @augments ApiParams
  * @property {string | number | null} [maxId] - Optional maxId to use for pagination.
  */
 interface ApiParamsWithMaxID extends ApiParams {
@@ -85,7 +85,7 @@ interface ApiParamsWithMaxID extends ApiParams {
 
 /**
  * Parameters for fetching the home timeline, extending ApiParamsWithMaxID.
- * @extends ApiParamsWithMaxID
+ * @augments ApiParamsWithMaxID
  * @property {(toots: Toot[], logger: Logger) => Promise<void>} mergeTootsToFeed - Function to merge fetched Toots into the main feed.
  */
 interface HomeTimelineParams extends ApiParamsWithMaxID {
@@ -95,7 +95,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
 /**
  * Parameters for fetching up to maxRecords pages of a user's data from the API.
  * @template T
- * @extends ApiParamsWithMaxID
+ * @augments ApiParamsWithMaxID
  * @property {(pageOfResults: T[], allResults: T[]) => Promise<true | undefined>} [breakIf] - Function to check if more pages should be fetched.
  * @property {CacheKey} cacheKey - Cache key for storage.
  * @property {ApiFetcher<T>} [fetch] - Data fetching function to call with params.
@@ -117,7 +117,7 @@ interface FetchParams<T extends MastodonApiObj> extends ApiParamsWithMaxID {
 /**
  * Parameters for background fetches, extending FetchParams.
  * @template T
- * @extends FetchParams<T>
+ * @augments FetchParams<T>
  * @property {number} minRecords - Minimum number of records to fetch.
  */
 interface BackgroundFetchparams<T extends MastodonApiObj> extends FetchParams<T> {
@@ -127,7 +127,7 @@ interface BackgroundFetchparams<T extends MastodonApiObj> extends FetchParams<T>
 /**
  * Same as FetchParams but all properties are required and 'limit' is added.
  * @template T
- * @extends FetchParams<T>
+ * @augments FetchParams<T>
  * @property {number} limit - The limit for the API request.
  * @property {Logger} logger - Logger instance for logging.
  * @property {number} [maxCacheRecords] - Optional maximum number of records to keep in the cache.
@@ -153,8 +153,8 @@ interface MinMaxIDParams {
 /**
  * Same as FetchParams but with a few derived fields, including cache data and min/max ID params.
  * @template T
- * @extends FetchParamsWithDefaults<T>
- * @extends MinMaxIDParams
+ * @augments FetchParamsWithDefaults<T>
+ * @augments MinMaxIDParams
  * @property {CachedRows<T> | null} cacheResult - The cached result for the request, if any.
  */
 interface FetchParamsWithCacheData<T extends MastodonApiObj> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
@@ -181,24 +181,23 @@ const apiLogger = getLogger();
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
+ * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
+ * @property {Error[]} apiErrors - Array of errors encountered while using the API.
+ * @property {string} homeDomain - The Fedialgo user's home server domain.
+ * @property {Logger} logger - API logger instance.
+ * @property {Account} user - The Fedialgo user's Account object.
+ * @property {UserData} [userData] - The Fedialgo user's historical info.
+ * @property {Record<CacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
  */
 export default class MastoApi {
-    /** Singleton instance of MastoApi. */
     static #instance: MastoApi;
 
-    /** Mastodon REST API client instance. */
     api: mastodon.rest.Client;
-    /** Errors encountered while using the API. */
     apiErrors: Error[] = [];
-    /** The Fedialgo user's home server domain. */
     homeDomain: string;
-    /** API logger. */
     logger: Logger = getLogger();
-    /** The Fedialgo user's Account object'. */
     user: Account;
-    /** The Fedialgo user's historical info. */
-    userData?: UserData;  // Save UserData in the API object to avoid polling local storage over and over
-    /** Tracks the amount of time spent waiting for each endpoint's API responses. */
+    userData?: UserData;
     waitTimes = buildCacheKeyDict(() => new WaitTime());
 
     private apiMutexes = buildCacheKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
@@ -229,7 +228,7 @@ export default class MastoApi {
      * @returns {MastoApi}
      * @throws {Error} If the instance has not been initialized.
      */
-    public static get instance(): MastoApi {
+    static get instance(): MastoApi {
         if (!MastoApi.#instance) throw new Error("MastoApi wasn't initialized before use!");
         return MastoApi.#instance;
     }

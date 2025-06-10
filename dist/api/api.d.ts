@@ -23,7 +23,7 @@ export interface ApiParams {
 }
 /**
  * Parameters for endpoints that support a max_id parameter, extending ApiParams.
- * @extends ApiParams
+ * @augments ApiParams
  * @property {string | number | null} [maxId] - Optional maxId to use for pagination.
  */
 interface ApiParamsWithMaxID extends ApiParams {
@@ -31,7 +31,7 @@ interface ApiParamsWithMaxID extends ApiParams {
 }
 /**
  * Parameters for fetching the home timeline, extending ApiParamsWithMaxID.
- * @extends ApiParamsWithMaxID
+ * @augments ApiParamsWithMaxID
  * @property {(toots: Toot[], logger: Logger) => Promise<void>} mergeTootsToFeed - Function to merge fetched Toots into the main feed.
  */
 interface HomeTimelineParams extends ApiParamsWithMaxID {
@@ -45,22 +45,22 @@ export declare const FULL_HISTORY_PARAMS: {
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
+ * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
+ * @property {Error[]} apiErrors - Array of errors encountered while using the API.
+ * @property {string} homeDomain - The Fedialgo user's home server domain.
+ * @property {Logger} logger - API logger instance.
+ * @property {Account} user - The Fedialgo user's Account object.
+ * @property {UserData} [userData] - The Fedialgo user's historical info.
+ * @property {Record<CacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
  */
 export default class MastoApi {
     #private;
-    /** Mastodon REST API client instance. */
     api: mastodon.rest.Client;
-    /** Errors encountered while using the API. */
     apiErrors: Error[];
-    /** The Fedialgo user's home server domain. */
     homeDomain: string;
-    /** API logger. */
     logger: Logger;
-    /** The Fedialgo user's Account object'. */
     user: Account;
-    /** The Fedialgo user's historical info. */
     userData?: UserData;
-    /** Tracks the amount of time spent waiting for each endpoint's API responses. */
     waitTimes: Record<ApiCacheKey, WaitTime>;
     private apiMutexes;
     private cacheMutexes;
