@@ -274,8 +274,7 @@ export default class Toot implements TootObj {
     get realURL(): string { return this.realToot.url || this.realURI };
     get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(at) };
     get score(): number { return this.scoreInfo?.score || 0 };
-    // * TODO: should this consider the values in reblogsBy?
-    get tootedAt(): Date { return new Date(this.createdAt) };
+    get tootedAt(): Date { return new Date(this.createdAt) };  // TODO: should this consider the values in reblogsBy?
     get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
 
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
@@ -400,7 +399,8 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Generate a string describing the followed and trending tags in the toot.
+     * Generate a string describing the followed, trending, and participated tags in the toot.
+     * TODO: add favourited tags?
      * @returns {string | undefined}
      */
     containsTagsMsg(): string | undefined {
@@ -449,13 +449,11 @@ export default class Toot implements TootObj {
      */
     contentShortened(maxChars?: number): string {
         maxChars ||= config.toots.maxContentPreviewChars;
-        let content = this.contentString();
-        content = replaceHttpsLinks(content);
+        let content = replaceHttpsLinks(this.contentString());
 
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            let mediaType = this.attachmentType ? `${this.attachmentType}` : "empty";
-            content = `<${capitalCase(mediaType)} post by ${this.author.describe()}>`;
+            content = `<${capitalCase(this.attachmentType || 'empty')} post by ${this.author.describe()}>`;
         } else if (content.length > maxChars) {
             content = `${content.slice(0, maxChars)}...`;
         }

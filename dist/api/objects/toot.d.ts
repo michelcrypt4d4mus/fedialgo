@@ -187,7 +187,8 @@ export default class Toot implements TootObj {
      */
     containsTag(tag: TagWithUsageCounts, fullScan?: boolean): boolean;
     /**
-     * Generate a string describing the followed and trending tags in the toot.
+     * Generate a string describing the followed, trending, and participated tags in the toot.
+     * TODO: add favourited tags?
      * @returns {string | undefined}
      */
     containsTagsMsg(): string | undefined;

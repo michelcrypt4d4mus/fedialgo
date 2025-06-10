@@ -186,9 +186,8 @@ class Toot {
     ;
     get score() { return this.scoreInfo?.score || 0; }
     ;
-    // * TODO: should this consider the values in reblogsBy?
     get tootedAt() { return new Date(this.createdAt); }
-    ;
+    ; // TODO: should this consider the values in reblogsBy?
     get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
     ;
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
@@ -306,7 +305,8 @@ class Toot {
         }
     }
     /**
-     * Generate a string describing the followed and trending tags in the toot.
+     * Generate a string describing the followed, trending, and participated tags in the toot.
+     * TODO: add favourited tags?
      * @returns {string | undefined}
      */
     containsTagsMsg() {
@@ -351,12 +351,10 @@ class Toot {
      */
     contentShortened(maxChars) {
         maxChars ||= config_1.config.toots.maxContentPreviewChars;
-        let content = this.contentString();
-        content = (0, string_helpers_1.replaceHttpsLinks)(content);
+        let content = (0, string_helpers_1.replaceHttpsLinks)(this.contentString());
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            let mediaType = this.attachmentType ? `${this.attachmentType}` : "empty";
-            content = `<${(0, change_case_1.capitalCase)(mediaType)} post by ${this.author.describe()}>`;
+            content = `<${(0, change_case_1.capitalCase)(this.attachmentType || 'empty')} post by ${this.author.describe()}>`;
         }
         else if (content.length > maxChars) {
             content = `${content.slice(0, maxChars)}...`;
