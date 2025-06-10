@@ -910,7 +910,7 @@ class MastoApi {
      */
     shouldReturnCachedRows(params) {
         const { cacheResult, moar } = params;
-        return cacheResult?.rows && !cacheResult.isStale && !moar;
+        return !!(cacheResult?.rows && !cacheResult.isStale && !moar);
     }
     /**
      * Validates that the fetch parameters are valid and work together.

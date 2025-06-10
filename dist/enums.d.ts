@@ -31,7 +31,7 @@ export declare enum TagTootsCacheKey {
 /** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 /** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-export declare const ALL_CACHE_KEYS: (CacheKey | TagTootsCacheKey)[];
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
 /** Enum of storage keys for user data and app state (not API cache). */
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",

@@ -47,7 +47,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [ScoreName.TRENDING_TAGS]: 0.2,
     [ScoreName.TRENDING_TOOTS]: 1.0,
     [ScoreName.VIDEO_ATTACHMENTS]: 0,
-};
+} as const;
 
 
 export const WEIGHT_PRESETS: WeightPresets = {
@@ -123,4 +123,4 @@ export const WEIGHT_PRESETS: WeightPresets = {
         [ScoreName.TRENDING_TAGS]: DEFAULT_WEIGHTS[ScoreName.TRENDING_TAGS] * 3,
         [ScoreName.TRENDING_TOOTS]: DEFAULT_WEIGHTS[ScoreName.TRENDING_TOOTS] * 3,
     },
-};
+} as const;

@@ -37,7 +37,7 @@ export enum TagTootsCacheKey {
 /** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 /** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
 
 /** Enum of storage keys for user data and app state (not API cache). */
 export enum AlgorithmStorageKey {

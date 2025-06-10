@@ -1097,9 +1097,9 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {boolean} True if cached rows should be returned.
      */
-    private shouldReturnCachedRows<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>) {
+    private shouldReturnCachedRows<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): boolean {
         const { cacheResult, moar } = params;
-        return cacheResult?.rows && !cacheResult.isStale && !moar;
+        return !!(cacheResult?.rows && !cacheResult.isStale && !moar);
     }
 
     /**

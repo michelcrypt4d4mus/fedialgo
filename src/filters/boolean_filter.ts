@@ -38,7 +38,7 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.TRENDING_TAGS]:     (toot) => !!toot.realToot.trendingTags?.length,
     [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot.trendingRank,
     [TypeFilterName.VIDEOS]:            (toot) => !!toot.realToot.videoAttachments?.length,
-};
+} as const;
 
 // Matchers for each BooleanFilterName.
 const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
@@ -57,7 +57,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.USER]: (toot: Toot, selectedOptions: string[]) => {
         return selectedOptions.includes(toot.realToot.account.webfingerURI);
     },
-};
+} as const;
 
 export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
     selectedOptions?: string[];

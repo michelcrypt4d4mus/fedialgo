@@ -53,6 +53,8 @@ import {
     wordRegex,
 } from "../../helpers/string_helpers";
 import {
+    CONVERSATION,
+    JUST_MUTING,
     type AccountLike,
     type FeedFilterSettings,
     type KeysOfValueType,
@@ -63,8 +65,8 @@ import {
     type TootLike,
     type TootNumberProp,
     type TootScore,
+    type TootSource,
     type TrendingLink,
-    type WeightedScore,
 } from "../../types";
 
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -88,7 +90,6 @@ type TootCache = {
 };
 
 
-export const JUST_MUTING = "justMuting";  // Used in the filter settings to indicate that the user is just muting this toot
 export const UNKNOWN = "unknown";
 const MAX_ID_IDX = 2;
 const BSKY_BRIDGY = 'bsky.brid.gy';
@@ -489,12 +490,11 @@ export default class Toot implements TootObj {
      * @returns {Promise<Toot[]>}
      */
     async getConversation(): Promise<Toot[]> {
-        const source = 'getConversation';
-        const logger = tootLogger.tempLogger(source);
+        const logger = tootLogger.tempLogger(CONVERSATION);
         logger.debug(`Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await MastoApi.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], source, true);
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], CONVERSATION);
         logger.trace(`Fetched ${toots.length} toots ${ageString(startTime)}`, toots.map(t => t.describe()));
         return toots;
     }
@@ -618,7 +618,7 @@ export default class Toot implements TootObj {
         userData: UserData,
         trendingLinks: TrendingLink[],
         trendingTags: TagWithUsageCounts[],
-        source?: string
+        source?: TootSource
     ): void {
         if (source) {
             this.sources ??= [];
@@ -859,11 +859,10 @@ export default class Toot implements TootObj {
      * Build array of new Toot objects from an array of Status objects (or Toots).
      * Toots returned are sorted by score and should have most of their properties set correctly.
      * @param {TootLike[]} statuses - Array of status objects or Toots.
-     * @param {string} source - The source label for logging.
-     * @param {boolean} [skipSort] - If true, don't sort by score and don't remove the user's own toots.
+     * @param {TootSource} source - The source label for logging.
      * @returns {Promise<Toot[]>}
      */
-    static async buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]> {
+    static async buildToots(statuses: TootLike[], source: TootSource): Promise<Toot[]> {
         if (!statuses.length) return [];  // Avoid the data fetching if we don't to build anything
         const logger = tootLogger.tempLogger(source, `buildToots`);
         const startedAt = new Date();
@@ -873,11 +872,11 @@ export default class Toot implements TootObj {
         let toots = await this.completeToots(statuses, logger, source);
         toots = await this.removeInvalidToots(toots, logger);
         toots = Toot.dedupeToots(toots, logger);
-        if (!skipSort) toots = this.removeUsersOwnToots(toots, logger);  // Don't want to remove user's toots from threads
+        if (source != CONVERSATION) toots = this.removeUsersOwnToots(toots, logger);  // Don't want to remove user's toots from threads
 
         // Make a first pass at scoring with whatever scorers are ready to score
         await Scorer.scoreToots(toots, false);
-        if (!skipSort) toots.sort((a, b) => b.score - a.score);
+        if (source != CONVERSATION) toots.sort((a, b) => b.score - a.score);
         logger.trace(`${toots.length} toots built in ${ageString(startedAt)}`);
         return toots;
     }
@@ -890,7 +889,7 @@ export default class Toot implements TootObj {
      * @param {string} [source] - Optional source label.
      * @returns {Promise<Toot[]>}
      */
-    static async completeToots(toots: TootLike[], logger: Logger, source?: string): Promise<Toot[]> {
+    static async completeToots(toots: TootLike[], logger: Logger, source?: TootSource): Promise<Toot[]> {
         logger = logger.tempLogger(`completeToots(${source || ''})`);
         const isDeepInspect = !source;
         const startedAt = new Date();

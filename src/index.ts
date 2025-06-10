@@ -35,7 +35,7 @@ import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
-import Toot, { earliestTootedAt, JUST_MUTING, mostRecentTootedAt } from './api/objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
@@ -73,6 +73,7 @@ import {
     truncateToConfiguredLength
 } from "./helpers/collection_helpers";
 import {
+    JUST_MUTING,
     type BooleanFilterOption,
     type FeedFilterSettings,
     type FilterOptionDataSource,

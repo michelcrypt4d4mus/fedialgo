@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = exports.JUST_MUTING = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = void 0;
 /*
  * Toot class and helper methods for dealing with Mastodon Status objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
@@ -35,6 +35,7 @@ const tag_1 = require("./tag");
 const enums_2 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
+const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -51,7 +52,6 @@ var TootCacheKey;
     TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
 })(TootCacheKey || (TootCacheKey = {}));
 ;
-exports.JUST_MUTING = "justMuting"; // Used in the filter settings to indicate that the user is just muting this toot
 exports.UNKNOWN = "unknown";
 const MAX_ID_IDX = 2;
 const BSKY_BRIDGY = 'bsky.brid.gy';
@@ -387,12 +387,11 @@ class Toot {
      * @returns {Promise<Toot[]>}
      */
     async getConversation() {
-        const source = 'getConversation';
-        const logger = tootLogger.tempLogger(source);
+        const logger = tootLogger.tempLogger(types_1.CONVERSATION);
         logger.debug(`Fetching conversation for toot:`, this.describe());
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], source, true);
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], types_1.CONVERSATION);
         logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
         return toots;
     }
@@ -508,7 +507,7 @@ class Toot {
         if (source) {
             this.sources ??= [];
             // TODO: this JUST_MUTING thing is a really ugly hack to allow muting accounts in real time
-            if (source != exports.JUST_MUTING && !this.sources.includes(source)) {
+            if (source != types_1.JUST_MUTING && !this.sources.includes(source)) {
                 this.sources?.push(source);
             }
         }
@@ -719,11 +718,10 @@ class Toot {
      * Build array of new Toot objects from an array of Status objects (or Toots).
      * Toots returned are sorted by score and should have most of their properties set correctly.
      * @param {TootLike[]} statuses - Array of status objects or Toots.
-     * @param {string} source - The source label for logging.
-     * @param {boolean} [skipSort] - If true, don't sort by score and don't remove the user's own toots.
+     * @param {TootSource} source - The source label for logging.
      * @returns {Promise<Toot[]>}
      */
-    static async buildToots(statuses, source, skipSort) {
+    static async buildToots(statuses, source) {
         if (!statuses.length)
             return []; // Avoid the data fetching if we don't to build anything
         const logger = tootLogger.tempLogger(source, `buildToots`);
@@ -733,11 +731,11 @@ class Toot {
         let toots = await this.completeToots(statuses, logger, source);
         toots = await this.removeInvalidToots(toots, logger);
         toots = Toot.dedupeToots(toots, logger);
-        if (!skipSort)
+        if (source != types_1.CONVERSATION)
             toots = this.removeUsersOwnToots(toots, logger); // Don't want to remove user's toots from threads
         // Make a first pass at scoring with whatever scorers are ready to score
         await scorer_1.default.scoreToots(toots, false);
-        if (!skipSort)
+        if (source != types_1.CONVERSATION)
             toots.sort((a, b) => b.score - a.score);
         logger.trace(`${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
         return toots;
