@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Make `isFollowed` and `isFollower` actually optional on `Account`
 
 ### v0.69.17
 * Rename `Account` and `Toot` objects' `homeserverURL` to `localServerUrl`
