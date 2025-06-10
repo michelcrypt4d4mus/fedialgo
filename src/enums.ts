@@ -169,8 +169,11 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 
-// Helper functions to check if a string is a valid enum value
+/** True if argument is a member of ScoreName enum. */
 export const isScoreName = isValueInStringEnum(ScoreName);
+/** True if argument is a member of NonScoreWeightName enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+/** True if argument is a member of TypeFilterName enum. */
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
+/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);
