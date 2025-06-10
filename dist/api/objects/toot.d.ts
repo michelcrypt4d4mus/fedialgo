@@ -2,8 +2,7 @@ import { mastodon } from "masto";
 import Account from "./account";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
-import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TrendingLink } from "../../types";
-export declare const JUST_MUTING = "justMuting";
+import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
 export declare const UNKNOWN = "unknown";
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo
@@ -282,11 +281,10 @@ export default class Toot implements TootObj {
      * Build array of new Toot objects from an array of Status objects (or Toots).
      * Toots returned are sorted by score and should have most of their properties set correctly.
      * @param {TootLike[]} statuses - Array of status objects or Toots.
-     * @param {string} source - The source label for logging.
-     * @param {boolean} [skipSort] - If true, don't sort by score and don't remove the user's own toots.
+     * @param {TootSource} source - The source label for logging.
      * @returns {Promise<Toot[]>}
      */
-    static buildToots(statuses: TootLike[], source: string, skipSort?: boolean): Promise<Toot[]>;
+    static buildToots(statuses: TootLike[], source: TootSource): Promise<Toot[]>;
     /**
      * Fetch all the data we need to set dependent properties and set them on the toots.
      * If 'source' arg is provided we set it as the Toot.source prop and avoid doing an isDeepInspect completion.
@@ -295,7 +293,7 @@ export default class Toot implements TootObj {
      * @param {string} [source] - Optional source label.
      * @returns {Promise<Toot[]>}
      */
-    static completeToots(toots: TootLike[], logger: Logger, source?: string): Promise<Toot[]>;
+    static completeToots(toots: TootLike[], logger: Logger, source?: TootSource): Promise<Toot[]>;
     /**
      * Remove dupes by uniquifying on the toot's URI.
      * @param {Toot[]} toots - Array of toots.

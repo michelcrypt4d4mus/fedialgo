@@ -366,7 +366,6 @@ class MastoApi {
      * @returns {Promise<TootLike[]>} Array of TootLike objects.
      */
     async getStatusesForTag(tagName, logger, numToots) {
-        numToots ||= config_1.config.trending.tags.numTootsPerTag;
         const startedAt = new Date();
         const results = await (0, collection_helpers_1.getPromiseResults)([
             this.searchForToots(tagName, logger.tempLogger('search'), numToots),
@@ -382,7 +381,7 @@ class MastoApi {
             }
         }
         const toots = results.fulfilled.flat();
-        let msg = `search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
+        let msg = `#${tagName}: search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
             `hashtag timeline got ${results.fulfilled[1]?.length || 0} ` +
             `${(0, time_helpers_1.ageString)(startedAt)} (total ${toots.length}, oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}`;
         logger.trace(`${msg}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))})`);
@@ -910,7 +909,7 @@ class MastoApi {
      */
     shouldReturnCachedRows(params) {
         const { cacheResult, moar } = params;
-        return cacheResult?.rows && !cacheResult.isStale && !moar;
+        return !!(cacheResult?.rows && !cacheResult.isStale && !moar);
     }
     /**
      * Validates that the fetch parameters are valid and work together.

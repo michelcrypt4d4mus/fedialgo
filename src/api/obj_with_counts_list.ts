@@ -2,8 +2,10 @@
  * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
+import { isFinite } from "lodash";
+
 import UserData from "./user_data";
-import { isNumber } from "../helpers/math_helper";
+import { KeysOfValueType } from "../types";
 import { Logger } from '../helpers/logger';
 import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
@@ -48,7 +50,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         this._objs = objs;
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this._maxNumToots = this.maxValue("numToots");
+        this._maxNumToots = this.maxValue("numToots" as keyof T);
     }
 
     constructor(objs: T[], source: ListSource) {
@@ -103,7 +105,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
 
     // Get the maximum value for a given key across the objs array
     maxValue(propertyName: keyof T): number | undefined {
-        const values = this.objs.map(obj => obj[propertyName]).filter(n => isNumber(n));
+        const values = this.objs.map(obj => obj[propertyName]).filter(n => isFinite(n));
         return values.length ? Math.max(...values as number[]) : undefined;
     }
 

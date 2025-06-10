@@ -37,7 +37,7 @@ export enum TagTootsCacheKey {
 /** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 /** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
 
 /** Enum of storage keys for user data and app state (not API cache). */
 export enum AlgorithmStorageKey {
@@ -84,6 +84,7 @@ export enum ScoreName {
     TRENDING_TOOTS = "TrendingToots",
     VIDEO_ATTACHMENTS = 'VideoAttachments'
 };
+
 
 /** Enum of Mastodon API media category strings. */
 export enum MediaCategory {
@@ -136,9 +137,6 @@ export enum TypeFilterName {
     VIDEOS = 'videos'
 };
 
-/** Returns true if string is an element of TypeFilterName enum. */
-export const isTypeFilterName = (value: string) => isValueInStringEnum(TypeFilterName)(value);
-
 
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
@@ -169,3 +167,13 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
     const enumValues = new Set(Object.values(strEnum) as string[]);
     return (str: string): str is E => enumValues.has(str);
 };
+
+
+/** True if argument is a member of ScoreName enum. */
+export const isScoreName = isValueInStringEnum(ScoreName);
+/** True if argument is a member of NonScoreWeightName enum. */
+export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+/** True if argument is a member of TypeFilterName enum. */
+export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
+/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
+export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);

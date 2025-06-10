@@ -1,5 +1,11 @@
 # NEXT RELEASE
 
+### v0.69.15
+
+### v0.69.14
+* Add input validation for updateUserWeights()
+* Get rid of `skipSort` param; introduce `TootSource` type
+
 ### v0.69.13
 * Set `FEDIVERSE_POPULAR_SERVERS` staleness to 5 days
 

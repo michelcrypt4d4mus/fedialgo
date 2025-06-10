@@ -509,8 +509,7 @@ export default class MastoApi {
      * @param {number} [numToots] - Number of toots to fetch.
      * @returns {Promise<TootLike[]>} Array of TootLike objects.
      */
-    async getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]> {
-        numToots ||= config.trending.tags.numTootsPerTag;
+    async getStatusesForTag(tagName: string, logger: Logger, numToots: number): Promise<TootLike[]> {
         const startedAt = new Date();
 
         const results = await getPromiseResults<TootLike[]>([
@@ -529,7 +528,7 @@ export default class MastoApi {
         }
 
         const toots = results.fulfilled.flat();
-        let msg = `search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
+        let msg = `#${tagName}: search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
                   `hashtag timeline got ${results.fulfilled[1]?.length || 0} ` +
                   `${ageString(startedAt)} (total ${toots.length}, oldest=${quotedISOFmt(earliestTootedAt(toots))}`;
         logger.trace(`${msg}, newest=${quotedISOFmt(mostRecentTootedAt(toots))})`);
@@ -1097,9 +1096,9 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {boolean} True if cached rows should be returned.
      */
-    private shouldReturnCachedRows<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>) {
+    private shouldReturnCachedRows<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): boolean {
         const { cacheResult, moar } = params;
-        return cacheResult?.rows && !cacheResult.isStale && !moar;
+        return !!(cacheResult?.rows && !cacheResult.isStale && !moar);
     }
 
     /**

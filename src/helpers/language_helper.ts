@@ -200,7 +200,7 @@ export const LANGUAGE_NAMES: StringDict = {
     chinese: "zh",
     chineseMainland: "zh-CN",  // Chinese (China)
     zulu: "zu",
-};
+} as const;
 
 // Mapping of language codes to the actual name of the language
 export const LANGUAGE_CODES: StringDict = swapKeysAndValues(LANGUAGE_NAMES);
@@ -232,7 +232,7 @@ const LANGUAGE_CHAR_CLASSES: Record<string, string> = {
     [LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
     [LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,
     [LANGUAGE_NAMES.thai]: `\\p{Script=Thai}`,
-};
+} as const;
 
 // Matches if whole string is language + numbers OR if there's at least three characters in that language somewhere in the string
 const LANGUAGE_REGEXES = Object.entries(LANGUAGE_CHAR_CLASSES).reduce((regexes, [lang, chars]) => {

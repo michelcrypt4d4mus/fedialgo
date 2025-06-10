@@ -161,7 +161,7 @@ export default class MastoApi {
      * @param {number} [numToots] - Number of toots to fetch.
      * @returns {Promise<TootLike[]>} Array of TootLike objects.
      */
-    getStatusesForTag(tagName: string, logger: Logger, numToots?: number): Promise<TootLike[]>;
+    getStatusesForTag(tagName: string, logger: Logger, numToots: number): Promise<TootLike[]>;
     /**
      * Retrieves background data about the user for scoring, etc. Caches as an instance variable.
      * @param {boolean} [force] - If true, forces a refresh from the API.

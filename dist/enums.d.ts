@@ -31,7 +31,7 @@ export declare enum TagTootsCacheKey {
 /** Type representing any valid API cache key (CacheKey or TagTootsCacheKey). */
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 /** Array of all cache keys (CacheKey and TagTootsCacheKey values). */
-export declare const ALL_CACHE_KEYS: (CacheKey | TagTootsCacheKey)[];
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
 /** Enum of storage keys for user data and app state (not API cache). */
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",
@@ -122,8 +122,6 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trending toots",
     VIDEOS = "videos"
 }
-/** Returns true if string is an element of TypeFilterName enum. */
-export declare const isTypeFilterName: (value: string) => boolean;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
@@ -140,3 +138,11 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * @returns {(value: string) => boolean} The checker function.
  */
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
+/** True if argument is a member of ScoreName enum. */
+export declare const isScoreName: (str: string) => boolean;
+/** True if argument is a member of NonScoreWeightName enum. */
+export declare const isNonScoreWeightName: (str: string) => boolean;
+/** True if argument is a member of TypeFilterName enum. */
+export declare const isTypeFilterName: (str: string) => boolean;
+/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
+export declare const isWeightName: (str: string) => boolean;

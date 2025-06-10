@@ -35,14 +35,14 @@ import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
-import Toot, { earliestTootedAt, JUST_MUTING, mostRecentTootedAt } from './api/objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInHours, ageInSeconds, ageInMinutes, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { BACKFILL_FEED, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -70,9 +70,10 @@ import {
     makeChunks,
     makePercentileChunks,
     sortKeysByValue,
-    truncateToConfiguredLength
+    truncateToConfiguredLength,
 } from "./helpers/collection_helpers";
 import {
+    JUST_MUTING,
     type BooleanFilterOption,
     type FeedFilterSettings,
     type FilterOptionDataSource,
@@ -106,14 +107,8 @@ const EMPTY_TRENDING_DATA: TrendingData = {
     toots: []
 };
 
-/**
- * Arguments for constructing a TheAlgorithm instance.
- * @typedef {object} AlgorithmArgs
- * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
- * @property {mastodon.v1.Account} user - The Mastodon user account for which to build the feed.
- * @property {string} [locale] - Optional locale string for date formatting.
- * @property {(feed: Toot[]) => void} [setTimelineInApp] - Optional callback to set the feed in the consuming app.
- */
+const trendingTootsLogger = new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)
+
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -303,10 +298,8 @@ class TheAlgorithm {
         };
 
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), new Logger(CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(TagTootsCacheKey.TRENDING_TAG_TOOTS),
+            ...Object.values(TagTootsCacheKey).map(hashtagToots),
+            this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ]);
@@ -363,8 +356,8 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData(): Promise<void> {
-        const logPrefix = arrowed(`triggerPullAllUserData()`);
-        this.logger.log(`${logPrefix} called, state:`, this.statusDict());
+        const thisLogger = this.logger.tempLogger(`triggerPullAllUserData`);
+        thisLogger.log(`Called, state:`, this.statusDict());
         this.checkIfLoading();
         this.markLoadStartedAt();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
@@ -379,9 +372,9 @@ class TheAlgorithm {
             ]);
 
             await this.recomputeScorers();
-            this.logger.log(`${logPrefix} finished`);
+            thisLogger.log(`Finished!`);
         } catch (error) {
-            MastoApi.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
+            MastoApi.throwSanitizedRateLimitError(error, thisLogger.line(`Error pulling user data:`));
         } finally {
             this.loadingStatus = null;  // TODO: should we restart the data poller?
         }
@@ -392,19 +385,6 @@ class TheAlgorithm {
      * @returns {Promise<Record<string, any>>} State object.
      */
     async getCurrentState(): Promise<Record<string, any>> {
-        const storageInfo = await Storage.storedObjsInfo();
-
-        const storageSummary = Object.entries(storageInfo).reduce(
-            (summary, [key, value]) => {
-                if (key.startsWith(MastoApi.instance.user.id) && value?.numElements) {
-                    summary[key.split('_')[1] + 'NumRows'] = value.numElements;
-                }
-
-                return summary;  // Only include storage for this user
-            },
-            {} as StringNumberDict
-        );
-
         return {
             Algorithm: this.statusDict(),
             Api: {
@@ -414,10 +394,7 @@ class TheAlgorithm {
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
-            Storage: {
-                detailedInfo: storageInfo,
-                summary: storageSummary,
-            },
+            Storage: await Storage.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await MastoApi.instance.getUserData(),
         };
@@ -460,15 +437,9 @@ class TheAlgorithm {
      */
     mostRecentHomeTootAgeInSeconds(): number | null {
         const mostRecentAt = this.mostRecentHomeTootAt();
-
-        if (!mostRecentAt) {
-            if (this.feed.length) this.logger.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
-            return null;
-        }
-
-        const feedAgeInSeconds = ageInSeconds(mostRecentAt);
-        this.logger.trace(`'feed' is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
-        return feedAgeInSeconds;
+        if (!mostRecentAt) return null;
+        this.logger.trace(`feed is ${ageInMinutes(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${timeString(mostRecentAt)}`);
+        return ageInSeconds(mostRecentAt);
     }
 
     /**
@@ -481,7 +452,7 @@ class TheAlgorithm {
         logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({bustCache: true});
-        logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
+        logger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
         await Toot.completeToots(this.feed, logger, JUST_MUTING);
         await this.finishFeedUpdate();
@@ -574,6 +545,7 @@ class TheAlgorithm {
      */
     async updateUserWeights(userWeights: Weights): Promise<Toot[]> {
         this.logger.log("updateUserWeights() called with weights:", userWeights);
+        Scorer.validateWeights(userWeights);
         await Storage.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }

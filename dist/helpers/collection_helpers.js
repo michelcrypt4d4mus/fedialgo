@@ -1,14 +1,11 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.zipPromises = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.divideDicts = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
 /**
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
  */
-const chunk_1 = __importDefault(require("lodash/chunk"));
+const lodash_1 = require("lodash");
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const api_1 = require("../api/api");
@@ -61,7 +58,7 @@ exports.asOptionalArray = asOptionalArray;
  * @returns {number} The average, or NaN if the array is empty.
  */
 function average(values) {
-    values = values.filter(math_helper_1.isNumber);
+    values = values.filter(lodash_1.isFinite);
     if (values.length == 0)
         return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
@@ -349,7 +346,7 @@ function makeChunks(array, options) {
         throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
     }
     chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
-    return (0, chunk_1.default)(array, chunkSize);
+    return (0, lodash_1.chunk)(array, chunkSize);
 }
 exports.makeChunks = makeChunks;
 ;

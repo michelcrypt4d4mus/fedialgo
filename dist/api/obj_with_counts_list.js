@@ -8,8 +8,8 @@ exports.BooleanFilterOptionList = void 0;
  * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
+const lodash_1 = require("lodash");
 const user_data_1 = __importDefault(require("./user_data"));
-const math_helper_1 = require("../helpers/math_helper");
 const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
@@ -88,7 +88,7 @@ class ObjWithCountList {
     }
     // Get the maximum value for a given key across the objs array
     maxValue(propertyName) {
-        const values = this.objs.map(obj => obj[propertyName]).filter(n => (0, math_helper_1.isNumber)(n));
+        const values = this.objs.map(obj => obj[propertyName]).filter(n => (0, lodash_1.isFinite)(n));
         return values.length ? Math.max(...values) : undefined;
     }
     // Returns a dict of tag names to numToots, which is (for now) what is used by BooleanFilter

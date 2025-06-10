@@ -3,6 +3,7 @@
  */
 import localForage from "localforage";
 import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { isFinite } from "lodash";
 import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
@@ -19,8 +20,8 @@ import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
-import { isNumber, sizeOf } from "./helpers/math_helper";
 import { Logger } from './helpers/logger';
+import { sizeOf } from "./helpers/math_helper";
 import {
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
@@ -29,6 +30,7 @@ import {
     type StorableObj,
     type StorableObjWithCache,
     type StorableWithTimestamp,
+    type StringNumberDict,
     type TagWithUsageCounts,
     type TrendingLink,
     type TrendingData,
@@ -185,7 +187,7 @@ export default class Storage {
         Object.entries(DEFAULT_WEIGHTS).forEach(([key, defaultValue]) => {
             const value = weights[key as WeightName]
 
-            if (!isNumber(value)) {
+            if (!isFinite(value)) {
                 logger.warn(`Missing value for "${key}" in saved weights, setting to default: ${defaultValue}`);
                 weights[key as WeightName] = DEFAULT_WEIGHTS[key as WeightName];
                 shouldSave = true;
@@ -308,7 +310,7 @@ export default class Storage {
         storedData[AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
         let totalBytes = 0;
 
-        const storageInfo = Object.entries(storedData).reduce(
+        const detailedInfo = Object.entries(storedData).reduce(
             (info, [key, obj]) => {
                 if (obj) {
                     const value = key == AlgorithmStorageKey.USER ? obj : (obj as StorableWithTimestamp).value;
@@ -341,9 +343,22 @@ export default class Storage {
             {} as Record<string, any>
         );
 
-        storageInfo.totalBytes = totalBytes;
-        storageInfo.totalBytesStr = byteString(totalBytes);
-        return storageInfo;
+        detailedInfo.totalBytes = totalBytes;
+        detailedInfo.totalBytesStr = byteString(totalBytes);
+
+        // Compute summary stats that are easier to read
+        const summary = Object.entries(detailedInfo).reduce(
+            (summary, [key, value]) => {
+                if (key.startsWith(MastoApi.instance.user.id) && value?.numElements) {
+                    summary[key.split('_')[1] + 'NumRows'] = value.numElements;
+                }
+
+                return summary;  // Only include storage for this user
+            },
+            {} as StringNumberDict
+        );
+
+        return { detailedInfo, summary };
     }
 
     //////////////////////////////

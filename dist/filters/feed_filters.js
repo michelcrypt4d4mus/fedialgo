@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = exports.DEFAULT_FILTERS = void 0;
+exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
@@ -38,7 +38,7 @@ const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
-exports.DEFAULT_FILTERS = {
+const DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {},
     numericFilterArgs: [],
@@ -48,7 +48,7 @@ const logger = new logger_1.Logger('feed_filters.ts');
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 function buildNewFilterSettings() {
-    const filters = JSON.parse(JSON.stringify(exports.DEFAULT_FILTERS)); // Deep copy
+    const filters = JSON.parse(JSON.stringify(DEFAULT_FILTERS)); // Deep copy
     populateMissingFilters(filters);
     return filters;
 }

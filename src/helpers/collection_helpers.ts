@@ -2,12 +2,12 @@
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
  */
-import chunk from 'lodash/chunk';
+import { chunk, isFinite } from 'lodash';
 
 import { compareStr, hashObject, isNull } from "./string_helpers";
 import { config } from "../config";
 import { isAccessTokenRevokedError } from '../api/api';
-import { isNumber, isNumberOrNumberString } from "./math_helper";
+import { isNumberOrNumberString } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
 import { type ApiCacheKey } from '../enums';
@@ -79,7 +79,7 @@ export function asOptionalArray<T>(value: T | undefined | null): [T] | [] {
  * @returns {number} The average, or NaN if the array is empty.
  */
 export function average(values: number[]): number {
-    values = values.filter(isNumber);
+    values = values.filter(isFinite);
     if (values.length == 0) return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
 };

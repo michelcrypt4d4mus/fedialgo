@@ -107,6 +107,7 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
+const types_2 = require("./types");
 const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const GET_FEED_BUSY_MSG = `called while load is still in progress. Consider using the setTimelineInApp() callback.`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -121,6 +122,7 @@ const EMPTY_TRENDING_DATA = {
     servers: {},
     toots: []
 };
+const trendingTootsLogger = new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
 ;
 /**
  * Main class for scoring, sorting, and managing a Mastodon feed made of Toot objects.
@@ -289,10 +291,8 @@ class TheAlgorithm {
             return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
         dataLoads = dataLoads.concat([
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS)),
-            hashtagToots(enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS),
-            hashtagToots(enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS),
-            hashtagToots(enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
+            ...Object.values(enums_1.TagTootsCacheKey).map(hashtagToots),
+            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ]);
@@ -346,8 +346,8 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData() {
-        const logPrefix = (0, string_helpers_1.arrowed)(`triggerPullAllUserData()`);
-        this.logger.log(`${logPrefix} called, state:`, this.statusDict());
+        const thisLogger = this.logger.tempLogger(`triggerPullAllUserData`);
+        thisLogger.log(`Called, state:`, this.statusDict());
         this.checkIfLoading();
         this.markLoadStartedAt();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
@@ -360,10 +360,10 @@ class TheAlgorithm {
                 api_1.default.instance.getRecentUserToots(api_1.FULL_HISTORY_PARAMS),
             ]);
             await this.recomputeScorers();
-            this.logger.log(`${logPrefix} finished`);
+            thisLogger.log(`Finished!`);
         }
         catch (error) {
-            api_1.default.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
+            api_1.default.throwSanitizedRateLimitError(error, thisLogger.line(`Error pulling user data:`));
         }
         finally {
             this.loadingStatus = null; // TODO: should we restart the data poller?
@@ -374,13 +374,6 @@ class TheAlgorithm {
      * @returns {Promise<Record<string, any>>} State object.
      */
     async getCurrentState() {
-        const storageInfo = await Storage_1.default.storedObjsInfo();
-        const storageSummary = Object.entries(storageInfo).reduce((summary, [key, value]) => {
-            if (key.startsWith(api_1.default.instance.user.id) && value?.numElements) {
-                summary[key.split('_')[1] + 'NumRows'] = value.numElements;
-            }
-            return summary; // Only include storage for this user
-        }, {});
         return {
             Algorithm: this.statusDict(),
             Api: {
@@ -390,10 +383,7 @@ class TheAlgorithm {
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
-            Storage: {
-                detailedInfo: storageInfo,
-                summary: storageSummary,
-            },
+            Storage: await Storage_1.default.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await api_1.default.instance.getUserData(),
         };
@@ -431,14 +421,10 @@ class TheAlgorithm {
      */
     mostRecentHomeTootAgeInSeconds() {
         const mostRecentAt = this.mostRecentHomeTootAt();
-        if (!mostRecentAt) {
-            if (this.feed.length)
-                this.logger.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
+        if (!mostRecentAt)
             return null;
-        }
-        const feedAgeInSeconds = (0, time_helpers_1.ageInSeconds)(mostRecentAt);
-        this.logger.trace(`'feed' is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
-        return feedAgeInSeconds;
+        this.logger.trace(`feed is ${(0, time_helpers_1.ageInMinutes)(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        return (0, time_helpers_1.ageInSeconds)(mostRecentAt);
     }
     /**
      * Pull the latest list of muted accounts from the server and use that to filter any newly muted accounts
@@ -450,9 +436,9 @@ class TheAlgorithm {
         logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ bustCache: true });
-        logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
+        logger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
-        await toot_1.default.completeToots(this.feed, logger, toot_1.JUST_MUTING);
+        await toot_1.default.completeToots(this.feed, logger, types_2.JUST_MUTING);
         await this.finishFeedUpdate();
     }
     /**
@@ -538,6 +524,7 @@ class TheAlgorithm {
      */
     async updateUserWeights(userWeights) {
         this.logger.log("updateUserWeights() called with weights:", userWeights);
+        scorer_1.default.validateWeights(userWeights);
         await Storage_1.default.setWeightings(userWeights);
         return this.scoreAndFilterFeed();
     }
