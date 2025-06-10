@@ -1,5 +1,5 @@
 /*
- * Enums used by FediAlgo.
+ * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 
 /**
@@ -169,10 +169,10 @@ export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagT
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
- * @private
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
+ * @private
  */
 export function buildCacheKeyDict<T>(
     fxn: (key?: ApiCacheKey) => T,

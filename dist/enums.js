@@ -1,6 +1,6 @@
 "use strict";
 /*
- * Enums used by FediAlgo.
+ * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName = exports.isScoreName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.ALL_CACHE_KEYS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
@@ -169,10 +169,10 @@ exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsC
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
- * @private
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
+ * @private
  */
 function buildCacheKeyDict(fxn, keys) {
     return (keys || exports.ALL_CACHE_KEYS).reduce((dict, key) => {
