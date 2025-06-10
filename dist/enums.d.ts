@@ -138,7 +138,11 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * @returns {(value: string) => boolean} The checker function.
  */
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
+/** True if argument is a member of ScoreName enum. */
 export declare const isScoreName: (str: string) => boolean;
+/** True if argument is a member of NonScoreWeightName enum. */
 export declare const isNonScoreWeightName: (str: string) => boolean;
+/** True if argument is a member of TypeFilterName enum. */
 export declare const isTypeFilterName: (str: string) => boolean;
+/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export declare const isWeightName: (str: string) => boolean;

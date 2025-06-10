@@ -172,10 +172,13 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
-// Helper functions to check if a string is a valid enum value
+/** True if argument is a member of ScoreName enum. */
 exports.isScoreName = isValueInStringEnum(ScoreName);
+/** True if argument is a member of NonScoreWeightName enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+/** True if argument is a member of TypeFilterName enum. */
 exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
+/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 const isWeightName = (str) => (0, exports.isScoreName)(str) || (0, exports.isNonScoreWeightName)(str);
 exports.isWeightName = isWeightName;
 //# sourceMappingURL=enums.js.map
