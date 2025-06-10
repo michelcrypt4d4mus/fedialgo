@@ -296,9 +296,7 @@ class TheAlgorithm {
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ]);
-        // TODO: do we need a try/finally here? I don't think so because Promise.all() will fail immediately
-        // and the load could still be going, but then how do we mark the load as finished?
-        const allResults = await Promise.all(dataLoads);
+        const allResults = await Promise.allSettled(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
     }
@@ -355,7 +353,7 @@ class TheAlgorithm {
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
         this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
         try {
-            const _allResults = await Promise.all([
+            const _allResults = await Promise.allSettled([
                 api_1.default.instance.getFavouritedToots(api_1.FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
@@ -387,7 +385,7 @@ class TheAlgorithm {
             Algorithm: this.statusDict(),
             Api: {
                 errors: this.apiErrorMsgs,
-                waitTimes: api_1.default.instance.waitTimes
+                waitTimes: api_1.default.instance.waitTimes,
             },
             Config: config_1.config,
             Filters: this.filters,
@@ -515,7 +513,7 @@ class TheAlgorithm {
         return await api_1.default.instance.instanceInfo();
     }
     /**
-     * Get the URL for a tag.
+     * Get the URL for a tag on the user's home instance (aka "server").
      * @param {string | MastodonTag} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */

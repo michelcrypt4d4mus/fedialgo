@@ -1,11 +1,12 @@
-/**
- * @fileoverview Enums used by FediAlgo.
+/*
+ * Enums used by FediAlgo.
  */
 
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
+ * @enum {string}
  */
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
@@ -15,7 +16,7 @@ export enum CacheKey {
     FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
     FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
-    FOLLOWED_TAGS = 'FollowedTags',  // TODO: This used to be actually set to ScoreName.FOLLOWED_TAGS (same string)... i don't think there's any reason to keep that now
+    FOLLOWED_TAGS = 'FollowedTags',  // this used to be actually set to ScoreName.FOLLOWED_TAGS (same string)... i don't think there's any reason to keep that now
     FOLLOWERS = 'Followers',
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
     HOME_TIMELINE_TOOTS = 'HomeTimelineToots',// Toots that the API returns for the home timeline
@@ -49,6 +50,7 @@ export enum AlgorithmStorageKey {
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
  * Order influences the order of the score weighting sliders in the demo app.
+ * @enum {string}
  */
 export enum NonScoreWeightName {
     TIME_DECAY = 'TimeDecay',
@@ -110,6 +112,7 @@ export enum BooleanFilterName {
 /**
  * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
+ * @enum {string}
  */
 export enum TypeFilterName {
     AUDIO = 'audio',

@@ -1,6 +1,6 @@
 "use strict";
-/**
- * @fileoverview Enums used by FediAlgo.
+/*
+ * Enums used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterName = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.ALL_CACHE_KEYS = exports.TagTootsCacheKey = exports.CacheKey = void 0;
@@ -8,6 +8,7 @@ exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.isTypeFilterNa
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
+ * @enum {string}
  */
 var CacheKey;
 (function (CacheKey) {
@@ -51,6 +52,7 @@ var AlgorithmStorageKey;
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
  * Order influences the order of the score weighting sliders in the demo app.
+ * @enum {string}
  */
 var NonScoreWeightName;
 (function (NonScoreWeightName) {
@@ -117,6 +119,7 @@ var BooleanFilterName;
 /**
  * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
+ * @enum {string}
  */
 var TypeFilterName;
 (function (TypeFilterName) {
