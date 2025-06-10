@@ -118,7 +118,10 @@ export default class Account implements AccountObj {
      * @returns {Promise<InstanceResponse>}
      */
     homeInstanceInfo(): Promise<InstanceResponse>;
-    /** Builds the webfinger URI for the account. */
+    /**
+     * Builds the webfinger URI for the account.
+     * @private
+     */
     private buildWebfingerURI;
     /**
      * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.

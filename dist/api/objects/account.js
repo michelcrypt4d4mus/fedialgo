@@ -184,14 +184,12 @@ class Account {
         const server = new mastodon_server_1.default(this.homeserver);
         return await server.fetchServerInfo();
     }
-    /** Builds the webfinger URI for the account. */
+    /**
+     * Builds the webfinger URI for the account.
+     * @private
+     */
     buildWebfingerURI() {
-        if (this.acct.includes("@")) {
-            return this.acct.toLowerCase();
-        }
-        else {
-            return `${this.acct}@${this.homeserver}`.toLowerCase();
-        }
+        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
     }
     ////////////////////////////
     //     Static Methods     //
