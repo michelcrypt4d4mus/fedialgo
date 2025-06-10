@@ -6,6 +6,7 @@
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
+ * @enum {string}
  */
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
@@ -49,6 +50,7 @@ export enum AlgorithmStorageKey {
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
  * Order influences the order of the score weighting sliders in the demo app.
+ * @enum {string}
  */
 export enum NonScoreWeightName {
     TIME_DECAY = 'TimeDecay',
@@ -110,6 +112,7 @@ export enum BooleanFilterName {
 /**
  * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
+ * @enum {string}
  */
 export enum TypeFilterName {
     AUDIO = 'audio',
