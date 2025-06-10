@@ -60,7 +60,7 @@ class Config {
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
-                minutesUntilStale: 72 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
             },
             [enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
