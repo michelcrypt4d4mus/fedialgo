@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.69.13
+* Set `FEDIVERSE_POPULAR_SERVERS` staleness to 5 days
+
 ### v0.69.12
 * Use `Promise.allSettled()` to ensure we wait for all loads to complete before marking state as not loading any more
 * Move `minCharsForLanguageDetect` and `maxContentPreviewChars` to `TootsConfig`
