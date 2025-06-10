@@ -1,5 +1,5 @@
-/**
- * @fileoverview Enums used by FediAlgo.
+/*
+ * Enums used by FediAlgo.
  */
 
 /**
