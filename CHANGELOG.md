@@ -1,8 +1,6 @@
 # NEXT RELEASE
 
 ### v0.69.15
-
-### v0.69.14
 * Add input validation for updateUserWeights()
 * Get rid of `skipSort` param; introduce `TootSource` type
 
