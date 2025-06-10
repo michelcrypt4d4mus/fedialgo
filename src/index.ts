@@ -852,22 +852,6 @@ export default TheAlgorithm;
 
 // Export types and constants needed by apps using this package
 export {
-    // Types
-    type BooleanFilterOption,
-    type FeedFilterSettings,
-    type FilterOptionDataSource,
-    type KeysOfValueType,
-    type MastodonInstance,
-    type MinMaxAvgScore,
-    type ObjList,
-    type ScoreStats,
-    type StringNumberDict,
-    type TagWithUsageCounts,
-    type TrendingData,
-    type TrendingLink,
-    type TrendingObj,
-    type TrendingWithHistory,
-    type Weights,
     // Constants
     FILTER_OPTION_DATA_SOURCES,
     FEDIALGO,
@@ -901,4 +885,20 @@ export {
     makePercentileChunks, // TODO: unused in demo app (for now)
     sortKeysByValue,
     timeString,
+    // Types
+    type BooleanFilterOption,
+    type FeedFilterSettings,
+    type FilterOptionDataSource,
+    type KeysOfValueType,
+    type MastodonInstance,
+    type MinMaxAvgScore,
+    type ObjList,
+    type ScoreStats,
+    type StringNumberDict,
+    type TagWithUsageCounts,
+    type TrendingData,
+    type TrendingLink,
+    type TrendingObj,
+    type TrendingWithHistory,
+    type Weights,
 };
