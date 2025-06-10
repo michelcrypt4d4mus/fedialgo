@@ -400,17 +400,6 @@ class Toot {
         }
     }
     /**
-     * Make an API call to get this toot's URL on the home server instead of on the toot's original server.
-     *       this: https://fosstodon.org/@kate/114360290341300577
-     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
-     * @returns {Promise<string>} The home server URL.
-     */
-    async homeserverURL() {
-        const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
-        tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
-        return homeURL;
-    }
-    /**
      * Return true if the toot should not be filtered out of the feed by the current filters.
      * @param {FeedFilterSettings} filters - The feed filter settings.
      * @returns {boolean}
@@ -452,6 +441,17 @@ class Toot {
                 return true;
             }
         })));
+    }
+    /**
+     * Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
+     *       this: https://fosstodon.org/@kate/114360290341300577
+     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+     * @returns {Promise<string>} The home server URL.
+     */
+    async localServerUrl() {
+        const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
+        tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
+        return homeURL;
     }
     /**
      * Get Status obj for toot from user's home server so the property URLs point to the home server.

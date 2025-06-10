@@ -51,7 +51,7 @@ interface TootObj extends SerializableToot {
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
     contentWithEmojis: (fontSize?: number) => string;
-    homeserverURL: () => Promise<string>;
+    localServerUrl: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     resolve: () => Promise<Toot>;
@@ -230,13 +230,6 @@ export default class Toot implements TootObj {
      */
     getIndividualScore(scoreType: ScoreType, name: ScoreName): number;
     /**
-     * Make an API call to get this toot's URL on the home server instead of on the toot's original server.
-     *       this: https://fosstodon.org/@kate/114360290341300577
-     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
-     * @returns {Promise<string>} The home server URL.
-     */
-    homeserverURL(): Promise<string>;
-    /**
      * Return true if the toot should not be filtered out of the feed by the current filters.
      * @param {FeedFilterSettings} filters - The feed filter settings.
      * @returns {boolean}
@@ -248,6 +241,13 @@ export default class Toot implements TootObj {
      * @returns {boolean}
      */
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean;
+    /**
+     * Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
+     *       this: https://fosstodon.org/@kate/114360290341300577
+     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+     * @returns {Promise<string>} The home server URL.
+     */
+    localServerUrl(): Promise<string>;
     /**
      * Get Status obj for toot from user's home server so the property URLs point to the home server.
      * @returns {Promise<Toot>}

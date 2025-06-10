@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Rename `Account.homeserverURL` to `localServerUrl`
+* Rename `Account` and `Toot` objects' `homeserverURL` to `localServerUrl`
 * Add `accountUrl()` method to `MastoApi`
 
 ### v0.69.16

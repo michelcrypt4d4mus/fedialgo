@@ -164,7 +164,7 @@ interface TootObj extends SerializableToot {
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
     contentWithEmojis: (fontSize?: number) => string;
-    homeserverURL: () => Promise<string>;
+    localServerUrl: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
     resolve: () => Promise<Toot>;
@@ -504,18 +504,6 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Make an API call to get this toot's URL on the home server instead of on the toot's original server.
-     *       this: https://fosstodon.org/@kate/114360290341300577
-     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
-     * @returns {Promise<string>} The home server URL.
-     */
-    async homeserverURL(): Promise<string> {
-        const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
-        tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
-        return homeURL;
-    }
-
-    /**
      * Return true if the toot should not be filtered out of the feed by the current filters.
      * @param {FeedFilterSettings} filters - The feed filter settings.
      * @returns {boolean}
@@ -558,6 +546,18 @@ export default class Toot implements TootObj {
                 }
             })
         ));
+    }
+
+    /**
+     * Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
+     *       this: https://fosstodon.org/@kate/114360290341300577
+     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+     * @returns {Promise<string>} The home server URL.
+     */
+    async localServerUrl(): Promise<string> {
+        const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
+        tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
+        return homeURL;
     }
 
     /**
