@@ -28,6 +28,15 @@ const INSTANCE = "instance";
 const LOG_PREFIX = `MastodonServer`;
 const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
 ;
+/**
+ * Class for interacting with the public non-authenticated API of a Mastodon server.
+ * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
+ * aggregating and processing trending data across multiple servers in the fediverse.
+ *
+ * @class
+ * @property {string} domain - The domain of the Mastodon server this instance interacts with.
+ * @property {Logger} logger - Logger instance for this server.
+ */
 class MastodonServer {
     domain;
     logger;
@@ -36,12 +45,19 @@ class MastodonServer {
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);
     static trendingMutexes = (0, enums_2.buildCacheKeyDict)(() => new async_mutex_1.Mutex(), config_1.FEDIVERSE_CACHE_KEYS);
+    /**
+     * Constructs a MastodonServer instance for the given domain.
+     * @param {string} domain - The domain of the Mastodon server.
+     */
     constructor(domain) {
         this.domain = domain;
         this.logger = logger_1.Logger.withParenthesizedName(LOG_PREFIX, domain);
     }
     ;
-    // Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server
+    /**
+     * Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server.
+     * @returns {Promise<InstanceResponse>} The instance info or null if not available.
+     */
     async fetchServerInfo() {
         const logPrefix = `(fetchServerInfo())`;
         if (MastodonServer.isNoMauServer(this.domain)) {
@@ -57,9 +73,12 @@ class MastodonServer {
             return null;
         }
     }
-    // Fetch toots that are trending on this server
-    // TODO: Important: Toots returned by this method have not had setDependentProps() called on them yet!
-    // Should return SerializableToot objects but that's annoying to make work w/the typesystem.
+    /**
+     * Fetch toots that are trending on this server.
+     * Note: Returned toots have not had setDependentProps() called yet.
+     * TODO: should return SerializableToot[] instead of mastodon.v1.Status but the type system is annoying.
+     * @returns {Promise<Toot[]>} Array of trending Toot objects.
+     */
     async fetchTrendingStatuses() {
         const toots = await this.fetchTrending(enums_2.TrendingType.STATUSES);
         const trendingToots = toots.map(t => toot_1.default.build(t));
@@ -71,7 +90,10 @@ class MastodonServer {
         });
         return trendingToots;
     }
-    // Get the links that are trending on this server
+    /**
+     * Get the links that are trending on this server.
+     * @returns {Promise<TrendingLink[]>} Array of trending links.
+     */
     async fetchTrendingLinks() {
         if (config_1.config.fediverse.noTrendingLinksServers.includes(this.domain)) {
             this.logger.debug(`Trending links are not available for '${this.domain}', skipping...`);
@@ -82,7 +104,10 @@ class MastodonServer {
         trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
         return trendingLinks;
     }
-    // Get the tags that are trending on 'server'
+    /**
+     * Get the tags that are trending on this server.
+     * @returns {Promise<TagWithUsageCounts[]>} Array of trending tags with usage counts.
+     */
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
         let trendingTags = await this.fetchTrending(enums_2.TrendingType.TAGS, numTags);
@@ -134,7 +159,11 @@ class MastodonServer {
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
     //////////////////////////////////////////////////////////////////////////////////////////////////
-    // Get the top trending links from all servers
+    /**
+     * Get the top trending links from all servers in the fediverse.
+     * @static
+     * @returns {Promise<TrendingLink[]>} Array of trending links across all servers.
+     */
     static async fediverseTrendingLinks() {
         return await this.getTrendingObjsFromAllServers({
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
@@ -144,7 +173,11 @@ class MastodonServer {
             }
         });
     }
-    // Get the top trending tags from all servers, minus any invalid or muted tags
+    /**
+     * Get the top trending tags from all servers, minus any invalid or muted tags.
+     * @static
+     * @returns {Promise<TagList>} TagList of trending tags across all servers.
+     */
     static async fediverseTrendingTags() {
         const tags = await this.getTrendingObjsFromAllServers({
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
@@ -158,7 +191,11 @@ class MastodonServer {
         });
         return new tag_list_1.default(tags, enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS);
     }
-    // Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
+    /**
+     * Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
+     * @static
+     * @returns {Promise<Toot[]>} Array of trending Toots across all servers.
+     */
     static async fediverseTrendingToots() {
         return await this.getTrendingObjsFromAllServers({
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
@@ -170,7 +207,11 @@ class MastodonServer {
             }
         });
     }
-    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    /**
+     * Get the server names that are most relevant to the user (appears in follows a lot, mostly).
+     * @static
+     * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
+     */
     static async getMastodonInstancesInfo() {
         const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo");
         const releaseMutex = await (0, log_helpers_1.lockExecution)(this.trendingMutexes[enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger);
@@ -186,7 +227,11 @@ class MastodonServer {
             releaseMutex();
         }
     }
-    // Collect all three kinds of trending data (links, tags, toots) in one call
+    /**
+     * Collect all three kinds of trending data (links, tags, toots) in one call.
+     * @static
+     * @returns {Promise<TrendingData>} Object containing trending links, tags, toots, and servers.
+     */
     static async getTrendingData() {
         // TODO: would this be parallelized even without Promise.all?
         const [links, tags, toots, servers] = await Promise.all([
