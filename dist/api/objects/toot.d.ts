@@ -3,7 +3,6 @@ import Account from "./account";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
 import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
-export declare const UNKNOWN = "unknown";
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo
  * that should be serialized to storage.
@@ -34,6 +33,7 @@ interface TootObj extends SerializableToot {
     attachmentType: MediaCategory | undefined;
     author: Account;
     contentTagsParagraph: string | undefined;
+    description: string;
     isDM: boolean;
     isFollowed: boolean;
     isPrivate: boolean;
@@ -51,7 +51,6 @@ interface TootObj extends SerializableToot {
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
     contentWithEmojis: (fontSize?: number) => string;
-    describe: () => string;
     homeserverURL: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
@@ -60,14 +59,18 @@ interface TootObj extends SerializableToot {
 }
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
- * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
+ * Extends the base Mastodon Status object. The base class's properties are not documented here; see
+ * https://docs.joinmastodon.org/entities/Status/ for details.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
  * @property {Account[]} accounts - Array with the author of the toot and (if it exists) the account that retooted it.
  * @property {number} ageInHours - Age of this toot in hours.
+ * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
+ * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
+ * @property {string} description - A string describing the toot, including author, content, and createdAt.
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
@@ -156,17 +159,10 @@ export default class Toot implements TootObj {
     get score(): number;
     get tootedAt(): Date;
     get withRetoot(): Toot[];
-    private contentCache;
-    /**
-     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
-     * @returns {MediaCategory | undefined}
-     */
     get attachmentType(): MediaCategory | undefined;
-    /**
-     * If the final <p> paragraph of the content is just hashtags, return it.
-     * @returns {string | undefined}
-     */
     get contentTagsParagraph(): string | undefined;
+    get description(): string;
+    private contentCache;
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
      * @param {SerializableToot} toot - The toot data to build from.
@@ -221,11 +217,6 @@ export default class Toot implements TootObj {
      * @returns {string}
      */
     contentWithEmojis(fontSize?: number): string;
-    /**
-     * String that describes the toot in not so many characters.
-     * @returns {string}
-     */
-    describe(): string;
     /**
      * Fetch the conversation (context) for this toot (Mastodon API calls this a 'context').
      * @returns {Promise<Toot[]>}

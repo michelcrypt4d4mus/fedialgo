@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = exports.UNKNOWN = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
 /*
  * Toot class and helper methods for dealing with Mastodon Status objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
@@ -52,8 +52,7 @@ var TootCacheKey;
     TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
 })(TootCacheKey || (TootCacheKey = {}));
 ;
-exports.UNKNOWN = "unknown";
-const MAX_ID_IDX = 2;
+const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
@@ -76,14 +75,18 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 ;
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
- * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
+ * Extends the base Mastodon Status object. The base class's properties are not documented here; see
+ * https://docs.joinmastodon.org/entities/Status/ for details.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
  * @property {Account[]} accounts - Array with the author of the toot and (if it exists) the account that retooted it.
  * @property {number} ageInHours - Age of this toot in hours.
+ * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
+ * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
+ * @property {string} description - A string describing the toot, including author, content, and createdAt.
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
@@ -190,12 +193,6 @@ class Toot {
     ; // TODO: should this consider the values in reblogsBy?
     get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
     ;
-    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
-    contentCache = {};
-    /**
-     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
-     * @returns {MediaCategory | undefined}
-     */
     get attachmentType() {
         if (this.imageAttachments.length > 0) {
             return enums_1.MediaCategory.IMAGE;
@@ -207,14 +204,16 @@ class Toot {
             return enums_1.MediaCategory.AUDIO;
         }
     }
-    /**
-     * If the final <p> paragraph of the content is just hashtags, return it.
-     * @returns {string | undefined}
-     */
     get contentTagsParagraph() {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;
     }
+    get description() {
+        let msg = `${this.account.description} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID="${this.id}"]`;
+        return `${msg}: "${this.contentShortened()}"`;
+    }
+    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
+    contentCache = {};
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
      * @param {SerializableToot} toot - The toot data to build from.
@@ -354,7 +353,7 @@ class Toot {
         let content = (0, string_helpers_1.replaceHttpsLinks)(this.contentString());
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            content = `<${(0, change_case_1.capitalCase)(this.attachmentType || 'empty')} post by ${this.author.describe()}>`;
+            content = `<${(0, change_case_1.capitalCase)(this.attachmentType || 'empty')} post by ${this.author.description}>`;
         }
         else if (content.length > maxChars) {
             content = `${content.slice(0, maxChars)}...`;
@@ -373,24 +372,16 @@ class Toot {
         return this.contentCache[TootCacheKey.CONTENT_WITH_EMOJIS];
     }
     /**
-     * String that describes the toot in not so many characters.
-     * @returns {string}
-     */
-    describe() {
-        let msg = `${this.account.describe()} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID="${this.id}"]`;
-        return `${msg}: "${this.contentShortened()}"`;
-    }
-    /**
      * Fetch the conversation (context) for this toot (Mastodon API calls this a 'context').
      * @returns {Promise<Toot[]>}
      */
     async getConversation() {
         const logger = tootLogger.tempLogger(types_1.CONVERSATION);
-        logger.debug(`Fetching conversation for toot:`, this.describe());
+        logger.debug(`Fetching conversation for toot:`, this.description);
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
         const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], types_1.CONVERSATION);
-        logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.describe()));
+        logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.description));
         return toots;
     }
     /**
@@ -415,7 +406,7 @@ class Toot {
      * @returns {Promise<string>} The home server URL.
      */
     async homeserverURL() {
-        const homeURL = `${this.account.homserverURL}/${await this.resolveID()}`;
+        const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
     }
@@ -435,7 +426,7 @@ class Toot {
      */
     isValidForFeed(serverSideFilters) {
         if (this.reblog?.muted || this.muted) {
-            tootLogger.trace(`Removing toot from muted account (${this.author.describe()}):`, this);
+            tootLogger.trace(`Removing toot from muted account (${this.author.description}):`, this);
             return false;
         }
         else if (Date.now() < this.tootedAt.getTime()) {
@@ -447,7 +438,7 @@ class Toot {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatches = (this.filtered || []).concat(this.reblog?.filtered || []);
             const filterMatchStr = filterMatches[0].keywordMatches?.join(' ');
-            tootLogger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            tootLogger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.description}`);
             return false;
         }
         else if (this.tootedAt < (0, time_helpers_1.timelineCutoffAt)()) {
@@ -457,7 +448,7 @@ class Toot {
         // Return false if toot matches any server side filters
         return !serverSideFilters.some((filter) => (filter.keywords.some((keyword) => {
             if (this.realToot.containsString(keyword.keyword)) {
-                tootLogger.trace(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
+                tootLogger.trace(`Removing toot matching manual server side filter (${this.description}):`, filter);
                 return true;
             }
         })));
@@ -608,7 +599,7 @@ class Toot {
             if (this.language?.startsWith(chosenLanguage)) {
                 return;
             }
-            else if (this.language && this.language != exports.UNKNOWN) {
+            else if (this.language && this.language != UNKNOWN) {
                 logTrace(`Using chosenLanguage "${chosenLanguage}" to replace "${this.language}"`);
             }
             this.language = chosenLanguage;
@@ -666,8 +657,8 @@ class Toot {
     //   - Repair mediaAttachment types if reparable based on URL file extension
     //   - Repair StatusMention objects for users on home server
     repair() {
-        this.application ??= { name: exports.UNKNOWN };
-        this.application.name ??= exports.UNKNOWN;
+        this.application ??= { name: UNKNOWN };
+        this.application.name ??= UNKNOWN;
         this.tags.forEach(tag_1.repairTag); // Repair Tags
         this.determineLanguage(); // Determine language
         if (this.reblog) {
@@ -680,7 +671,7 @@ class Toot {
         }
         // Check for weird media types
         this.mediaAttachments.forEach((media) => {
-            if (media.type == exports.UNKNOWN) {
+            if (media.type == UNKNOWN) {
                 const category = (0, string_helpers_1.determineMediaCategory)(media.remoteUrl);
                 if (category) {
                     repairLogger.trace(`Repaired broken ${category} attachment in toot:`, this);
@@ -845,7 +836,7 @@ class Toot {
             const mostRecent = (0, exports.mostRecentToot)(toots);
             // Skip logging this in production
             if (!environment_helpers_1.isProduction && (0, collection_helpers_1.uniquify)(toots.map(t => t.uri)).length > 1) {
-                logger.deep(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                logger.deep(`deduped ${toots.length} toots to ${mostRecent.description}:`, toots);
             }
             return mostRecent;
         });

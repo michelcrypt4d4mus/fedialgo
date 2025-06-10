@@ -23,7 +23,7 @@ export default class TrendingTagsScorer extends FeatureScorer {
 
         // If the toot is tag spam reduce the score
         if (score > 0 && toot.tags.length >= config.scoring.excessiveTags) {
-            this.logger.deep(`Penalizing excessive tags (${toot.tags.length}) in ${toot.describe()}`);
+            this.logger.deep(`Penalizing excessive tags (${toot.tags.length}) in ${toot.description}`);
             score *= config.scoring.excessiveTagsPenalty;
         }
 

@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Rename `Account.homeserverURL` to `localServerUrl`
+* Add `accountUrl()` method to `MastoApi`
 
 ### v0.69.16
 * Allow `TRENDING` weight of 0

@@ -537,7 +537,15 @@ class MastoApi {
         this.requestSemphore = new async_mutex_1.Semaphore(concurrency);
     }
     /**
-     * Returns the URL for a tag on the user's home server.
+     * Returns the URL for an account on the Feialgo user's home server.
+     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @returns {string} The tag URL.
+     */
+    accountUrl(account) {
+        return account.homeserver == this.homeDomain ? account.url : this.endpointURL(`@${account.webfingerURI}`);
+    }
+    /**
+     * Returns the URL for a tag on the Feialgo user's home server.
      * @param {MastodonTag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */

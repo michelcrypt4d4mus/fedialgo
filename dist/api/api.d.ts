@@ -214,7 +214,13 @@ export default class MastoApi {
      */
     setSemaphoreConcurrency(concurrency: number): void;
     /**
-     * Returns the URL for a tag on the user's home server.
+     * Returns the URL for an account on the Feialgo user's home server.
+     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @returns {string} The tag URL.
+     */
+    accountUrl(account: Account): string;
+    /**
+     * Returns the URL for a tag on the Feialgo user's home server.
      * @param {MastodonTag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */

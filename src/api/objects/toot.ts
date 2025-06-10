@@ -90,8 +90,7 @@ type TootCache = {
 };
 
 
-export const UNKNOWN = "unknown";
-const MAX_ID_IDX = 2;
+const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
@@ -146,6 +145,7 @@ interface TootObj extends SerializableToot {
     attachmentType: MediaCategory | undefined;
     author: Account;
     contentTagsParagraph: string | undefined;
+    description: string;
     isDM: boolean;
     isFollowed: boolean;
     isPrivate: boolean;
@@ -164,7 +164,6 @@ interface TootObj extends SerializableToot {
     contentParagraphs: (fontSize?: number) => string[];
     contentShortened: (maxChars?: number) => string;
     contentWithEmojis: (fontSize?: number) => string;
-    describe: () => string;
     homeserverURL: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
     isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
@@ -175,14 +174,18 @@ interface TootObj extends SerializableToot {
 
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
- * Extends the base Mastodon Status object: https://docs.joinmastodon.org/entities/Status/
+ * Extends the base Mastodon Status object. The base class's properties are not documented here; see
+ * https://docs.joinmastodon.org/entities/Status/ for details.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
  * @property {Account[]} accounts - Array with the author of the toot and (if it exists) the account that retooted it.
  * @property {number} ageInHours - Age of this toot in hours.
+ * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
+ * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
+ * @property {string} description - A string describing the toot, including author, content, and createdAt.
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
@@ -264,10 +267,10 @@ export default class Toot implements TootObj {
     get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)};
     get ageInHours(): number { return ageInHours(this.createdAt) };
     get author(): Account { return this.realToot.account };
-    get isDM() { return this.visibility === TootVisibility.DIRECT_MSG };
-    get isFollowed() { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) };
-    get isPrivate() { return this.visibility === TootVisibility.PRIVATE };
-    get isTrending() { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length) };
+    get isDM(): boolean { return this.visibility === TootVisibility.DIRECT_MSG };
+    get isFollowed(): boolean { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) };
+    get isPrivate(): boolean { return this.visibility === TootVisibility.PRIVATE };
+    get isTrending(): boolean { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length) };
     get popularity() { return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]) };
     get realToot(): Toot { return this.reblog ?? this };
     get realURI(): string { return this.realToot.uri };
@@ -277,13 +280,6 @@ export default class Toot implements TootObj {
     get tootedAt(): Date { return new Date(this.createdAt) };  // TODO: should this consider the values in reblogsBy?
     get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
 
-    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
-    private contentCache: TootCache = {};
-
-    /**
-     * Return 'video' if toot contains a video, 'image' if there's an image, undefined if no attachments.
-     * @returns {MediaCategory | undefined}
-     */
     get attachmentType(): MediaCategory | undefined {
         if (this.imageAttachments.length > 0) {
             return MediaCategory.IMAGE;
@@ -294,14 +290,18 @@ export default class Toot implements TootObj {
         }
     }
 
-    /**
-     * If the final <p> paragraph of the content is just hashtags, return it.
-     * @returns {string | undefined}
-     */
     get contentTagsParagraph(): string | undefined {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;
     }
+
+    get description(): string {
+        let msg = `${this.account.description} [${toISOFormat(this.createdAt)}, ID="${this.id}"]`;
+        return `${msg}: "${this.contentShortened()}"`;
+    }
+
+    // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
+    private contentCache: TootCache = {};
 
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
@@ -453,7 +453,7 @@ export default class Toot implements TootObj {
 
         // Fill in placeholders if content string is empty, truncate it if it's too long
         if (content.length == 0) {
-            content = `<${capitalCase(this.attachmentType || 'empty')} post by ${this.author.describe()}>`;
+            content = `<${capitalCase(this.attachmentType || 'empty')} post by ${this.author.description}>`;
         } else if (content.length > maxChars) {
             content = `${content.slice(0, maxChars)}...`;
         }
@@ -475,25 +475,16 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * String that describes the toot in not so many characters.
-     * @returns {string}
-     */
-    describe(): string {
-        let msg = `${this.account.describe()} [${toISOFormat(this.createdAt)}, ID="${this.id}"]`;
-        return `${msg}: "${this.contentShortened()}"`;
-    }
-
-    /**
      * Fetch the conversation (context) for this toot (Mastodon API calls this a 'context').
      * @returns {Promise<Toot[]>}
      */
     async getConversation(): Promise<Toot[]> {
         const logger = tootLogger.tempLogger(CONVERSATION);
-        logger.debug(`Fetching conversation for toot:`, this.describe());
+        logger.debug(`Fetching conversation for toot:`, this.description);
         const startTime = new Date();
         const context = await MastoApi.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
         const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], CONVERSATION);
-        logger.trace(`Fetched ${toots.length} toots ${ageString(startTime)}`, toots.map(t => t.describe()));
+        logger.trace(`Fetched ${toots.length} toots ${ageString(startTime)}`, toots.map(t => t.description));
         return toots;
     }
 
@@ -519,7 +510,7 @@ export default class Toot implements TootObj {
      * @returns {Promise<string>} The home server URL.
      */
     async homeserverURL(): Promise<string> {
-        const homeURL = `${this.account.homserverURL}/${await this.resolveID()}`;
+        const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
     }
@@ -541,7 +532,7 @@ export default class Toot implements TootObj {
      */
     isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean {
         if (this.reblog?.muted || this.muted) {
-            tootLogger.trace(`Removing toot from muted account (${this.author.describe()}):`, this);
+            tootLogger.trace(`Removing toot from muted account (${this.author.description}):`, this);
             return false;
         } else if (Date.now() < this.tootedAt.getTime()) {
             // Sometimes there are wonky statuses that are like years in the future so we filter them out.
@@ -551,7 +542,7 @@ export default class Toot implements TootObj {
             // The user can configure suppression filters through a Mastodon GUI (webapp or whatever)
             const filterMatches = (this.filtered || []).concat(this.reblog?.filtered || []);
             const filterMatchStr = filterMatches[0].keywordMatches?.join(' ');
-            tootLogger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.describe()}`);
+            tootLogger.trace(`Removing toot matching server filter (${filterMatchStr}): ${this.description}`);
             return false;
         } else if (this.tootedAt < timelineCutoffAt()) {
             tootLogger.trace(`Removing toot older than ${timelineCutoffAt()}:`, this.tootedAt);
@@ -562,7 +553,7 @@ export default class Toot implements TootObj {
         return !serverSideFilters.some((filter) => (
             filter.keywords.some((keyword) => {
                 if (this.realToot.containsString(keyword.keyword)) {
-                    tootLogger.trace(`Removing toot matching manual server side filter (${this.describe()}):`, filter);
+                    tootLogger.trace(`Removing toot matching manual server side filter (${this.description}):`, filter);
                     return true;
                 }
             })
@@ -1001,7 +992,7 @@ export default class Toot implements TootObj {
 
             // Skip logging this in production
             if (!isProduction && uniquify(toots.map(t => t.uri))!.length > 1) {
-                logger.deep(`deduped ${toots.length} toots to ${mostRecent.describe()}:`, toots);
+                logger.deep(`deduped ${toots.length} toots to ${mostRecent.description}:`, toots);
             }
 
             return mostRecent;

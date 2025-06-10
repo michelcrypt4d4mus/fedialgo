@@ -80,7 +80,7 @@ export default class DiversityFeedScorer extends FeedScorer {
             if (score > -0.2) {
                 this.scoreData[toot.uri] = 0;
             } else {
-                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.describe()}:`, toot);
+                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.description}:`, toot);
             }
 
             return 0;

@@ -23,28 +23,16 @@ const logger = new Logger("Account");
 
 
 /**
- * Interface for Account object with additional helper methods and properties.
- * @interface
- * @typedef {object} AccountObj
- * @property {() => string} [describe] - Returns a string description of the account.
- * @property {() => string} [displayNameFullHTML] - Returns the display name with emojis and webfinger URI in HTML.
- * @property {() => string} [displayNameWithEmojis] - Returns the display name with custom emojis as <img> tags.
- * @property {() => Promise<InstanceResponse>} [homeInstanceInfo] - Gets the account's instance info from the API.
- * @property {string} homeserver - The account's home server domain.
- * @property {string} homserverURL - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - Whether this account is followed by the user.
- * @property {boolean} [isFollower] - Whether this account is following the user.
- * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
- * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
- * @property {string} webfingerURI - The webfinger URI for the account.
+ * Interface for mastodon.v1.Account object extending with additional helper methods and properties.
+
  */
 interface AccountObj extends mastodon.v1.Account {
-    describe?: () => string;
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
     homeInstanceInfo?: () => Promise<InstanceResponse>;
+    description: string;
     homeserver: string;
-    homserverURL: string;
+    localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
     noteWithAccountInfo: string;
@@ -58,6 +46,14 @@ interface AccountObj extends mastodon.v1.Account {
  * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
+ * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
+ * @property {string} description - A string describing the account (displayName + webfingerURI).
+ * @property {string} homeserver - The account's home server domain.
+ * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {boolean} [isFollowed] - Whether this account is followed by the user.
+ * @property {boolean} [isFollower] - Whether this account is following the user.
+ * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
+ * @property {string} webfingerURI - The webfinger URI for the account.
  */
 export default class Account implements AccountObj {
     id!: string;
@@ -107,23 +103,9 @@ export default class Account implements AccountObj {
         };
     }
 
-    /**
-     * Returns the account's home server domain (e.g. 'journa.host').
-     * @returns {string}
-     */
+    get description(): string { return `${this.displayName} (${this.webfingerURI})` };
     get homeserver(): string { return extractDomain(this.url) || "unknown.server" };
-
-    /**
-     * Returns the URL to the account on the user's home server.
-     * @returns {string}
-     */
-    get homserverURL(): string {
-        if (this.homeserver == MastoApi.instance.homeDomain) {
-            return this.url;
-        } else {
-            return `https://${MastoApi.instance.homeDomain}/@${this.webfingerURI}`;
-        }
-    }
+    get localServerUrl(): string { return MastoApi.instance.accountUrl(this) };
 
     /**
      * Returns HTML combining the note property with creation date, followers, and toots count.
@@ -182,14 +164,6 @@ export default class Account implements AccountObj {
         accountObj.isFollower = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
         return accountObj;
-    }
-
-    /**
-     * Returns a string description of the account (e.g. "Foobar (@foobar@mastodon.social)").
-     * @returns {string}
-     */
-    describe(): string {
-        return `${this.displayName} (${this.webfingerURI})`;
     }
 
     /**
