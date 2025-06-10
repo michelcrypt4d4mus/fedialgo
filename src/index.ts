@@ -42,7 +42,7 @@ import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
-import { ageInHours, ageInSeconds, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInHours, ageInSeconds, ageInMinutes, ageString, sleep, timeString, toISOFormat } from './helpers/time_helpers';
 import { BACKFILL_FEED, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -445,15 +445,9 @@ class TheAlgorithm {
      */
     mostRecentHomeTootAgeInSeconds(): number | null {
         const mostRecentAt = this.mostRecentHomeTootAt();
-
-        if (!mostRecentAt) {
-            if (this.feed.length) this.logger.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
-            return null;
-        }
-
-        const feedAgeInSeconds = ageInSeconds(mostRecentAt);
-        this.logger.trace(`'feed' is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${timeString(mostRecentAt)}`);
-        return feedAgeInSeconds;
+        if (!mostRecentAt) return null;
+        this.logger.trace(`feed is ${ageInMinutes(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${timeString(mostRecentAt)}`);
+        return ageInSeconds(mostRecentAt);
     }
 
     /**

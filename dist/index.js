@@ -422,14 +422,10 @@ class TheAlgorithm {
      */
     mostRecentHomeTootAgeInSeconds() {
         const mostRecentAt = this.mostRecentHomeTootAt();
-        if (!mostRecentAt) {
-            if (this.feed.length)
-                this.logger.warn(`${this.feed.length} toots in feed but no most recent toot found!`);
+        if (!mostRecentAt)
             return null;
-        }
-        const feedAgeInSeconds = (0, time_helpers_1.ageInSeconds)(mostRecentAt);
-        this.logger.trace(`'feed' is ${(feedAgeInSeconds / 60).toFixed(2)} minutes old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
-        return feedAgeInSeconds;
+        this.logger.trace(`feed is ${(0, time_helpers_1.ageInMinutes)(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        return (0, time_helpers_1.ageInSeconds)(mostRecentAt);
     }
     /**
      * Pull the latest list of muted accounts from the server and use that to filter any newly muted accounts
