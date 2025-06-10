@@ -32,8 +32,8 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - Whether this account is followed by the user.
- * @property {boolean} [isFollower] - Whether this account is following the user.
+ * @property {boolean} [isFollowed] - Whether this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - Whether this account is following the Fedialgo user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
