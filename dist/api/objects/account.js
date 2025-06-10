@@ -30,13 +30,14 @@ const logger = new logger_1.Logger("Account");
 ;
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
- * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
+ * Extends base Mastodon Account. The base class's properties are not documented here;
+ * see https://docs.joinmastodon.org/entities/Account/ for details.
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
- * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {string} localServerUrl - The account's URL on the user's home server.
  * @property {boolean} [isFollowed] - Whether this account is followed by the user.
  * @property {boolean} [isFollower] - Whether this account is following the user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
@@ -94,10 +95,7 @@ class Account {
     ;
     get localServerUrl() { return api_1.default.instance.accountUrl(this); }
     ;
-    /**
-     * Returns HTML combining the note property with creation date, followers, and toots count.
-     * @returns {string}
-     */
+    // Returns HTML combining the note property with creation date, followers, and toots count
     get noteWithAccountInfo() {
         let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);

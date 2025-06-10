@@ -30,26 +30,27 @@ interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML?: () => string;
     displayNameWithEmojis?: () => string;
     homeInstanceInfo?: () => Promise<InstanceResponse>;
+    asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
     localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
     noteWithAccountInfo: string;
-    asBooleanFilterOption: BooleanFilterOption;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
 
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.
- * Extends base Mastodon Account: https://docs.joinmastodon.org/entities/Account/
+ * Extends base Mastodon Account. The base class's properties are not documented here;
+ * see https://docs.joinmastodon.org/entities/Account/ for details.
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
- * @property {string} homserverURL - The account's URL on the user's home server.
+ * @property {string} localServerUrl - The account's URL on the user's home server.
  * @property {boolean} [isFollowed] - Whether this account is followed by the user.
  * @property {boolean} [isFollower] - Whether this account is following the user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
@@ -107,10 +108,7 @@ export default class Account implements AccountObj {
     get homeserver(): string { return extractDomain(this.url) || "unknown.server" };
     get localServerUrl(): string { return MastoApi.instance.accountUrl(this) };
 
-    /**
-     * Returns HTML combining the note property with creation date, followers, and toots count.
-     * @returns {string}
-     */
+    // Returns HTML combining the note property with creation date, followers, and toots count
     get noteWithAccountInfo(): string {
         let txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);
