@@ -272,7 +272,7 @@ class Storage {
         const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
         storedData[enums_1.AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
         let totalBytes = 0;
-        const storageInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
+        const detailedInfo = Object.entries(storedData).reduce((info, [key, obj]) => {
             if (obj) {
                 const value = key == enums_1.AlgorithmStorageKey.USER ? obj : obj.value;
                 const sizes = new math_helper_1.BytesDict();
@@ -301,9 +301,16 @@ class Storage {
             }
             return info;
         }, {});
-        storageInfo.totalBytes = totalBytes;
-        storageInfo.totalBytesStr = (0, string_helpers_1.byteString)(totalBytes);
-        return storageInfo;
+        detailedInfo.totalBytes = totalBytes;
+        detailedInfo.totalBytesStr = (0, string_helpers_1.byteString)(totalBytes);
+        // Compute summary stats that are easier to read
+        const summary = Object.entries(detailedInfo).reduce((summary, [key, value]) => {
+            if (key.startsWith(api_1.default.instance.user.id) && value?.numElements) {
+                summary[key.split('_')[1] + 'NumRows'] = value.numElements;
+            }
+            return summary; // Only include storage for this user
+        }, {});
+        return { detailedInfo, summary };
     }
     //////////////////////////////
     //     Private methods      //

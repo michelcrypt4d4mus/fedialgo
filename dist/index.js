@@ -375,13 +375,6 @@ class TheAlgorithm {
      * @returns {Promise<Record<string, any>>} State object.
      */
     async getCurrentState() {
-        const storageInfo = await Storage_1.default.storedObjsInfo();
-        const storageSummary = Object.entries(storageInfo).reduce((summary, [key, value]) => {
-            if (key.startsWith(api_1.default.instance.user.id) && value?.numElements) {
-                summary[key.split('_')[1] + 'NumRows'] = value.numElements;
-            }
-            return summary; // Only include storage for this user
-        }, {});
         return {
             Algorithm: this.statusDict(),
             Api: {
@@ -391,10 +384,7 @@ class TheAlgorithm {
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
-            Storage: {
-                detailedInfo: storageInfo,
-                summary: storageSummary,
-            },
+            Storage: await Storage_1.default.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await api_1.default.instance.getUserData(),
         };
@@ -451,7 +441,7 @@ class TheAlgorithm {
         logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ bustCache: true });
-        logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
+        logger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
         await toot_1.default.completeToots(this.feed, logger, types_2.JUST_MUTING);
         await this.finishFeedUpdate();

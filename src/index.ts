@@ -393,19 +393,6 @@ class TheAlgorithm {
      * @returns {Promise<Record<string, any>>} State object.
      */
     async getCurrentState(): Promise<Record<string, any>> {
-        const storageInfo = await Storage.storedObjsInfo();
-
-        const storageSummary = Object.entries(storageInfo).reduce(
-            (summary, [key, value]) => {
-                if (key.startsWith(MastoApi.instance.user.id) && value?.numElements) {
-                    summary[key.split('_')[1] + 'NumRows'] = value.numElements;
-                }
-
-                return summary;  // Only include storage for this user
-            },
-            {} as StringNumberDict
-        );
-
         return {
             Algorithm: this.statusDict(),
             Api: {
@@ -415,10 +402,7 @@ class TheAlgorithm {
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
-            Storage: {
-                detailedInfo: storageInfo,
-                summary: storageSummary,
-            },
+            Storage: await Storage.storedObjsInfo(),
             Trending: this.trendingData,
             UserData: await MastoApi.instance.getUserData(),
         };
@@ -482,7 +466,7 @@ class TheAlgorithm {
         logger.log(`called (${Object.keys(this.userData.mutedAccounts).length} current muted accounts)...`);
         // TODO: move refreshMutedAccounts() to UserData class?
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({bustCache: true});
-        logger.log(`found ${mutedAccounts.length} muted accounts after refresh...`);
+        logger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
         await Toot.completeToots(this.feed, logger, JUST_MUTING);
         await this.finishFeedUpdate();
