@@ -70,7 +70,7 @@ import {
     makeChunks,
     makePercentileChunks,
     sortKeysByValue,
-    truncateToConfiguredLength
+    truncateToConfiguredLength,
 } from "./helpers/collection_helpers";
 import {
     JUST_MUTING,
@@ -364,8 +364,8 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData(): Promise<void> {
-        const logPrefix = arrowed(`triggerPullAllUserData()`);
-        this.logger.log(`${logPrefix} called, state:`, this.statusDict());
+        const thisLogger = this.logger.tempLogger(`triggerPullAllUserData`);
+        thisLogger.log(`Called, state:`, this.statusDict());
         this.checkIfLoading();
         this.markLoadStartedAt();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
@@ -380,9 +380,9 @@ class TheAlgorithm {
             ]);
 
             await this.recomputeScorers();
-            this.logger.log(`${logPrefix} finished`);
+            thisLogger.log(`Finished!`);
         } catch (error) {
-            MastoApi.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
+            MastoApi.throwSanitizedRateLimitError(error, thisLogger.line(`Error pulling user data:`));
         } finally {
             this.loadingStatus = null;  // TODO: should we restart the data poller?
         }

@@ -347,8 +347,8 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData() {
-        const logPrefix = (0, string_helpers_1.arrowed)(`triggerPullAllUserData()`);
-        this.logger.log(`${logPrefix} called, state:`, this.statusDict());
+        const thisLogger = this.logger.tempLogger(`triggerPullAllUserData`);
+        thisLogger.log(`Called, state:`, this.statusDict());
         this.checkIfLoading();
         this.markLoadStartedAt();
         this.setLoadingStateVariables(PULLING_USER_HISTORY);
@@ -361,10 +361,10 @@ class TheAlgorithm {
                 api_1.default.instance.getRecentUserToots(api_1.FULL_HISTORY_PARAMS),
             ]);
             await this.recomputeScorers();
-            this.logger.log(`${logPrefix} finished`);
+            thisLogger.log(`Finished!`);
         }
         catch (error) {
-            api_1.default.throwSanitizedRateLimitError(error, `${logPrefix} Error pulling user data:`);
+            api_1.default.throwSanitizedRateLimitError(error, thisLogger.line(`Error pulling user data:`));
         }
         finally {
             this.loadingStatus = null; // TODO: should we restart the data poller?
