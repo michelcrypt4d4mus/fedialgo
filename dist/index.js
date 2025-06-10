@@ -148,10 +148,18 @@ const EMPTY_TRENDING_DATA = {
  * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 class TheAlgorithm {
-    /** Static boolean to indicate if FEDIALGO_DEBUG is enabled */
-    static isDebugMode = environment_helpers_1.isDebugMode;
-    /** Static dictionary of preset weight configurations for scoring. */
-    static weightPresets = JSON.parse(JSON.stringify(weight_presets_1.WEIGHT_PRESETS));
+    /**
+     * True if FEDIALGO_DEBUG environment var was set at compile time.
+     * @returns {boolean}
+     */
+    static get isDebugMode() { return environment_helpers_1.isDebugMode; }
+    ;
+    /**
+     * Dictionary of preset weight configurations for scoring.
+     * @returns {WeightPresets}
+     */
+    static get weightPresets() { return weight_presets_1.WEIGHT_PRESETS; }
+    ;
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds = null; // Duration of the last load in seconds
     loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)

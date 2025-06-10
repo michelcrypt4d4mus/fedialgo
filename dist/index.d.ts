@@ -81,10 +81,16 @@ interface AlgorithmArgs {
  * @property {WeightInfoDict} weightInfo - Info about all scoring weights
  */
 declare class TheAlgorithm {
-    /** Static boolean to indicate if FEDIALGO_DEBUG is enabled */
-    static readonly isDebugMode: boolean;
-    /** Static dictionary of preset weight configurations for scoring. */
-    static readonly weightPresets: WeightPresets;
+    /**
+     * True if FEDIALGO_DEBUG environment var was set at compile time.
+     * @returns {boolean}
+     */
+    static get isDebugMode(): boolean;
+    /**
+     * Dictionary of preset weight configurations for scoring.
+     * @returns {WeightPresets}
+     */
+    static get weightPresets(): WeightPresets;
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds: number | null;
     loadingStatus: string | null;

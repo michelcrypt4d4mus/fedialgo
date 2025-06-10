@@ -68,23 +68,22 @@ const apiLogger = getLogger();
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
+ * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
+ * @property {Error[]} apiErrors - Array of errors encountered while using the API.
+ * @property {string} homeDomain - The Fedialgo user's home server domain.
+ * @property {Logger} logger - API logger instance.
+ * @property {Account} user - The Fedialgo user's Account object.
+ * @property {UserData} [userData] - The Fedialgo user's historical info.
+ * @property {Record<CacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
  */
 class MastoApi {
-    /** Singleton instance of MastoApi. */
     static #instance;
-    /** Mastodon REST API client instance. */
     api;
-    /** Errors encountered while using the API. */
     apiErrors = [];
-    /** The Fedialgo user's home server domain. */
     homeDomain;
-    /** API logger. */
     logger = getLogger();
-    /** The Fedialgo user's Account object'. */
     user;
-    /** The Fedialgo user's historical info. */
-    userData; // Save UserData in the API object to avoid polling local storage over and over
-    /** Tracks the amount of time spent waiting for each endpoint's API responses. */
+    userData;
     waitTimes = (0, enums_1.buildCacheKeyDict)(() => new log_helpers_1.WaitTime());
     apiMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking data fetching for an API endpoint
     cacheMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking checking the cache for an API endpoint

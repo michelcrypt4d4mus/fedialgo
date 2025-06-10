@@ -65,7 +65,7 @@ export type FeedFilterSettingsSerialized = {
  * Represents the full set of filter settings for a feed, including both the serialized filter arguments
  * and the instantiated filter objects themselves. This is used to store and manage the current state
  * of all boolean and numeric filters applied to a feed, as well as the arguments needed to reconstruct them.
- * @extends FeedFilterSettingsSerialized
+ * @augments FeedFilterSettingsSerialized
  * @property {BooleanFilters} booleanFilters - Map of boolean filter names to BooleanFilter instances.
  * @property {NumericFilters} numericFilters - Map of toot number property names to NumericFilter instances.
  */

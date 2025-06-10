@@ -67,8 +67,7 @@ export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
 
 /**
  * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
- * @class
- * @extends TootFilter
+ * @augments TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {BooleanFilterOptionList} options - The BooleanFilterOptions available for this filter.
