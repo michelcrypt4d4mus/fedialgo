@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* JSDoc comments for string_helpers and Logger
 
 ### v0.70.1
 * Remove default for `getRechartsStatsData(numPercentiles)`
@@ -9,7 +10,7 @@
 * Add support for blocked domains
 * Precompile a `mutedKeywordsRegex` and store it in the `UserData` object
 * Add `Toot.matchesRegex()` method
-* Add `fedibird.com` to list of noMauServers
+* Add `fedibird.com` to list of `noMauServers`
 
 ### v0.69.22
 * Fix error handling in `MastoApi.getServerSideFilters()`

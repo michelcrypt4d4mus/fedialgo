@@ -1,10 +1,11 @@
-/*
- * Helpers for dealing with strings.
+/**
+ * @fileovervier Helpers for dealing with strings.
+ * @module string_helpers
  */
 const escape = require('regexp.escape');
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
-import { isEmpty, isNil, words } from "lodash";
+import { isEmpty, isNil } from "lodash";
 import { mastodon } from 'masto';
 
 import { MediaCategory } from '../enums';
@@ -48,42 +49,46 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
     MediaCategory.IMAGE,
 ];
 
-// Check if it's empty (all whitespace or null or undefined)
+
+/** Alphabetize an array of strings */
+export const alphabetize = (arr: string[]) => arr.sort(compareStr);
+/** for use with sort() */
+export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
+/** Check if it's empty (all whitespace or null or undefined) */
 export const isEmptyStr = (s: string | null | undefined) => isNil(s) || isEmpty(s!.trim());
 
-// Alphabetize an array of strings
-export const alphabetize = (arr: string[]) => arr.sort(compareStr);
-// for use with sort()
-export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
-
-// "string" => "@string"
+/** "string" => "@string" */
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
-// "foo" => "<foo>"
+/** "foo" => "<foo>" */
 export const arrowed = (str: string): string => str.startsWith('<') ? str : `<${str}>`;
-// [Bracketed]
+/** [Bracketed] */
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
-// Prefix a string with [Brackets] and a space
+/** Prefix a string with [Brackets] and a space */
 export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} ${msg}`;
-// Doublequotes
+/** Doublequotes */
 export const quoted = (str: string | null): string => isNil(str) ? NULL : `"${str}"`;
-// 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc.
+/** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 export const suffixedInt = (n: number): string => `${n}${ordinalSuffix(n)}`;
 
-// Collapse whitespace in a string
+/** Collapse whitespace in a string */
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
-// Remove diacritics ("ó" => "o", "é" => "e", etc.)
+/** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
 export const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-// Remove any emojis
+/** Remove any emojis */
 export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");
-// Remove https links from string
+/** Remove https links from string */
 export const removeLinks = (str: string) => str.replace(LINK_REGEX, " ");
-// Remove @username@domain from string
+/** Remove @username@domain from string */
 export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, " ");
-// Remove all tags from string
+/** Remove all hashtags from string */
 export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, " ");
 
 
-// Return a string representation of a number of bytes
+/**
+ * Returns a string representation of a number of bytes in bytes, kilobytes, or megabytes.
+ * @param {number} numBytes - The number of bytes.
+ * @returns {string} Human-readable string representing the size.
+ */
 export const byteString = (numBytes: number): string => {
     if (numBytes < KILOBYTE) return `${numBytes} bytes`;
     if (numBytes < MEGABYTE) return `${(numBytes / KILOBYTE).toFixed(1)} kilobytes`;
@@ -91,13 +96,22 @@ export const byteString = (numBytes: number): string => {
 };
 
 
-// Count occurrences of substr within str
+/**
+ * Counts the number of occurrences of a substring within a string.
+ * @param {string} str - The string to search within.
+ * @param {string} substr - The substring to count.
+ * @returns {number} The number of times substr appears in str.
+ */
 export function countInstances(str: string, substr: string): number {
     return Math.max(str.split(substr).length - 1, 0);
 };
 
 
-// Create a random string of the given length
+/**
+ * Creates a random alphanumeric string of the given length.
+ * @param {number} length - The desired length of the random string.
+ * @returns {string} The generated random string.
+ */
 export function createRandomString(length: number): string {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
@@ -110,7 +124,11 @@ export function createRandomString(length: number): string {
 };
 
 
-// Guess the media category based on the file extension in the URI.
+/**
+ * Guesses the media category based on the file extension in the URI.
+ * @param {string | null | undefined} uri - The URI to check.
+ * @returns {MediaCategory | undefined} The detected media category, or undefined if not found.
+ */
 export function determineMediaCategory(uri: string | null | undefined): MediaCategory | undefined {
     if (!uri) return undefined;
     let category: MediaCategory | undefined;
@@ -125,7 +143,11 @@ export function determineMediaCategory(uri: string | null | undefined): MediaCat
 };
 
 
-// "http://www.mast.ai/foobar" => "mast.ai"
+/**
+ * Extracts the domain from a URL string (e.g., "http://www.mast.ai/foobar" => "mast.ai").
+ * @param {string} url - The URL to extract the domain from.
+ * @returns {string} The extracted domain, or an empty string if not found.
+ */
 export function extractDomain(url: string): string {
     url ??= "";
 
@@ -139,13 +161,21 @@ export function extractDomain(url: string): string {
 };
 
 
-// Take the MD5 hash of a jacascript object / number / string
+/**
+ * Takes the MD5 hash of a JavaScript object, number, or string.
+ * @param {object | number | string} obj - The object, number, or string to hash.
+ * @returns {string} The MD5 hash as a string.
+ */
 export function hashObject(obj: object | number | string): string {
     return md5(JSON.stringify(obj));
 };
 
 
-// Remove HTML tags and newlines from a string; decode HTML entities
+/**
+ * Removes HTML tags and newlines from a string and decodes HTML entities.
+ * @param {string} html - The HTML string to convert.
+ * @returns {string} The plain text string.
+ */
 export function htmlToText(html: string): string {
     let txt = html.replace(/<\/p>/gi, "\n").trim();  // Turn closed <p> tags into newlines
     txt = txt.replace(/<br\s*\/?>/gi, "\n");         // Turn <br> tags into newlines
@@ -155,14 +185,22 @@ export function htmlToText(html: string): string {
 };
 
 
-// Break up an HTML string into paragraphs
+/**
+ * Breaks up an HTML string into paragraphs.
+ * @param {string} html - The HTML string to split.
+ * @returns {string[]} Array of paragraph strings.
+ */
 export function htmlToParagraphs(html: string): string[] {
     if (!(html.includes("</p>") || html.includes("</P>"))) return [html];
     return html.split(/<\/p>/i).filter(p => p.length).map(p => `${p}</p>`);
 };
 
 
-// 1st, 2nd, 3rd, 4th, etc.
+/**
+ * Returns the ordinal suffix for a given integer (e.g., 1 => "st", 2 => "nd").
+ * @param {number} n - The number to get the ordinal suffix for.
+ * @returns {string} The ordinal suffix ("st", "nd", "rd", or "th").
+ */
 export const ordinalSuffix = (n: number): string => {
     if (n > 3 && n < 21) return "th";
 
@@ -175,7 +213,13 @@ export const ordinalSuffix = (n: number): string => {
 };
 
 
-// Replace custom emoji shortcodes like :smile: with <img> tags
+/**
+ * Replaces custom emoji shortcodes (e.g., :smile:) with <img> tags in an HTML string.
+ * @param {string} html - The HTML string containing emoji shortcodes.
+ * @param {mastodon.v1.CustomEmoji[]} emojis - Array of custom emoji objects.
+ * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Font size for the emoji images.
+ * @returns {string} The HTML string with emoji shortcodes replaced by <img> tags.
+ */
 export function replaceEmojiShortcodesWithImgTags(
     html: string,
     emojis: mastodon.v1.CustomEmoji[],
@@ -196,27 +240,42 @@ export function replaceEmojiShortcodesWithImgTags(
 };
 
 
-// Replace https links with [link to DOMAIN], e.g.
-// "Check my link: https://mast.ai/foobar" => "Check my link: [link to mast.ai]"
+/**
+ * Replaces https links in a string with a [link to DOMAIN] format.
+ * @param {string} input - The input string containing links.
+ * @returns {string} The string with links replaced by [domain] tags.
+ */
 export function replaceHttpsLinks(input: string): string {
     return input.replace(LINK_REGEX, (_, domain) => `[${domain}]`);
 };
 
 
-// Number to string (could also be done with Math.floor(num).toLocaleString())
+/**
+ * Converts a number to a locale-formatted string, or returns NULL if the number is null.
+ * @param {number | null} num - The number to format.
+ * @returns {string} The locale-formatted string or NULL.
+ */
 export const toLocaleInt = (num: number | null): string => {
     if (num == null) return NULL;
     return num.toLocaleString(undefined, {maximumFractionDigits: 0});
 };
 
 
-// Create a regex that matches a whole word, case-insensitive
+/**
+ * Creates a regex that matches a whole word, case-insensitive.
+ * @param {string} pattern - The word pattern to match.
+ * @returns {RegExp} The generated regular expression.
+ */
 export const wordRegex = (pattern: string): RegExp => {
     return wordsRegex([pattern]);
 };
 
 
-// Create a regex that matches any of the given patterns, case-insensitive
+/**
+ * Creates a regex that matches any of the given patterns as whole words, case-insensitive.
+ * @param {string[]} patterns - Array of word patterns to match.
+ * @returns {RegExp} The generated regular expression.
+ */
 export const wordsRegex = (patterns: string[]): RegExp => {
     if (patterns.length === 0) return /(?:)/; // Empty regex that matches nothing
     const escapedPatterns = patterns.map(escape).join('|');
