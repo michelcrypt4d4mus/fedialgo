@@ -383,11 +383,11 @@ class TheAlgorithm {
         };
     }
     /**
-     * Return an array of objects suitable for charting timeline scoring information with Recharts.
-     * @param {number} [numPercentiles=5] - Number of percentiles for stats.
-     * @returns {any[]} Recharts data points.
+     * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc. with Recharts.
+     * @param {number} numPercentiles - Number of percentiles for stats.
+     * @returns {object[]} Recharts data points.
      */
-    getRechartsStatsData(numPercentiles = 5) {
+    getRechartsStatsData(numPercentiles) {
         return (0, stats_helper_1.rechartsDataPoints)(this.feed, numPercentiles);
     }
     /**

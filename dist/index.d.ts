@@ -128,11 +128,11 @@ declare class TheAlgorithm {
      */
     getCurrentState(): Promise<Record<string, any>>;
     /**
-     * Return an array of objects suitable for charting timeline scoring information with Recharts.
-     * @param {number} [numPercentiles=5] - Number of percentiles for stats.
-     * @returns {any[]} Recharts data points.
+     * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc. with Recharts.
+     * @param {number} numPercentiles - Number of percentiles for stats.
+     * @returns {object[]} Recharts data points.
      */
-    getRechartsStatsData(numPercentiles?: number): any[];
+    getRechartsStatsData(numPercentiles: number): object[];
     /**
      * Return the user's current weightings for each score category.
      * @returns {Promise<Weights>} The user's weights.

@@ -23,7 +23,7 @@ function computeScoreStats(toots: Toot[], numPercentiles: number): ScoresStats {
 
 
 // Return an array of objects suitable for use with Recharts
-export function rechartsDataPoints(toots: Toot[], numPercentiles: number = 5): any[] {
+export function rechartsDataPoints(toots: Toot[], numPercentiles: number): object[] {
     const stats: any[] = [];
     let suffix: string;
 
