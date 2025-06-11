@@ -171,6 +171,10 @@ class ObjWithCountList {
 exports.default = ObjWithCountList;
 ;
 // TODO: This has to be here for circular dependency reasons
+/**
+ * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
+ * @augments ObjWithCountList
+ */
 class BooleanFilterOptionList extends ObjWithCountList {
 }
 exports.BooleanFilterOptionList = BooleanFilterOptionList;

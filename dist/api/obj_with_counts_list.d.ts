@@ -78,5 +78,9 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     private completeObjWithTootCounts;
     private objNameDict;
 }
+/**
+ * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
+ * @augments ObjWithCountList
+ */
 export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
 }
