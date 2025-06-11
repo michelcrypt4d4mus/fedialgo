@@ -10,7 +10,6 @@ import { isAccessTokenRevokedError } from '../api/api';
 import { isNumberOrNumberString } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
-import { type ApiCacheKey } from '../enums';
 import {
     type CountKey,
     type MastodonObjWithID,
