@@ -43,6 +43,11 @@ export default abstract class TootFilter {
     toArgs(): FilterArgs;
     /** Must be overridden in subclasses. */
     static isValidTitle(name: string): boolean;
-    /** Remove any filter args from the list whose title is invalid */
+    /**
+     * Remove any filter args from the list whose title is invalid
+     * @param {FilterArgs[]} args - The list of filter arguments to check.
+     * @param {Logger} logger - Logger instance to log warnings for invalid args.
+     * @returns {FilterArgs[]} The filtered list containing only valid filter arguments.
+     */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[];
 }
