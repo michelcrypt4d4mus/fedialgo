@@ -10,7 +10,7 @@ type LoggerArg = string | boolean | null | undefined;
  */
 export declare class Logger {
     logPrefix: string;
-    prefixes: string[];
+    private prefixes;
     /**
      * Constructs a Logger instance with the given name and optional additional prefixes.
      * @param {string} name - The main name or component for the logger prefix.
@@ -19,6 +19,7 @@ export declare class Logger {
     constructor(name: string, ...args: LoggerArg[]);
     /**
      * Alternate constructor; makes the first two arguments into a parenthesized bracketed string.
+     * e.g. the prefix will be [name (parenthesized)].
      * @param {string} name - The main name for the logger.
      * @param {string} parenthesized - The value to parenthesize in the prefix.
      * @param {...string} args - Additional prefix arguments.

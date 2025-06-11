@@ -49,7 +49,7 @@ export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, opt
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {Logger} logger - Label for logging.
+ * @param {Logger} logger - Logger to use for warnings.
  */
 export declare function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void;
 /**
@@ -69,13 +69,6 @@ export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => num
  * @returns {StringNumberDict} The counts dictionary.
  */
 export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
-/**
- * Divides the values of dict1 by the values of dict2, returning a new dict.
- * @param {StringNumberDict} dict1 - Numerator dictionary.
- * @param {StringNumberDict} dict2 - Denominator dictionary.
- * @returns {StringNumberDict} The result dictionary.
- */
-export declare function divideDicts(dict1: StringNumberDict, dict2: StringNumberDict): StringNumberDict;
 /**
  * Filters an array and logs the number of elements removed.
  * @template T

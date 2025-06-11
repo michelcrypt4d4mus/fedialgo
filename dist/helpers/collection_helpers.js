@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.divideDicts = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
 /**
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
@@ -100,7 +100,7 @@ exports.batchMap = batchMap;
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {Logger} logger - Label for logging.
+ * @param {Logger} logger - Logger to use for warnings.
  */
 function checkUniqueIDs(array, logger) {
     const objsByID = groupBy(array, (e) => e.id);
@@ -149,28 +149,6 @@ function countValues(items, getKey = (item) => item, countNulls) {
     }, {});
 }
 exports.countValues = countValues;
-;
-/**
- * Divides the values of dict1 by the values of dict2, returning a new dict.
- * @param {StringNumberDict} dict1 - Numerator dictionary.
- * @param {StringNumberDict} dict2 - Denominator dictionary.
- * @returns {StringNumberDict} The result dictionary.
- */
-function divideDicts(dict1, dict2) {
-    const result = {};
-    const logger = new logger_1.Logger("divideDicts()");
-    Object.keys(dict1).forEach((key) => {
-        if (dict2[key]) {
-            result[key] = dict1[key] / dict2[key];
-        }
-        else {
-            logger.warn(`divideDicts() - key "${key}" had value "${dict2[key]}", skipping division`);
-            result[key] = 0;
-        }
-    });
-    return result;
-}
-exports.divideDicts = divideDicts;
 ;
 /**
  * Filters an array and logs the number of elements removed.

@@ -32,7 +32,7 @@ const PREFIXERS = [
  */
 export class Logger {
     logPrefix: string;
-    prefixes: string[];
+    private prefixes: string[];
 
     /**
      * Constructs a Logger instance with the given name and optional additional prefixes.
@@ -50,6 +50,7 @@ export class Logger {
 
     /**
      * Alternate constructor; makes the first two arguments into a parenthesized bracketed string.
+     * e.g. the prefix will be [name (parenthesized)].
      * @param {string} name - The main name for the logger.
      * @param {string} parenthesized - The value to parenthesize in the prefix.
      * @param {...string} args - Additional prefix arguments.
