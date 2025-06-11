@@ -9,7 +9,7 @@ export type InstanceResponse = MastodonInstance | null;
  * aggregating and processing trending data across multiple servers in the fediverse.
  *
  * @class
- * @property {string} domain - The domain of the Mastodon server this instance interacts with.
+ * @property {string} domain - The domain of the server this MastodonServer object interacts with.
  * @property {Logger} logger - Logger instance for this server.
  */
 export default class MastodonServer {
