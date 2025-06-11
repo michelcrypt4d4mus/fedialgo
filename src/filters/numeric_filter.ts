@@ -1,5 +1,5 @@
-/**
- * Put a minimum number on things like reblogs and replies.
+/*
+ * Filter toots based on numeric properties like replies, reblogs, and favourites.
  */
 import { isFinite } from 'lodash';
 

@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FILTERABLE_SCORES = void 0;
-/**
- * Put a minimum number on things like reblogs and replies.
+/*
+ * Filter toots based on numeric properties like replies, reblogs, and favourites.
  */
 const lodash_1 = require("lodash");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
