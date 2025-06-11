@@ -36,7 +36,6 @@ import {
     DEFAULT_FONT_SIZE,
     MEDIA_TYPES,
     VIDEO_TYPES,
-    arrowed,
     at,
     collapseWhitespace,
     determineMediaCategory,
@@ -667,7 +666,7 @@ export default class Toot implements TootObj {
         } else if (tagType == TypeFilterName.TRENDING_TAGS) {
             tags = this.trendingTags || [];
         } else {
-            tootLogger.warn(`${arrowed('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);
+            tootLogger.warn(`containsTagsOfTypeMsg() called with invalid tagType: ${tagType}`);
             return;
         }
 

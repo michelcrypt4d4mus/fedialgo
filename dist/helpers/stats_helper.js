@@ -1,10 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rechartsDataPoints = void 0;
+/*
+ * Help prepping data for recharts and other algorithm statistics stuff.
+ */
+const logger_1 = require("./logger");
 const collection_helpers_1 = require("./collection_helpers");
 const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
-const log_helpers_1 = require("./log_helpers");
+const logger = new logger_1.Logger("stats_helper.ts");
 // Compute stats about the scores of a list of toots
 function computeScoreStats(toots, numPercentiles) {
     return Object.values(enums_1.ScoreName).reduce((stats, scoreName) => {
@@ -50,7 +54,7 @@ function rechartsDataPoints(toots, numPercentiles) {
             });
         });
     });
-    (0, log_helpers_1.traceLog)(`[rechartsDataPoints()]`, stats);
+    logger.trace(`[rechartsDataPoints()]`, stats);
     return stats;
 }
 exports.rechartsDataPoints = rechartsDataPoints;

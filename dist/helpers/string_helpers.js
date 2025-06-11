@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wordsRegex = exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImgTags = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.suffixedInt = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.isEmptyStr = exports.compareStr = exports.alphabetize = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.wordsRegex = exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImgTags = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.suffixedInt = exports.quoted = exports.bracketed = exports.arrowed = exports.at = exports.isEmptyStr = exports.compareStr = exports.alphabetize = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /**
  * @fileovervier Helpers for dealing with strings.
  * @module string_helpers
@@ -60,12 +60,9 @@ exports.at = at;
 /** "foo" => "<foo>" */
 const arrowed = (str) => str.startsWith('<') ? str : `<${str}>`;
 exports.arrowed = arrowed;
-/** [Bracketed] */
+/** "string" => "[string]" */
 const bracketed = (str) => str.startsWith('[') ? str : `[${str}]`;
 exports.bracketed = bracketed;
-/** Prefix a string with [Brackets] and a space */
-const prefixed = (prefix, msg) => `${(0, exports.bracketed)(prefix)} ${msg}`;
-exports.prefixed = prefixed;
 /** Doublequotes */
 const quoted = (str) => (0, lodash_1.isNil)(str) ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;

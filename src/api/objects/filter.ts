@@ -19,4 +19,4 @@ export function extractMutedKeywords(serverSideFilters: mastodon.v2.Filter[]): s
     keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
     logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
     return keywords;
-}
+};

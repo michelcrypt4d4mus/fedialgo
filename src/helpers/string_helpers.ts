@@ -61,10 +61,8 @@ export const isEmptyStr = (s: string | null | undefined) => isNil(s) || isEmpty(
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
 /** "foo" => "<foo>" */
 export const arrowed = (str: string): string => str.startsWith('<') ? str : `<${str}>`;
-/** [Bracketed] */
+/** "string" => "[string]" */
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
-/** Prefix a string with [Brackets] and a space */
-export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} ${msg}`;
 /** Doublequotes */
 export const quoted = (str: string | null): string => isNil(str) ? NULL : `"${str}"`;
 /** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */

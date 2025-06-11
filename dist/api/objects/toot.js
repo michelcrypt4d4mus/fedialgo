@@ -553,7 +553,7 @@ class Toot {
             tags = this.trendingTags || [];
         }
         else {
-            tootLogger.warn(`${(0, string_helpers_1.arrowed)('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);
+            tootLogger.warn(`containsTagsOfTypeMsg() called with invalid tagType: ${tagType}`);
             return;
         }
         if (!tags.length)

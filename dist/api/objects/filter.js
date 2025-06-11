@@ -16,4 +16,5 @@ function extractMutedKeywords(serverSideFilters) {
     return keywords;
 }
 exports.extractMutedKeywords = extractMutedKeywords;
+;
 //# sourceMappingURL=filter.js.map

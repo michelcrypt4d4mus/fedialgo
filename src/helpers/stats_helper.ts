@@ -1,12 +1,14 @@
 /*
  * Help prepping data for recharts and other algorithm statistics stuff.
  */
+import { Logger } from "./logger";
 import Toot from "../api/objects/toot";
 import { average, makePercentileChunks } from "./collection_helpers";
 import { ScoreName } from '../enums';
 import { suffixedInt } from "./string_helpers";
-import { traceLog } from "./log_helpers";
 import { type MinMaxAvgScore, type ScoresStats, type ScoreType } from "../types";
+
+const logger = new Logger("stats_helper.ts");
 
 
 // Compute stats about the scores of a list of toots
@@ -49,7 +51,7 @@ export function rechartsDataPoints(toots: Toot[], numPercentiles: number): objec
         });
     });
 
-    traceLog(`[rechartsDataPoints()]`, stats);
+    logger.trace(`[rechartsDataPoints()]`, stats);
     return stats;
 };
 

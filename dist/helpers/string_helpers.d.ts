@@ -21,10 +21,8 @@ export declare const isEmptyStr: (s: string | null | undefined) => boolean;
 export declare const at: (str: string) => string;
 /** "foo" => "<foo>" */
 export declare const arrowed: (str: string) => string;
-/** [Bracketed] */
+/** "string" => "[string]" */
 export declare const bracketed: (str: string) => string;
-/** Prefix a string with [Brackets] and a space */
-export declare const prefixed: (prefix: string, msg: string) => string;
 /** Doublequotes */
 export declare const quoted: (str: string | null) => string;
 /** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
