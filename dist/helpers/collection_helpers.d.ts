@@ -49,7 +49,7 @@ export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, opt
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {ApiCacheKey} label - Label for logging.
+ * @param {Logger} logger - Label for logging.
  */
 export declare function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void;
 /**

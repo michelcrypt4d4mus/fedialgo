@@ -100,7 +100,7 @@ exports.batchMap = batchMap;
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {ApiCacheKey} label - Label for logging.
+ * @param {Logger} logger - Label for logging.
  */
 function checkUniqueIDs(array, logger) {
     const objsByID = groupBy(array, (e) => e.id);
