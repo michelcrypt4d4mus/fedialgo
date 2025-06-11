@@ -1,5 +1,4 @@
 # NEXT RELEASE
-* Clean up Logger classes error handling, export Logger as default from logger.ts
 * JSDoc comments for string_helpers and Logger
 
 ### v0.70.1

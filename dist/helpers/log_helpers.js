@@ -1,12 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WaitTime = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
-const logger_1 = __importDefault(require("./logger"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
+const logger_1 = require("./logger");
 // Log prefixes
 exports.BACKFILL_FEED = "triggerHomeTimelineBackFill";
 exports.PREP_SCORERS = "prepareScorers";
@@ -18,7 +15,7 @@ exports.TRIGGER_FEED = "triggerFeedUpdate";
  * @returns {Promise<ConcurrencyLockRelease>} A promise that resolves to a function to release the lock
  */
 async function lockExecution(locker, logger) {
-    logger ||= new logger_1.default("lockExecution");
+    logger ||= new logger_1.Logger("lockExecution");
     logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
@@ -47,7 +44,7 @@ exports.lockExecution = lockExecution;
 // Helper class for telemetry
 class WaitTime {
     avgMsPerRequest = 0;
-    logger = new logger_1.default("WaitTime");
+    logger = new logger_1.Logger("WaitTime");
     milliseconds = 0;
     numRequests = 0;
     startedAt = new Date(); // TODO: this shouldn't really be set yet...

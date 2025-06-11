@@ -1,12 +1,12 @@
 /*
  * Helper class for fetching toots for a list of tags, e.g. trending or particiapted tags.
  */
-import Logger from '../helpers/logger';
 import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { config, TagTootsConfig } from "../config";
+import { Logger } from '../helpers/logger';
 import { tagInfoStr } from "./objects/tag";
 import { TagTootsCacheKey } from "../enums";
 import { truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";

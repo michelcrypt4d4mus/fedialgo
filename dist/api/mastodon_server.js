@@ -18,7 +18,7 @@ const enums_1 = require("../enums");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
-const logger_1 = __importDefault(require("../helpers/logger"));
+const logger_1 = require("../helpers/logger");
 const enums_2 = require("../enums");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const API_URI = "api";
@@ -26,7 +26,7 @@ const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const INSTANCE = "instance";
 const LOG_PREFIX = `MastodonServer`;
-const getLogger = logger_1.default.logBuilder(LOG_PREFIX);
+const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
 ;
 /**
  * Class for interacting with the public non-authenticated API of a Mastodon server.
@@ -51,7 +51,7 @@ class MastodonServer {
      */
     constructor(domain) {
         this.domain = domain;
-        this.logger = logger_1.default.withParenthesizedName(LOG_PREFIX, domain);
+        this.logger = logger_1.Logger.withParenthesizedName(LOG_PREFIX, domain);
     }
     ;
     /**

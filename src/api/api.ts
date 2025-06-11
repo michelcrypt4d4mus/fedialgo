@@ -8,7 +8,6 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Logger from '../helpers/logger';
 import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import Storage, {
@@ -22,6 +21,7 @@ import { CacheKey, buildCacheKeyDict, type ApiCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
+import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
 import { TrendingType } from '../enums';

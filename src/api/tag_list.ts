@@ -2,10 +2,11 @@
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 import MastoApi from "./api";
-import Logger from '../helpers/logger';
-import ObjWithCountList, { type ListSource } from "./obj_with_counts_list";
+import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
+import UserData from "./user_data";
 import { config } from "../config";
+import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { ScoreName, TagTootsCacheKey } from "../enums";
 import {

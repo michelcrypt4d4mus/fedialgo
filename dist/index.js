@@ -47,8 +47,6 @@ const followers_scorer_1 = __importDefault(require("./scorer/feature/followers_s
 const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
 const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
-const logger_1 = __importDefault(require("./helpers/logger"));
-exports.Logger = logger_1.default;
 const api_1 = __importStar(require("./api/api"));
 Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return api_1.isAccessTokenRevokedError; } });
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
@@ -92,6 +90,8 @@ Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true,
 const moar_data_poller_1 = require("./api/moar_data_poller");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const weight_presets_1 = require("./scorer/weight_presets");
+const logger_1 = require("./helpers/logger");
+Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const enums_1 = require("./enums");
 Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return enums_1.BooleanFilterName; } });
@@ -121,7 +121,7 @@ const EMPTY_TRENDING_DATA = {
     servers: {},
     toots: []
 };
-const trendingTootsLogger = new logger_1.default(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
+const trendingTootsLogger = new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS);
 ;
 /**
  * Main class for scoring, sorting, and managing a Mastodon feed made of Toot objects.
@@ -184,7 +184,7 @@ class TheAlgorithm {
     loadStartedAt = null; // Timestamp of when the feed started loading
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     // Utility
-    logger = new logger_1.default(`TheAlgorithm`);
+    logger = new logger_1.Logger(`TheAlgorithm`);
     mergeMutex = new async_mutex_1.Mutex();
     numTriggers = 0; // How many times has a load been triggered, only matters for QUICK_LOAD mode
     // Background tasks

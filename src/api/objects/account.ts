@@ -5,12 +5,12 @@ import { encode } from 'html-entities';
 import { mastodon } from "masto";
 import { Type } from "class-transformer";
 
-import Logger from "../../helpers/logger";
 import MastoApi from "../api";
 import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
+import { Logger } from "../../helpers/logger";
 import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
 
 type AccountCount = Record<string, {account: Account, count: number}>;

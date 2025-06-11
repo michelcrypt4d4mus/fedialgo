@@ -21,7 +21,6 @@ import FollowersScorer from './scorer/feature/followers_scorer';
 import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
 import InteractionsScorer from "./scorer/feature/interactions_scorer";
-import Logger from './helpers/logger';
 import MastoApi, { FULL_HISTORY_PARAMS, isAccessTokenRevokedError } from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
@@ -54,6 +53,7 @@ import { FILTER_OPTION_DATA_SOURCES } from './types';
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
+import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
     AlgorithmStorageKey,

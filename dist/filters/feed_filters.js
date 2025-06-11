@@ -28,7 +28,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
-const logger_1 = __importDefault(require("../helpers/logger"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
@@ -38,13 +37,14 @@ const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
+const logger_1 = require("../helpers/logger");
 const DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {},
     numericFilterArgs: [],
     numericFilters: {},
 };
-const logger = new logger_1.default('feed_filters.ts');
+const logger = new logger_1.Logger('feed_filters.ts');
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 function buildNewFilterSettings() {

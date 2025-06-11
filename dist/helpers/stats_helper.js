@@ -1,17 +1,14 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rechartsDataPoints = void 0;
 /*
  * Help prepping data for recharts and other algorithm statistics stuff.
  */
-const logger_1 = __importDefault(require("./logger"));
+const logger_1 = require("./logger");
 const collection_helpers_1 = require("./collection_helpers");
 const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
-const logger = new logger_1.default("stats_helper.ts");
+const logger = new logger_1.Logger("stats_helper.ts");
 // Compute stats about the scores of a list of toots
 function computeScoreStats(toots, numPercentiles) {
     return Object.values(enums_1.ScoreName).reduce((stats, scoreName) => {

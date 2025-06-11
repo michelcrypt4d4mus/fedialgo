@@ -7,12 +7,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 const api_1 = __importDefault(require("./api"));
-const logger_1 = __importDefault(require("../helpers/logger"));
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
 const config_1 = require("../config");
+const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
-const logger = new logger_1.default("TagList");
+const logger = new logger_1.Logger("TagList");
 /**
  * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
  * @augments ObjWithCountList

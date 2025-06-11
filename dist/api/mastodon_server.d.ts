@@ -1,6 +1,6 @@
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import Logger from '../helpers/logger';
+import { Logger } from '../helpers/logger';
 import { type MastodonInstance, type MastodonInstances, type TagWithUsageCounts, type TrendingLink, type TrendingData } from "../types";
 export type InstanceResponse = MastodonInstance | null;
 /**

@@ -21,7 +21,6 @@ const change_case_1 = require("change-case");
 const lodash_1 = require("lodash");
 const class_transformer_1 = require("class-transformer");
 const account_1 = __importDefault(require("./account"));
-const logger_1 = __importDefault(require("../../helpers/logger"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const scorer_1 = __importDefault(require("../../scorer/scorer"));
@@ -31,6 +30,7 @@ const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
+const logger_1 = require("../../helpers/logger");
 const enums_1 = require("../../enums");
 const tag_1 = require("./tag");
 const enums_2 = require("../../enums");
@@ -70,7 +70,7 @@ const TAG_ONLY_STRINGS = new Set([
     "un",
     "us",
 ]);
-const tootLogger = new logger_1.default("Toot");
+const tootLogger = new logger_1.Logger("Toot");
 const repairLogger = tootLogger.tempLogger("repairToot");
 ;
 ;

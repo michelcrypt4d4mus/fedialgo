@@ -10,7 +10,7 @@ exports.BooleanFilterOptionList = void 0;
  */
 const lodash_1 = require("lodash");
 const user_data_1 = __importDefault(require("./user_data"));
-const logger_1 = __importDefault(require("../helpers/logger"));
+const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
 /**
@@ -50,7 +50,7 @@ class ObjWithCountList {
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this.source = source;
-        this.logger = new logger_1.default("ObjWithCountList", source);
+        this.logger = new logger_1.Logger("ObjWithCountList", source);
     }
     // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
     addObjs(objs) {

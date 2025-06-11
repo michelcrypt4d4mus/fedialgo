@@ -16,7 +16,7 @@ import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, FEDIVERSE_CACHE_KEYS } from "../config";
 import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
 import { lockExecution } from '../helpers/log_helpers';
-import Logger from '../helpers/logger';
+import { Logger } from '../helpers/logger';
 import { TrendingType, buildCacheKeyDict } from '../enums';
 import {
     decorateLinkHistory,

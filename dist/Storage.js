@@ -34,7 +34,6 @@ const localforage_1 = __importDefault(require("localforage"));
 const class_transformer_1 = require("class-transformer");
 const lodash_1 = require("lodash");
 const account_1 = __importDefault(require("./api/objects/account"));
-const logger_1 = __importDefault(require("./helpers/logger"));
 const api_1 = __importDefault(require("./api/api"));
 const tag_list_1 = __importDefault(require("./api/tag_list"));
 const toot_1 = __importStar(require("./api/objects/toot"));
@@ -48,6 +47,7 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
+const logger_1 = require("./helpers/logger");
 const math_helper_2 = require("./helpers/math_helper");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
@@ -65,7 +65,7 @@ exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
     enums_1.CacheKey.NOTIFICATIONS,
     enums_1.CacheKey.SERVER_SIDE_FILTERS,
 ];
-const logger = new logger_1.default('STORAGE');
+const logger = new logger_1.Logger('STORAGE');
 class Storage {
     static lastUpdatedAt = null; // Last time the storage was updated
     // Clear everything but preserve the user's identity and weightings
