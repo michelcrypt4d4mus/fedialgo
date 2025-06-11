@@ -50,13 +50,14 @@ interface FetchTrendingProps<T extends TrendingObj> {
     processingFxn: (objs: T[]) => Promise<T[]>,  // Uniquify and anything else needed
 };
 
+
 /**
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
  * aggregating and processing trending data across multiple servers in the fediverse.
  *
  * @class
- * @property {string} domain - The domain of the Mastodon server this instance interacts with.
+ * @property {string} domain - The domain of the server this MastodonServer object interacts with.
  * @property {Logger} logger - Logger instance for this server.
  */
 export default class MastodonServer {

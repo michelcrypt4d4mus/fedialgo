@@ -134,18 +134,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return only options that have at least minToots or are in selectedOptions.
-     * @param {BooleanFilterOption[]} options - The options to filter.
-     * @param {number} [minToots=0] - Minimum number of toots.
-     * @returns {BooleanFilterOptionList}
-     */
-    optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
-        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new BooleanFilterOptionList(options, this.title);
-    }
-
-    /**
-     * Return options sorted by name, filtered by minToots (selected options are always included).
+     * Return options with numToots >= minToots sorted by name (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -155,7 +144,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return options sorted by numToots, filtered by minToots.
+     * Return options with numToots >= minToots sorted by numToots (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -194,6 +183,18 @@ export default class BooleanFilter extends TootFilter {
         const filterArgs = super.toArgs() as BooleanFilterArgs;
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
+    }
+
+    /**
+     * Return only options that have at least minToots or are in selectedOptions.
+     * @private
+     * @param {BooleanFilterOption[]} options - The options to filter.
+     * @param {number} [minToots=0] - Minimum number of toots.
+     * @returns {BooleanFilterOptionList}
+     */
+    private optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
+        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
+        return new BooleanFilterOptionList(options, this.title);
     }
 
     /**

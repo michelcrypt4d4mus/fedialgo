@@ -116,17 +116,7 @@ class BooleanFilter extends toot_filter_1.default {
         return this.selectedOptions.includes(optionName);
     }
     /**
-     * Return only options that have at least minToots or are in selectedOptions.
-     * @param {BooleanFilterOption[]} options - The options to filter.
-     * @param {number} [minToots=0] - Minimum number of toots.
-     * @returns {BooleanFilterOptionList}
-     */
-    optionListWithMinToots(options, minToots = 0) {
-        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
-    }
-    /**
-     * Return options sorted by name, filtered by minToots (selected options are always included).
+     * Return options with numToots >= minToots sorted by name (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -135,7 +125,7 @@ class BooleanFilter extends toot_filter_1.default {
         return this.optionListWithMinToots(options, minToots);
     }
     /**
-     * Return options sorted by numToots, filtered by minToots.
+     * Return options with numToots >= minToots sorted by numToots (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -170,6 +160,17 @@ class BooleanFilter extends toot_filter_1.default {
         const filterArgs = super.toArgs();
         filterArgs.selectedOptions = this.selectedOptions;
         return filterArgs;
+    }
+    /**
+     * Return only options that have at least minToots or are in selectedOptions.
+     * @private
+     * @param {BooleanFilterOption[]} options - The options to filter.
+     * @param {number} [minToots=0] - Minimum number of toots.
+     * @returns {BooleanFilterOptionList}
+     */
+    optionListWithMinToots(options, minToots = 0) {
+        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
+        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
     }
     /**
      * Checks if a given property name is a valid numeric filter name.
