@@ -1,6 +1,8 @@
 # NEXT RELEASE
-* Fix filtering of user's own toots out of their feed
-* Return more info about MastoApi's properties in getCurrentState()
+
+### v0.69.21
+* Fix filtering of user's own toots out of their timeline
+* Return more `MastoApi` properties in `getCurrentState()`
 
 ### v0.69.20
 * Add `allEmojis()` getter to `Toot`
