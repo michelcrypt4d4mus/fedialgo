@@ -21,7 +21,7 @@ export default class ChaosScorer extends FeatureScorer {
         }
 
         try {
-            return this.decimalHash(toot.reblog?.content || toot.content);
+            return this.decimalHash(toot.realToot.content);
         } catch (e) {
             console.warn(`Error in _score() for ${this.name}:`, e, `\nToot with error in ChaosScorer:`, toot);
             return 0;

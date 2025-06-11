@@ -79,7 +79,7 @@ export default class Account implements AccountObj {
      */
     static build(account: AccountLike): Account;
     /**
-     * Returns the display name with emojis and webfinger URI in HTML.
+     * Returns the display name with emojis <img> tags and webfinger URI in HTML.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE]
      * @returns {string}
      */

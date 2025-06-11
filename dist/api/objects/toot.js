@@ -82,6 +82,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
  * @extends {mastodon.v1.Status}
  * @property {Account[]} accounts - Array with the author of the toot and (if it exists) the account that retooted it.
  * @property {number} ageInHours - Age of this toot in hours.
+ * @property {mastodon.v1.CustomEmoji[]} allEmojis - All custom emojis in the toot, including the author's.
  * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
@@ -166,6 +167,8 @@ class Toot {
     get accounts() { return this.withRetoot.map((toot) => toot.account); }
     ;
     get ageInHours() { return (0, time_helpers_1.ageInHours)(this.createdAt); }
+    ;
+    get allEmojis() { return (this.emojis || []).concat(this.account.emojis || []); }
     ;
     get author() { return this.realToot.account; }
     ;
@@ -482,8 +485,7 @@ class Toot {
     //////////////////////////////
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string
     addEmojiHtmlTags(str, fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
-        const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(str, emojis, fontSize);
+        return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(str, this.allEmojis, fontSize);
     }
     // return MediaAttachmentType objects with type == attachmentType
     attachmentsOfType(attachmentType) {
@@ -882,6 +884,7 @@ class Toot {
     }
     /**
      * Return a new array of a toot property collected and uniquified from an array of toots.
+     * @private
      * @template T
      * @param {Toot[]} toots - Array of toots.
      * @param {KeysOfValueType<Toot, any[] | undefined>} property - The property to collect.

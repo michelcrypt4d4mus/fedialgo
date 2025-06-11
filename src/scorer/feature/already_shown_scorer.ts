@@ -4,6 +4,7 @@
 import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
+import { sumArray } from '../../helpers/collection_helpers';
 
 
 export default class AlreadyShownScorer extends FeatureScorer {
@@ -15,6 +16,6 @@ export default class AlreadyShownScorer extends FeatureScorer {
 
     // Sets the followedTags property on the Toot object before returning the score
     async _score(toot: Toot) {
-        return (toot.numTimesShown || 0) + (toot.reblog?.numTimesShown || 0);
+        return sumArray(toot.withRetoot.map(t => t.numTimesShown));
     }
 };

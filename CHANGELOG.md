@@ -1,8 +1,7 @@
 # NEXT RELEASE
+* Add allEmojis() getter to Toot
 
 ### v0.69.19
-
-### v0.69.18
 * Make TheAlgorithm.weightedScorers private
 * Make `isFollowed` and `isFollower` actually optional on `Account`
 
