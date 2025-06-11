@@ -164,6 +164,7 @@ class Toot {
     audioAttachments;
     imageAttachments;
     videoAttachments;
+    // See JSDoc comment for explanations of the various getters
     get accounts() { return this.withRetoot.map((toot) => toot.account); }
     ;
     get ageInHours() { return (0, time_helpers_1.ageInHours)(this.createdAt); }
@@ -194,16 +195,16 @@ class Toot {
     ;
     get tootedAt() { return new Date(this.createdAt); }
     ; // TODO: should this consider the values in reblogsBy?
-    get withRetoot() { return [this, ...(this.reblog ? [this.reblog] : [])]; }
+    get withRetoot() { return [this, ...(0, collection_helpers_1.asOptionalArray)(this.reblog)]; }
     ;
     get attachmentType() {
-        if (this.imageAttachments.length > 0) {
+        if (this.imageAttachments.length) {
             return enums_1.MediaCategory.IMAGE;
         }
-        else if (this.videoAttachments.length > 0) {
+        else if (this.videoAttachments.length) {
             return enums_1.MediaCategory.VIDEO;
         }
-        else if (this.audioAttachments.length > 0) {
+        else if (this.audioAttachments.length) {
             return enums_1.MediaCategory.AUDIO;
         }
     }

@@ -4,13 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /*
- * Abstract extension of FeatureScorer to score a toot based on the account that created it
+ * Abstract extension of FeatureScorer to score a toot based on the account that created it.
+ * Requires that the scoreData is a map of webfingerURIs to scores.
  */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const collection_helpers_1 = require("../../helpers/collection_helpers");
 class AccountScorer extends feature_scorer_1.default {
     async _score(toot) {
-        const score = this.scoreData[toot.account.webfingerURI] || 0;
-        return score + (toot.reblog ? (this.scoreData[toot.reblog.account.webfingerURI] || 0) : 0);
+        return (0, collection_helpers_1.sumArray)(toot.withRetoot.map(t => this.scoreData[t.account.webfingerURI]));
     }
     ;
 }

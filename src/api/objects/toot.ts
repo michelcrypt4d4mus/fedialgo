@@ -22,6 +22,7 @@ import { MediaCategory, ScoreName } from '../../enums';
 import { repairTag } from "./tag";
 import { TypeFilterName } from '../../enums';
 import {
+    asOptionalArray,
     batchMap,
     filterWithLog,
     groupBy,
@@ -264,6 +265,7 @@ export default class Toot implements TootObj {
     imageAttachments!: mastodon.v1.MediaAttachment[];
     videoAttachments!: mastodon.v1.MediaAttachment[];
 
+    // See JSDoc comment for explanations of the various getters
     get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)};
     get ageInHours(): number { return ageInHours(this.createdAt) };
     get allEmojis(): mastodon.v1.CustomEmoji[] { return (this.emojis || []).concat(this.account.emojis || []) };
@@ -279,14 +281,14 @@ export default class Toot implements TootObj {
     get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(at) };
     get score(): number { return this.scoreInfo?.score || 0 };
     get tootedAt(): Date { return new Date(this.createdAt) };  // TODO: should this consider the values in reblogsBy?
-    get withRetoot(): Toot[] { return [this, ...(this.reblog ? [this.reblog] : [])] };
+    get withRetoot(): Toot[] { return [this, ...asOptionalArray(this.reblog)] };
 
     get attachmentType(): MediaCategory | undefined {
-        if (this.imageAttachments.length > 0) {
+        if (this.imageAttachments.length) {
             return MediaCategory.IMAGE;
-        } else if (this.videoAttachments.length > 0) {
+        } else if (this.videoAttachments.length) {
             return MediaCategory.VIDEO;
-        } else if (this.audioAttachments.length > 0) {
+        } else if (this.audioAttachments.length) {
             return MediaCategory.AUDIO;
         }
     }

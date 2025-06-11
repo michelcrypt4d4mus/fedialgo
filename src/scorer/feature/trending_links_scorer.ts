@@ -29,13 +29,11 @@ export default class TrendingLinksScorer extends FeatureScorer {
     }
 
     async _score(toot: Toot): Promise<number> {
-        toot = toot.reblog || toot;
-
-        if (!toot.trendingLinks) {
+        if (!toot.realToot.trendingLinks) {
             this.logger.warn(`No trendingLinks found for toot:`, toot);
             return 0;
         }
 
-        return sumArray(toot.trendingLinks.map(link => this.scoreData[link.url] || 0));
+        return sumArray(toot.realToot.trendingLinks.map(link => this.scoreData[link.url]));
     }
 };
