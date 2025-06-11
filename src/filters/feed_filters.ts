@@ -218,13 +218,18 @@ function logSuppressedHashtags(suppressedHashtags: DictOfDicts): void {
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters: FeedFilterSettings): void {
+    const thisLogger = logger.tempLogger("populateMissingFilters");
+
     FILTERABLE_SCORES.forEach(scoreName => {
-        filters.numericFilters[scoreName] ??= new NumericFilter({propertyName: scoreName});
+        if (!filters.numericFilters[scoreName]) {
+            thisLogger.trace(`No NumericFilter for ${scoreName}, creating new one`);
+            filters.numericFilters[scoreName] ??= new NumericFilter({propertyName: scoreName});
+        }
     });
 
     Object.values(BooleanFilterName).forEach((booleanFilterName) => {
         if (!filters.booleanFilters[booleanFilterName]) {
-            logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
+            thisLogger.trace(`No BooleanFilter for ${booleanFilterName}, creating new one`);
             filters.booleanFilters[booleanFilterName] = new BooleanFilter({propertyName: booleanFilterName});
         }
     });
