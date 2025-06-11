@@ -71,7 +71,7 @@ export default class NumericFilter extends TootFilter {
     }
 
     /**
-     * Serializes the filter state for storage (e.g., local storage).
+     * Serializes the filter state for storage.
      * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs(): NumericFilterArgs {

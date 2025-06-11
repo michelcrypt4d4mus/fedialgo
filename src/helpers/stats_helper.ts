@@ -6,7 +6,7 @@ import { average, makePercentileChunks } from "./collection_helpers";
 import { ScoreName } from '../enums';
 import { suffixedInt } from "./string_helpers";
 import { traceLog } from "./log_helpers";
-import { type MinMaxAvgScore, type ScoresStats, type ScoreType, type WeightedScore } from "../types";
+import { type MinMaxAvgScore, type ScoresStats, type ScoreType } from "../types";
 
 
 // Compute stats about the scores of a list of toots
