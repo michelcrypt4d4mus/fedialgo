@@ -58,7 +58,7 @@ class TagsForFetchingToots {
         return await api_1.default.instance.getCacheableToots(async () => {
             const tags = this.topTags();
             this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
-            const results = await (0, collection_helpers_1.zipPromises)(tags.map(tag => tag.name), async (tagName) => {
+            const results = await (0, collection_helpers_1.zipPromiseCalls)(tags.map(tag => tag.name), async (tagName) => {
                 return await api_1.default.instance.getStatusesForTag(tagName, this.logger, this.config.numTootsPerTag);
             }, this.logger);
             return Object.values(results).flat();

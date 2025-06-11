@@ -24,6 +24,7 @@ const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const scorer_1 = __importDefault(require("../../scorer/scorer"));
+const user_data_1 = __importDefault(require("../user_data"));
 const time_helpers_1 = require("../../helpers/time_helpers");
 const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
@@ -55,7 +56,7 @@ var TootCacheKey;
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
-const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
+const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(?:${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = numeric_filter_1.FILTERABLE_SCORES.concat("numTimesShown");
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = new Set([
@@ -287,7 +288,7 @@ class Toot {
      * @returns {boolean}
      */
     containsString(str) {
-        return (0, string_helpers_1.wordRegex)(str).test(this.contentWithCard());
+        return this.matchesRegex((0, string_helpers_1.wordRegex)(str));
     }
     /**
      * Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search.
@@ -417,7 +418,7 @@ class Toot {
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
-    isValidForFeed(serverSideFilters) {
+    isValidForFeed(mutedKeywordRegex, blockedDomains) {
         if (this.reblog?.muted || this.muted) {
             tootLogger.trace(`Removing toot from muted account (${this.author.description}):`, this);
             return false;
@@ -438,13 +439,15 @@ class Toot {
             tootLogger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt);
             return false;
         }
-        // Return false if toot matches any server side filters
-        return !serverSideFilters.some((filter) => (filter.keywords.some((keyword) => {
-            if (this.realToot.containsString(keyword.keyword)) {
-                tootLogger.trace(`Removing toot matching manual server side filter (${this.description}):`, filter);
-                return true;
-            }
-        })));
+        else if (blockedDomains.has(this.author.homeserver)) {
+            tootLogger.trace(`Removing toot from blocked domain:`, this);
+            return false;
+        }
+        else if (this.matchesRegex(mutedKeywordRegex)) {
+            tootLogger.trace(`Removing toot matching muted keyword regex:`, this);
+            return false;
+        }
+        return true;
     }
     /**
      * Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
@@ -456,6 +459,14 @@ class Toot {
         const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
+    }
+    /**
+     * True if toot matches 'regex' in the tags, the content, or the link preview card description.
+     * @param {RegExp} regex - The string to search for.
+     * @returns {boolean}
+     */
+    matchesRegex(regex) {
+        return regex.test(this.contentWithCard());
     }
     /**
      * Get Status obj for toot from user's home server so the property URLs point to the home server.
@@ -848,8 +859,17 @@ class Toot {
      * @returns {Promise<Toot[]>}
      */
     static async removeInvalidToots(toots, logger) {
-        const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
-        return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+        let blockedDomains = new Set();
+        let mutedKeywordsRegex;
+        if (api_1.default.instance.userData) {
+            blockedDomains = new Set(api_1.default.instance.userData.blockedDomains);
+            mutedKeywordsRegex = api_1.default.instance.userData.mutedKeywordsRegex;
+        }
+        else {
+            blockedDomains = new Set(await api_1.default.instance.getBlockedDomains());
+            mutedKeywordsRegex = await user_data_1.default.getMutedKeywordsRegex();
+        }
+        return (0, collection_helpers_1.filterWithLog)(toots, toot => toot.isValidForFeed(mutedKeywordsRegex, blockedDomains), logger, 'invalid', 'Toot');
     }
     /**
      * Get rid of the user's own toots.

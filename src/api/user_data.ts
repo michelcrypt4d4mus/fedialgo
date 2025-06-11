@@ -11,8 +11,9 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
+import { buildMutedRegex, extractMutedKeywords } from "./objects/filter";
 import { config } from "../config";
-import { keyById } from "../helpers/collection_helpers";
+import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
 import {
@@ -26,6 +27,7 @@ const logger = new Logger("UserData");
 
 // Raw API data required to build UserData
 interface UserApiData {
+    blockedDomains: string[];
     favouritedToots: Toot[];
     followedAccounts: Account[];
     followedTags: TagWithUsageCounts[];
@@ -43,23 +45,27 @@ interface UserApiData {
  * from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
  * for use in scoring and filtering algorithms.
  *
+ * @property {Set<string>} blockedDomains - Set of domains the user has blocked.
  * @property {BooleanFilterOptionList} favouriteAccounts - Accounts the user has favourited, retooted, or replied to.
  * @property {TagList} favouritedTags - List of tags the user has favourited.
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
  * @property {TagList} followedTags - List of tags the user follows.
  * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
  * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted or blocked, keyed by Account["webfingerURI"].
+ * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 export default class UserData {
+    blockedDomains: Set<string> = new Set([]);
     favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
     followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
     languagesPostedIn: ObjList = new ObjWithCountList([], BooleanFilterName.LANGUAGE);
     mutedAccounts: AccountNames = {};
+    mutedKeywordsRegex!: RegExp;  // Cached regex for muted keywords, built from server-side filters
     participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
@@ -68,33 +74,29 @@ export default class UserData {
 
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build(): Promise<UserData> {
-        const responses = await Promise.all([
-            MastoApi.instance.getFavouritedToots(),
-            MastoApi.instance.getFollowedAccounts(),
-            MastoApi.instance.getFollowedTags(),
-            MastoApi.instance.getMutedAccounts(),
-            MastoApi.instance.getRecentUserToots(),
-            MastoApi.instance.getServerSideFilters(),
-        ]);
+        const responses = await resolvePromiseDict({
+            blockedDomains: MastoApi.instance.getBlockedDomains(),
+            favouritedToots: MastoApi.instance.getFavouritedToots(),
+            followedAccounts: MastoApi.instance.getFollowedAccounts(),
+            followedTags: MastoApi.instance.getFollowedTags(),
+            mutedAccounts: MastoApi.instance.getMutedAccounts(),
+            recentToots: MastoApi.instance.getRecentUserToots(),
+            serverSideFilters: MastoApi.instance.getServerSideFilters(),
+        }, logger, []);
 
-        return this.buildFromData({
-            favouritedToots: responses[0],
-            followedAccounts: responses[1],
-            followedTags: responses[2],
-            mutedAccounts: responses[3],
-            recentToots: responses[4],
-            serverSideFilters: responses[5],
-        });
+        return this.buildFromData(responses as UserApiData);
     }
 
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
         userData.populateFavouriteAccounts(data);
+        userData.blockedDomains = new Set(data.blockedDomains);
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
+        userData.mutedKeywordsRegex = buildMutedRegex(data.serverSideFilters);
         userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
@@ -149,13 +151,20 @@ export default class UserData {
     //      Static Methods     //
     /////////////////////////////
 
-    // Return an array of keywords the user has muted on the server side
+    /**
+     * Get an array of keywords the user has muted on the server side
+     * @returns {Promise<string[]>} An array of muted keywords.
+     */
     static async getMutedKeywords(): Promise<string[]> {
-        const serverSideFilters = await MastoApi.instance.getServerSideFilters();
-        let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
-        keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
-        logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
-        return keywords;
+        return extractMutedKeywords(await MastoApi.instance.getServerSideFilters());
+    }
+
+    /**
+     * Build a regex that matches any of the user's muted keywords.
+     * @returns {Promise<RegExp>} A RegExp that matches any of the user's muted keywords.
+     */
+    static async getMutedKeywordsRegex(): Promise<RegExp> {
+        return buildMutedRegex(await MastoApi.instance.getServerSideFilters());
     }
 };
 

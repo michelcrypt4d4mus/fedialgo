@@ -4,7 +4,7 @@
 const escape = require('regexp.escape');
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
-import { isEmpty, isNil } from "lodash";
+import { isEmpty, isNil, words } from "lodash";
 import { mastodon } from 'masto';
 
 import { MediaCategory } from '../enums';
@@ -212,5 +212,13 @@ export const toLocaleInt = (num: number | null): string => {
 
 // Create a regex that matches a whole word, case-insensitive
 export const wordRegex = (pattern: string): RegExp => {
-    return new RegExp(`\\b${escape(pattern.trim())}\\b`, 'i');
+    return wordsRegex([pattern]);
+};
+
+
+// Create a regex that matches any of the given patterns, case-insensitive
+export const wordsRegex = (patterns: string[]): RegExp => {
+    if (patterns.length === 0) return /(?:)/; // Empty regex that matches nothing
+    const escapedPatterns = patterns.map(escape).join('|');
+    return new RegExp(`\\b(?:${escapedPatterns})\\b`, 'i');
 };

@@ -8,7 +8,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const api_1 = __importDefault(require("./api"));
 const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
-const user_data_1 = __importDefault(require("./user_data"));
 const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
@@ -70,10 +69,6 @@ class TagList extends obj_with_counts_list_1.default {
     removeInvalidTrendingTags() {
         this.removeKeywords(config_1.config.trending.tags.invalidTags);
         this.objs = this.objs.filter(tag => !tag.language || (tag.language == config_1.config.locale.language));
-    }
-    // Screen a list of hashtags against the user's server side filters, removing any that are muted.
-    async removeMutedTags() {
-        this.removeKeywords(await user_data_1.default.getMutedKeywords());
     }
 }
 exports.default = TagList;

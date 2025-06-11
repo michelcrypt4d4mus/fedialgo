@@ -5,7 +5,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 /**
  * Abstract base class representing a filter that can be applied to a Toot to determine
- * if it should be included in the timeline feed. Subclasses must implement the isAllowed() method.
+ * if it should be included in the timeline feed. Subclasses must implement the isAllowed method.
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
@@ -43,12 +43,7 @@ class TootFilter {
     static isValidTitle(name) {
         throw new Error("isValidTitle() must be implemented in subclasses");
     }
-    /**
-     * Remove any filter args from the list whose title is invalid
-     * @param {FilterArgs[]} args - The list of filter arguments to check.
-     * @param {Logger} logger - Logger instance to log warnings for invalid args.
-     * @returns {FilterArgs[]} The filtered list containing only valid filter arguments.
-     */
+    /** Remove any filter args from the list whose title is invalid */
     static removeInvalidFilterArgs(args, logger) {
         const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => this.isValidTitle(arg.title));
         if (invalidArgs.length > 0) {

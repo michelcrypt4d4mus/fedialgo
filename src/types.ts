@@ -18,6 +18,7 @@ export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type ObjNames = Record<string, NamedTootCount>;
+export type PromiseDict = Record<string, Promise<any>>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -91,6 +92,15 @@ export type KeysOfValueType<T, SuperClass> = Exclude<
 >;
 
 
+////////////////////////
+//    Mastodon API    //
+////////////////////////
+
+export type CacheableApiObj = (
+    MastodonApiObj[] |
+    MastodonInstances
+);
+
 /**
  * Union type representing any object that can be returned from the Mastodon API and handled by the app
  * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
@@ -98,7 +108,8 @@ export type KeysOfValueType<T, SuperClass> = Exclude<
 export type MastodonApiObj = (
     MastodonObjWithID |
     MastodonTag |
-    mastodon.v1.TrendLink
+    mastodon.v1.TrendLink |
+    string
 );
 
 // All these types have an id property
@@ -162,26 +173,18 @@ export type ScoreStats = {
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
 
-export type StorableApiObject = (
-    MastodonObjWithID |
-    MastodonTag |
-    TrendingLink
-);
+// export interface ServerSideFilter extends mastodon.v2.Filter {
+//     regex?: RegExp;
+// };
 
 // Types that are valid for browser local storage
 export type StorableObj = (
+    CacheableApiObj |
     FeedFilterSettingsSerialized |
-    MastodonInstances |
-    StorableApiObject |
-    StorableApiObject[] |
+    MastodonApiObj |
     StringNumberDict |
     Weights |
     number
-);
-
-export type StorableObjWithCache = (
-    MastodonInstances |
-    StorableApiObject[]
 );
 
 export type StorableWithTimestamp = {

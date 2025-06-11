@@ -11,6 +11,7 @@ export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type ObjNames = Record<string, NamedTootCount>;
+export type PromiseDict = Record<string, Promise<any>>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -62,11 +63,12 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;
+export type CacheableApiObj = (MastodonApiObj[] | MastodonInstances);
 /**
  * Union type representing any object that can be returned from the Mastodon API and handled by the app
  * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
  */
-export type MastodonApiObj = (MastodonObjWithID | MastodonTag | mastodon.v1.TrendLink);
+export type MastodonApiObj = (MastodonObjWithID | MastodonTag | mastodon.v1.TrendLink | string);
 export type MastodonObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 /**
  * Local extension to the Mastodon Instance type that adds some additional properties
@@ -104,9 +106,7 @@ export type ScoreStats = {
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
-export type StorableApiObject = (MastodonObjWithID | MastodonTag | TrendingLink);
-export type StorableObj = (FeedFilterSettingsSerialized | MastodonInstances | StorableApiObject | StorableApiObject[] | StringNumberDict | Weights | number);
-export type StorableObjWithCache = (MastodonInstances | StorableApiObject[]);
+export type StorableObj = (CacheableApiObj | FeedFilterSettingsSerialized | MastodonApiObj | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

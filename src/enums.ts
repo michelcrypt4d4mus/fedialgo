@@ -11,6 +11,7 @@
  */
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
+    BLOCKED_DOMAINS = 'BlockedDomains',
     FAVOURITED_TOOTS = 'FavouritedToots',
     FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
     FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',

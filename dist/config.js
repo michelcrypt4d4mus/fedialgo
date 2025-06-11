@@ -52,6 +52,10 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
+            [enums_1.CacheKey.BLOCKED_DOMAINS]: {
+                initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: exports.MINUTES_IN_DAY,
+            },
             [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
                 minutesUntilStale: 60,
             },
@@ -240,6 +244,7 @@ class Config {
             "amf.didiermary.fr",
             "bsd.network",
             "bsky.brid.gy",
+            "fedibird.com",
             "fediverse.one",
             "flipboard.com",
             "mastodon.art",

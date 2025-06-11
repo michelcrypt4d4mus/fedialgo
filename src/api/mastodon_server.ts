@@ -14,7 +14,7 @@ import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { CacheKey, TagTootsCacheKey } from "../enums";
 import { config, FEDIVERSE_CACHE_KEYS } from "../config";
-import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromises } from "../helpers/collection_helpers";
+import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { TrendingType, buildCacheKeyDict } from '../enums';
@@ -303,7 +303,8 @@ export default class MastodonServer {
 
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await MastoApi.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
-        const followedUserDomainCounts = countValues<Account>(follows, account => account.homeserver);
+        const followedUserDomainCounts = countValues(follows, account => account.homeserver);
+        logger.logSortedDict("followedUserDomainCounts", followedUserDomainCounts);
         let mostFollowedDomains = sortKeysByValue(followedUserDomainCounts)
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
         mostFollowedDomains = mostFollowedDomains.slice(0, config.fediverse.numServersToCheck);
@@ -399,7 +400,7 @@ export default class MastodonServer {
         domains: string[],
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
-        return await zipPromises<T>(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
+        return await zipPromiseCalls<T>(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
     }
 
     // Call 'fxn' for all the top servers and return a dict keyed by server domain

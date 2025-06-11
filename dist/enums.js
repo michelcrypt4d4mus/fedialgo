@@ -14,6 +14,7 @@ exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName =
 var CacheKey;
 (function (CacheKey) {
     CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
+    CacheKey["BLOCKED_DOMAINS"] = "BlockedDomains";
     CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
     CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
     CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
