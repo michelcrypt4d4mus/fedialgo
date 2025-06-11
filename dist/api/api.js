@@ -127,6 +127,19 @@ class MastoApi {
         this.reset();
     }
     /**
+     * Get the value of MastoApi object's properties.
+     * @param {mastodon.rest.Client} api - Mastodon REST API client.
+     * @param {Account} user - The authenticated user account.
+     */
+    currentState() {
+        return {
+            apiErrors: this.apiErrors,
+            homeDomain: this.homeDomain,
+            user: this.user,
+            waitTimes: this.waitTimes,
+        };
+    }
+    /**
      * Fetches the user's home timeline feed (recent toots from followed accounts and hashtags).
      * @param {HomeTimelineParams} params - Parameters for fetching the home feed.
      * @returns {Promise<Toot[]>} Array of Toots in the home feed.

@@ -645,12 +645,7 @@ class Toot {
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {
-        const fedialgoUserWebfingerURI = api_1.default.instance.user.webfingerURI;
-        if (this.account.webfingerURI == fedialgoUserWebfingerURI)
-            return true;
-        if (this.reblog && this.reblog.account.webfingerURI == fedialgoUserWebfingerURI)
-            return true;
-        return false;
+        return this.accounts.some((account) => account.webfingerURI == api_1.default.instance.user.webfingerURI);
     }
     // Repair toot properties:
     //   - Set toot.application.name to UNKNOWN if missing

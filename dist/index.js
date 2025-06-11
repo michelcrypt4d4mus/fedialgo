@@ -242,11 +242,11 @@ class TheAlgorithm {
      */
     static async create(params) {
         config_1.config.setLocale(params.locale);
-        await api_1.default.init(params.api, params.user);
         const user = account_1.default.build(params.user);
+        await api_1.default.init(params.api, user);
         await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
-        const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
+        const algo = new TheAlgorithm({ ...params, user });
         scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
@@ -373,10 +373,7 @@ class TheAlgorithm {
     async getCurrentState() {
         return {
             Algorithm: this.statusDict(),
-            Api: {
-                errors: this.apiErrorMsgs,
-                waitTimes: api_1.default.instance.waitTimes,
-            },
+            Api: api_1.default.instance.currentState(),
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
@@ -599,6 +596,8 @@ class TheAlgorithm {
         logger.debug(`${this.loadingStatus}...`);
         await toot_1.default.completeToots(this.feed, logger);
         this.feed = await toot_1.default.removeInvalidToots(this.feed, logger);
+        // TODO: this shouldn't be necessary but because of a bug there were user toots ending up in the feed. Remove in a week or so.
+        this.feed = toot_1.default.removeUsersOwnToots(this.feed, logger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();

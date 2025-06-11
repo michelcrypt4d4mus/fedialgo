@@ -780,10 +780,7 @@ export default class Toot implements TootObj {
 
     // Returns true if this toot is by the fedialgo user
     private isUsersOwnToot(): boolean {
-        const fedialgoUserWebfingerURI = MastoApi.instance.user.webfingerURI;
-        if (this.account.webfingerURI == fedialgoUserWebfingerURI) return true;
-        if (this.reblog && this.reblog.account.webfingerURI == fedialgoUserWebfingerURI) return true;
-        return false;
+        return this.accounts.some((account) => account.webfingerURI == MastoApi.instance.user.webfingerURI)
     }
 
     // Repair toot properties:

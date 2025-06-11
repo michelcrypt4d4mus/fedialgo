@@ -246,12 +246,12 @@ class TheAlgorithm {
      */
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         config.setLocale(params.locale);
-        await MastoApi.init(params.api, params.user as Account);
         const user = Account.build(params.user);
+        await MastoApi.init(params.api, user);
         await Storage.logAppOpen(user);
 
         // Construct the algorithm object, set the default weights, load feed and filters
-        const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
+        const algo = new TheAlgorithm({ ...params, user });
         ScorerCache.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
@@ -387,10 +387,7 @@ class TheAlgorithm {
     async getCurrentState(): Promise<Record<string, any>> {
         return {
             Algorithm: this.statusDict(),
-            Api: {
-                errors: this.apiErrorMsgs,
-                waitTimes: MastoApi.instance.waitTimes,
-            },
+            Api: MastoApi.instance.currentState(),
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),
@@ -635,6 +632,8 @@ class TheAlgorithm {
         logger.debug(`${this.loadingStatus}...`);
         await Toot.completeToots(this.feed, logger);
         this.feed = await Toot.removeInvalidToots(this.feed, logger);
+        // TODO: this shouldn't be necessary but because of a bug there were user toots ending up in the feed. Remove in a week or so.
+        this.feed = Toot.removeUsersOwnToots(this.feed, logger);
         await updateBooleanFilterOptions(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
