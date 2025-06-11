@@ -1,6 +1,8 @@
 /**
  * Put a minimum number on things like reblogs and replies.
  */
+import { isFinite } from 'lodash';
+
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { type TootNumberProp } from "../types";
@@ -59,10 +61,8 @@ export default class NumericFilter extends TootFilter {
         if (this.invertSelection && this.value === 0) return true;  // 0 doesn't work as a maximum
         const propertyValue = toot.realToot[this.title];
 
-        if (!propertyValue && propertyValue !== 0) {
-            let msg = `No value found for ${this.title} (interrupted scoring?) in toot: ${toot.description}`;
-            this.logger.warn(msg);
-            // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.description}`);
+        if (!isFinite(propertyValue)) {
+            this.logger.warn(`No value found for ${this.title} (interrupted scoring?) in toot: ${toot.description}`);
             return true;
         }
 
