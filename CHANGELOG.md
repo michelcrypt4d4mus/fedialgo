@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* Add allEmojis() getter to Toot
+
+### v0.69.20
+* Add `allEmojis()` getter to `Toot`
+* (Demo App) Larger font for version information
 
 ### v0.69.19
 * Make `TheAlgorithm.weightedScorers` private
