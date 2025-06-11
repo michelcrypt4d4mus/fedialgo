@@ -65,7 +65,12 @@ export default abstract class TootFilter {
         throw new Error("isValidTitle() must be implemented in subclasses");
     }
 
-    /** Remove any filter args from the list whose title is invalid */
+    /**
+     * Remove any filter args from the list whose title is invalid
+     * @param {FilterArgs[]} args - The list of filter arguments to check.
+     * @param {Logger} logger - Logger instance to log warnings for invalid args.
+     * @returns {FilterArgs[]} The filtered list containing only valid filter arguments.
+     */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[] {
         const [validArgs, invalidArgs] = split(args, arg => this.isValidTitle(arg.title));
 
