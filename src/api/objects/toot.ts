@@ -395,7 +395,7 @@ export default class Toot implements TootObj {
                 tag.regex = wordRegex(tag.name);
             }
 
-            return tag.regex.test(this.contentWithCard());
+            return this.matchesRegex(tag.regex);
         } else {
             return this.tags.some((t) => t.name == tag.name);
         }
@@ -649,7 +649,7 @@ export default class Toot implements TootObj {
 
         // Only set the completedAt field if isDeepInspect is true  // TODO: might be fast enough to try this again?
         if (isDeepInspect) {
-            toot.trendingLinks = trendingLinks.filter(link => link.regex!.test(this.contentWithCard()));
+            toot.trendingLinks = trendingLinks.filter(link => toot.matchesRegex(link.regex!));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         } else {
             toot.trendingLinks ||= [];  // Very slow to calculate so skip it unless isDeepInspect is true
