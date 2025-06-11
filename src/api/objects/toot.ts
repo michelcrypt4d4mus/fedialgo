@@ -3,7 +3,7 @@
  * Includes methods for scoring, filtering, deduplication, and property repair.
  */
 import { capitalCase } from "change-case";
-import { isFinite } from "lodash";
+import { isEmpty, isFinite } from "lodash";
 import { mastodon } from "masto";
 import { Type } from 'class-transformer';
 
@@ -42,7 +42,6 @@ import {
     extractDomain,
     htmlToParagraphs,
     htmlToText,
-    isEmptyStr,
     removeDiacritics,
     removeEmojis,
     removeLinks,
@@ -828,7 +827,7 @@ export default class Toot implements TootObj {
                 repairLogger.warn(`Unknown media of type: '${media.type}' for toot:`, this);
             }
 
-            if (isEmptyStr(media?.url)) {
+            if (isEmpty(media?.url)) {
                 repairLogger.warn(`Media attachment URL is empty for toot:`, this);
             }
         });

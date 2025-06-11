@@ -11,8 +11,6 @@ export declare const GIFV = "gifv";
 export declare const MEDIA_FILE_EXTENSIONS: Record<MediaCategory, string[]>;
 export declare const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[];
 export declare const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[];
-export declare const isString: (s: unknown) => boolean;
-export declare const isNull: (s: any) => boolean;
 export declare const isEmptyStr: (s: string | null | undefined) => boolean;
 export declare const alphabetize: (arr: string[]) => string[];
 export declare const compareStr: (a: string, b: string) => number;

@@ -48,7 +48,7 @@ exports.atLeastValues = atLeastValues;
  * @returns {[T] | []} The optional array.
  */
 function asOptionalArray(value) {
-    return (0, string_helpers_1.isNull)(value) ? [] : [value];
+    return (0, lodash_1.isNil)(value) ? [] : [value];
 }
 exports.asOptionalArray = asOptionalArray;
 ;
@@ -145,7 +145,7 @@ exports.computeMinMax = computeMinMax;
 function countValues(items, getKey = (item) => item, countNulls) {
     return items.reduce((counts, item) => {
         const key = getKey(item);
-        return ((0, string_helpers_1.isNull)(key) && !countNulls) ? counts : incrementCount(counts, key);
+        return ((0, lodash_1.isNil)(key) && !countNulls) ? counts : incrementCount(counts, key);
     }, {});
 }
 exports.countValues = countValues;

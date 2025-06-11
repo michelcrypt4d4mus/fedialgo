@@ -1,6 +1,3 @@
-/**
- * Put a minimum number on things like reblogs and replies.
- */
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { type TootNumberProp } from "../types";
@@ -34,7 +31,7 @@ export default class NumericFilter extends TootFilter {
      */
     isAllowed(toot: Toot): boolean;
     /**
-     * Serializes the filter state for storage (e.g., local storage).
+     * Serializes the filter state for storage.
      * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs(): NumericFilterArgs;

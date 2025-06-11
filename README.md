@@ -179,7 +179,7 @@ FediAlgo exports a number of types and enums; check [the documentation](https://
 `TheAlgorithm` objects also provide a bunch of data besides the timeline should you choose to access it.
 
 #### Fediverse Trending Data
-Current "trending" fediverse data can be accessed at `algorithm.trendingData`. See [`types.ts`](src/types.ts) for info on the data type.
+Current "trending" fediverse data can be accessed at `algorithm.trendingData`. See [`types.ts`](src/types.ts) or [the object API documentation](https://michelcrypt4d4mus.github.io/fedialgo/) for info on the data type.
 
 ```typescript
 // Trending links

@@ -4,6 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FILTERABLE_SCORES = void 0;
+/**
+ * Put a minimum number on things like reblogs and replies.
+ */
+const lodash_1 = require("lodash");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 // List of toot numeric properties that can be filtered.
 exports.FILTERABLE_SCORES = [
@@ -50,17 +54,15 @@ class NumericFilter extends toot_filter_1.default {
         if (this.invertSelection && this.value === 0)
             return true; // 0 doesn't work as a maximum
         const propertyValue = toot.realToot[this.title];
-        if (!propertyValue && propertyValue !== 0) {
-            let msg = `No value found for ${this.title} (interrupted scoring?) in toot: ${toot.description}`;
-            this.logger.warn(msg);
-            // isDebugMode ? console.warn(msg, toot) : console.warn(`${msg} ${toot.description}`);
+        if (!(0, lodash_1.isFinite)(propertyValue)) {
+            this.logger.warn(`No value found for ${this.title} (interrupted scoring?) in toot: ${toot.description}`);
             return true;
         }
         const isOK = propertyValue >= this.value;
         return this.invertSelection ? !isOK : isOK;
     }
     /**
-     * Serializes the filter state for storage (e.g., local storage).
+     * Serializes the filter state for storage.
      * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs() {

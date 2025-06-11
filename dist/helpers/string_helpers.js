@@ -3,13 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImgTags = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.suffixedInt = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.isNull = exports.isString = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
+exports.wordRegex = exports.toLocaleInt = exports.replaceHttpsLinks = exports.replaceEmojiShortcodesWithImgTags = exports.ordinalSuffix = exports.htmlToParagraphs = exports.htmlToText = exports.hashObject = exports.extractDomain = exports.determineMediaCategory = exports.createRandomString = exports.countInstances = exports.byteString = exports.removeTags = exports.removeMentions = exports.removeLinks = exports.removeEmojis = exports.removeDiacritics = exports.collapseWhitespace = exports.suffixedInt = exports.quoted = exports.prefixed = exports.bracketed = exports.arrowed = exports.at = exports.compareStr = exports.alphabetize = exports.isEmptyStr = exports.MEDIA_TYPES = exports.VIDEO_TYPES = exports.MEDIA_FILE_EXTENSIONS = exports.GIFV = exports.TELEMETRY = exports.SET_LOADING_STATUS = exports.NULL = exports.FEDIALGO = exports.MEGABYTE = exports.KILOBYTE = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Helpers for dealing with strings.
  */
 const escape = require('regexp.escape');
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const html_entities_1 = require("html-entities");
+const lodash_1 = require("lodash");
 const enums_1 = require("../enums");
 // Number constants
 exports.DEFAULT_FONT_SIZE = 15;
@@ -43,14 +44,8 @@ exports.MEDIA_TYPES = [
     enums_1.MediaCategory.AUDIO,
     enums_1.MediaCategory.IMAGE,
 ];
-// Check if it's a string
-const isString = (s) => typeof s === 'string'; // || s instanceof String; // TODO: wtf is String about?
-exports.isString = isString;
-// Check if null or undefined
-const isNull = (s) => s === null || s === undefined;
-exports.isNull = isNull;
 // Check if it's empty (all whitespace or null or undefined)
-const isEmptyStr = (s) => (0, exports.isNull)(s) || s.trim() === '';
+const isEmptyStr = (s) => (0, lodash_1.isNil)(s) || (0, lodash_1.isEmpty)(s.trim());
 exports.isEmptyStr = isEmptyStr;
 // Alphabetize an array of strings
 const alphabetize = (arr) => arr.sort(exports.compareStr);
@@ -71,7 +66,7 @@ exports.bracketed = bracketed;
 const prefixed = (prefix, msg) => `${(0, exports.bracketed)(prefix)} ${msg}`;
 exports.prefixed = prefixed;
 // Doublequotes
-const quoted = (str) => (0, exports.isNull)(str) ? exports.NULL : `"${str}"`;
+const quoted = (str) => (0, lodash_1.isNil)(str) ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;
 // 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc.
 const suffixedInt = (n) => `${n}${(0, exports.ordinalSuffix)(n)}`;
