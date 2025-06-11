@@ -302,7 +302,7 @@ class Toot {
                 tootLogger.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = (0, string_helpers_1.wordRegex)(tag.name);
             }
-            return tag.regex.test(this.contentWithCard());
+            return this.matchesRegex(tag.regex);
         }
         else {
             return this.tags.some((t) => t.name == tag.name);
@@ -533,7 +533,7 @@ class Toot {
         toot.trendingTags = trendingTags.filter(tag => toot.containsTag(tag, isDeepInspect));
         // Only set the completedAt field if isDeepInspect is true  // TODO: might be fast enough to try this again?
         if (isDeepInspect) {
-            toot.trendingLinks = trendingLinks.filter(link => link.regex.test(this.contentWithCard()));
+            toot.trendingLinks = trendingLinks.filter(link => toot.matchesRegex(link.regex));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
         }
         else {

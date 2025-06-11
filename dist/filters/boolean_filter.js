@@ -4,6 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TYPE_FILTERS = void 0;
+/**
+ * @fileoverview Feed filtering information related to a single criterion on which toots
+ * can be filtered inclusively or exclusively based on an array of strings
+ * (e.g. language, hashtag, type of toot).
+ */
+const lodash_1 = require("lodash");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
@@ -58,11 +64,12 @@ const TOOT_MATCHERS = {
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {BooleanFilterOptionList} options - The BooleanFilterOptions available for this filter.
+ * @property {BooleanFilterName} propretyName - The BooleanFilterOptions available for this filter.
  * @property {string[]} selectedOptions - The names of the options selected for use in filtering.
  */
 class BooleanFilter extends toot_filter_1.default {
     selectedOptions;
-    title;
+    propertyName;
     get options() { return this._options; }
     ;
     _options;
@@ -78,22 +85,22 @@ class BooleanFilter extends toot_filter_1.default {
      * @param {BooleanFilterArgs} params - The filter arguments.
      * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
      * @param {string[]} [params.selectedOptions] - The selected options.
-     * @param {BooleanFilterName} params.title - The filter title.
+     * @param {BooleanFilterName} params.propertyName - The property the filter is working with (hashtags/toot type/etc).
      */
     constructor(params) {
-        const { title, invertSelection, selectedOptions } = params;
-        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], title);
+        const { invertSelection, propertyName, selectedOptions } = params;
+        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], propertyName);
         let description;
-        if (title == enums_1.BooleanFilterName.TYPE) {
+        if (propertyName == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
         }
         else {
-            const descriptionWord = title == enums_1.BooleanFilterName.HASHTAG ? "including" : "from";
-            description = `Show only toots ${descriptionWord} these ${title}s`;
+            const descriptionWord = propertyName == enums_1.BooleanFilterName.HASHTAG ? "including" : "from";
+            description = `Show only toots ${descriptionWord} these ${propertyName}s`;
         }
-        super({ description, invertSelection, title });
+        super({ description, invertSelection, propertyName });
         this._options = optionInfo;
-        this.title = title;
+        this.propertyName = propertyName;
         this.selectedOptions = selectedOptions ?? [];
     }
     /**
@@ -104,7 +111,7 @@ class BooleanFilter extends toot_filter_1.default {
     isAllowed(toot) {
         if (!this.selectedOptions.length)
             return true; // If there's no selectedOptions allow everything
-        const isMatched = TOOT_MATCHERS[this.title](toot, this.selectedOptions);
+        const isMatched = TOOT_MATCHERS[this.propertyName](toot, this.selectedOptions);
         return this.invertSelection ? !isMatched : isMatched;
     }
     /**
@@ -138,13 +145,13 @@ class BooleanFilter extends toot_filter_1.default {
      * @param {boolean} isSelected - If true, add the option; if false, remove it.
      */
     updateOption(optionName, isSelected) {
-        this.logger.debug(`Updating options for ${this.title} with ${optionName} and ${isSelected}`);
+        this.logger.debug(`Updating options for ${this.propertyName} with ${optionName} and ${isSelected}`);
         if (isSelected && !this.isOptionEnabled(optionName)) {
             this.selectedOptions.push(optionName);
         }
         else {
             if (!this.isOptionEnabled(optionName)) {
-                this.logger.warn(`Tried to remove ${optionName} from ${this.title} but it wasn't there`);
+                this.logger.warn(`Tried to remove ${optionName} from ${this.propertyName} but it wasn't there`);
                 return;
             }
             this.selectedOptions.splice(this.selectedOptions.indexOf(optionName), 1);
@@ -170,15 +177,15 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.title);
+        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.propertyName);
     }
     /**
      * Checks if a given property name is a valid numeric filter name.
      * @param {string} name - The property name to check.
      * @returns {boolean} True if the name is a filterable numeric property.
      */
-    static isValidTitle(name) {
-        return (0, enums_1.isValueInStringEnum)(enums_1.BooleanFilterName)(name);
+    static isValidFilterProperty(name) {
+        return !(0, lodash_1.isNil)(name) && (0, enums_1.isValueInStringEnum)(enums_1.BooleanFilterName)(name);
     }
 }
 exports.default = BooleanFilter;

@@ -57,11 +57,11 @@ exports.buildNewFilterSettings = buildNewFilterSettings;
 // NOTE: Mutates object.
 function buildFiltersFromArgs(filterArgs) {
     filterArgs.booleanFilters = filterArgs.booleanFilterArgs.reduce((filters, args) => {
-        filters[args.title] = new boolean_filter_1.default(args);
+        filters[args.propertyName] = new boolean_filter_1.default(args);
         return filters;
     }, {});
     filterArgs.numericFilters = filterArgs.numericFilterArgs.reduce((filters, args) => {
-        filters[args.title] = new numeric_filter_1.default(args);
+        filters[args.propertyName] = new numeric_filter_1.default(args);
         return filters;
     }, {});
     populateMissingFilters(filterArgs);
@@ -69,7 +69,7 @@ function buildFiltersFromArgs(filterArgs) {
     return filterArgs;
 }
 exports.buildFiltersFromArgs = buildFiltersFromArgs;
-// Remove filter args with invalid titles to upgrade existing users w/invalid args in browser Storage.
+// Remove filter args with invalid propertyName to upgrade existing users w/invalid args in browser Storage.
 // Returns true if the filter settings were changed.
 function repairFilterSettings(filters) {
     let wasChanged = false;
@@ -200,12 +200,12 @@ function logSuppressedHashtags(suppressedHashtags) {
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {
     numeric_filter_1.FILTERABLE_SCORES.forEach(scoreName => {
-        filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ title: scoreName });
+        filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ propertyName: scoreName });
     });
     Object.values(enums_1.BooleanFilterName).forEach((booleanFilterName) => {
         if (!filters.booleanFilters[booleanFilterName]) {
             logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
-            filters.booleanFilters[booleanFilterName] = new boolean_filter_1.default({ title: booleanFilterName });
+            filters.booleanFilters[booleanFilterName] = new boolean_filter_1.default({ propertyName: booleanFilterName });
         }
     });
 }

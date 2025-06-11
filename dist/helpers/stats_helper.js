@@ -17,7 +17,7 @@ function computeScoreStats(toots, numPercentiles) {
 }
 ;
 // Return an array of objects suitable for use with Recharts
-function rechartsDataPoints(toots, numPercentiles = 5) {
+function rechartsDataPoints(toots, numPercentiles) {
     const stats = [];
     let suffix;
     switch (numPercentiles) {

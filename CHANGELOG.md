@@ -1,6 +1,11 @@
 # NEXT RELEASE
 
-# v0.70.0
+### v0.70.1
+* Remove default for `getRechartsStatsData(numPercentiles)`
+* Rename `TootFilter.title` to `propertyName`
+* (Demo App) Add `config.status.numPercentiles` parameter
+
+## v0.70.0
 * Add support for blocked domains
 * Precompile a `mutedKeywordsRegex` and store it in the `UserData` object
 * Add `Toot.matchesRegex()` method
@@ -47,7 +52,7 @@
 * Make `TheAlgorithm.weightPresets` into a static variable
 
 ### v0.69.8
-* Convert `isBoolean/NumericFilterName` methods to static `TootFilter.isValidTitle()`
+* Convert `isBoolean/NumericFilterName` methods to static `TootFilter.isValidFilterProperty()`
 
 ### v0.69.7
 * JSDoc comments for `Account`

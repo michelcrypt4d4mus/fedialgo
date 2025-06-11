@@ -3,8 +3,8 @@
  */
 import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
-import Toot from "./objects/toot";
 import TagList from "./tag_list";
+import Toot from "./objects/toot";
 import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { tagInfoStr } from "./objects/tag";

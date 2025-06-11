@@ -2,9 +2,9 @@
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
 import Account from "../api/objects/account";
-import BooleanFilter, { TYPE_FILTERS, BooleanFilterArgs } from "./boolean_filter";
+import BooleanFilter, { TYPE_FILTERS, type BooleanFilterArgs } from "./boolean_filter";
 import MastoApi from "../api/api";
-import NumericFilter, { FILTERABLE_SCORES } from "./numeric_filter";
+import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./numeric_filter";
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
@@ -49,12 +49,12 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 // NOTE: Mutates object.
 export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings {
     filterArgs.booleanFilters = filterArgs.booleanFilterArgs.reduce((filters, args) => {
-        filters[args.title as BooleanFilterName] = new BooleanFilter(args);
+        filters[args.propertyName as BooleanFilterName] = new BooleanFilter(args);
         return filters
     }, {} as BooleanFilters);
 
     filterArgs.numericFilters = filterArgs.numericFilterArgs.reduce((filters, args) => {
-        filters[args.title as TootNumberProp] = new NumericFilter(args);
+        filters[args.propertyName as TootNumberProp] = new NumericFilter(args);
         return filters
     }, {} as NumericFilters);
 
@@ -64,7 +64,7 @@ export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilter
 }
 
 
-// Remove filter args with invalid titles to upgrade existing users w/invalid args in browser Storage.
+// Remove filter args with invalid propertyName to upgrade existing users w/invalid args in browser Storage.
 // Returns true if the filter settings were changed.
 export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     let wasChanged = false;
@@ -87,7 +87,7 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     }
 
     filters.booleanFilterArgs = validBooleanFilterArgs as BooleanFilterArgs[];
-    filters.numericFilterArgs = validNumericFilterArgs;
+    filters.numericFilterArgs = validNumericFilterArgs as NumericFilterArgs[];
     return wasChanged;
 }
 
@@ -219,13 +219,13 @@ function logSuppressedHashtags(suppressedHashtags: DictOfDicts): void {
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters: FeedFilterSettings): void {
     FILTERABLE_SCORES.forEach(scoreName => {
-        filters.numericFilters[scoreName] ??= new NumericFilter({title: scoreName});
+        filters.numericFilters[scoreName] ??= new NumericFilter({propertyName: scoreName});
     });
 
     Object.values(BooleanFilterName).forEach((booleanFilterName) => {
         if (!filters.booleanFilters[booleanFilterName]) {
             logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
-            filters.booleanFilters[booleanFilterName] = new BooleanFilter({title: booleanFilterName});
+            filters.booleanFilters[booleanFilterName] = new BooleanFilter({propertyName: booleanFilterName});
         }
     });
 }

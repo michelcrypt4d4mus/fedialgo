@@ -5,12 +5,12 @@
 import Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
 import { split } from '../helpers/collection_helpers';
-import { type FilterTitle } from "../types";
+import { type FilterProperty } from "../types";
 
 export interface FilterArgs {
     description?: string;
     invertSelection?: boolean;
-    title: FilterTitle;
+    propertyName: FilterProperty;
 };
 
 
@@ -20,26 +20,26 @@ export interface FilterArgs {
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
- * @property {FilterTitle} title - The title or key identifying this filter (e.g., a boolean filter name or toot property).
+ * @property {FilterProperty} propertyName - The property this filter works on
  */
 export default abstract class TootFilter {
     description: string;
     invertSelection: boolean;
     logger: Logger;
-    title: FilterTitle;
+    propertyName: FilterProperty;
 
     /**
      * @param {FilterArgs} params - The arguments for configuring the filter.
      * @param {string} [params.description] - Optional description of the filter for display or documentation purposes.
      * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
-     * @param {FilterTitle} params.title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
+     * @param {FilterProperty} params.propertyName - Key identifying what this filter is filtering on.
      */
     constructor(params: FilterArgs) {
-        const { description, invertSelection, title } = params
-        this.description = description ?? title as string;
+        const { description, invertSelection, propertyName } = params
+        this.description = description ?? propertyName as string;
         this.invertSelection = invertSelection ?? false;
-        this.title = title;
-        this.logger = Logger.withParenthesizedName("TootFilter", title);
+        this.propertyName = propertyName;
+        this.logger = Logger.withParenthesizedName("TootFilter", propertyName);
     }
 
     /**
@@ -56,21 +56,21 @@ export default abstract class TootFilter {
     toArgs(): FilterArgs {
         return {
             invertSelection: this.invertSelection,
-            title: this.title,
+            propertyName: this.propertyName,
         };
     }
 
     /** Must be overridden in subclasses. */
-    static isValidTitle(name: string): boolean {
-        throw new Error("isValidTitle() must be implemented in subclasses");
+    static isValidFilterProperty(name: string): boolean {
+        throw new Error("isValidFilterProperty() must be implemented in subclasses");
     }
 
-    /** Remove any filter args from the list whose title is invalid */
+    /** Remove any filter args from the list whose propertyName is invalid */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[] {
-        const [validArgs, invalidArgs] = split(args, arg => this.isValidTitle(arg.title));
+        const [validArgs, invalidArgs] = split(args, arg => this.isValidFilterProperty(arg.propertyName));
 
         if (invalidArgs.length > 0) {
-            logger.warn(`Found invalid filter args [${invalidArgs.map(a => a.title)}]...`);
+            logger.warn(`Found invalid filter args [${invalidArgs.map(a => a.propertyName)}]...`);
         } else {
             logger.trace("All filter args are valid.");
         }
