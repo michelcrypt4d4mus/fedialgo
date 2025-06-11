@@ -75,7 +75,7 @@ tt, code, kbd, samp {
 }
 
 article dl {
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 article img {
@@ -252,7 +252,7 @@ tr > th:last-child { border-right: 1px solid #ddd; }
     font-family: Consolas, Monaco, 'Andale Mono', monospace;
 }
 
-.details { margin-top: 14px; border-left: 2px solid #DDD; }
+.details { margin-top: 12px; border-left: 2px solid #DDD; }
 .details dt { width: 120px; float: left; padding-left: 10px;  padding-top: 6px; }
 .details dd { margin-left: 70px; }
 .details ul { margin: 0; }
