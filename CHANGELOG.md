@@ -9,7 +9,7 @@
 * Add support for blocked domains
 * Precompile a `mutedKeywordsRegex` and store it in the `UserData` object
 * Add `Toot.matchesRegex()` method
-* Add `fedibird.com` to list of noMauServers
+* Add `fedibird.com` to list of `noMauServers`
 
 ### v0.69.22
 * Fix error handling in `MastoApi.getServerSideFilters()`
