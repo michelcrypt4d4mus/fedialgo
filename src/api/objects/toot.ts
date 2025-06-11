@@ -181,6 +181,7 @@ interface TootObj extends SerializableToot {
  * @extends {mastodon.v1.Status}
  * @property {Account[]} accounts - Array with the author of the toot and (if it exists) the account that retooted it.
  * @property {number} ageInHours - Age of this toot in hours.
+ * @property {mastodon.v1.CustomEmoji[]} allEmojis - All custom emojis in the toot, including the author's.
  * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
@@ -266,6 +267,7 @@ export default class Toot implements TootObj {
 
     get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)};
     get ageInHours(): number { return ageInHours(this.createdAt) };
+    get allEmojis(): mastodon.v1.CustomEmoji[] { return (this.emojis || []).concat(this.account.emojis || []) };
     get author(): Account { return this.realToot.account };
     get isDM(): boolean { return this.visibility === TootVisibility.DIRECT_MSG };
     get isFollowed(): boolean { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) };
@@ -591,8 +593,7 @@ export default class Toot implements TootObj {
 
     // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string
     private addEmojiHtmlTags(str: string, fontSize: number = DEFAULT_FONT_SIZE): string {
-        const emojis = (this.emojis || []).concat(this.account.emojis || []);
-        return replaceEmojiShortcodesWithImgTags(str, emojis, fontSize);
+        return replaceEmojiShortcodesWithImgTags(str, this.allEmojis, fontSize);
     }
 
     // return MediaAttachmentType objects with type == attachmentType
@@ -1045,6 +1046,7 @@ export default class Toot implements TootObj {
 
     /**
      * Return a new array of a toot property collected and uniquified from an array of toots.
+     * @private
      * @template T
      * @param {Toot[]} toots - Array of toots.
      * @param {KeysOfValueType<Toot, any[] | undefined>} property - The property to collect.

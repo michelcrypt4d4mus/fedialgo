@@ -1,5 +1,4 @@
 import { Logger } from './logger';
-import { type ApiCacheKey } from '../enums';
 import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
@@ -50,9 +49,9 @@ export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, opt
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {ApiCacheKey} label - Label for logging.
+ * @param {Logger} logger - Label for logging.
  */
-export declare function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void;
+export declare function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void;
 /**
  * Computes the minimum and maximum values from an array using a value function.
  * @template T

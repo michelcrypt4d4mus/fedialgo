@@ -10,7 +10,6 @@ import { isAccessTokenRevokedError } from '../api/api';
 import { isNumberOrNumberString } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
-import { type ApiCacheKey } from '../enums';
 import {
     type CountKey,
     type MastodonObjWithID,
@@ -129,15 +128,14 @@ export async function batchMap<T>(
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {ApiCacheKey} label - Label for logging.
+ * @param {Logger} logger - Label for logging.
  */
-export function checkUniqueIDs(array: MastodonObjWithID[], label: ApiCacheKey): void {
-    const logPrefix = `[${label}]`;
+export function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void {
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
     const uniqueIDs = Object.keys(objsByID);
 
     if (uniqueIDs.length != array.length) {
-        console.warn(`${logPrefix} ${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
+        logger.warn(`${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
     }
 };
 
@@ -736,7 +734,11 @@ export function zipArrays<T>(array1: string[], array2: T[]): Record<string, T> {
  * @param {Logger} [logger] - Logger instance.
  * @returns {Promise<Record<string, T>>} The results dictionary.
  */
-export async function zipPromises<T>(args: string[], promiser: (s: string) => Promise<T>, logger?: Logger): Promise<Record<string, T>> {
+export async function zipPromises<T>(
+    args: string[],
+    promiser: (s: string) => Promise<T>,
+    logger?: Logger
+): Promise<Record<string, T>> {
     const allResults = zipArrays(args, await Promise.allSettled(args.map(promiser)));
     logger ||= new Logger(`zipPromises`);
 
