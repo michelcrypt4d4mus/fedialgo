@@ -1,8 +1,3 @@
-/**
- * @fileoverview Feed filtering information related to a single criterion on which toots
- * can be filtered inclusively or exclusively based on an array of strings
- * (e.g. language, hashtag, type of toot).
- */
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
@@ -11,7 +6,7 @@ type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
     selectedOptions?: string[];
-    title: BooleanFilterName;
+    propertyName: BooleanFilterName;
 }
 /**
  * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
@@ -19,11 +14,12 @@ export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {BooleanFilterOptionList} options - The BooleanFilterOptions available for this filter.
+ * @property {BooleanFilterName} propretyName - The BooleanFilterOptions available for this filter.
  * @property {string[]} selectedOptions - The names of the options selected for use in filtering.
  */
 export default class BooleanFilter extends TootFilter {
     selectedOptions: string[];
-    title: BooleanFilterName;
+    propertyName: BooleanFilterName;
     get options(): BooleanFilterOptionList;
     private _options;
     /**
@@ -35,7 +31,7 @@ export default class BooleanFilter extends TootFilter {
      * @param {BooleanFilterArgs} params - The filter arguments.
      * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
      * @param {string[]} [params.selectedOptions] - The selected options.
-     * @param {BooleanFilterName} params.title - The filter title.
+     * @param {BooleanFilterName} params.propertyName - The property the filter is working with (hashtags/toot type/etc).
      */
     constructor(params: BooleanFilterArgs);
     /**
@@ -86,6 +82,6 @@ export default class BooleanFilter extends TootFilter {
      * @param {string} name - The property name to check.
      * @returns {boolean} True if the name is a filterable numeric property.
      */
-    static isValidTitle(name: string): boolean;
+    static isValidFilterProperty(name: string): boolean;
 }
 export {};

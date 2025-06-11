@@ -28,9 +28,9 @@ export type WeightInfoDict = Record<WeightName, WeightInfo>;
 // Misc
 export type AccountLike = Account | mastodon.v1.Account;
 export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterface.Releaser;
-export type CountKey = FilterTitle | string;
+export type CountKey = FilterProperty | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
-export type FilterTitle = BooleanFilterName | TootNumberProp;
+export type FilterProperty = BooleanFilterName | TootNumberProp;
 export type StatusList = TootLike[];
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
@@ -160,7 +160,7 @@ export interface NamedTootCount extends TootCount {
 
 export type ObjListDataSource = (
     FilterOptionDataSource
-  | FilterTitle
+  | FilterProperty
   | CacheKey.FEDIVERSE_TRENDING_TAGS
   | ScoreName.FOLLOWED_TAGS
 );

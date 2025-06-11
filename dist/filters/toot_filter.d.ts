@@ -4,11 +4,11 @@
  */
 import Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
-import { type FilterTitle } from "../types";
+import { type FilterProperty } from "../types";
 export interface FilterArgs {
     description?: string;
     invertSelection?: boolean;
-    title: FilterTitle;
+    propertyName: FilterProperty;
 }
 /**
  * Abstract base class representing a filter that can be applied to a Toot to determine
@@ -16,18 +16,18 @@ export interface FilterArgs {
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
- * @property {FilterTitle} title - The title or key identifying this filter (e.g., a boolean filter name or toot property).
+ * @property {FilterProperty} propertyName - The property this filter works on
  */
 export default abstract class TootFilter {
     description: string;
     invertSelection: boolean;
     logger: Logger;
-    title: FilterTitle;
+    propertyName: FilterProperty;
     /**
      * @param {FilterArgs} params - The arguments for configuring the filter.
      * @param {string} [params.description] - Optional description of the filter for display or documentation purposes.
      * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
-     * @param {FilterTitle} params.title - The title or key identifying this filter (e.g., a BooleanFilterName or Toot property).
+     * @param {FilterProperty} params.propertyName - Key identifying what this filter is filtering on.
      */
     constructor(params: FilterArgs);
     /**
@@ -42,7 +42,7 @@ export default abstract class TootFilter {
      */
     toArgs(): FilterArgs;
     /** Must be overridden in subclasses. */
-    static isValidTitle(name: string): boolean;
-    /** Remove any filter args from the list whose title is invalid */
+    static isValidFilterProperty(name: string): boolean;
+    /** Remove any filter args from the list whose propertyName is invalid */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[];
 }
