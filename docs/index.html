@@ -179,15 +179,14 @@ await algorithm.reset();
 // Wipe EVERYTHING (will force a logout and complete reauthentication)
 await algorithm.reset(true);
 </code></pre>
-<h2><code>fedialgo</code> Functions And Types Documentation</h2>
-<p>There is some documentation of various classes and methods you might want to access while working with <code>fedialgo</code> generated from JSDoc comments in the code available <a href="https://michelcrypt4d4mus.github.io/fedialgo/">here</a>.</p>
+<h2>Documentation</h2>
+<p>There is <a href="https://michelcrypt4d4mus.github.io/fedialgo/">JSDoc generated documentation</a> of most of <code>fedialgo</code>'s public API (classes and methods).</p>
 <h4><code>Toot</code> Object API</h4>
-<p>The timeline is returned as an array of <code>Toot</code> objects which are a minimal extension of the mastodon API's <code>Status</code> object with a few more properties and some helper methods. Check <a href="./src/api/objects/toot.ts"><code>toot.ts</code></a> for details. In particular note that you can mark a <code>Toot</code> object's <code>numTimesShown</code> property, at which point the <code>AlreadyShownScorer</code> will return non-zero values for that Toot.</p>
+<p>The timeline is returned as an array of <code>Toot</code> objects which are a minimal extension of the mastodon API's <code>Status</code> object with a few more properties and some helper methods. Check <a href="https://michelcrypt4d4mus.github.io/fedialgo/Toot.html">the documentation</a> or <a href="./src/api/objects/toot.ts"><code>toot.ts</code></a> for details. In particular note that you can mark a <code>Toot</code> object's <code>numTimesShown</code> property, at which point the <code>AlreadyShownScorer</code> will return non-zero values for that Toot.</p>
 <pre class="prettyprint source lang-typescript"><code>timelineFeed[0].numTimesShown = 1;
 </code></pre>
 <h4>Other Data Available From <code>TheAlgorithm</code></h4>
-<p>FediAlgo exports a number of types and enums; check <a href="https://michelcrypt4d4mus.github.io/fedialgo/">the documentation</a> or look at the bottom of <a href="src/index.ts"><code>index.ts</code></a> for details on what is available.
-<code>TheAlgorithm</code> objects also provide a bunch of data besides the timeline should you choose to access it.</p>
+<p>FediAlgo exports a number of types and enums; check <a href="https://michelcrypt4d4mus.github.io/fedialgo/">the documentation</a> or look at the bottom of <a href="src/index.ts"><code>index.ts</code></a> for details on what is available. <code>TheAlgorithm</code> objects provide a bunch of data besides the timeline should you choose to access it.</p>
 <h4>Fediverse Trending Data</h4>
 <p>Current &quot;trending&quot; fediverse data can be accessed at <code>algorithm.trendingData</code>. See <a href="src/types.ts"><code>types.ts</code></a> or <a href="https://michelcrypt4d4mus.github.io/fedialgo/">the object API documentation</a> for info on the data type.</p>
 <pre class="prettyprint source lang-typescript"><code>// Trending links
@@ -203,7 +202,7 @@ algorithm.trendingData.toots.foreach((toot) => console.log(`Trending toot w/rank
 console.log(`Servers used to determine trending data:`, algorithm.mastodonServers);
 </code></pre>
 <h4>User Data</h4>
-<p>The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used the compute the weighting in the timeline can be accessed at <code>algorithm.userData</code>. See <a href="src/api/user_data.ts"><code>user_data.ts</code></a> for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).</p>
+<p>The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used to compute the scoring of the timeline can be accessed at <code>algorithm.userData</code>. See <a href="https://michelcrypt4d4mus.github.io/fedialgo/UserData.html">the documentation</a> or <a href="src/api/user_data.ts"><code>user_data.ts</code></a> for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).</p>
 <p>There's also a unified method to collect a bunch of information (<code>fedialgo</code> configuration, server configuration, user data, filter settings, etc.) with a single call:</p>
 <pre class="prettyprint source lang-typescript"><code>const currentState = await algorithm.getCurrentState();
 </code></pre>
@@ -263,13 +262,13 @@ npm link
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="MastodonServer.html">MastodonServer</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="Toot.html">Toot</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BooleanFilterName">BooleanFilterName</a></li><li><a href="global.html#MediaCategory">MediaCategory</a></li><li><a href="global.html#NonScoreWeightName">NonScoreWeightName</a></li><li><a href="global.html#ScoreName">ScoreName</a></li><li><a href="global.html#TagTootsCacheKey">TagTootsCacheKey</a></li><li><a href="global.html#TrendingType">TrendingType</a></li><li><a href="global.html#TypeFilterName">TypeFilterName</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isNonScoreWeightName">isNonScoreWeightName</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#isScoreName">isScoreName</a></li><li><a href="global.html#isTypeFilterName">isTypeFilterName</a></li><li><a href="global.html#isValueInStringEnum">isValueInStringEnum</a></li><li><a href="global.html#isWeightName">isWeightName</a></li><li><a href="global.html#lodash_1">lodash_1</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-collection_helpers.html">collection_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="MastodonServer.html">MastodonServer</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="Toot.html">Toot</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BooleanFilterName">BooleanFilterName</a></li><li><a href="global.html#MediaCategory">MediaCategory</a></li><li><a href="global.html#NonScoreWeightName">NonScoreWeightName</a></li><li><a href="global.html#ScoreName">ScoreName</a></li><li><a href="global.html#TagTootsCacheKey">TagTootsCacheKey</a></li><li><a href="global.html#TrendingType">TrendingType</a></li><li><a href="global.html#TypeFilterName">TypeFilterName</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isNonScoreWeightName">isNonScoreWeightName</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#isScoreName">isScoreName</a></li><li><a href="global.html#isTypeFilterName">isTypeFilterName</a></li><li><a href="global.html#isValueInStringEnum">isValueInStringEnum</a></li><li><a href="global.html#isWeightName">isWeightName</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Jun 11 2025 01:55:21 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Jun 11 2025 02:58:41 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
