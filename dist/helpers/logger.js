@@ -56,27 +56,23 @@ class Logger {
     }
     /**
      * Logs an error message or Error object to the console with the logger's prefix.
-     * Checks whether the 2nd arg is an instance of Error for special handling.
+     * Checks whether any element of 'args' is an instance of Error for special handling.
      * @param {string|Error} msg - The error message or Error object.
      * @param {...any} args - Additional arguments to log.
      * @returns {string} The error message string.
      */
     error(msg, ...args) {
-        if (msg instanceof Error) {
-            console.error(this.line(msg.message), ...args);
-            return msg.message;
-        }
-        msg = this.errorStr(msg, ...args);
-        console.error(this.line(msg), ...args);
+        const allArgs = [msg, ...args];
+        msg = this.errorStr(...allArgs);
+        console.error(this.line(msg), ...allArgs);
         return msg;
     }
     /**
-     * Logs a warning message to the console with the logger's prefix.
-     * Checks the 2nd arg in the same way as `error()`.
+     * Call console.warn() with the logger's prefix. Checks for Error objs in args in the same way as `error()`.
      * @param {string} msg - The warning message.
      * @param {...any} args - Additional arguments to log.
      */
-    warn = (msg, ...args) => console.warn(this.line(this.errorStr(msg, ...args)), ...args);
+    warn = (msg, ...args) => console.warn(this.line(this.errorStr(...[msg, ...args])));
     /** console.log() with the logger's prefix. */
     log = (msg, ...args) => console.log(this.line(msg), ...args);
     /** console.info() with the logger's prefix. */
@@ -101,20 +97,16 @@ class Logger {
      * Logs an error message and throws an Error with the stringified arguments and message.
      * @param {string} msg - The error message.
      * @param {...any} args - Additional arguments to include in the error.
-     * @throws {Error} Throws an error with the formatted message.
+     * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
     logAndThrowError(msg, ...args) {
         console.error(msg, args);
-        if (args.length > 0) {
-            const [errorArgs, otherArgs] = (0, collection_helpers_1.split)(args, arg => arg instanceof Error);
-            if (errorArgs.length > 0) {
-                msg = this.makeErrorMsg(errorArgs[0], msg);
-            }
-            if (otherArgs.length > 0) {
-                msg += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
-            }
+        const errorArgs = this.findErrorArg(args);
+        if (errorArgs.args.length > 0) {
+            msg += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
         }
-        throw new Error(this.line(msg));
+        msg = this.line(msg);
+        throw errorArgs.error ? new Error(msg, { cause: errorArgs.error }) : new Error(msg);
     }
     /**
      * Logs the reduction in size of an array (e.g., after filtering or deduplication).
@@ -175,12 +167,35 @@ class Logger {
      * @param {...any} args - Additional arguments.
      * @returns {string} The formatted error message.
      */
-    errorStr(msg, ...args) {
-        if (args[0] instanceof Error) {
-            return this.makeErrorMsg(args.shift(), msg);
+    errorStr(...args) {
+        const errorArgs = this.findErrorArg(args);
+        const stringArgs = errorArgs.args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg, null, 4));
+        const stringArg = stringArgs.length > 0 ? stringArgs.join(', ') : undefined;
+        if (errorArgs.error) {
+            return this.makeErrorMsg(errorArgs.error, stringArg);
         }
         else {
-            return msg;
+            if (!stringArg)
+                this.warn(`errorStr() called with no string or error args, returning empty string`);
+            return stringArg || '';
+        }
+    }
+    /**
+     * Separate the Error type args from the rest of the args.
+     * @private
+     * @param {...any} args - Additional arguments.
+     * @returns {ErrorArgs} Object with `args` containing non-Error args and `error` if an Error was found.
+     */
+    findErrorArg(args) {
+        const [errorArgs, otherArgs] = (0, collection_helpers_1.split)(args, arg => arg instanceof Error);
+        if (errorArgs.length > 0) {
+            if (errorArgs.length > 1) {
+                this.warn(`findErrorArg() called with multiple Error args, only using the first one:`, errorArgs);
+            }
+            return { args: otherArgs, error: errorArgs[0] };
+        }
+        else {
+            return { args: otherArgs };
         }
     }
     /**

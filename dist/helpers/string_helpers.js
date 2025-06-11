@@ -63,28 +63,28 @@ exports.arrowed = arrowed;
 /** "string" => "[string]" */
 const bracketed = (str) => str.startsWith('[') ? str : `[${str}]`;
 exports.bracketed = bracketed;
-/** Doublequotes */
+/** 'string' => '"string"' */
 const quoted = (str) => (0, lodash_1.isNil)(str) ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;
 /** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 const suffixedInt = (n) => `${n}${(0, exports.ordinalSuffix)(n)}`;
 exports.suffixedInt = suffixedInt;
-/** Collapse whitespace in a string */
+/** Collapse all whitespace in a string to single spaces. */
 const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g, ",").trim();
 exports.collapseWhitespace = collapseWhitespace;
 /** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
 const removeDiacritics = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 exports.removeDiacritics = removeDiacritics;
-/** Remove any emojis */
+/** Remove any emojis from string. */
 const removeEmojis = (str) => str.replace(EMOJI_REGEX, " ");
 exports.removeEmojis = removeEmojis;
-/** Remove https links from string */
+/** Remove https links from string. */
 const removeLinks = (str) => str.replace(LINK_REGEX, " ");
 exports.removeLinks = removeLinks;
-/** Remove @username@domain from string */
+/** Remove "@username@domain" style strings from string */
 const removeMentions = (str) => str.replace(ACCOUNT_MENTION_REGEX, " ");
 exports.removeMentions = removeMentions;
-/** Remove all hashtags from string */
+/** Remove all hashtags ("#someHashtag") from string. */
 const removeTags = (str) => str.replace(HAHSTAG_REGEX, " ");
 exports.removeTags = removeTags;
 /**

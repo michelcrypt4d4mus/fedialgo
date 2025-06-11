@@ -28,15 +28,14 @@ export declare class Logger {
     static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger;
     /**
      * Logs an error message or Error object to the console with the logger's prefix.
-     * Checks whether the 2nd arg is an instance of Error for special handling.
+     * Checks whether any element of 'args' is an instance of Error for special handling.
      * @param {string|Error} msg - The error message or Error object.
      * @param {...any} args - Additional arguments to log.
      * @returns {string} The error message string.
      */
     error(msg: string | Error, ...args: any[]): string;
     /**
-     * Logs a warning message to the console with the logger's prefix.
-     * Checks the 2nd arg in the same way as `error()`.
+     * Call console.warn() with the logger's prefix. Checks for Error objs in args in the same way as `error()`.
      * @param {string} msg - The warning message.
      * @param {...any} args - Additional arguments to log.
      */
@@ -63,7 +62,7 @@ export declare class Logger {
      * Logs an error message and throws an Error with the stringified arguments and message.
      * @param {string} msg - The error message.
      * @param {...any} args - Additional arguments to include in the error.
-     * @throws {Error} Throws an error with the formatted message.
+     * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
     logAndThrowError(msg: string, ...args: any[]): never;
     /**
@@ -106,6 +105,13 @@ export declare class Logger {
      * @returns {string} The formatted error message.
      */
     private errorStr;
+    /**
+     * Separate the Error type args from the rest of the args.
+     * @private
+     * @param {...any} args - Additional arguments.
+     * @returns {ErrorArgs} Object with `args` containing non-Error args and `error` if an Error was found.
+     */
+    private findErrorArg;
     /**
      * Make a custom error message.
      * @private

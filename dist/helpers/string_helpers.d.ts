@@ -23,21 +23,21 @@ export declare const at: (str: string) => string;
 export declare const arrowed: (str: string) => string;
 /** "string" => "[string]" */
 export declare const bracketed: (str: string) => string;
-/** Doublequotes */
+/** 'string' => '"string"' */
 export declare const quoted: (str: string | null) => string;
 /** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 export declare const suffixedInt: (n: number) => string;
-/** Collapse whitespace in a string */
+/** Collapse all whitespace in a string to single spaces. */
 export declare const collapseWhitespace: (str: string) => string;
 /** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
 export declare const removeDiacritics: (str: string) => string;
-/** Remove any emojis */
+/** Remove any emojis from string. */
 export declare const removeEmojis: (str: string) => string;
-/** Remove https links from string */
+/** Remove https links from string. */
 export declare const removeLinks: (str: string) => string;
-/** Remove @username@domain from string */
+/** Remove "@username@domain" style strings from string */
 export declare const removeMentions: (str: string) => string;
-/** Remove all hashtags from string */
+/** Remove all hashtags ("#someHashtag") from string. */
 export declare const removeTags: (str: string) => string;
 /**
  * Returns a string representation of a number of bytes in bytes, kilobytes, or megabytes.
