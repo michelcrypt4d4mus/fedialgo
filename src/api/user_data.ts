@@ -48,7 +48,7 @@ interface UserApiData {
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
  * @property {TagList} followedTags - List of tags the user follows.
  * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
- * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted, keyed by account name.
+ * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted or blocked, keyed by Account["webfingerURI"].
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.

@@ -510,6 +510,11 @@ export default class MastoApi {
             }
 
             return filters;
+        } catch (err) {
+            const msg = `Failed to get server-side filters`;
+            logger.error(msg, err);
+            this.apiErrors.push(new Error(msg, {cause: err}));
+            return [];
         } finally {
             releaseMutex();
         }
