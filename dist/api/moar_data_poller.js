@@ -4,16 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMoarData = exports.moarDataLogger = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
+/*
+ * Background polling to try to get more user data for the scoring algorithm
+ * after things have died down from the intitial load.
+ */
 const async_mutex_1 = require("async-mutex");
+const logger_1 = __importDefault(require("../helpers/logger"));
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
-const logger_1 = require("../helpers/logger");
 exports.GET_MOAR_DATA = "getMoarData()";
 exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new async_mutex_1.Mutex();
-exports.moarDataLogger = new logger_1.Logger(exports.GET_MOAR_DATA);
+exports.moarDataLogger = new logger_1.default(exports.GET_MOAR_DATA);
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
 async function getMoarData() {

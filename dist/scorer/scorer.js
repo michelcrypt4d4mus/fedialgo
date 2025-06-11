@@ -8,13 +8,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const async_mutex_1 = require("async-mutex");
 const lodash_1 = require("lodash");
+const logger_1 = __importDefault(require("../helpers/logger"));
 const scorer_cache_1 = __importDefault(require("./scorer_cache"));
 const Storage_1 = __importDefault(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const config_1 = require("../config");
 const weight_presets_1 = require("./weight_presets");
-const logger_1 = require("../helpers/logger");
 const enums_1 = require("../enums");
 // Local constants
 const LOG_PREFIX = "Scorer";
@@ -24,7 +24,7 @@ const TRENDING_WEIGHTS = [
     enums_1.ScoreName.TRENDING_TAGS,
     enums_1.ScoreName.TRENDING_TOOTS,
 ];
-const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
+const scoreLogger = new logger_1.default(LOG_PREFIX, "scoreToots");
 class Scorer {
     isReady = false; // Set to true when the scorer is ready to score
     logger;
@@ -32,7 +32,7 @@ class Scorer {
     scoreData = {}; // Background data used to score a toot
     constructor(name) {
         this.name = name;
-        this.logger = new logger_1.Logger(LOG_PREFIX, name);
+        this.logger = new logger_1.default(LOG_PREFIX, name);
     }
     // Return a ScorerInfo object with the description and the scorer itself
     getInfo() {

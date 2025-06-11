@@ -8,6 +8,7 @@ import { mastodon } from "masto";
 import { Type } from 'class-transformer';
 
 import Account from "./account";
+import Logger from '../../helpers/logger';
 import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
@@ -17,7 +18,6 @@ import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
-import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
 import { repairTag } from "./tag";
 import { TypeFilterName } from '../../enums';

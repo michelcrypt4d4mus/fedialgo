@@ -1,4 +1,4 @@
-import { Logger } from '../helpers/logger';
+import Logger from '../helpers/logger';
 import { ScoreName } from "../enums";
 import { type BooleanFilterOption, type NamedTootCount, type ObjListDataSource, type StringNumberDict } from "../types";
 export type ObjList = ObjWithCountList<NamedTootCount>;

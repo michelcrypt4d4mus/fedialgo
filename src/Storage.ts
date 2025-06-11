@@ -7,6 +7,7 @@ import { isFinite } from "lodash";
 import { mastodon } from "masto";
 
 import Account from "./api/objects/account";
+import Logger from './helpers/logger';
 import MastoApi from "./api/api";
 import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
@@ -20,7 +21,6 @@ import { checkUniqueIDs, zipPromiseCalls } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
-import { Logger } from './helpers/logger';
 import { sizeOf } from "./helpers/math_helper";
 import {
     type FeedFilterSettings,

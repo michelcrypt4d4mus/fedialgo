@@ -31,7 +31,7 @@ const PREFIXERS = [
  * @property {string} logPrefix - The formatted prefix for all log messages from this logger.
  * @property {string[]} prefixes - The list of prefix strings used to build the logPrefix.
  */
-export class Logger {
+export default class Logger {
     logPrefix: string;
     private prefixes: string[];
 

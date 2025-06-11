@@ -4,6 +4,7 @@
 import { E_CANCELED, Mutex, MutexInterface } from 'async-mutex';
 import { isFinite } from 'lodash';
 
+import Logger from '../helpers/logger';
 import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
 import Toot from '../api/objects/toot';
@@ -11,7 +12,6 @@ import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumArray } from "../helpers/collection_helpers";
 import { config } from '../config';
 import { DEFAULT_WEIGHTS } from "./weight_presets";
-import { Logger } from '../helpers/logger';
 import { NonScoreWeightName, ScoreName, isNonScoreWeightName, isWeightName } from '../enums';
 import {
     type ScoreType,

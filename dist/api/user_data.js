@@ -28,6 +28,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const account_1 = __importDefault(require("./objects/account"));
 const api_1 = __importDefault(require("./api"));
+const logger_1 = __importDefault(require("../helpers/logger"));
 const obj_with_counts_list_1 = __importStar(require("./obj_with_counts_list"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
@@ -37,8 +38,7 @@ const filter_1 = require("./objects/filter");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
-const logger_1 = require("../helpers/logger");
-const logger = new logger_1.Logger("UserData");
+const logger = new logger_1.default("UserData");
 ;
 /**
  * Represents background and scoring-related data about the current Fedialgo user.

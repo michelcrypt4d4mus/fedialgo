@@ -1,7 +1,7 @@
 /*
  * Help prepping data for recharts and other algorithm statistics stuff.
  */
-import { Logger } from "./logger";
+import Logger from "./logger";
 import Toot from "../api/objects/toot";
 import { average, makePercentileChunks } from "./collection_helpers";
 import { ScoreName } from '../enums';

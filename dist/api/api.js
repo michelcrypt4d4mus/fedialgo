@@ -29,6 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
+const logger_1 = __importDefault(require("../helpers/logger"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const Storage_1 = __importStar(require("../Storage"));
@@ -37,7 +38,6 @@ const enums_1 = require("../enums");
 const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
-const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const time_helpers_2 = require("../helpers/time_helpers");
 const enums_2 = require("../enums");
@@ -63,7 +63,7 @@ const USER_DATA_MUTEX = new async_mutex_1.Mutex(); // For locking user data fetc
 const PARAMS_TO_NOT_LOG = ["breakIf", "fetch", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE = ["skipCache", "skipMutex", "moar"];
 // Loggers prefixed by [API]
-const getLogger = logger_1.Logger.logBuilder('API');
+const getLogger = logger_1.default.logBuilder('API');
 const apiLogger = getLogger();
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.

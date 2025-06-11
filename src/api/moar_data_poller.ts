@@ -2,14 +2,13 @@
  * Background polling to try to get more user data for the scoring algorithm
  * after things have died down from the intitial load.
  */
-import { mastodon } from 'masto';
 import { Mutex } from 'async-mutex';
 
+import Logger from '../helpers/logger';
 import MastoApi, { ApiParams } from "../api/api";
 import { ageString } from '../helpers/time_helpers';
 import { config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
-import { Logger } from '../helpers/logger';
 import { type MastodonApiObj } from '../types';
 
 type Poller = (params?: ApiParams) => Promise<MastodonApiObj[]>;

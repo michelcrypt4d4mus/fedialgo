@@ -3,7 +3,7 @@
  */
 import { mastodon } from "masto";
 
-import { Logger } from "../../helpers/logger";
+import Logger from "../../helpers/logger";
 import { wordsRegex } from "../../helpers/string_helpers";
 
 const logger = new Logger(`filter.ts`);

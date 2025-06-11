@@ -17,16 +17,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const html_entities_1 = require("html-entities");
 const class_transformer_1 = require("class-transformer");
+const logger_1 = __importDefault(require("../../helpers/logger"));
 const api_1 = __importDefault(require("../api"));
 const mastodon_server_1 = __importDefault(require("../mastodon_server"));
 const config_1 = require("../../config");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-const logger_1 = require("../../helpers/logger");
 const NBSP_REGEX = /&nbsp;/g;
 const ACCOUNT_JOINER = '  ●  ';
 const ACCOUNT_CREATION_FMT = { year: "numeric", month: "short", day: "numeric" };
-const logger = new logger_1.Logger("Account");
+const logger = new logger_1.default("Account");
 ;
 /**
  * Class representing a Mastodon Account with helper methods and additional properties.

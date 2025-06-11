@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { Logger } from '../../helpers/logger';
+import Logger from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
 import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
 /**

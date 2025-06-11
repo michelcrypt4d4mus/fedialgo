@@ -3,7 +3,7 @@
  * to a Toot to determine if it should be included in the timeline feed.
  */
 import Toot from '../api/objects/toot';
-import { Logger } from '../helpers/logger';
+import Logger from '../helpers/logger';
 import { type FilterProperty } from "../types";
 export interface FilterArgs {
     description?: string;

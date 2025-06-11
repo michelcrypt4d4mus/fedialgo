@@ -6,6 +6,7 @@ import { mastodon } from "masto";
 
 import Account from "./objects/account";
 import MastoApi from "./api";
+import Logger from '../helpers/logger';
 import ObjWithCountList, { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
@@ -15,7 +16,6 @@ import { buildMutedRegex, extractMutedKeywords } from "./objects/filter";
 import { config } from "../config";
 import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
-import { Logger } from '../helpers/logger';
 import {
     type AccountNames,
     type BooleanFilterOption,

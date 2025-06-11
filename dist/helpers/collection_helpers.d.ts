@@ -1,4 +1,4 @@
-import { Logger } from './logger';
+import Logger from './logger';
 import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];

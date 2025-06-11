@@ -3,6 +3,7 @@
  */
 import Account from "../api/objects/account";
 import BooleanFilter, { TYPE_FILTERS, type BooleanFilterArgs } from "./boolean_filter";
+import Logger from '../helpers/logger';
 import MastoApi from "../api/api";
 import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./numeric_filter";
 import Storage from "../Storage";
@@ -13,7 +14,6 @@ import { BooleanFilterOptionList } from "../api/obj_with_counts_list";
 import { config } from "../config";
 import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
-import { Logger } from '../helpers/logger';
 import {
     type BooleanFilterOption,
     type BooleanFilters,

@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
 /**
@@ -6,11 +9,11 @@ exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.u
  * @module collection_helpers
  */
 const lodash_1 = require("lodash");
+const logger_1 = __importDefault(require("./logger"));
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
 const api_1 = require("../api/api");
 const math_helper_1 = require("./math_helper");
-const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
 ;
 ;
@@ -78,7 +81,7 @@ exports.average = average;
  */
 async function batchMap(array, fxn, options) {
     let { batchSize, logger, sleepBetweenMS } = (options || {});
-    logger = logger ? logger.tempLogger(BATCH_MAP) : new logger_1.Logger(BATCH_MAP);
+    logger = logger ? logger.tempLogger(BATCH_MAP) : new logger_1.default(BATCH_MAP);
     const chunkSize = batchSize || config_1.config.scoring.scoringBatchSize;
     const chunks = makeChunks(array, { chunkSize, logger });
     let results = [];
@@ -583,7 +586,7 @@ exports.transformKeys = transformKeys;
 function truncateToConfiguredLength(array, maxRecords, logger) {
     if (array.length <= maxRecords)
         return array;
-    logger ||= new logger_1.Logger("truncateToConfiguredLength()");
+    logger ||= new logger_1.default("truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
     logger.deep(`Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
@@ -613,7 +616,7 @@ exports.uniquify = uniquify;
  * @returns {T[]} The uniquified array.
  */
 function uniquifyByProp(rows, transform, logPrefix) {
-    const logger = new logger_1.Logger(logPrefix || 'collections_helpers', "uniquifyByProp()");
+    const logger = new logger_1.default(logPrefix || 'collections_helpers', "uniquifyByProp()");
     const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
     if (logPrefix && newRows.length < rows.length) {
         logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);
@@ -646,7 +649,7 @@ exports.zipArrays = zipArrays;
  */
 async function zipPromiseCalls(args, promiser, logger) {
     const allResults = zipArrays(args, await Promise.allSettled(args.map(promiser)));
-    logger ||= new logger_1.Logger(`zipPromises`);
+    logger ||= new logger_1.default(`zipPromises`);
     return Object.entries(allResults).reduce((results, [arg, result]) => {
         if (result.status == "fulfilled") {
             results[arg] = result.value;

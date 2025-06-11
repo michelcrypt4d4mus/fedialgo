@@ -1,6 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_1 = require("../helpers/logger");
+const logger_1 = __importDefault(require("../helpers/logger"));
 const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 /**
@@ -27,7 +30,7 @@ class TootFilter {
         this.description = description ?? propertyName;
         this.invertSelection = invertSelection ?? false;
         this.propertyName = propertyName;
-        this.logger = logger_1.Logger.withParenthesizedName("TootFilter", propertyName);
+        this.logger = logger_1.default.withParenthesizedName("TootFilter", propertyName);
     }
     /**
      * Returns the arguments needed to reconstruct this filter. Extend in subclasses for serialization.

@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Logger = void 0;
 /*
  * Standardized logger.
  */
@@ -220,6 +219,6 @@ class Logger {
         return logMaker;
     }
 }
-exports.Logger = Logger;
+exports.default = Logger;
 ;
 //# sourceMappingURL=logger.js.map

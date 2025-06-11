@@ -1,5 +1,5 @@
 import { Mutex, Semaphore } from 'async-mutex';
-import { Logger } from './logger';
+import Logger from './logger';
 import { type ConcurrencyLockRelease } from '../types';
 export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill";
 export declare const PREP_SCORERS = "prepareScorers";

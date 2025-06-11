@@ -3,9 +3,9 @@
  */
 import { Mutex, Semaphore } from 'async-mutex';
 
+import Logger from './logger';
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
-import { Logger } from './logger';
 import { type ConcurrencyLockRelease } from '../types';
 
 // Log prefixes
