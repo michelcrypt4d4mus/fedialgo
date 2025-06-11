@@ -107,14 +107,14 @@ Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function (
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
 const types_2 = require("./types");
-const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
+const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
-const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
+const DEFAULT_SET_TIMELINE_IN_APP = (feed) => console.debug(`Default setTimelineInApp() called`);
 const EMPTY_TRENDING_DATA = {
     links: [],
     tags: new tag_list_1.default([], enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
@@ -140,13 +140,12 @@ const trendingTootsLogger = new logger_1.Logger(enums_1.CacheKey.FEDIVERSE_TREND
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
  * @property {boolean} isLoading - Whether a feed load is in progress*
- * @property {number | null} lastLoadTimeInSeconds - Duration of the last load in seconds
+ * @property {number} [lastLoadTimeInSeconds] - Duration of the last load in seconds
  * @property {string | null} loadingStatus - String describing load activity
  * @property {Toot[]} timeline - The current filtered timeline
  * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
  * @property {UserData} userData - User data for scoring and filtering
- * @property {Scorer[]} weightedScorers - List of all scorers that can be weighted by user
- * @property {WeightInfoDict} weightInfo - Info about all scoring weights
+ * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
 class TheAlgorithm {
     /**
@@ -162,8 +161,8 @@ class TheAlgorithm {
     static get weightPresets() { return weight_presets_1.WEIGHT_PRESETS; }
     ;
     filters = (0, feed_filters_1.buildNewFilterSettings)();
-    lastLoadTimeInSeconds = null; // Duration of the last load in seconds
-    loadingStatus = READY_TO_LOAD_MSG; // String describing load activity (undefined means load complete)
+    lastLoadTimeInSeconds;
+    loadingStatus = READY_TO_LOAD_MSG;
     trendingData = EMPTY_TRENDING_DATA;
     get apiErrorMsgs() { return api_1.default.instance.apiErrors.map(e => e.message); }
     ;
@@ -183,12 +182,11 @@ class TheAlgorithm {
     homeFeed = []; // Just the toots pulled from the home timeline
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
     loadStartedAt = null; // Timestamp of when the feed started loading
-    numTriggers = 0;
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
-    // Loggers
+    // Utility
     logger = new logger_1.Logger(`TheAlgorithm`);
-    // Mutexess
     mergeMutex = new async_mutex_1.Mutex();
+    numTriggers = 0; // How many times has a load been triggered, only matters for QUICK_LOAD mode
     // Background tasks
     cacheUpdater;
     dataPoller;
@@ -225,7 +223,7 @@ class TheAlgorithm {
         ...this.featureScorers,
         ...this.feedScorers,
     ];
-    weightInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
+    weightsInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
         scorerInfos[scorer.name] = scorer.getInfo();
         return scorerInfos;
     }, Object.values(enums_1.NonScoreWeightName).reduce((nonScoreWeights, weightName) => {

@@ -13,6 +13,8 @@ import BooleanFilter, {  } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
+import FeatureScorer from './scorer/feature_scorer';
+import FeedScorer from './scorer/feed_scorer';
 import FollowedAccountsScorer from './scorer/feature/followed_accounts_scorer';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
 import FollowersScorer from './scorer/feature/followers_scorer';
@@ -93,12 +95,12 @@ import {
     type Weights,
 } from "./types";
 
-const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
-const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
+const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
-const READY_TO_LOAD_MSG = "Ready to load"
+const READY_TO_LOAD_MSG = "Ready to load";
+const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 
 const EMPTY_TRENDING_DATA: TrendingData = {
     links: [],
@@ -134,13 +136,12 @@ interface AlgorithmArgs {
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
  * @property {boolean} isLoading - Whether a feed load is in progress*
- * @property {number | null} lastLoadTimeInSeconds - Duration of the last load in seconds
+ * @property {number} [lastLoadTimeInSeconds] - Duration of the last load in seconds
  * @property {string | null} loadingStatus - String describing load activity
  * @property {Toot[]} timeline - The current filtered timeline
  * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
  * @property {UserData} userData - User data for scoring and filtering
- * @property {Scorer[]} weightedScorers - List of all scorers that can be weighted by user
- * @property {WeightInfoDict} weightInfo - Info about all scoring weights
+ * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
 class TheAlgorithm {
     /**
@@ -155,8 +156,8 @@ class TheAlgorithm {
     static get weightPresets(): WeightPresets { return WEIGHT_PRESETS };
 
     filters: FeedFilterSettings = buildNewFilterSettings();
-    lastLoadTimeInSeconds: number | null = null;  // Duration of the last load in seconds
-    loadingStatus: string | null = READY_TO_LOAD_MSG;  // String describing load activity (undefined means load complete)
+    lastLoadTimeInSeconds?: number;
+    loadingStatus: string | null = READY_TO_LOAD_MSG;
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
 
     get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrors.map(e => e.message) };
@@ -174,18 +175,17 @@ class TheAlgorithm {
     private homeFeed: Toot[] = [];  // Just the toots pulled from the home timeline
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
     private loadStartedAt: Date | null = null;  // Timestamp of when the feed started loading
-    private numTriggers = 0;
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
-    // Loggers
+    // Utility
     private logger: Logger = new Logger(`TheAlgorithm`);
-    // Mutexess
     private mergeMutex = new Mutex();
+    private numTriggers = 0;  // How many times has a load been triggered, only matters for QUICK_LOAD mode
     // Background tasks
     private cacheUpdater?: ReturnType<typeof setInterval>;
     private dataPoller?: ReturnType<typeof setInterval>;
 
     // These can score a toot without knowing about the rest of the toots in the feed
-    private featureScorers = [
+    private featureScorers: FeatureScorer[] = [
         new AlreadyShownScorer(),
         new AuthorFollowersScorer(),
         new ChaosScorer(),
@@ -211,16 +211,16 @@ class TheAlgorithm {
     ];
 
     // These scorers require the complete feed to work properly
-    private feedScorers = [
+    private feedScorers: FeedScorer[] = [
         new DiversityFeedScorer(),
     ];
 
-    weightedScorers = [
+    private weightedScorers: Scorer[] = [
         ...this.featureScorers,
         ...this.feedScorers,
     ];
 
-    weightInfo: WeightInfoDict = this.weightedScorers.reduce(
+    weightsInfo: WeightInfoDict = this.weightedScorers.reduce(
         (scorerInfos, scorer) => {
             scorerInfos[scorer.name] = scorer.getInfo();
             return scorerInfos;
