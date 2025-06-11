@@ -18,11 +18,8 @@ export default class MostRetootedAccountsScorer extends AccountScorer {
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return MostRetootedAccountsScorer.buildRetootedAccounts(await MastoApi.instance.getRecentUserToots());
-    };
-
-    static buildRetootedAccounts(recentToots: Toot[]): StringNumberDict {
+        const recentToots = await MastoApi.instance.getRecentUserToots();
         const retootedAccounts = Toot.onlyRetoots(recentToots).map(toot => toot.reblog!.account);
         return Account.countAccounts(retootedAccounts);
-    }
+    };
 };

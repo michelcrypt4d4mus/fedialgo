@@ -4,9 +4,9 @@
 import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
-import { countValues } from '../../helpers/collection_helpers';
-import { type StringNumberDict } from '../../types';
+import { countValues, sumArray } from '../../helpers/collection_helpers';
 import { ScoreName } from '../../enums';
+import { type StringNumberDict } from '../../types';
 
 
 export default class MostRepliedAccountsScorer extends FeatureScorer {
@@ -26,7 +26,6 @@ export default class MostRepliedAccountsScorer extends FeatureScorer {
     };
 
     async _score(toot: Toot) {
-        const score = this.scoreData[toot.account.id] || 0;
-        return score + (toot.reblog ? (this.scoreData[toot.reblog.account.id] || 0) : 0);
+        return sumArray(toot.withRetoot.map(t => this.scoreData[t.account.id]));
     };
 };

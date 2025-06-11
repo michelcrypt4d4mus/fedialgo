@@ -78,21 +78,12 @@ export function uniquifyTrendingObjs<T extends TrendingWithHistory>(
 
 // A toot can trend on multiple servers in which case we set trendingRank for all to the avg
 // TODO: maybe we should add the # of servers to the avg?
-// TODO: maybe rename this file 'trending_helpers.ts' or similar since Toots don't have a trending history
 export function setTrendingRankToAvg(rankedToots: Toot[]): void {
     const tootsByURI = groupBy<Toot>(rankedToots, toot => toot.realURI);
 
     Object.values(tootsByURI).forEach((uriToots) => {
         const avgScore = average(uriToots.map(t => t.realToot.trendingRank) as number[]);
-
-        uriToots.forEach((toot) => {
-            toot.trendingRank = avgScore;
-
-            if (toot.reblog) {
-                toot.reblog.trendingRank = avgScore;
-                console.warn(`[setTrendingRankToAvg] Setting reblog (???) rank to ${avgScore}:`, toot);
-            }
-        });
+        uriToots.forEach((toot) => toot.trendingRank = avgScore);
     });
 };
 

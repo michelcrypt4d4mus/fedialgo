@@ -164,19 +164,18 @@ await algorithm.reset();
 await algorithm.reset(true);
 ```
 
-## `fedialgo` Functions And Types Documentation
-There is some documentation of various classes and methods you might want to access while working with `fedialgo` generated from JSDoc comments in the code available [here](https://michelcrypt4d4mus.github.io/fedialgo/).
+## Documentation
+There is [JSDoc generated documentation](https://michelcrypt4d4mus.github.io/fedialgo/) of most of `fedialgo`'s public API (classes and methods).
 
 #### `Toot` Object API
-The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [`toot.ts`](./src/api/objects/toot.ts) for details. In particular note that you can mark a `Toot` object's `numTimesShown` property, at which point the `AlreadyShownScorer` will return non-zero values for that Toot.
+The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/Toot.html) or [`toot.ts`](./src/api/objects/toot.ts) for details. In particular note that you can mark a `Toot` object's `numTimesShown` property, at which point the `AlreadyShownScorer` will return non-zero values for that Toot.
 
 ```typescript
 timelineFeed[0].numTimesShown = 1;
 ```
 
 #### Other Data Available From `TheAlgorithm`
-FediAlgo exports a number of types and enums; check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/) or look at the bottom of [`index.ts`](src/index.ts) for details on what is available.
-`TheAlgorithm` objects also provide a bunch of data besides the timeline should you choose to access it.
+FediAlgo exports a number of types and enums; check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/) or look at the bottom of [`index.ts`](src/index.ts) for details on what is available. `TheAlgorithm` objects provide a bunch of data besides the timeline should you choose to access it.
 
 #### Fediverse Trending Data
 Current "trending" fediverse data can be accessed at `algorithm.trendingData`. See [`types.ts`](src/types.ts) or [the object API documentation](https://michelcrypt4d4mus.github.io/fedialgo/) for info on the data type.
@@ -196,7 +195,7 @@ console.log(`Servers used to determine trending data:`, algorithm.mastodonServer
 ```
 
 #### User Data
-The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used the compute the weighting in the timeline can be accessed at `algorithm.userData`. See [`user_data.ts`](src/api/user_data.ts) for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).
+The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used to compute the scoring of the timeline can be accessed at `algorithm.userData`. See [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/UserData.html) or [`user_data.ts`](src/api/user_data.ts) for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).
 
 There's also a unified method to collect a bunch of information (`fedialgo` configuration, server configuration, user data, filter settings, etc.) with a single call:
 
