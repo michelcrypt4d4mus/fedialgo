@@ -128,7 +128,7 @@ declare class TheAlgorithm {
      */
     getCurrentState(): Promise<Record<string, any>>;
     /**
-     * Return an array of objects suitable for use with Recharts.
+     * Return an array of objects suitable for charting timeline scoring information with Recharts.
      * @param {number} [numPercentiles=5] - Number of percentiles for stats.
      * @returns {any[]} Recharts data points.
      */
