@@ -1,7 +1,9 @@
 # NEXT RELEASE
+
+### v0.70.1
 * Remove default for `getRechartsStatsData(numPercentiles)`
-* Rename TootFilter.title to propertyName
-* (Demo App) Add config.status.numPercentiles parameter
+* Rename `TootFilter.title` to `propertyName`
+* (Demo App) Add `config.status.numPercentiles` parameter
 
 ## v0.70.0
 * Add support for blocked domains
