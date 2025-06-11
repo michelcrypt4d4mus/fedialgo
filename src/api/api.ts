@@ -344,20 +344,16 @@ export default class MastoApi {
 
     /**
      * Gets the Mastodon server domains that the user has blocked
-     * @returns {Promise<Set<string>>} Set of blocked domains.
+     * Safe domain for testing: https://universeodon.com/@memes@pl.m0e.space
+     * @returns {Promise<string[]>} Set of blocked domains.
      */
     async getBlockedDomains(): Promise<string[]> {
-        const logger = getLogger(CacheKey.BLOCKED_DOMAINS);
-
         let domains = await this.getApiObjsAndUpdate<string>({
             fetch: this.api.v1.domainBlocks.list,
             cacheKey: CacheKey.BLOCKED_DOMAINS,
-            logger
         });
 
-        domains = domains.map(domain => domain.toLowerCase().trim());
-        logger.trace(`getBlockedDomains() retrieved ${domains.length} domains:`, domains);
-        return domains;
+        return domains.map(domain => domain.toLowerCase().trim());
     }
 
     /**

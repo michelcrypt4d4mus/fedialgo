@@ -216,18 +216,15 @@ class MastoApi {
     }
     /**
      * Gets the Mastodon server domains that the user has blocked
-     * @returns {Promise<Set<string>>} Set of blocked domains.
+     * Safe domain for testing: https://universeodon.com/@memes@pl.m0e.space
+     * @returns {Promise<string[]>} Set of blocked domains.
      */
     async getBlockedDomains() {
-        const logger = getLogger(enums_1.CacheKey.BLOCKED_DOMAINS);
         let domains = await this.getApiObjsAndUpdate({
             fetch: this.api.v1.domainBlocks.list,
             cacheKey: enums_1.CacheKey.BLOCKED_DOMAINS,
-            logger
         });
-        domains = domains.map(domain => domain.toLowerCase().trim());
-        logger.trace(`getBlockedDomains() retrieved ${domains.length} domains:`, domains);
-        return domains;
+        return domains.map(domain => domain.toLowerCase().trim());
     }
     /**
      * Generic data getter for cacheable toots with custom fetch logic.

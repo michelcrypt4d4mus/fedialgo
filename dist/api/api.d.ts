@@ -105,7 +105,8 @@ export default class MastoApi {
     getBlockedAccounts(): Promise<Account[]>;
     /**
      * Gets the Mastodon server domains that the user has blocked
-     * @returns {Promise<Set<string>>} Set of blocked domains.
+     * Safe domain for testing: https://universeodon.com/@memes@pl.m0e.space
+     * @returns {Promise<string[]>} Set of blocked domains.
      */
     getBlockedDomains(): Promise<string[]>;
     /**
