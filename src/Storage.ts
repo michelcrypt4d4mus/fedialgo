@@ -230,7 +230,7 @@ export default class Storage {
 
         // Check for unique IDs in the stored data if we're in debug mode
         if (isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], key);
+            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], hereLogger);
         }
 
         return {
