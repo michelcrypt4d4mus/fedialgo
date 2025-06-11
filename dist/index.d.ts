@@ -1,36 +1,13 @@
 import 'reflect-metadata';
 import { mastodon } from "masto";
 import Account from './api/objects/account';
-import AlreadyShownScorer from './scorer/feature/already_shown_scorer';
-import AuthorFollowersScorer from './scorer/feature/author_followers_scorer';
 import BooleanFilter from "./filters/boolean_filter";
-import ChaosScorer from "./scorer/feature/chaos_scorer";
-import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
-import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
-import FollowedAccountsScorer from './scorer/feature/followed_accounts_scorer';
-import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
-import FollowersScorer from './scorer/feature/followers_scorer';
-import HashtagParticipationScorer from "./scorer/feature/hashtag_participation_scorer";
-import ImageAttachmentScorer from "./scorer/feature/image_attachment_scorer";
-import InteractionsScorer from "./scorer/feature/interactions_scorer";
 import { isAccessTokenRevokedError } from "./api/api";
-import MentionsFollowedScorer from './scorer/feature/mentions_followed_scorer';
-import MostFavouritedAccountsScorer from "./scorer/feature/most_favourited_accounts_scorer";
-import MostRepliedAccountsScorer from "./scorer/feature/most_replied_accounts_scorer";
-import MostRetootedAccountsScorer from "./scorer/feature/most_retooted_accounts_scorer";
 import NumericFilter from './filters/numeric_filter';
-import NumFavouritesScorer from "./scorer/feature/num_favourites_scorer";
-import NumRepliesScorer from "./scorer/feature/num_replies_scorer";
-import NumRetootsScorer from "./scorer/feature/num_retoots_scorer";
 import ObjWithCountList, { ObjList } from "./api/obj_with_counts_list";
-import RetootsInFeedScorer from "./scorer/feature/retoots_in_feed_scorer";
 import TagList from './api/tag_list';
 import Toot from './api/objects/toot';
-import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
-import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
-import TrendingTootScorer from "./scorer/feature/trending_toots_scorer";
 import UserData from "./api/user_data";
-import VideoAttachmentScorer from "./scorer/feature/video_attachment_scorer";
 import { timeString } from './helpers/time_helpers';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain } from './helpers/string_helpers';
 import { FILTER_OPTION_DATA_SOURCES } from './types';
@@ -64,13 +41,12 @@ interface AlgorithmArgs {
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
  * @property {boolean} isLoading - Whether a feed load is in progress*
- * @property {number | null} lastLoadTimeInSeconds - Duration of the last load in seconds
+ * @property {number} [lastLoadTimeInSeconds] - Duration of the last load in seconds
  * @property {string | null} loadingStatus - String describing load activity
  * @property {Toot[]} timeline - The current filtered timeline
  * @property {TrendingData} trendingData - Trending data (links, tags, servers, toots)
  * @property {UserData} userData - User data for scoring and filtering
- * @property {Scorer[]} weightedScorers - List of all scorers that can be weighted by user
- * @property {WeightInfoDict} weightInfo - Info about all scoring weights
+ * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
 declare class TheAlgorithm {
     /**
@@ -84,7 +60,7 @@ declare class TheAlgorithm {
      */
     static get weightPresets(): WeightPresets;
     filters: FeedFilterSettings;
-    lastLoadTimeInSeconds: number | null;
+    lastLoadTimeInSeconds?: number;
     loadingStatus: string | null;
     trendingData: TrendingData;
     get apiErrorMsgs(): string[];
@@ -98,16 +74,16 @@ declare class TheAlgorithm {
     private homeFeed;
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
-    private numTriggers;
     private totalNumTimesShown;
     private logger;
     private mergeMutex;
+    private numTriggers;
     private cacheUpdater?;
     private dataPoller?;
     private featureScorers;
     private feedScorers;
-    weightedScorers: (AlreadyShownScorer | AuthorFollowersScorer | ChaosScorer | DiversityFeedScorer | FavouritedTagsScorer | FollowedAccountsScorer | FollowedTagsScorer | FollowersScorer | HashtagParticipationScorer | ImageAttachmentScorer | InteractionsScorer | MentionsFollowedScorer | MostFavouritedAccountsScorer | MostRepliedAccountsScorer | MostRetootedAccountsScorer | NumFavouritesScorer | NumRepliesScorer | NumRetootsScorer | RetootsInFeedScorer | TrendingLinksScorer | TrendingTagsScorer | TrendingTootScorer | VideoAttachmentScorer)[];
-    weightInfo: WeightInfoDict;
+    private weightedScorers;
+    weightsInfo: WeightInfoDict;
     /**
      * Publicly callable constructor that instantiates the class and loads the feed from storage.
      * @param {AlgorithmArgs} params - The parameters for algorithm creation.

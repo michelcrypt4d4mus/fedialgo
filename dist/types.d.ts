@@ -56,7 +56,7 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     numericFilters: NumericFilters;
 }
 /**
- * Utility type to extract the keys of T that are of a type that's a subclass of TypeCondition
+ * Utility type to extract the keys of T whose values are an extension of TypeCondition
  * https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
  */
 export type KeysOfValueType<T, SuperClass> = Exclude<{

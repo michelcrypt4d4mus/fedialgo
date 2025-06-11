@@ -81,20 +81,17 @@ export default class Account implements AccountObj {
     header!: string;
     headerStatic!: string;
     // Optional
-    noindex?: boolean;  // Don't index this account in search engines
-    @Type(() => Account) moved?: Account | null;
-    suspended?: boolean | null;
     limited?: boolean | null;
+    @Type(() => Account) moved?: Account | null;
+    noindex?: boolean;  // Don't index this account in search engines
     roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
+    suspended?: boolean | null;
     // Fedialgo extension fields
-    isFollowed!: boolean;  // Is this account followed by the user?
-    isFollower!: boolean;  // Is this account following the user?
+    isFollowed?: boolean;  // Is this account followed by the user?
+    isFollower?: boolean;  // Is this account following the user?
     webfingerURI!: string;
 
-    /**
-     * Returns the account properties used in BooleanFilter.
-     * @returns {BooleanFilterOption}
-     */
+    // Returns the account properties used in BooleanFilter.
     get asBooleanFilterOption(): BooleanFilterOption {
         return {
             name: this.webfingerURI,

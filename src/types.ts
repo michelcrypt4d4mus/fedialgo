@@ -59,7 +59,7 @@ type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
 
 // Add FilterOptionDataSource properties to the ObjWithTootCount interface
 export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
-    isFollowed?: boolean;  // TODO: this is too specific to be in the general BooleanFilterOption interface
+    isFollowed?: boolean;
 };
 
 export type FeedFilterSettingsSerialized = {
@@ -82,7 +82,7 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 
 
 /**
- * Utility type to extract the keys of T that are of a type that's a subclass of TypeCondition
+ * Utility type to extract the keys of T whose values are an extension of TypeCondition
  * https://www.totaltypescript.com/get-keys-of-an-object-where-values-are-of-a-given-type
  */
 export type KeysOfValueType<T, SuperClass> = Exclude<

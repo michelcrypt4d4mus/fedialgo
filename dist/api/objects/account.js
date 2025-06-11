@@ -68,19 +68,16 @@ class Account {
     header;
     headerStatic;
     // Optional
-    noindex; // Don't index this account in search engines
-    moved;
-    suspended;
     limited;
+    moved;
+    noindex; // Don't index this account in search engines
     roles = []; // TODO: not sure default is a good idea
+    suspended;
     // Fedialgo extension fields
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
     webfingerURI;
-    /**
-     * Returns the account properties used in BooleanFilter.
-     * @returns {BooleanFilterOption}
-     */
+    // Returns the account properties used in BooleanFilter.
     get asBooleanFilterOption() {
         return {
             name: this.webfingerURI,
