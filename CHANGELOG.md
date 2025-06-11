@@ -1,6 +1,4 @@
 # NEXT RELEASE
-
-# v0.70.0
 * Add support for blocked domains
 * Precompile a `mutedKeywordsRegex` and store it in the `UserData` object
 * Add `Toot.matchesRegex()` method
