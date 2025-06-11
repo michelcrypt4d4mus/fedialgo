@@ -38,10 +38,35 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     getObj(name: string): T | undefined;
     incrementCount(name: string, newObjDecorator?: (obj: T) => void): T;
     map<U>(callback: (obj: T, i?: number) => U): U[];
+    /**
+     * Get the maximum value for a given key across the objs array
+     * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
+     */
     maxValue(propertyName: keyof T): number | undefined;
+    /**
+     * Returns a dict of 'obj.name' to 'obj.numToots'.
+     * @returns {StringNumberDict} Dictionary mapping object names to their numToots counts.
+     */
     nameToNumTootsDict(): StringNumberDict;
+    /**
+     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+     * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
+     * @template U - Type of the objects in the input array.*
+     * @param {U[]} objs - Array of objects to count properties from.
+     * @param {(obj: U) => T} propExtractor - Function to extract the properties to count from each object.
+     * @returns {void}
+     */
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void;
+    /**
+     * Remove any obj whose 'name' is watches any of 'keywords'.
+     * @returns {Promise<void>}
+     */
     removeKeywords(keywords: string[]): void;
+    /**
+     * Remove any obj whose 'name' is muted by the user's server side filters.
+     * TODO: use UserData's cached muted keywords regex?
+     * @returns {Promise<void>}
+     */
     removeMutedTags(): Promise<void>;
     /**
      * Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,

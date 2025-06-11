@@ -39,3 +39,4 @@ export declare function replaceEmojiShortcodesWithImgTags(html: string, emojis: 
 export declare function replaceHttpsLinks(input: string): string;
 export declare const toLocaleInt: (num: number | null) => string;
 export declare const wordRegex: (pattern: string) => RegExp;
+export declare const wordsRegex: (patterns: string[]) => RegExp;

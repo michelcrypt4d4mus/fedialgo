@@ -16,5 +16,4 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     removeFollowedAndMutedTags(): Promise<void>;
     removeFollowedTags(): Promise<void>;
     removeInvalidTrendingTags(): void;
-    removeMutedTags(): Promise<void>;
 }

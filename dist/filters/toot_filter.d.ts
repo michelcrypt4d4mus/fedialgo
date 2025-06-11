@@ -1,5 +1,5 @@
 /**
- * @fileoverview TootFilter is an abstract class that represents a filter that can be applied
+ * TootFilter is an abstract class that represents a filter that can be applied
  * to a Toot to determine if it should be included in the timeline feed.
  */
 import Toot from '../api/objects/toot';
@@ -12,7 +12,7 @@ export interface FilterArgs {
 }
 /**
  * Abstract base class representing a filter that can be applied to a Toot to determine
- * if it should be included in the timeline feed. Subclasses must implement the isAllowed() method.
+ * if it should be included in the timeline feed. Subclasses must implement the isAllowed method.
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
@@ -43,11 +43,6 @@ export default abstract class TootFilter {
     toArgs(): FilterArgs;
     /** Must be overridden in subclasses. */
     static isValidTitle(name: string): boolean;
-    /**
-     * Remove any filter args from the list whose title is invalid
-     * @param {FilterArgs[]} args - The list of filter arguments to check.
-     * @param {Logger} logger - Logger instance to log warnings for invalid args.
-     * @returns {FilterArgs[]} The filtered list containing only valid filter arguments.
-     */
+    /** Remove any filter args from the list whose title is invalid */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[];
 }

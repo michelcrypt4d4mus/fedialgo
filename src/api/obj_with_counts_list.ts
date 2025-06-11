@@ -5,7 +5,6 @@
 import { isFinite } from "lodash";
 
 import UserData from "./user_data";
-import { KeysOfValueType } from "../types";
 import { Logger } from '../helpers/logger';
 import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
@@ -103,13 +102,19 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         return this.objs.map((obj, i) => callback(obj, i));
     }
 
-    // Get the maximum value for a given key across the objs array
+    /**
+     * Get the maximum value for a given key across the objs array
+     * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
+     */
     maxValue(propertyName: keyof T): number | undefined {
         const values = this.objs.map(obj => obj[propertyName]).filter(n => isFinite(n));
         return values.length ? Math.max(...values as number[]) : undefined;
     }
 
-    // Returns a dict of tag names to numToots, which is (for now) what is used by BooleanFilter
+    /**
+     * Returns a dict of 'obj.name' to 'obj.numToots'.
+     * @returns {StringNumberDict} Dictionary mapping object names to their numToots counts.
+     */
     nameToNumTootsDict(): StringNumberDict {
         return this.objs.reduce((dict, tag) => {
             dict[tag.name] = tag.numToots || 0;
@@ -117,8 +122,14 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         }, {} as StringNumberDict);
     }
 
-    // Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
-    // Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
+    /**
+     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+     * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
+     * @template U - Type of the objects in the input array.*
+     * @param {U[]} objs - Array of objects to count properties from.
+     * @param {(obj: U) => T} propExtractor - Function to extract the properties to count from each object.
+     * @returns {void}
+     */
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void {
         this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
 
@@ -132,7 +143,10 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         this.objs = Object.values(options);
     }
 
-    // Remove tags that match any of the keywords
+    /**
+     * Remove any obj whose 'name' is watches any of 'keywords'.
+     * @returns {Promise<void>}
+     */
     removeKeywords(keywords: string[]): void {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
         const validObjs = this.objs.filter(tag => !keywords.includes(tag.name));
@@ -140,7 +154,11 @@ export default class ObjWithCountList<T extends NamedTootCount> {
         this.objs = validObjs;
     };
 
-    // Screen a list of hashtags against the user's server side filters, removing any that are muted.
+    /**
+     * Remove any obj whose 'name' is muted by the user's server side filters.
+     * TODO: use UserData's cached muted keywords regex?
+     * @returns {Promise<void>}
+     */
     async removeMutedTags(): Promise<void> {
         this.removeKeywords(await UserData.getMutedKeywords());
     };

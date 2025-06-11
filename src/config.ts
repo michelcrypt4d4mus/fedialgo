@@ -353,6 +353,7 @@ class Config implements ConfigType {
             "amf.didiermary.fr",
             "bsd.network",
             "bsky.brid.gy",
+            "fedibird.com",
             "fediverse.one",
             "flipboard.com",
             "mastodon.art",

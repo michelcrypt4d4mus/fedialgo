@@ -173,6 +173,10 @@ export type ScoreStats = {
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
 
+// export interface ServerSideFilter extends mastodon.v2.Filter {
+//     regex?: RegExp;
+// };
+
 // Types that are valid for browser local storage
 export type StorableObj = (
     CacheableApiObj |

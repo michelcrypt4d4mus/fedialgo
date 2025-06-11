@@ -93,7 +93,7 @@ type TootCache = {
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
-const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
+const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(?:${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = FILTERABLE_SCORES.concat("numTimesShown");
 
 // We always use containsTag() instead of containsString() for these
@@ -166,7 +166,7 @@ interface TootObj extends SerializableToot {
     contentWithEmojis: (fontSize?: number) => string;
     localServerUrl: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
-    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[], blockedDomains:Set<string>) => boolean;
+    isValidForFeed: (mutedKeywordRegex: RegExp, blockedDomains:Set<string>) => boolean;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
 };
@@ -379,7 +379,7 @@ export default class Toot implements TootObj {
      * @returns {boolean}
      */
     containsString(str: string): boolean {
-        return wordRegex(str).test(this.contentWithCard());
+        return this.matchesRegex(wordRegex(str));
     }
 
     /**
@@ -521,7 +521,7 @@ export default class Toot implements TootObj {
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
-    isValidForFeed(serverSideFilters: mastodon.v2.Filter[], blockedDomains: Set<string>): boolean {
+    isValidForFeed(mutedKeywordRegex: RegExp, blockedDomains: Set<string>): boolean {
         if (this.reblog?.muted || this.muted) {
             tootLogger.trace(`Removing toot from muted account (${this.author.description}):`, this);
             return false;
@@ -541,17 +541,12 @@ export default class Toot implements TootObj {
         } else if (blockedDomains.has(this.author.homeserver)) {
             tootLogger.trace(`Removing toot from blocked domain:`, this);
             return false;
+        } else if (this.matchesRegex(mutedKeywordRegex)) {
+            tootLogger.trace(`Removing toot matching muted keyword regex:`, this);
+            return false;
         }
 
-        // Return false if toot matches any server side filters
-        return !serverSideFilters.some((filter) => (
-            filter.keywords.some((keyword) => {
-                if (this.realToot.containsString(keyword.keyword)) {
-                    tootLogger.trace(`Removing toot matching manual server side filter (${this.description}):`, filter);
-                    return true;
-                }
-            })
-        ));
+        return true;
     }
 
     /**
@@ -564,6 +559,15 @@ export default class Toot implements TootObj {
         const homeURL = `${this.account.localServerUrl}/${await this.resolveID()}`;
         tootLogger.debug(`<homeserverURL()> converted '${this.realURL}' to '${homeURL}'`);
         return homeURL;
+    }
+
+    /**
+     * True if toot matches 'regex' in the tags, the content, or the link preview card description.
+     * @param {RegExp} regex - The string to search for.
+     * @returns {boolean}
+     */
+    matchesRegex(regex: RegExp): boolean {
+        return regex.test(this.contentWithCard());
     }
 
     /**
@@ -1012,19 +1016,19 @@ export default class Toot implements TootObj {
      */
     static async removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]> {
         let blockedDomains: Set<string> = new Set();
-        let serverSideFilters: mastodon.v2.Filter[] = [];
+        let mutedKeywordsRegex: RegExp;
 
         if (MastoApi.instance.userData) {
-            serverSideFilters = MastoApi.instance.userData.serverSideFilters;
             blockedDomains = new Set(MastoApi.instance.userData.blockedDomains);
+            mutedKeywordsRegex = MastoApi.instance.userData.mutedKeywordsRegex;
         } else {
-            serverSideFilters = await MastoApi.instance.getServerSideFilters();
             blockedDomains = new Set(await MastoApi.instance.getBlockedDomains());
+            mutedKeywordsRegex = await UserData.getMutedKeywordsRegex();
         }
 
         return filterWithLog(
             toots,
-            toot => toot.isValidForFeed(serverSideFilters, blockedDomains),
+            toot => toot.isValidForFeed(mutedKeywordsRegex, blockedDomains),
             logger,
             'invalid',
             'Toot'

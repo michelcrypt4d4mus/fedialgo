@@ -33,6 +33,7 @@ const Storage_1 = __importDefault(require("../Storage"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importStar(require("./objects/toot"));
 const enums_1 = require("../enums");
+const filter_1 = require("./objects/filter");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
@@ -48,12 +49,14 @@ const logger = new logger_1.Logger("UserData");
  * from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
  * for use in scoring and filtering algorithms.
  *
+ * @property {Set<string>} blockedDomains - Set of domains the user has blocked.
  * @property {BooleanFilterOptionList} favouriteAccounts - Accounts the user has favourited, retooted, or replied to.
  * @property {TagList} favouritedTags - List of tags the user has favourited.
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
  * @property {TagList} followedTags - List of tags the user follows.
  * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
  * @property {AccountNames} mutedAccounts - Dictionary of accounts the user has muted or blocked, keyed by Account["webfingerURI"].
+ * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
@@ -66,6 +69,7 @@ class UserData {
     followedTags = new tag_list_1.default([], enums_1.ScoreName.FOLLOWED_TAGS);
     languagesPostedIn = new obj_with_counts_list_1.default([], enums_1.BooleanFilterName.LANGUAGE);
     mutedAccounts = {};
+    mutedKeywordsRegex; // Cached regex for muted keywords, built from server-side filters
     participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = []; // TODO: currently unused, only here for getCurrentState() by client app
@@ -92,6 +96,7 @@ class UserData {
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);
+        userData.mutedKeywordsRegex = (0, filter_1.buildMutedRegex)(data.serverSideFilters);
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
@@ -138,13 +143,19 @@ class UserData {
     /////////////////////////////
     //      Static Methods     //
     /////////////////////////////
-    // Return an array of keywords the user has muted on the server side
+    /**
+     * Get an array of keywords the user has muted on the server side
+     * @returns {Promise<string[]>} An array of muted keywords.
+     */
     static async getMutedKeywords() {
-        const serverSideFilters = await api_1.default.instance.getServerSideFilters();
-        let keywords = serverSideFilters.map(f => f.keywords.map(k => k.keyword)).flat().flat().flat();
-        keywords = keywords.map(k => k.toLowerCase().replace(/^#/, ""));
-        logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
-        return keywords;
+        return (0, filter_1.extractMutedKeywords)(await api_1.default.instance.getServerSideFilters());
+    }
+    /**
+     * Build a regex that matches any of the user's muted keywords.
+     * @returns {Promise<RegExp>} A RegExp that matches any of the user's muted keywords.
+     */
+    static async getMutedKeywordsRegex() {
+        return (0, filter_1.buildMutedRegex)(await api_1.default.instance.getServerSideFilters());
     }
 }
 exports.default = UserData;

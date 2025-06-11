@@ -92,9 +92,4 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
         this.removeKeywords(config.trending.tags.invalidTags);
         this.objs = this.objs.filter(tag => !tag.language || (tag.language == config.locale.language));
     }
-
-    // Screen a list of hashtags against the user's server side filters, removing any that are muted.
-    async removeMutedTags(): Promise<void> {
-        this.removeKeywords(await UserData.getMutedKeywords());
-    }
 };
