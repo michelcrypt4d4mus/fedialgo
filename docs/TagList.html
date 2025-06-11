@@ -324,6 +324,631 @@ Name matching is case-insensitive.
     
 
     
+    <h4 class="name" id="maxValue"><span class="type-signature"></span>maxValue<span class="signature">()</span><span class="type-signature"> &rarr; {number|undefined}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Get the maximum value for a given key across the objs array
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="ObjWithCountList.html#maxValue">ObjWithCountList#maxValue</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The maximum value for the specified property, or undefined if none exist.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="nameToNumTootsDict"><span class="type-signature"></span>nameToNumTootsDict<span class="signature">()</span><span class="type-signature"> &rarr; {StringNumberDict}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns a dict of 'obj.name' to 'obj.numToots'.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="ObjWithCountList.html#nameToNumTootsDict">ObjWithCountList#nameToNumTootsDict</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Dictionary mapping object names to their numToots counts.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">StringNumberDict</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="populateByCountingProps"><span class="type-signature"></span>populateByCountingProps<span class="signature">(objs, propExtractor)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>objs</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;U></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Array of objects to count properties from.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>propExtractor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Function to extract the properties to count from each object.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="ObjWithCountList.html#populateByCountingProps">ObjWithCountList#populateByCountingProps</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">void</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="removeKeywords"><span class="type-signature"></span>removeKeywords<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Remove any obj whose 'name' is watches any of 'keywords'.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="ObjWithCountList.html#removeKeywords">ObjWithCountList#removeKeywords</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="removeMutedTags"><span class="type-signature">(async) </span>removeMutedTags<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Remove any obj whose 'name' is muted by the user's server side filters.
+TODO: use UserData's cached muted keywords regex?
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="ObjWithCountList.html#removeMutedTags">ObjWithCountList#removeMutedTags</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="topObjs"><span class="type-signature"></span>topObjs<span class="signature">(maxObjs<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;T>}</span></h4>
     
 
@@ -514,7 +1139,7 @@ and then by name. If maxObjs is provided, returns only the top maxObjs objects.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Jun 11 2025 13:43:36 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Jun 11 2025 16:41:22 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
