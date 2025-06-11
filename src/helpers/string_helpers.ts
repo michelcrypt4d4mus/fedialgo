@@ -4,7 +4,7 @@
 const escape = require('regexp.escape');
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
-import { isNil } from "lodash";
+import { isEmpty, isNil } from "lodash";
 import { mastodon } from 'masto';
 
 import { MediaCategory } from '../enums';
@@ -49,7 +49,7 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 ];
 
 // Check if it's empty (all whitespace or null or undefined)
-export const isEmptyStr = (s: string | null | undefined) => isNil(s) || s!.trim() === '';
+export const isEmptyStr = (s: string | null | undefined) => isNil(s) || isEmpty(s!.trim());
 
 // Alphabetize an array of strings
 export const alphabetize = (arr: string[]) => arr.sort(compareStr);

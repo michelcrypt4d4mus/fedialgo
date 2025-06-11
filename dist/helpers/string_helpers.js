@@ -45,7 +45,7 @@ exports.MEDIA_TYPES = [
     enums_1.MediaCategory.IMAGE,
 ];
 // Check if it's empty (all whitespace or null or undefined)
-const isEmptyStr = (s) => (0, lodash_1.isNil)(s) || s.trim() === '';
+const isEmptyStr = (s) => (0, lodash_1.isNil)(s) || (0, lodash_1.isEmpty)(s.trim());
 exports.isEmptyStr = isEmptyStr;
 // Alphabetize an array of strings
 const alphabetize = (arr) => arr.sort(exports.compareStr);
