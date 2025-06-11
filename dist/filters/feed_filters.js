@@ -199,16 +199,12 @@ function logSuppressedHashtags(suppressedHashtags) {
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {
-    const thisLogger = logger.tempLogger("populateMissingFilters");
     numeric_filter_1.FILTERABLE_SCORES.forEach(scoreName => {
-        if (!filters.numericFilters[scoreName]) {
-            thisLogger.trace(`No NumericFilter for ${scoreName}, creating new one`);
-            filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ propertyName: scoreName });
-        }
+        filters.numericFilters[scoreName] ??= new numeric_filter_1.default({ propertyName: scoreName });
     });
     Object.values(enums_1.BooleanFilterName).forEach((booleanFilterName) => {
         if (!filters.booleanFilters[booleanFilterName]) {
-            thisLogger.trace(`No BooleanFilter for ${booleanFilterName}, creating new one`);
+            logger.log(`populateMissingFilters() - No filter for ${booleanFilterName}, creating new one`);
             filters.booleanFilters[booleanFilterName] = new boolean_filter_1.default({ propertyName: booleanFilterName });
         }
     });

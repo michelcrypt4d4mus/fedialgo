@@ -131,7 +131,7 @@ export default class Logger {
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void {
         const numRemoved = before.length - after.length;
         if (numRemoved == 0) return;
-        this.trace(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
+        this.trace(`Removed ${numRemoved} ${ reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
     }
 
     /**
