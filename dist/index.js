@@ -242,11 +242,11 @@ class TheAlgorithm {
      */
     static async create(params) {
         config_1.config.setLocale(params.locale);
-        await api_1.default.init(params.api, params.user);
         const user = account_1.default.build(params.user);
+        await api_1.default.init(params.api, user);
         await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
-        const algo = new TheAlgorithm({ api: params.api, user: user, setTimelineInApp: params.setTimelineInApp });
+        const algo = new TheAlgorithm({ ...params, user });
         scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;

@@ -246,12 +246,12 @@ class TheAlgorithm {
      */
     static async create(params: AlgorithmArgs): Promise<TheAlgorithm> {
         config.setLocale(params.locale);
-        await MastoApi.init(params.api, params.user as Account);
         const user = Account.build(params.user);
+        await MastoApi.init(params.api, user);
         await Storage.logAppOpen(user);
 
         // Construct the algorithm object, set the default weights, load feed and filters
-        const algo = new TheAlgorithm({api: params.api, user: user, setTimelineInApp: params.setTimelineInApp});
+        const algo = new TheAlgorithm({ ...params, user });
         ScorerCache.addScorers(algo.featureScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix filtering of user's own toots out of their feed
 * Return more info about MastoApi's properties in getCurrentState()
 
 ### v0.69.20
