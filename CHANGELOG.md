@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.69.22
+* Fix error handling in `MastoApi.getServerSideFilters()`
+
 ### v0.69.21
 * Fix filtering of user's own toots out of their timeline
 * Return more `MastoApi` properties in `getCurrentState()`

@@ -23,7 +23,7 @@ exports.FILTERABLE_SCORES = [
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {TootNumberProp} title - The property of the toot to filter on (e.g., 'repliesCount').
- * @property {number} value - The minimum value required for the toot property for the toot to be included in the timeline.
+ * @property {number} value - Minimum value a toot must have in the 'title' property for the toot to be included in the timeline.
  */
 class NumericFilter extends toot_filter_1.default {
     title;
@@ -71,7 +71,7 @@ class NumericFilter extends toot_filter_1.default {
         return filterArgs;
     }
     /**
-     * Updates the value of the filter.
+     * Updates the filter's 'value' property.
      * @param {number} newValue - The new minimum value for the filter.
      */
     updateValue(newValue) {
