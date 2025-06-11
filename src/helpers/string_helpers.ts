@@ -1,5 +1,6 @@
-/*
- * Helpers for dealing with strings.
+/**
+ * @fileovervier Helpers for dealing with strings.
+ * @module string_helpers
  */
 const escape = require('regexp.escape');
 import md5 from "blueimp-md5";
