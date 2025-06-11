@@ -1,10 +1,9 @@
 /*
  * Math and numbers.
  */
-import { isFinite } from "lodash";
+import { isFinite, isNil } from "lodash";
 
-import { byteString, isNull } from "./string_helpers";
-import { strBytes } from "./log_helpers";
+import { byteString } from "./string_helpers";
 import { sumArray } from "./collection_helpers";
 import { type StringNumberDict } from "../types";
 
@@ -71,7 +70,7 @@ export function sizeFromBufferByteLength(obj: object): number {
 
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
 export function sizeOf(obj: any, sizes: BytesDict): number {
-    if (isNull(obj)) return 0;
+    if (isNil(obj)) return 0;
     let bytes = 0;
 
     switch (typeof obj) {
@@ -120,3 +119,7 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
 
     return bytes;
 };
+
+
+// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
+const strBytes = (str: string): number => str.length;

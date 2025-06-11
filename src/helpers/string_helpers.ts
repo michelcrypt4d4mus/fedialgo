@@ -4,6 +4,7 @@
 const escape = require('regexp.escape');
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
+import { isNil } from "lodash";
 import { mastodon } from 'masto';
 
 import { MediaCategory } from '../enums';
@@ -47,12 +48,8 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
     MediaCategory.IMAGE,
 ];
 
-// Check if it's a string
-export const isString = (s: unknown) => typeof s === 'string'; // || s instanceof String; // TODO: wtf is String about?
-// Check if null or undefined
-export const isNull = (s: any) => s === null || s === undefined;
 // Check if it's empty (all whitespace or null or undefined)
-export const isEmptyStr = (s: string | null | undefined) => isNull(s) || s!.trim() === '';
+export const isEmptyStr = (s: string | null | undefined) => isNil(s) || s!.trim() === '';
 
 // Alphabetize an array of strings
 export const alphabetize = (arr: string[]) => arr.sort(compareStr);
@@ -68,7 +65,7 @@ export const bracketed = (str: string): string => str.startsWith('[') ? str : `[
 // Prefix a string with [Brackets] and a space
 export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} ${msg}`;
 // Doublequotes
-export const quoted = (str: string | null): string => isNull(str) ? NULL : `"${str}"`;
+export const quoted = (str: string | null): string => isNil(str) ? NULL : `"${str}"`;
 // 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc.
 export const suffixedInt = (n: number): string => `${n}${ordinalSuffix(n)}`;
 

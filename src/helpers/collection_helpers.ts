@@ -2,9 +2,9 @@
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
  */
-import { chunk, isFinite } from 'lodash';
+import { chunk, isFinite, isNil } from 'lodash';
 
-import { compareStr, hashObject, isNull } from "./string_helpers";
+import { compareStr, hashObject } from "./string_helpers";
 import { config } from "../config";
 import { isAccessTokenRevokedError } from '../api/api';
 import { isNumberOrNumberString } from "./math_helper";
@@ -68,7 +68,7 @@ export function atLeastValues(obj: StringNumberDict, minValue: number): StringNu
  * @returns {[T] | []} The optional array.
  */
 export function asOptionalArray<T>(value: T | undefined | null): [T] | [] {
-    return isNull(value) ? [] : [value as T];
+    return isNil(value) ? [] : [value as T];
 };
 
 
@@ -182,7 +182,7 @@ export function countValues<T>(
     return items.reduce(
         (counts, item) => {
             const key = getKey(item);
-            return (isNull(key) && !countNulls) ? counts : incrementCount(counts, key);
+            return (isNil(key) && !countNulls) ? counts : incrementCount(counts, key);
         },
         {} as StringNumberDict
     );

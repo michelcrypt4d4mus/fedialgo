@@ -62,7 +62,7 @@ class NumericFilter extends toot_filter_1.default {
         return this.invertSelection ? !isOK : isOK;
     }
     /**
-     * Serializes the filter state for storage (e.g., local storage).
+     * Serializes the filter state for storage.
      * @returns {NumericFilterArgs} Arguments that can be used to reconstruct the filter.
      */
     toArgs() {

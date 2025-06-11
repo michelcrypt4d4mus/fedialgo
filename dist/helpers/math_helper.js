@@ -6,7 +6,6 @@ exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder 
  */
 const lodash_1 = require("lodash");
 const string_helpers_1 = require("./string_helpers");
-const log_helpers_1 = require("./log_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const NUMBER_REGEX = /^[\d.]+$/;
 // For use with sizeOf() to try to see internals of object size.
@@ -67,7 +66,7 @@ exports.sizeFromBufferByteLength = sizeFromBufferByteLength;
 ;
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
 function sizeOf(obj, sizes) {
-    if ((0, string_helpers_1.isNull)(obj))
+    if ((0, lodash_1.isNil)(obj))
         return 0;
     let bytes = 0;
     switch (typeof obj) {
@@ -76,7 +75,7 @@ function sizeOf(obj, sizes) {
             sizes.booleans += 4;
             break;
         case "function":
-            const fxnLength = (0, log_helpers_1.strBytes)(obj.toString());
+            const fxnLength = strBytes(obj.toString());
             bytes += fxnLength; // functions aren't serialized in JSON i don't think?
             sizes.functions += fxnLength;
             break;
@@ -85,7 +84,7 @@ function sizeOf(obj, sizes) {
             sizes.numbers += 8;
             break;
         case "string":
-            const stringLength = (0, log_helpers_1.strBytes)(obj);
+            const stringLength = strBytes(obj);
             bytes += stringLength;
             sizes.strings += stringLength;
             break;
@@ -97,7 +96,7 @@ function sizeOf(obj, sizes) {
             }
             else {
                 Object.entries(obj).forEach(([key, value]) => {
-                    const keyBytes = (0, log_helpers_1.strBytes)(key);
+                    const keyBytes = strBytes(key);
                     bytes += keyBytes;
                     sizes.strings += keyBytes;
                     sizes.keys += keyBytes; // keys in objects
@@ -109,11 +108,13 @@ function sizeOf(obj, sizes) {
             break;
         default:
             console.warn(`sizeOf() unknown type: ${typeof obj}`);
-            bytes += (0, log_helpers_1.strBytes)(obj.toString());
+            bytes += strBytes(obj.toString());
             break;
     }
     return bytes;
 }
 exports.sizeOf = sizeOf;
 ;
+// Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
+const strBytes = (str) => str.length;
 //# sourceMappingURL=math_helper.js.map
