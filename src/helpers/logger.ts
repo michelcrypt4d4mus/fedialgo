@@ -21,7 +21,7 @@ const PREFIXERS = [
     (str: string) => `~${str}~`,
     (str: string) => `-${str}-`,
     (str: string) => `#${str}#`,
-];
+] as const;
 
 /**
  * Standardized logger for consistent, prefixed, and optionally colorized logging throughout the application.

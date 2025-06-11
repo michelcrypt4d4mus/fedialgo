@@ -15,8 +15,8 @@ const tag_list_1 = __importDefault(require("./tag_list"));
 const toot_1 = __importDefault(require("./objects/toot"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
-const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 const enums_2 = require("../enums");
@@ -32,7 +32,6 @@ const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
  * aggregating and processing trending data across multiple servers in the fediverse.
- *
  * @class
  * @property {string} domain - The domain of the server this MastodonServer object interacts with.
  * @property {Logger} logger - Logger instance for this server.
