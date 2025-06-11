@@ -81,6 +81,10 @@ class Logger {
             return;
         this.trace(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
     }
+    logSortedDict(msg, dict) {
+        const sortedKeys = (0, collection_helpers_1.sortKeysByValue)(dict);
+        this.debug(`${msg}:\n${sortedKeys.map((k, i) => `  ${i + 1}: ${k} (${dict[k]})`).join('\n')}`);
+    }
     // Log a message with the amount of time from startedAt to now.
     logTelemetry(msg, startedAt, ...args) {
         msg = `${string_helpers_1.TELEMETRY} ${msg} ${(0, time_helpers_1.ageString)(startedAt)}`;

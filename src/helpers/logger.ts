@@ -3,8 +3,9 @@
  */
 import { ageString } from './time_helpers';
 import { isDebugMode, isDeepDebug } from './environment_helpers';
-import { split } from './collection_helpers';
+import { sortKeysByValue, split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from './string_helpers';
+import { type StringNumberDict } from '../types';
 
 type LoggerArg = string | boolean | null | undefined;  // boolean so we can filter out optional args that are falsey
 
@@ -94,6 +95,11 @@ export class Logger {
         const numRemoved = before.length - after.length;
         if (numRemoved == 0) return;
         this.trace(`Removed ${numRemoved} ${ reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
+    }
+
+    logSortedDict(msg: string, dict: StringNumberDict): void {
+        const sortedKeys = sortKeysByValue(dict);
+        this.debug(`${msg}:\n${sortedKeys.map((k, i) => `  ${i + 1}: ${k} (${dict[k]})`).join('\n')}`);
     }
 
     // Log a message with the amount of time from startedAt to now.

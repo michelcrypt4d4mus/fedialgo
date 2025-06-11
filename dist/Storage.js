@@ -224,6 +224,7 @@ class Storage {
         const blockedAccounts = await this.getCoerced(enums_1.CacheKey.BLOCKED_ACCOUNTS);
         const mutedAccounts = await this.getCoerced(enums_1.CacheKey.MUTED_ACCOUNTS);
         return user_data_1.default.buildFromData({
+            blockedDomains: await this.getCoerced(enums_1.CacheKey.BLOCKED_DOMAINS),
             favouritedToots: await this.getCoerced(enums_1.CacheKey.FAVOURITED_TOOTS),
             followedAccounts: await this.getCoerced(enums_1.CacheKey.FOLLOWED_ACCOUNTS),
             followedTags: await this.getCoerced(enums_1.CacheKey.FOLLOWED_TAGS),
@@ -270,7 +271,7 @@ class Storage {
     static async storedObjsInfo() {
         const keyStrings = Object.values(enums_1.CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
-        const storedData = await (0, collection_helpers_1.zipPromises)(keys, async (k) => localforage_1.default.getItem(k));
+        const storedData = await (0, collection_helpers_1.zipPromiseCalls)(keys, async (k) => localforage_1.default.getItem(k));
         storedData[enums_1.AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
         let totalBytes = 0;
         const detailedInfo = Object.entries(storedData).reduce((info, [key, obj]) => {

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add support for blocked domains
 
 ### v0.69.22
 * Fix error handling in `MastoApi.getServerSideFilters()`

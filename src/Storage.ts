@@ -16,7 +16,7 @@ import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, type ApiCacheKey } fro
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
-import { checkUniqueIDs, zipPromises } from "./helpers/collection_helpers";
+import { checkUniqueIDs, zipPromiseCalls } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
@@ -28,7 +28,7 @@ import {
     type MastodonInstances,
     type MastodonObjWithID,
     type StorableObj,
-    type StorableObjWithCache,
+    type CacheableApiObj,
     type StorableWithTimestamp,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -50,7 +50,7 @@ export interface CacheTimestamp {
 };
 
 interface StorableObjWithStaleness extends CacheTimestamp {
-    obj: StorableObjWithCache,
+    obj: CacheableApiObj,
 };
 
 type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
@@ -154,7 +154,7 @@ export default class Storage {
     }
 
     // Return null if the data is in storage is stale or doesn't exist
-    static async getIfNotStale<T extends StorableObjWithCache>(key: ApiCacheKey): Promise<T | null> {
+    static async getIfNotStale<T extends CacheableApiObj>(key: ApiCacheKey): Promise<T | null> {
         const withStaleness = await this.getWithStaleness(key);
 
         if (!withStaleness || withStaleness.isStale) {
@@ -235,7 +235,7 @@ export default class Storage {
 
         return {
             isStale,
-            obj: this.deserialize(key, withTimestamp.value) as StorableObjWithCache,
+            obj: this.deserialize(key, withTimestamp.value) as CacheableApiObj,
             updatedAt: new Date(withTimestamp.updatedAt),
         }
     }
@@ -252,6 +252,7 @@ export default class Storage {
         const mutedAccounts = await this.getCoerced<mastodon.v1.Account>(CacheKey.MUTED_ACCOUNTS);
 
         return UserData.buildFromData({
+            blockedDomains: await this.getCoerced<string>(CacheKey.BLOCKED_DOMAINS),
             favouritedToots: await this.getCoerced<Toot>(CacheKey.FAVOURITED_TOOTS),
             followedAccounts: await this.getCoerced<Account>(CacheKey.FOLLOWED_ACCOUNTS),
             followedTags: await this.getCoerced<mastodon.v1.Tag>(CacheKey.FOLLOWED_TAGS),
@@ -306,7 +307,7 @@ export default class Storage {
     static async storedObjsInfo(): Promise<Record<string, any>> {
         const keyStrings = Object.values(CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as CacheKey)));
-        const storedData = await zipPromises(keys, async (k) => localForage.getItem(k));
+        const storedData = await zipPromiseCalls(keys, async (k) => localForage.getItem(k));
         storedData[AlgorithmStorageKey.USER] = await this.getIdentity(); // Stored differently
         let totalBytes = 0;
 

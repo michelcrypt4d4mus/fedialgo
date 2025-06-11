@@ -9,7 +9,7 @@ import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { tagInfoStr } from "./objects/tag";
 import { TagTootsCacheKey } from "../enums";
-import { truncateToConfiguredLength, zipPromises } from "../helpers/collection_helpers";
+import { truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
 type TagTootsBuildConfig = {
@@ -68,7 +68,7 @@ export default class TagsForFetchingToots {
                 const tags = this.topTags();
                 this.logger.log(`getToots() called for ${tags.length} tags:`, tags.map(t => t.name));
 
-                const results = await zipPromises(
+                const results = await zipPromiseCalls(
                     tags.map(tag => tag.name),
                     async (tagName) => {
                         return await MastoApi.instance.getStatusesForTag(

@@ -166,7 +166,7 @@ interface TootObj extends SerializableToot {
     contentWithEmojis: (fontSize?: number) => string;
     localServerUrl: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
-    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
+    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[], blockedDomains:Set<string>) => boolean;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
 };
@@ -521,7 +521,7 @@ export default class Toot implements TootObj {
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
-    isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean {
+    isValidForFeed(serverSideFilters: mastodon.v2.Filter[], blockedDomains: Set<string>): boolean {
         if (this.reblog?.muted || this.muted) {
             tootLogger.trace(`Removing toot from muted account (${this.author.description}):`, this);
             return false;
@@ -537,6 +537,9 @@ export default class Toot implements TootObj {
             return false;
         } else if (this.tootedAt < timelineCutoffAt()) {
             tootLogger.trace(`Removing toot older than ${timelineCutoffAt()}:`, this.tootedAt);
+            return false;
+        } else if (blockedDomains.has(this.author.homeserver)) {
+            tootLogger.trace(`Removing toot from blocked domain:`, this);
             return false;
         }
 
@@ -1008,8 +1011,24 @@ export default class Toot implements TootObj {
      * @returns {Promise<Toot[]>}
      */
     static async removeInvalidToots(toots: Toot[], logger: Logger): Promise<Toot[]> {
-        const serverSideFilters = (await MastoApi.instance.getServerSideFilters()) || [];
-        return filterWithLog(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+        let blockedDomains: Set<string> = new Set();
+        let serverSideFilters: mastodon.v2.Filter[] = [];
+
+        if (MastoApi.instance.userData) {
+            serverSideFilters = MastoApi.instance.userData.serverSideFilters;
+            blockedDomains = new Set(MastoApi.instance.userData.blockedDomains);
+        } else {
+            serverSideFilters = await MastoApi.instance.getServerSideFilters();
+            blockedDomains = new Set(await MastoApi.instance.getBlockedDomains());
+        }
+
+        return filterWithLog(
+            toots,
+            toot => toot.isValidForFeed(serverSideFilters, blockedDomains),
+            logger,
+            'invalid',
+            'Toot'
+        );
     }
 
     /**

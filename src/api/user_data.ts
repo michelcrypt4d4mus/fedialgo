@@ -12,7 +12,7 @@ import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
 import { config } from "../config";
-import { keyById } from "../helpers/collection_helpers";
+import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
 import {
@@ -26,6 +26,7 @@ const logger = new Logger("UserData");
 
 // Raw API data required to build UserData
 interface UserApiData {
+    blockedDomains: string[];
     favouritedToots: Toot[];
     followedAccounts: Account[];
     followedTags: TagWithUsageCounts[];
@@ -54,6 +55,7 @@ interface UserApiData {
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 export default class UserData {
+    blockedDomains: Set<string> = new Set([]);
     favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
@@ -68,29 +70,24 @@ export default class UserData {
 
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build(): Promise<UserData> {
-        const responses = await Promise.all([
-            MastoApi.instance.getFavouritedToots(),
-            MastoApi.instance.getFollowedAccounts(),
-            MastoApi.instance.getFollowedTags(),
-            MastoApi.instance.getMutedAccounts(),
-            MastoApi.instance.getRecentUserToots(),
-            MastoApi.instance.getServerSideFilters(),
-        ]);
+        const responses = await resolvePromiseDict({
+            blockedDomains: MastoApi.instance.getBlockedDomains(),
+            favouritedToots: MastoApi.instance.getFavouritedToots(),
+            followedAccounts: MastoApi.instance.getFollowedAccounts(),
+            followedTags: MastoApi.instance.getFollowedTags(),
+            mutedAccounts: MastoApi.instance.getMutedAccounts(),
+            recentToots: MastoApi.instance.getRecentUserToots(),
+            serverSideFilters: MastoApi.instance.getServerSideFilters(),
+        }, logger, []);
 
-        return this.buildFromData({
-            favouritedToots: responses[0],
-            followedAccounts: responses[1],
-            followedTags: responses[2],
-            mutedAccounts: responses[3],
-            recentToots: responses[4],
-            serverSideFilters: responses[5],
-        });
+        return this.buildFromData(responses as UserApiData);
     }
 
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
         userData.populateFavouriteAccounts(data);
+        userData.blockedDomains = new Set(data.blockedDomains);
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);

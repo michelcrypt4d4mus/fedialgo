@@ -53,7 +53,7 @@ interface TootObj extends SerializableToot {
     contentWithEmojis: (fontSize?: number) => string;
     localServerUrl: () => Promise<string>;
     isInTimeline: (filters: FeedFilterSettings) => boolean;
-    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[]) => boolean;
+    isValidForFeed: (serverSideFilters: mastodon.v2.Filter[], blockedDomains: Set<string>) => boolean;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
 }
@@ -242,7 +242,7 @@ export default class Toot implements TootObj {
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
-    isValidForFeed(serverSideFilters: mastodon.v2.Filter[]): boolean;
+    isValidForFeed(serverSideFilters: mastodon.v2.Filter[], blockedDomains: Set<string>): boolean;
     /**
      * Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
      *       this: https://fosstodon.org/@kate/114360290341300577

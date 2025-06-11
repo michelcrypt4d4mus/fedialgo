@@ -1,3 +1,4 @@
+import { type StringNumberDict } from '../types';
 type LoggerArg = string | boolean | null | undefined;
 export declare class Logger {
     logPrefix: string;
@@ -15,6 +16,7 @@ export declare class Logger {
     line(msg: string | undefined): string;
     logAndThrowError(msg: string, ...args: any[]): never;
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void;
+    logSortedDict(msg: string, dict: StringNumberDict): void;
     logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;
     tagWithRandomString(): void;
     tempLogger(arg1: string, ...args: LoggerArg[]): Logger;

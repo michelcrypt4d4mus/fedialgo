@@ -5,6 +5,7 @@ import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { type AccountNames, type StringNumberDict, type TagWithUsageCounts } from "../types";
 interface UserApiData {
+    blockedDomains: string[];
     favouritedToots: Toot[];
     followedAccounts: Account[];
     followedTags: TagWithUsageCounts[];
@@ -32,6 +33,7 @@ interface UserApiData {
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 export default class UserData {
+    blockedDomains: Set<string>;
     favouriteAccounts: BooleanFilterOptionList;
     favouritedTags: TagList;
     followedAccounts: StringNumberDict;

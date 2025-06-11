@@ -417,7 +417,7 @@ class Toot {
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
-    isValidForFeed(serverSideFilters) {
+    isValidForFeed(serverSideFilters, blockedDomains) {
         if (this.reblog?.muted || this.muted) {
             tootLogger.trace(`Removing toot from muted account (${this.author.description}):`, this);
             return false;
@@ -436,6 +436,10 @@ class Toot {
         }
         else if (this.tootedAt < (0, time_helpers_1.timelineCutoffAt)()) {
             tootLogger.trace(`Removing toot older than ${(0, time_helpers_1.timelineCutoffAt)()}:`, this.tootedAt);
+            return false;
+        }
+        else if (blockedDomains.has(this.author.homeserver)) {
+            tootLogger.trace(`Removing toot from blocked domain:`, this);
             return false;
         }
         // Return false if toot matches any server side filters
@@ -848,8 +852,17 @@ class Toot {
      * @returns {Promise<Toot[]>}
      */
     static async removeInvalidToots(toots, logger) {
-        const serverSideFilters = (await api_1.default.instance.getServerSideFilters()) || [];
-        return (0, collection_helpers_1.filterWithLog)(toots, t => t.isValidForFeed(serverSideFilters), logger, 'invalid', 'Toot');
+        let blockedDomains = new Set();
+        let serverSideFilters = [];
+        if (api_1.default.instance.userData) {
+            serverSideFilters = api_1.default.instance.userData.serverSideFilters;
+            blockedDomains = new Set(api_1.default.instance.userData.blockedDomains);
+        }
+        else {
+            serverSideFilters = await api_1.default.instance.getServerSideFilters();
+            blockedDomains = new Set(await api_1.default.instance.getBlockedDomains());
+        }
+        return (0, collection_helpers_1.filterWithLog)(toots, toot => toot.isValidForFeed(serverSideFilters, blockedDomains), logger, 'invalid', 'Toot');
     }
     /**
      * Get rid of the user's own toots.

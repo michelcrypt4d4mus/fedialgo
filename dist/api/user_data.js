@@ -59,6 +59,7 @@ const logger = new logger_1.Logger("UserData");
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 class UserData {
+    blockedDomains = new Set([]);
     favouriteAccounts = new obj_with_counts_list_1.BooleanFilterOptionList([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {};
@@ -71,27 +72,22 @@ class UserData {
     lastUpdatedAt;
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build() {
-        const responses = await Promise.all([
-            api_1.default.instance.getFavouritedToots(),
-            api_1.default.instance.getFollowedAccounts(),
-            api_1.default.instance.getFollowedTags(),
-            api_1.default.instance.getMutedAccounts(),
-            api_1.default.instance.getRecentUserToots(),
-            api_1.default.instance.getServerSideFilters(),
-        ]);
-        return this.buildFromData({
-            favouritedToots: responses[0],
-            followedAccounts: responses[1],
-            followedTags: responses[2],
-            mutedAccounts: responses[3],
-            recentToots: responses[4],
-            serverSideFilters: responses[5],
-        });
+        const responses = await (0, collection_helpers_1.resolvePromiseDict)({
+            blockedDomains: api_1.default.instance.getBlockedDomains(),
+            favouritedToots: api_1.default.instance.getFavouritedToots(),
+            followedAccounts: api_1.default.instance.getFollowedAccounts(),
+            followedTags: api_1.default.instance.getFollowedTags(),
+            mutedAccounts: api_1.default.instance.getMutedAccounts(),
+            recentToots: api_1.default.instance.getRecentUserToots(),
+            serverSideFilters: api_1.default.instance.getServerSideFilters(),
+        }, logger, []);
+        return this.buildFromData(responses);
     }
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
         userData.populateFavouriteAccounts(data);
+        userData.blockedDomains = new Set(data.blockedDomains);
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);

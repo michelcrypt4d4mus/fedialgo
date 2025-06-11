@@ -104,6 +104,11 @@ export default class MastoApi {
      */
     getBlockedAccounts(): Promise<Account[]>;
     /**
+     * Gets the Mastodon server domains that the user has blocked
+     * @returns {Promise<Set<string>>} Set of blocked domains.
+     */
+    getBlockedDomains(): Promise<string[]>;
+    /**
      * Generic data getter for cacheable toots with custom fetch logic.
      * Used for various hashtag feeds (participated, trending, favourited).
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.

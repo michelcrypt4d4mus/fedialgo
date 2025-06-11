@@ -254,6 +254,7 @@ class MastodonServer {
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
         const followedUserDomainCounts = (0, collection_helpers_1.countValues)(follows, account => account.homeserver);
+        logger.logSortedDict("followedUserDomainCounts", followedUserDomainCounts);
         let mostFollowedDomains = (0, collection_helpers_1.sortKeysByValue)(followedUserDomainCounts);
         mostFollowedDomains = mostFollowedDomains.filter(domain => !MastodonServer.isNoMauServer(domain));
         mostFollowedDomains = mostFollowedDomains.slice(0, config_1.config.fediverse.numServersToCheck);
@@ -326,7 +327,7 @@ class MastodonServer {
     }
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers(domains, fxn) {
-        return await (0, collection_helpers_1.zipPromises)(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
+        return await (0, collection_helpers_1.zipPromiseCalls)(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
     }
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
     static async callForTopServers(fxn) {

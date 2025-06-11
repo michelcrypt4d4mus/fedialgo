@@ -159,6 +159,10 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
+            [CacheKey.BLOCKED_DOMAINS]: {
+                initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: MINUTES_IN_DAY,
+            },
             [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
                 minutesUntilStale: 60,
             },

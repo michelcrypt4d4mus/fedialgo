@@ -343,6 +343,24 @@ export default class MastoApi {
     }
 
     /**
+     * Gets the Mastodon server domains that the user has blocked
+     * @returns {Promise<Set<string>>} Set of blocked domains.
+     */
+    async getBlockedDomains(): Promise<string[]> {
+        const logger = getLogger(CacheKey.BLOCKED_DOMAINS);
+
+        let domains = await this.getApiObjsAndUpdate<string>({
+            fetch: this.api.v1.domainBlocks.list,
+            cacheKey: CacheKey.BLOCKED_DOMAINS,
+            logger
+        });
+
+        domains = domains.map(domain => domain.toLowerCase().trim());
+        logger.trace(`getBlockedDomains() retrieved ${domains.length} domains:`, domains);
+        return domains;
+    }
+
+    /**
      * Generic data getter for cacheable toots with custom fetch logic.
      * Used for various hashtag feeds (participated, trending, favourited).
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
@@ -787,7 +805,7 @@ export default class MastoApi {
 
                 if (isBackgroundFetch) {
                     logger.trace(`Background fetch, sleeping for ${config.api.backgroundLoadSleepBetweenRequestsMS / 1000}s`);
-                    await sleep(config.api.backgroundLoadSleepBetweenRequestsMS);
+                    await sleep(config.api.backgroundLoadSleepBetweenRequestsMS + Math.random() * 1000);  // Add jitter to space out requests
                 }
 
                 waitTime.markStart();  // Reset timer for next page
@@ -808,7 +826,7 @@ export default class MastoApi {
      */
     private async getApiObjsAndUpdate<T extends MastodonApiObj>(
         inParams: FetchParams<T>
-    ): Promise<MastodonApiObj[]> {
+    ): Promise<T[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         let { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
@@ -830,7 +848,7 @@ export default class MastoApi {
 
                 return cacheResult.rows;
             } else {
-                return await this.getApiObjs<T>(paramsWithCache);
+                return await this.getApiObjs<T>(paramsWithCache) as T[];
             }
         } finally {
             releaseMutex?.();
@@ -894,7 +912,9 @@ export default class MastoApi {
             if (!skipCache) await Storage.set(cacheKey, objs);
             return objs;
         } catch (err) {
-            logger.error(`Error fetching API records for ${cacheKey} where there really shouldn't be!`, err);
+            let msg = `Error fetching API records for ${cacheKey} where there really shouldn't be!`;
+            logger.error(msg, err);
+            this.apiErrors.push(new Error(msg, {cause: err}));
             return [];
         } finally {
             releaseMutex?.();
@@ -1038,7 +1058,7 @@ export default class MastoApi {
         logger ??= getLogger(cacheKey, 'handleApiError');
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
-        let msg = `"${err} After pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err} after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
 
