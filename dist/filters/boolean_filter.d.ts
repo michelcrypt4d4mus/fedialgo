@@ -7,7 +7,6 @@ import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, TypeFilterName } from '../enums';
 import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
-import { type BooleanFilterOption } from "../types";
 type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
@@ -52,20 +51,13 @@ export default class BooleanFilter extends TootFilter {
      */
     isOptionEnabled(optionName: string): boolean;
     /**
-     * Return only options that have at least minToots or are in selectedOptions.
-     * @param {BooleanFilterOption[]} options - The options to filter.
-     * @param {number} [minToots=0] - Minimum number of toots.
-     * @returns {BooleanFilterOptionList}
-     */
-    optionListWithMinToots(options: BooleanFilterOption[], minToots?: number): BooleanFilterOptionList;
-    /**
-     * Return options sorted by name, filtered by minToots (selected options are always included).
+     * Return options with numToots >= minToots sorted by name (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
     optionsSortedByName(minToots?: number): BooleanFilterOptionList;
     /**
-     * Return options sorted by numToots, filtered by minToots.
+     * Return options with numToots >= minToots sorted by numToots (selected options are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -81,6 +73,14 @@ export default class BooleanFilter extends TootFilter {
      * @returns {BooleanFilterArgs}
      */
     toArgs(): BooleanFilterArgs;
+    /**
+     * Return only options that have at least minToots or are in selectedOptions.
+     * @private
+     * @param {BooleanFilterOption[]} options - The options to filter.
+     * @param {number} [minToots=0] - Minimum number of toots.
+     * @returns {BooleanFilterOptionList}
+     */
+    private optionListWithMinToots;
     /**
      * Checks if a given property name is a valid numeric filter name.
      * @param {string} name - The property name to check.
