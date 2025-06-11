@@ -387,10 +387,7 @@ class TheAlgorithm {
     async getCurrentState(): Promise<Record<string, any>> {
         return {
             Algorithm: this.statusDict(),
-            Api: {
-                errors: this.apiErrorMsgs,
-                waitTimes: MastoApi.instance.waitTimes,
-            },
+            Api: MastoApi.instance.currentState(),
             Config: config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),

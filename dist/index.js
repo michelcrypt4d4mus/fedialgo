@@ -373,10 +373,7 @@ class TheAlgorithm {
     async getCurrentState() {
         return {
             Algorithm: this.statusDict(),
-            Api: {
-                errors: this.apiErrorMsgs,
-                waitTimes: api_1.default.instance.waitTimes,
-            },
+            Api: api_1.default.instance.currentState(),
             Config: config_1.config,
             Filters: this.filters,
             Homeserver: await this.serverInfo(),

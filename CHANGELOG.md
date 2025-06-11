@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Return more info about MastoApi's properties in getCurrentState()
 
 ### v0.69.20
 * Add `allEmojis()` getter to `Toot`
