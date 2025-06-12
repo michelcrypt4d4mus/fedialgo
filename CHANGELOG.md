@@ -1,8 +1,7 @@
 # NEXT RELEASE
+* Bump brace-expansion with npm audit fix
 
 ### v0.70.4
-
-### v0.70.3
 * Add `isLocal` getters to `Account` and `Toot` objects, improve `extractDomain()` helper method
 * Add `isLocalUrl()` method to MastoApi
 * Don't rebuild `Account` objects unnecessarily
