@@ -627,7 +627,7 @@ class TheAlgorithm {
         // The cache updater writes the current state of the feed to storage every few seconds
         // to capture changes to the alreadyShown state of toots.
         if (this.cacheUpdater) {
-            moar_data_poller_1.moarDataLogger.log(`cacheUpdater already exists, not starting another one`);
+            moar_data_poller_1.moarDataLogger.trace(`cacheUpdater already exists, not starting another one`);
             return;
         }
         this.cacheUpdater = setInterval(async () => await this.saveTimelineToCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);
@@ -637,7 +637,7 @@ class TheAlgorithm {
         this.feed = await Storage_1.default.getCoerced(enums_1.CacheKey.TIMELINE_TOOTS);
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
             const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
-            this.logger.warn(`Timeline cache is full (${this.feed.length}), cutting to ${config_1.config.toots.truncateFullTimelineToLength} toots`);
+            this.logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
             this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, this.logger);
             await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
         }
@@ -738,14 +738,14 @@ class TheAlgorithm {
     }
     enableMoarDataBackgroundPoller() {
         if (this.dataPoller) {
-            moar_data_poller_1.moarDataLogger.log(`Data poller already exists, not starting another one`);
+            moar_data_poller_1.moarDataLogger.trace(`Data poller already exists, not starting another one`);
             return;
         }
         this.dataPoller = setInterval(async () => {
             const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
             await this.recomputeScorers(); // Force scorers to recompute data, rescore the feed
             if (!shouldContinue) {
-                moar_data_poller_1.moarDataLogger.log(`stopping data poller...`);
+                moar_data_poller_1.moarDataLogger.log(`Stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);
             }
         }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);

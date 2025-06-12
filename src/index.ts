@@ -666,7 +666,7 @@ class TheAlgorithm {
         // The cache updater writes the current state of the feed to storage every few seconds
         // to capture changes to the alreadyShown state of toots.
         if (this.cacheUpdater) {
-            moarDataLogger.log(`cacheUpdater already exists, not starting another one`);
+            moarDataLogger.trace(`cacheUpdater already exists, not starting another one`);
             return;
         }
 
@@ -682,7 +682,7 @@ class TheAlgorithm {
 
         if (this.feed.length == config.toots.maxTimelineLength) {
             const numToClear = config.toots.maxTimelineLength - config.toots.truncateFullTimelineToLength;
-            this.logger.warn(`Timeline cache is full (${this.feed.length}), cutting to ${config.toots.truncateFullTimelineToLength} toots`);
+            this.logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
             this.feed = truncateToConfiguredLength(this.feed, config.toots.truncateFullTimelineToLength, this.logger);
             await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
         }
@@ -797,7 +797,7 @@ class TheAlgorithm {
 
     private enableMoarDataBackgroundPoller(): void {
         if (this.dataPoller) {
-            moarDataLogger.log(`Data poller already exists, not starting another one`);
+            moarDataLogger.trace(`Data poller already exists, not starting another one`);
             return;
         }
 
@@ -807,7 +807,7 @@ class TheAlgorithm {
                 await this.recomputeScorers();  // Force scorers to recompute data, rescore the feed
 
                 if (!shouldContinue) {
-                    moarDataLogger.log(`stopping data poller...`);
+                    moarDataLogger.log(`Stopping data poller...`);
                     this.dataPoller && clearInterval(this.dataPoller!);
                 }
             },
