@@ -69,13 +69,13 @@ interface TootObj extends SerializableToot {
  * @property {mastodon.v1.CustomEmoji[]} allEmojis - All custom emojis in the toot, including the author's.
  * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
- * @property {string} [completedAt] - Timestamp a full deep inspection of the toot was completed
+ * @property {string} [completedAt] - Timestamp when a full deep inspection of the toot was last completed.
  * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
  * @property {string} description - A string describing the toot, including author, content, and createdAt.
- * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
+ * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot.
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
- * @property {boolean} isLocal - True if this toot is from a user on the FediAlgo user's home server
+ * @property {boolean} isLocal - True if this toot is from a user on the FediAlgo user's home server.
  * @property {boolean} isPrivate - True if it's for followers only.
  * @property {boolean} isTrending - True if it's a trending toot or contains any trending hashtags or links.
  * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
@@ -84,7 +84,7 @@ interface TootObj extends SerializableToot {
  * @property {Toot} realToot - The toot that was reblogged if it's a reblog, otherwise this toot.
  * @property {string} realURI - URI for the realToot.
  * @property {string} realURL - Default to this.realURI if url property is empty.
- * @property {SerializableToot | null} [reblog] - The toot that was retooted (if any)
+ * @property {SerializableToot | null} [reblog] - The toot that was retooted (if any).
  * @property {AccountLike[]} [reblogsBy] - The accounts that retooted this toot (if any)
  * @property {string[]} replyMentions - The webfinger URIs of the accounts mentioned in the toot + the author prepended with @.
  * @property {string} [resolvedID] - This Toot with URLs resolved to homeserver versions

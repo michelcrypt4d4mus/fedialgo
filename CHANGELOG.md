@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Don't sort Toot objects twice in buildToots()
 
 ### v0.70.5
 * Bump `brace-expansion` with `npm audit fix`
