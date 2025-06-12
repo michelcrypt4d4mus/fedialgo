@@ -172,7 +172,7 @@ export default class Toot implements TootObj {
      * @param {SerializableToot} toot - The toot data to build from.
      * @returns {Toot} The constructed Toot instance.
      */
-    static build(toot: SerializableToot): Toot;
+    static build(toot: SerializableToot | Toot): Toot;
     /**
      * True if toot contains 'str' in the tags, the content, or the link preview card description.
      * @param {string} str - The string to search for.

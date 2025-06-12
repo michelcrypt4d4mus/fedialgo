@@ -34,6 +34,7 @@ import {
     uniquifyByProp
 } from "../helpers/collection_helpers";
 import {
+    type AccountLike,
     type ConcurrencyLockRelease,
     type MastodonApiObj,
     type MastodonObjWithID,
@@ -1098,13 +1099,13 @@ export default class MastoApi {
      */
     private buildFromApiObjects(key: CacheKey, objects: MastodonApiObj[], logger: Logger): MastodonApiObj[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            const accounts = objects.map(o => Account.build(o as mastodon.v1.Account));
-            return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);
+            const accounts = objects.map(obj => Account.build(obj as AccountLike));
+            return uniquifyByProp(accounts, (obj) => obj.url, key);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
+            const toots = objects.map(obj => Toot.build(obj as TootLike));
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id, key);
+            return uniquifyByProp(objects as MastodonObjWithID[], (obj) => obj.id, key);
         } else {
             return objects;
         }

@@ -127,11 +127,7 @@ export default class Account implements AccountObj {
      * @returns {Account} The constructed Account instance.
      */
     static build(account: AccountLike): Account {
-        const tempAccount = account as Account;
-
-        if (tempAccount.webfingerURI) {
-            logger.trace(`Account.build() called with webfingerURI already set, description="${tempAccount.description}"`, tempAccount);
-        }
+        if (account instanceof Account) return account;  // Already an Account instance, return it directly
 
         const accountObj = new Account();
         accountObj.id = account.id;

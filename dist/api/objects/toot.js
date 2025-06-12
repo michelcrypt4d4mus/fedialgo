@@ -228,6 +228,8 @@ class Toot {
      * @returns {Toot} The constructed Toot instance.
      */
     static build(toot) {
+        if (toot instanceof Toot)
+            return toot; // Already a Toot instance, just return it
         const tootObj = new Toot();
         tootObj.id = toot.id;
         tootObj.uri = toot.uri;

@@ -1,6 +1,8 @@
 # NEXT RELEASE
-* Add isLocal getters to Account and Toot objects, improve extractDomain() helper method
-* Add isLocalUrl() method to MastoApi
+* Add `isLocal` getters to `Account` and `Toot` objects, improve `extractDomain()` helper method
+* Add `isLocalUrl()` method to MastoApi
+* Don't rebuild Account objects unnecessarily
+* Uniquify Account objects by url, not by ID (there can be duplicate IDs depending on server)
 
 ### v0.70.2
 * Export `optionalSuffix()`

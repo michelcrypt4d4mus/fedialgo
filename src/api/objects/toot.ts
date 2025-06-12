@@ -313,7 +313,9 @@ export default class Toot implements TootObj {
      * @param {SerializableToot} toot - The toot data to build from.
      * @returns {Toot} The constructed Toot instance.
      */
-    static build(toot: SerializableToot): Toot {
+    static build(toot: SerializableToot | Toot): Toot {
+        if (toot instanceof Toot) return toot;  // Already a Toot instance, just return it
+
         const tootObj = new Toot();
         tootObj.id = toot.id;
         tootObj.uri = toot.uri;
