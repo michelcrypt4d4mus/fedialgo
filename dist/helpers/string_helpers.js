@@ -22,11 +22,12 @@ exports.FEDIALGO = 'FediAlgo';
 exports.NULL = "<<NULL>>";
 exports.SET_LOADING_STATUS = "SET_LOADING_STATUS";
 exports.TELEMETRY = 'TELEMETRY';
+const UNKNOWN_SERVER = 'unknown.server';
 // Regexes
-const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/g;
+const ACCOUNT_MENTION_REGEX = /@[\w.]+(@[-\w.]+)?/gi;
 const EMOJI_REGEX = /\p{Emoji}/gu;
 const HAHSTAG_REGEX = /#\w+/g;
-const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/g;
+const LINK_REGEX = /https?:\/\/([-\w.]+)\S*/gi;
 const WHITESPACE_REGEX = /\s+/g;
 // Multimedia types
 exports.GIFV = "gifv";
@@ -145,18 +146,26 @@ function determineMediaCategory(uri) {
 exports.determineMediaCategory = determineMediaCategory;
 ;
 /**
- * Extracts the domain from a URL string (e.g., "http://www.mast.ai/foobar" => "mast.ai").
- * @param {string} url - The URL to extract the domain from.
+ * Extracts the domain from a URL string.
+ * Examples:
+ *   "http://www.mast.ai/foobar" => "mast.ai"
+ *   "example.com/path" => "example.com"
+ *   "localhost:3000" => "localhost"
+ * @param {string} inUrl - The URL to extract the domain from.
  * @returns {string} The extracted domain, or an empty string if not found.
  */
-function extractDomain(url) {
-    url ??= "";
-    if (countInstances(url, "/") < 2) {
-        console.warn(`extractDomain() found no frontslashes in: ${url}`);
-        return "";
+function extractDomain(inUrl) {
+    // Add protocol if missing for URL parsing
+    let url = inUrl.toLowerCase().trim();
+    url = inUrl.startsWith("http") ? inUrl : `http://${inUrl}`;
+    try {
+        const { hostname } = new URL(url);
+        return hostname.startsWith("www.") ? hostname.substring(4) : hostname;
     }
-    const domain = url.split("/")[2].toLowerCase();
-    return domain.startsWith("www.") ? domain.substring(4) : domain;
+    catch {
+        console.error(`extractDomain() failed to extractDomain() from "${inUrl}"`);
+        return UNKNOWN_SERVER;
+    }
 }
 exports.extractDomain = extractDomain;
 ;

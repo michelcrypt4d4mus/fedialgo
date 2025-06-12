@@ -37,6 +37,7 @@ const logger = new logger_1.Logger("Account");
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
  * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
  * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
@@ -88,7 +89,9 @@ class Account {
     }
     get description() { return `${this.displayName} (${this.webfingerURI})`; }
     ;
-    get homeserver() { return (0, string_helpers_1.extractDomain)(this.url) || "unknown.server"; }
+    get homeserver() { return (0, string_helpers_1.extractDomain)(this.url); }
+    ;
+    get isLocal() { return api_1.default.instance.isLocalUrl(this.url); }
     ;
     get localServerUrl() { return api_1.default.instance.accountUrl(this); }
     ;
@@ -109,6 +112,8 @@ class Account {
      * @returns {Account} The constructed Account instance.
      */
     static build(account) {
+        if (account instanceof Account)
+            return account; // Already an Account instance, return it directly
         const accountObj = new Account();
         accountObj.id = account.id;
         accountObj.username = account.username;

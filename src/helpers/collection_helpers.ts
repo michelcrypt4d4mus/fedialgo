@@ -715,7 +715,7 @@ export const uniquify = (array: (string | undefined)[]): string[] | undefined =>
  */
 export function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[] {
     const logger = new Logger(logPrefix || 'collections_helpers', "uniquifyByProp()");
-    const newRows = [...new Map(rows.map((element) => [transform(element), element])).values()];
+    const newRows = [...new Map(rows.map((element) => [transform(element).toLowerCase(), element])).values()];
 
     if (logPrefix && newRows.length < rows.length) {
         logger.trace(`Removed ${rows.length - newRows.length} duplicate rows`);

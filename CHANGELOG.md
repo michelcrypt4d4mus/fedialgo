@@ -1,5 +1,11 @@
 # NEXT RELEASE
 
+### v0.70.3
+* Add `isLocal` getters to `Account` and `Toot` objects, improve `extractDomain()` helper method
+* Add `isLocalUrl()` method to MastoApi
+* Don't rebuild `Account` objects unnecessarily
+* Uniquify `Account` objects by `url`, not by `id` (IDs are only unique across a single server)
+
 ### v0.70.2
 * Export `optionalSuffix()`
 * JSDoc comments for `string_helpers.ts` and `Logger`

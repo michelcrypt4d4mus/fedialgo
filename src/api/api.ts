@@ -34,6 +34,7 @@ import {
     uniquifyByProp
 } from "../helpers/collection_helpers";
 import {
+    type AccountLike,
     type ConcurrencyLockRelease,
     type MastodonApiObj,
     type MastodonObjWithID,
@@ -174,6 +175,7 @@ const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging
 const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetch", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
+
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
 const apiLogger = getLogger();
@@ -213,7 +215,9 @@ export default class MastoApi {
      * @returns {Promise<void>} Resolves when initialization is complete.
      */
     static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
-        if (MastoApi.#instance) {
+        if (!(user.webfingerURI?.includes('@'))) {
+            apiLogger.logAndThrowError(`MastoApi.init() called with user without webfingerURI!`, user);
+        } else if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
@@ -241,7 +245,7 @@ export default class MastoApi {
     private constructor(api: mastodon.rest.Client, user: Account) {
         this.api = api;
         this.user = user;
-        this.homeDomain = extractDomain(user.url);
+        this.homeDomain = user.homeserver;
         this.reset();
     }
 
@@ -665,17 +669,15 @@ export default class MastoApi {
     async resolveToot(toot: Toot): Promise<Toot> {
         const logger = getLogger('resolveToot()', toot.realURI);
         logger.trace(`called for`, toot);
-        const tootURI = toot.realURI;
-        const urlDomain = extractDomain(tootURI);
-        if (urlDomain == this.homeDomain) return toot;
-        const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
+        if (toot.isLocal) return toot;
+        const lookupResult = await this.api.v2.search.list({q: toot.realURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
-            logger.logAndThrowError(`Got bad result for "${tootURI}"`, lookupResult);
+            logger.logAndThrowError(`Got bad result for "${toot.realURI}"`, lookupResult);
         }
 
         const resolvedStatus = lookupResult.statuses[0];
-        logger.trace(`found resolvedStatus for "${tootURI}":`, resolvedStatus);
+        logger.trace(`found resolvedStatus for "${toot.realURI}":`, resolvedStatus);
         return Toot.build(resolvedStatus as mastodon.v1.Status);
     }
 
@@ -730,6 +732,15 @@ export default class MastoApi {
      */
     accountUrl(account: Account): string {
         return account.homeserver == this.homeDomain ? account.url : this.endpointURL(`@${account.webfingerURI}`);
+    }
+
+    /**
+     * Returns true if the URL is a local URL on the Feialgo user's home server.
+     * @param {string} url - URL to check
+     * @returns {boolean}
+     */
+    isLocalUrl(url: string): boolean {
+        return extractDomain(url) == this.homeDomain;
     }
 
     /**
@@ -1088,13 +1099,13 @@ export default class MastoApi {
      */
     private buildFromApiObjects(key: CacheKey, objects: MastodonApiObj[], logger: Logger): MastodonApiObj[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            const accounts = objects.map(o => Account.build(o as mastodon.v1.Account));
-            return uniquifyByProp<MastodonObjWithID>(accounts, (obj) => obj.id, key);
+            const accounts = objects.map(obj => Account.build(obj as AccountLike));
+            return uniquifyByProp(accounts, (obj) => obj.url, key);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            const toots = objects.map(obj => obj instanceof Toot ? obj : Toot.build(obj as SerializableToot));
+            const toots = objects.map(obj => Toot.build(obj as TootLike));
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return uniquifyByProp<MastodonObjWithID>(objects as MastodonObjWithID[], (obj) => obj.id, key);
+            return uniquifyByProp(objects as MastodonObjWithID[], (obj) => obj.id, key);
         } else {
             return objects;
         }

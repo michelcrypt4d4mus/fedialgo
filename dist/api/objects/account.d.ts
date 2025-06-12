@@ -31,6 +31,7 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
  * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
  * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
@@ -70,6 +71,7 @@ export default class Account implements AccountObj {
     get asBooleanFilterOption(): BooleanFilterOption;
     get description(): string;
     get homeserver(): string;
+    get isLocal(): boolean;
     get localServerUrl(): string;
     get noteWithAccountInfo(): string;
     /**

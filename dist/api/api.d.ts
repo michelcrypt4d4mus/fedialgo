@@ -232,6 +232,12 @@ export default class MastoApi {
      */
     accountUrl(account: Account): string;
     /**
+     * Returns true if the URL is a local URL on the Feialgo user's home server.
+     * @param {string} url - URL to check
+     * @returns {boolean}
+     */
+    isLocalUrl(url: string): boolean;
+    /**
      * Returns the URL for a tag on the Feialgo user's home server.
      * @param {MastodonTag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.

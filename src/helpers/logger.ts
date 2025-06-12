@@ -110,7 +110,7 @@ export class Logger {
      * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
     logAndThrowError(msg: string, ...args: any[]): never {
-        console.error(msg, args);
+        console.error(msg, ...args);
         const errorArgs = this.findErrorArg(args);
 
         if (errorArgs.args.length > 0) {

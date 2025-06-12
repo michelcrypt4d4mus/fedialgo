@@ -100,7 +100,7 @@ class Logger {
      * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
     logAndThrowError(msg, ...args) {
-        console.error(msg, args);
+        console.error(msg, ...args);
         const errorArgs = this.findErrorArg(args);
         if (errorArgs.args.length > 0) {
             msg += [`, additional args:`, ...args.map(arg => JSON.stringify(arg, null, 4))].join(`\n`);
