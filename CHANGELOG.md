@@ -1,4 +1,7 @@
 # NEXT RELEASE
+
+### v0.70.2
+* Export `optionalSuffix()`
 * JSDoc comments for `string_helpers.ts` and `Logger`
 
 ### v0.70.1
