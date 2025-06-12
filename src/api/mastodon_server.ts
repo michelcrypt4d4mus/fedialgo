@@ -16,6 +16,7 @@ import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls }
 import { FEDIVERSE_CACHE_KEYS, config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
+import { optionalSuffix } from "../helpers/string_helpers";
 import { TrendingType, buildCacheKeyDict } from '../enums';
 import {
     decorateLinkHistory,
@@ -410,7 +411,7 @@ export default class MastodonServer {
     }
 
     private endpointUrl(endpoint: string, limit?: number) {
-        return `https://${this.domain}/${endpoint}` + (limit ? `?limit=${limit}` : '');
+        return `https://${this.domain}/${endpoint}${optionalSuffix(limit, `?limit=${limit}`, true)}`;
     }
 
     // Returns true if the domain is known to not provide MAU and trending data via public API

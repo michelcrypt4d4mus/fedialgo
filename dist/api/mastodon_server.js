@@ -19,6 +19,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
+const string_helpers_1 = require("../helpers/string_helpers");
 const enums_2 = require("../enums");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const API_URI = "api";
@@ -334,7 +335,7 @@ class MastodonServer {
         return await this.callForServers(domains, fxn);
     }
     endpointUrl(endpoint, limit) {
-        return `https://${this.domain}/${endpoint}` + (limit ? `?limit=${limit}` : '');
+        return `https://${this.domain}/${endpoint}${(0, string_helpers_1.optionalSuffix)(limit, `?limit=${limit}`, true)}`;
     }
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain) {

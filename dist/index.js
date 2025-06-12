@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
+exports.timeString = exports.sortKeysByValue = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCacheKey = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.ObjWithCountList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -85,6 +85,7 @@ Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () 
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
+Object.defineProperty(exports, "optionalSuffix", { enumerable: true, get: function () { return string_helpers_1.optionalSuffix; } });
 const types_1 = require("./types");
 Object.defineProperty(exports, "FILTER_OPTION_DATA_SOURCES", { enumerable: true, get: function () { return types_1.FILTER_OPTION_DATA_SOURCES; } });
 const moar_data_poller_1 = require("./api/moar_data_poller");
@@ -709,7 +710,7 @@ class TheAlgorithm {
         }
         else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${(0, time_helpers_1.timeString)(mostRecentAt)}` : '');
+            this.loadingStatus = `Loading new toots` + (0, string_helpers_1.optionalSuffix)(mostRecentAt, t => `since ${(0, time_helpers_1.timeString)(t)}`);
         }
         else {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;

@@ -194,6 +194,24 @@ export function htmlToParagraphs(html: string): string[] {
 };
 
 
+
+/**
+ * If object is not null or undefined return the result of suffixFxn(obj) with a leading space.
+ * @template T
+ * @param {T} obj - Object to check.
+ * @param {string|function(T): string} [toSuffix] - Function to generate the suffix from the object.
+ * @param {boolean} [noSpace=false] - If true, do not add a leading space to the suffix.
+ * @returns {string}
+ */
+export function optionalSuffix<T>(obj: T, toSuffix?: ((obj: T) => string) | string, noSpace?: boolean): string {
+    if (isNil(obj)) return "";
+    toSuffix ??= (o: T) => `${o}`;
+    let suffix = typeof toSuffix === 'string' ? toSuffix : toSuffix(obj);
+    suffix = noSpace ? suffix : ` ${suffix}`;
+    return isEmptyStr(suffix) ? "" : suffix;
+};
+
+
 /**
  * Returns the ordinal suffix for a given integer (e.g., 1 => "st", 2 => "nd").
  * @param {number} n - The number to get the ordinal suffix for.

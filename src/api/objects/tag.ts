@@ -4,7 +4,7 @@
  */
 import MastoApi from "../../api/api";
 import { detectHashtagLanguage } from "../../helpers/language_helper";
-import { removeDiacritics } from "../../helpers/string_helpers";
+import { optionalSuffix, removeDiacritics } from "../../helpers/string_helpers";
 import { type TagWithUsageCounts } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
@@ -36,6 +36,6 @@ export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
 
 // Create a string representation of the tag with its usage counts & language
 export function tagInfoStr(tag: TagWithUsageCounts) {
-    const infoStr = `${tag.numToots} numToots` + (tag.language ? `, language: ${tag.language}` : "");
+    const infoStr = `${tag.numToots} numToots${optionalSuffix(tag.language)}`;
     return `${tag.name} (${infoStr})`;
 };

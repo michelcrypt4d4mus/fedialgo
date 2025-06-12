@@ -42,6 +42,7 @@ import {
     extractDomain,
     htmlToParagraphs,
     htmlToText,
+    optionalSuffix,
     removeDiacritics,
     removeEmojis,
     removeLinks,
@@ -695,7 +696,7 @@ export default class Toot implements TootObj {
     private contentWithCard(): string {
         if (!this.contentCache[TootCacheKey.CONTENT_WITH_CARD]) {
             const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-            const txt = (this.contentString() + (cardContent.length ? ` (${htmlToText(cardContent)})` : "")).trim();
+            const txt = (this.contentString() + optionalSuffix(cardContent, htmlToText)).trim();
             this.contentCache[TootCacheKey.CONTENT_WITH_CARD] = removeDiacritics(txt);
         }
 

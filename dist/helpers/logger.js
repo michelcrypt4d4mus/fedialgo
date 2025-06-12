@@ -119,7 +119,7 @@ class Logger {
         const numRemoved = before.length - after.length;
         if (numRemoved == 0)
             return;
-        this.trace(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
+        this.trace(`Removed ${numRemoved}${(0, string_helpers_1.optionalSuffix)(reason)} ${objType}s leaving ${after.length}`);
     }
     /**
      * Logs a sorted dictionary of string-number pairs.

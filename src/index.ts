@@ -48,7 +48,7 @@ import { ageInHours, ageInSeconds, ageInMinutes, ageString, sleep, timeString, t
 import { BACKFILL_FEED, TRIGGER_FEED, lockExecution } from './helpers/log_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
-import { FEDIALGO, GIFV, SET_LOADING_STATUS, VIDEO_TYPES, arrowed, extractDomain } from './helpers/string_helpers';
+import { FEDIALGO, GIFV, SET_LOADING_STATUS, VIDEO_TYPES, arrowed, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { FILTER_OPTION_DATA_SOURCES } from './types';
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
@@ -765,7 +765,7 @@ class TheAlgorithm {
             this.loadingStatus = PULLING_USER_HISTORY;
         } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `Loading new toots` + (mostRecentAt ? ` since ${timeString(mostRecentAt)}` : '');
+            this.loadingStatus = `Loading new toots` + optionalSuffix(mostRecentAt, t => `since ${timeString(t)}`);
         } else {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
@@ -850,7 +850,8 @@ export {
     isAccessTokenRevokedError,
     isValueInStringEnum,
     makeChunks,
-    makePercentileChunks, // TODO: unused in demo app (for now)
+    makePercentileChunks,  // TODO: unused in demo app (for now)
+    optionalSuffix,
     sortKeysByValue,
     timeString,
     // Types

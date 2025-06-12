@@ -4,7 +4,7 @@
 import { ageString } from './time_helpers';
 import { isDebugMode, isDeepDebug } from './environment_helpers';
 import { sortKeysByValue, split } from './collection_helpers';
-import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr } from './string_helpers';
+import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr, optionalSuffix } from './string_helpers';
 import { type StringNumberDict } from '../types';
 
 type ErrorArgs = {args: any[], error?: Error};
@@ -131,7 +131,7 @@ export class Logger {
     logArrayReduction<T>(before: T[], after: T[], objType: string, reason?: string): void {
         const numRemoved = before.length - after.length;
         if (numRemoved == 0) return;
-        this.trace(`Removed ${numRemoved} ${reason ? (reason + " ") : ""}${objType}s leaving ${after.length}`);
+        this.trace(`Removed ${numRemoved}${optionalSuffix(reason)} ${objType}s leaving ${after.length}`);
     }
 
     /**
