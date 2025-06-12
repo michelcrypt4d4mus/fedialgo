@@ -8,7 +8,7 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
-import Toot, { SerializableToot, earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
+import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import Storage, {
     STORAGE_KEYS_WITH_ACCOUNTS,
@@ -216,7 +216,7 @@ export default class MastoApi {
      */
     static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
         if (!(user.webfingerURI?.includes('@'))) {
-            apiLogger.logAndThrowError(`MastoApi.init() called with user without webfingerURI!`, user);
+            apiLogger.logAndThrowError(`MastoApi.init() 'user' argument isn't an Account!`, user);
         } else if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
             return;

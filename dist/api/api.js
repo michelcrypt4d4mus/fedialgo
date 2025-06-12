@@ -98,7 +98,7 @@ class MastoApi {
      */
     static async init(api, user) {
         if (!(user.webfingerURI?.includes('@'))) {
-            apiLogger.logAndThrowError(`MastoApi.init() called with user without webfingerURI!`, user);
+            apiLogger.logAndThrowError(`MastoApi.init() 'user' argument isn't an Account!`, user);
         }
         else if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
