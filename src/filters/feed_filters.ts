@@ -148,6 +148,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         const decorateThisAccount = (option: BooleanFilterOption) => decorateAccount(option, toot.author);
         optionLists[BooleanFilterName.USER].incrementCount(toot.author.webfingerURI, decorateThisAccount);
         optionLists[BooleanFilterName.APP].incrementCount(toot.realToot.application.name);
+        optionLists[BooleanFilterName.SERVER].incrementCount(toot.homeserver);
         optionLists[BooleanFilterName.LANGUAGE].incrementCount(toot.realToot.language!, decorateLanguage);
 
         // Aggregate counts for each kind ("type") of toot

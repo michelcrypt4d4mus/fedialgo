@@ -111,11 +111,12 @@ export declare enum TrendingType {
  * @enum {string}
  */
 export declare enum BooleanFilterName {
+    APP = "app",
     HASHTAG = "hashtag",
     LANGUAGE = "language",
+    SERVER = "server",
     TYPE = "type",
-    USER = "user",
-    APP = "app"
+    USER = "user"
 }
 /**
  * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).

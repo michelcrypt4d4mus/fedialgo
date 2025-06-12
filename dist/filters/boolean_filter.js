@@ -44,6 +44,9 @@ const TOOT_MATCHERS = {
     [enums_1.BooleanFilterName.APP]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot.application?.name);
     },
+    [enums_1.BooleanFilterName.SERVER]: (toot, selectedOptions) => {
+        return selectedOptions.includes(toot.homeserver);
+    },
     [enums_1.BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
         return !!selectedOptions.find((v) => toot.realToot.containsString(v));
     },

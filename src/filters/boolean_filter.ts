@@ -47,6 +47,9 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
     [BooleanFilterName.APP]: (toot: Toot, selectedOptions: string[]) => {
         return selectedOptions.includes(toot.realToot.application?.name);
     },
+    [BooleanFilterName.SERVER]: (toot: Toot, selectedOptions: string[]) => {
+        return selectedOptions.includes(toot.homeserver);
+    },
     [BooleanFilterName.HASHTAG]: (toot: Toot, selectedOptions: string[]) => {
         return !!selectedOptions.find((v) => toot.realToot.containsString(v));
     },

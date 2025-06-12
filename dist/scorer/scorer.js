@@ -64,20 +64,20 @@ class Scorer {
     //   Static class methods   //
     //////////////////////////////
     // Score and return an array of toots sorted by score. This DOES NOT mutate the order of
-    // 'toots' array in place - if you need the sorted array you need to assign the return value.
-    // If 'isScoringFeed' is false the scores will be "best effort"
+    // 'toots' array in place - if you need the sorted array you need to use the returned array.
+    // If 'isScoringFeed' is false the scores will be "best effort" using whatever data is available.
     static async scoreToots(toots, isScoringFeed) {
         const scorers = scorer_cache_1.default.weightedScorers;
         const startedAt = new Date();
         try {
-            // Lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
-            // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
-            // Makes the feed scoring more responsive to the user adjusting the weights to not have to wait.
             let releaseMutex;
+            // Feed scorers' data must be refreshed each time the main timeline feed changes so we half heartedly
+            // lock mutex to prevent multiple scoring loops calling DiversityFeedScorer simultaneously.
+            // If it's already locked just cancel the current loop and start over (scoring is idempotent so it's OK).
+            // Makes the feed scoring more responsive to the user adjusting the weights (less waiting).
             if (isScoringFeed) {
                 SCORE_MUTEX.cancel();
                 releaseMutex = await SCORE_MUTEX.acquire();
-                // Feed scorers' data must be refreshed each time the feed changes
                 scorer_cache_1.default.feedScorers.forEach(scorer => scorer.extractScoreDataFromFeed(toots));
             }
             try { // Score the toots asynchronously in batches
