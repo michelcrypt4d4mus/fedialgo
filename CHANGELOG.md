@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Bump brace-expansion with npm audit fix
+
+### v0.70.5
+* Bump `brace-expansion` with `npm audit fix`
 
 ### v0.70.4
 * Add `isLocal` getters to `Account` and `Toot` objects, improve `extractDomain()` helper method
