@@ -19,11 +19,11 @@ const enums_1 = require("../enums");
 // Local constants
 const LOG_PREFIX = "Scorer";
 const SCORE_MUTEX = new async_mutex_1.Mutex();
-const TRENDING_WEIGHTS = [
+const TRENDING_WEIGHTS = new Set([
     enums_1.ScoreName.TRENDING_LINKS,
     enums_1.ScoreName.TRENDING_TAGS,
     enums_1.ScoreName.TRENDING_TOOTS,
-];
+]);
 const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
 class Scorer {
     isReady = false; // Set to true when the scorer is ready to score
@@ -139,7 +139,7 @@ class Scorer {
             const outlierExponent = 1 / outlierDampener;
             let weightedScore = rawScore * (userWeights[scorer.name] ?? 0);
             // Apply the TRENDING modifier
-            if (TRENDING_WEIGHTS.includes(scorer.name)) {
+            if (TRENDING_WEIGHTS.has(scorer.name)) {
                 weightedScore *= trendingMultiplier;
             }
             // Outlier dampener of 2 means take the square root of the score, 3 means cube root, etc.

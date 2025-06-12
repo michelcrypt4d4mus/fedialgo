@@ -27,11 +27,11 @@ import {
 const LOG_PREFIX = "Scorer";
 const SCORE_MUTEX = new Mutex();
 
-const TRENDING_WEIGHTS = [
+const TRENDING_WEIGHTS = new Set([
     ScoreName.TRENDING_LINKS,
     ScoreName.TRENDING_TAGS,
     ScoreName.TRENDING_TOOTS,
-];
+]);
 
 const scoreLogger = new Logger(LOG_PREFIX, "scoreToots");
 
@@ -169,7 +169,7 @@ export default abstract class Scorer {
                 let weightedScore = rawScore * (userWeights[scorer.name] ?? 0);
 
                 // Apply the TRENDING modifier
-                if (TRENDING_WEIGHTS.includes(scorer.name)) {
+                if (TRENDING_WEIGHTS.has(scorer.name)) {
                     weightedScore *= trendingMultiplier;
                 }
 

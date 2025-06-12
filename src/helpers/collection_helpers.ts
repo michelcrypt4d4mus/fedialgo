@@ -129,7 +129,7 @@ export async function batchMap<T>(
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
- * @param {Logger} logger - Label for logging.
+ * @param {Logger} logger - Logger to use for warnings.
  */
 export function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void {
     const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
@@ -187,29 +187,6 @@ export function countValues<T>(
         },
         {} as StringNumberDict
     );
-};
-
-
-/**
- * Divides the values of dict1 by the values of dict2, returning a new dict.
- * @param {StringNumberDict} dict1 - Numerator dictionary.
- * @param {StringNumberDict} dict2 - Denominator dictionary.
- * @returns {StringNumberDict} The result dictionary.
- */
-export function divideDicts(dict1: StringNumberDict, dict2: StringNumberDict): StringNumberDict {
-    const result: StringNumberDict = {};
-    const logger = new Logger("divideDicts()");
-
-    Object.keys(dict1).forEach((key) => {
-        if (dict2[key]) {
-            result[key] = dict1[key] / dict2[key];
-        } else {
-            logger.warn(`divideDicts() - key "${key}" had value "${dict2[key]}", skipping division`);
-            result[key] = 0;
-        }
-    });
-
-    return result;
 };
 
 

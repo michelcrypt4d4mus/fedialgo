@@ -1,16 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.traceLog = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
+exports.WaitTime = exports.lockExecution = exports.TRIGGER_FEED = exports.PREP_SCORERS = exports.BACKFILL_FEED = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
-const environment_helpers_1 = require("../helpers/environment_helpers");
 const logger_1 = require("./logger");
-const string_helpers_1 = require("./string_helpers");
 // Log prefixes
 exports.BACKFILL_FEED = "triggerHomeTimelineBackFill";
 exports.PREP_SCORERS = "prepareScorers";
 exports.TRIGGER_FEED = "triggerFeedUpdate";
-// Lock a Semaphore or Mutex and log the time it took to acquire the lock
+/**
+ * Lock a Semaphore or Mutex and log the time it took to acquire the lock
+ * @param {Mutex | Semaphore} locker - The lock to acquire
+ * @param {Logger} [logger] - Optional logger to use; defaults to a new Logger instance
+ * @returns {Promise<ConcurrencyLockRelease>} A promise that resolves to a function to release the lock
+ */
 async function lockExecution(locker, logger) {
     logger ||= new logger_1.Logger("lockExecution");
     logger.deep(`lockExecution called...`);
@@ -37,20 +40,6 @@ async function lockExecution(locker, logger) {
     return releaseLock;
 }
 exports.lockExecution = lockExecution;
-;
-// Log only if FEDIALGO_DEBUG env var is set to "true"
-// Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
-function traceLog(msg, ...args) {
-    if (!environment_helpers_1.isDebugMode)
-        return;
-    if (args.length > 0) {
-        if (typeof args[0] == 'string') {
-            msg = (0, string_helpers_1.prefixed)(msg, args.shift());
-        }
-    }
-    console.debug(msg, ...args);
-}
-exports.traceLog = traceLog;
 ;
 // Helper class for telemetry
 class WaitTime {

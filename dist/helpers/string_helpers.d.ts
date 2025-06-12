@@ -21,25 +21,23 @@ export declare const isEmptyStr: (s: string | null | undefined) => boolean;
 export declare const at: (str: string) => string;
 /** "foo" => "<foo>" */
 export declare const arrowed: (str: string) => string;
-/** [Bracketed] */
+/** "string" => "[string]" */
 export declare const bracketed: (str: string) => string;
-/** Prefix a string with [Brackets] and a space */
-export declare const prefixed: (prefix: string, msg: string) => string;
-/** Doublequotes */
+/** 'string' => '"string"' */
 export declare const quoted: (str: string | null) => string;
 /** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 export declare const suffixedInt: (n: number) => string;
-/** Collapse whitespace in a string */
+/** Collapse all whitespace in a string to single spaces. */
 export declare const collapseWhitespace: (str: string) => string;
 /** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
 export declare const removeDiacritics: (str: string) => string;
-/** Remove any emojis */
+/** Remove any emojis from string. */
 export declare const removeEmojis: (str: string) => string;
-/** Remove https links from string */
+/** Remove https links from string. */
 export declare const removeLinks: (str: string) => string;
-/** Remove @username@domain from string */
+/** Remove "@username@domain" style strings from string */
 export declare const removeMentions: (str: string) => string;
-/** Remove all hashtags from string */
+/** Remove all hashtags ("#someHashtag") from string. */
 export declare const removeTags: (str: string) => string;
 /**
  * Returns a string representation of a number of bytes in bytes, kilobytes, or megabytes.
@@ -90,6 +88,15 @@ export declare function htmlToText(html: string): string;
  * @returns {string[]} Array of paragraph strings.
  */
 export declare function htmlToParagraphs(html: string): string[];
+/**
+ * If object is not null or undefined return the result of suffixFxn(obj) with a leading space.
+ * @template T
+ * @param {T} obj - Object to check.
+ * @param {string|function(T): string} [toSuffix] - Function to generate the suffix from the object.
+ * @param {boolean} [noSpace=false] - If true, do not add a leading space to the suffix.
+ * @returns {string}
+ */
+export declare function optionalSuffix<T>(obj: T, toSuffix?: ((obj: T) => string) | string, noSpace?: boolean): string;
 /**
  * Returns the ordinal suffix for a given integer (e.g., 1 => "st", 2 => "nd").
  * @param {number} n - The number to get the ordinal suffix for.

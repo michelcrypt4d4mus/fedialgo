@@ -61,26 +61,24 @@ export const isEmptyStr = (s: string | null | undefined) => isNil(s) || isEmpty(
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
 /** "foo" => "<foo>" */
 export const arrowed = (str: string): string => str.startsWith('<') ? str : `<${str}>`;
-/** [Bracketed] */
+/** "string" => "[string]" */
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
-/** Prefix a string with [Brackets] and a space */
-export const prefixed = (prefix: string, msg: string) => `${bracketed(prefix)} ${msg}`;
-/** Doublequotes */
+/** 'string' => '"string"' */
 export const quoted = (str: string | null): string => isNil(str) ? NULL : `"${str}"`;
 /** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 export const suffixedInt = (n: number): string => `${n}${ordinalSuffix(n)}`;
 
-/** Collapse whitespace in a string */
+/** Collapse all whitespace in a string to single spaces. */
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
 /** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
 export const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-/** Remove any emojis */
+/** Remove any emojis from string. */
 export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");
-/** Remove https links from string */
+/** Remove https links from string. */
 export const removeLinks = (str: string) => str.replace(LINK_REGEX, " ");
-/** Remove @username@domain from string */
+/** Remove "@username@domain" style strings from string */
 export const removeMentions = (str: string) => str.replace(ACCOUNT_MENTION_REGEX, " ");
-/** Remove all hashtags from string */
+/** Remove all hashtags ("#someHashtag") from string. */
 export const removeTags = (str: string) => str.replace(HAHSTAG_REGEX, " ");
 
 
@@ -193,6 +191,24 @@ export function htmlToText(html: string): string {
 export function htmlToParagraphs(html: string): string[] {
     if (!(html.includes("</p>") || html.includes("</P>"))) return [html];
     return html.split(/<\/p>/i).filter(p => p.length).map(p => `${p}</p>`);
+};
+
+
+
+/**
+ * If object is not null or undefined return the result of suffixFxn(obj) with a leading space.
+ * @template T
+ * @param {T} obj - Object to check.
+ * @param {string|function(T): string} [toSuffix] - Function to generate the suffix from the object.
+ * @param {boolean} [noSpace=false] - If true, do not add a leading space to the suffix.
+ * @returns {string}
+ */
+export function optionalSuffix<T>(obj: T, toSuffix?: ((obj: T) => string) | string, noSpace?: boolean): string {
+    if (isNil(obj)) return "";
+    toSuffix ??= (o: T) => `${o}`;
+    let suffix = typeof toSuffix === 'string' ? toSuffix : toSuffix(obj);
+    suffix = noSpace ? suffix : ` ${suffix}`;
+    return isEmptyStr(suffix) ? "" : suffix;
 };
 
 

@@ -6,17 +6,17 @@ import { camelCase } from "change-case";
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
-import Account from "./objects/account";
 import MastoApi from "./api";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { CacheKey, TagTootsCacheKey } from "../enums";
-import { config, FEDIVERSE_CACHE_KEYS } from "../config";
 import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
+import { FEDIVERSE_CACHE_KEYS, config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
+import { optionalSuffix } from "../helpers/string_helpers";
 import { TrendingType, buildCacheKeyDict } from '../enums';
 import {
     decorateLinkHistory,
@@ -55,7 +55,6 @@ interface FetchTrendingProps<T extends TrendingObj> {
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
  * aggregating and processing trending data across multiple servers in the fediverse.
- *
  * @class
  * @property {string} domain - The domain of the server this MastodonServer object interacts with.
  * @property {Logger} logger - Logger instance for this server.
@@ -412,7 +411,7 @@ export default class MastodonServer {
     }
 
     private endpointUrl(endpoint: string, limit?: number) {
-        return `https://${this.domain}/${endpoint}` + (limit ? `?limit=${limit}` : '');
+        return `https://${this.domain}/${endpoint}${optionalSuffix(limit, `?limit=${limit}`, true)}`;
     }
 
     // Returns true if the domain is known to not provide MAU and trending data via public API

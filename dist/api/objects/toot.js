@@ -553,7 +553,7 @@ class Toot {
             tags = this.trendingTags || [];
         }
         else {
-            tootLogger.warn(`${(0, string_helpers_1.arrowed)('containsTagsOfTypeMsg()')} called with invalid tagType: ${tagType}`);
+            tootLogger.warn(`containsTagsOfTypeMsg() called with invalid tagType: ${tagType}`);
             return;
         }
         if (!tags.length)
@@ -578,7 +578,7 @@ class Toot {
     contentWithCard() {
         if (!this.contentCache[TootCacheKey.CONTENT_WITH_CARD]) {
             const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-            const txt = (this.contentString() + (cardContent.length ? ` (${(0, string_helpers_1.htmlToText)(cardContent)})` : "")).trim();
+            const txt = (this.contentString() + (0, string_helpers_1.optionalSuffix)(cardContent, string_helpers_1.htmlToText)).trim();
             this.contentCache[TootCacheKey.CONTENT_WITH_CARD] = (0, string_helpers_1.removeDiacritics)(txt);
         }
         return this.contentCache[TootCacheKey.CONTENT_WITH_CARD];

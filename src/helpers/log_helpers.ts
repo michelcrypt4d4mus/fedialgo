@@ -5,9 +5,7 @@ import { Mutex, Semaphore } from 'async-mutex';
 
 import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
 import { config } from '../config';
-import { isDebugMode } from '../helpers/environment_helpers';
 import { Logger } from './logger';
-import { prefixed } from './string_helpers';
 import { type ConcurrencyLockRelease } from '../types';
 
 // Log prefixes
@@ -16,7 +14,12 @@ export const PREP_SCORERS = "prepareScorers";
 export const TRIGGER_FEED = "triggerFeedUpdate";
 
 
-// Lock a Semaphore or Mutex and log the time it took to acquire the lock
+/**
+ * Lock a Semaphore or Mutex and log the time it took to acquire the lock
+ * @param {Mutex | Semaphore} locker - The lock to acquire
+ * @param {Logger} [logger] - Optional logger to use; defaults to a new Logger instance
+ * @returns {Promise<ConcurrencyLockRelease>} A promise that resolves to a function to release the lock
+ */
 export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger): Promise<ConcurrencyLockRelease> {
     logger ||= new Logger("lockExecution");
     logger.deep(`lockExecution called...`);
@@ -43,21 +46,6 @@ export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger):
     }
 
     return releaseLock;
-};
-
-
-// Log only if FEDIALGO_DEBUG env var is set to "true"
-// Assumes if there's multiple args and the 2nd one is a string the 1st one is a prefix.
-export function traceLog(msg: string, ...args: any[]): void {
-    if (!isDebugMode) return;
-
-    if (args.length > 0) {
-        if (typeof args[0] == 'string') {
-            msg = prefixed(msg, args.shift() as string);
-        }
-    }
-
-    console.debug(msg, ...args);
 };
 
 

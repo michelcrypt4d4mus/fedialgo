@@ -179,7 +179,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     // Lowercase the name and set the regex property if it doesn't exist.
     private completeObjWithTootCounts(obj: T): void {
         obj.name = obj.name.toLowerCase();
-        obj.regex ||= wordRegex(obj.name);
+        obj.regex ??= wordRegex(obj.name);
     };
 
     // Return a dictionary of tag names to tags
@@ -193,4 +193,8 @@ export default class ObjWithCountList<T extends NamedTootCount> {
 
 
 // TODO: This has to be here for circular dependency reasons
+/**
+ * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
+ * @augments ObjWithCountList
+ */
 export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};

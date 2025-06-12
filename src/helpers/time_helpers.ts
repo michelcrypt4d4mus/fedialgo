@@ -7,7 +7,7 @@ import { NULL, quoted} from "./string_helpers";
 type DateArg = Date | number | string | null | undefined;
 
 // TODO: use the formatting functions, don't do date lookup manually
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 
 

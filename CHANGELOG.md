@@ -1,5 +1,8 @@
 # NEXT RELEASE
-* JSDoc comments for string_helpers and Logger
+
+### v0.70.2
+* Export `optionalSuffix()`
+* JSDoc comments for `string_helpers.ts` and `Logger`
 
 ### v0.70.1
 * Remove default for `getRechartsStatsData(numPercentiles)`
