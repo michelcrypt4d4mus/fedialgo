@@ -611,7 +611,7 @@ class TheAlgorithm {
         }
         this.loadStartedAt = null;
         this.loadingStatus = null;
-        this.launchBackgroundPoller();
+        this.launchBackgroundPollers();
     }
     // Simple wrapper for triggering fetchHomeFeed()
     async getHomeTimeline(moreOldToots) {
@@ -622,7 +622,7 @@ class TheAlgorithm {
     }
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage
-    launchBackgroundPoller() {
+    launchBackgroundPollers() {
         this.enableMoarDataBackgroundPoller();
         // The cache updater writes the current state of the feed to storage every few seconds
         // to capture changes to the alreadyShown state of toots.

@@ -65,11 +65,15 @@ export declare function createRandomString(length: number): string;
  */
 export declare function determineMediaCategory(uri: string | null | undefined): MediaCategory | undefined;
 /**
- * Extracts the domain from a URL string (e.g., "http://www.mast.ai/foobar" => "mast.ai").
- * @param {string} url - The URL to extract the domain from.
+ * Extracts the domain from a URL string.
+ * Examples:
+ *   "http://www.mast.ai/foobar" => "mast.ai"
+ *   "example.com/path" => "example.com"
+ *   "localhost:3000" => "localhost"
+ * @param {string} inUrl - The URL to extract the domain from.
  * @returns {string} The extracted domain, or an empty string if not found.
  */
-export declare function extractDomain(url: string): string;
+export declare function extractDomain(inUrl: string): string;
 /**
  * Takes the MD5 hash of a JavaScript object, number, or string.
  * @param {object | number | string} obj - The object, number, or string to hash.

@@ -200,7 +200,7 @@ declare class TheAlgorithm {
     private filterFeedAndSetInApp;
     private finishFeedUpdate;
     private getHomeTimeline;
-    private launchBackgroundPoller;
+    private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;
     private logTelemetry;

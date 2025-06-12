@@ -97,7 +97,10 @@ class MastoApi {
      * @returns {Promise<void>} Resolves when initialization is complete.
      */
     static async init(api, user) {
-        if (MastoApi.#instance) {
+        if (!(user.webfingerURI?.includes('@'))) {
+            apiLogger.logAndThrowError(`MastoApi.init() called with user without webfingerURI!`, user);
+        }
+        else if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
@@ -123,7 +126,7 @@ class MastoApi {
     constructor(api, user) {
         this.api = api;
         this.user = user;
-        this.homeDomain = (0, string_helpers_1.extractDomain)(user.url);
+        this.homeDomain = user.homeserver;
         this.reset();
     }
     /**
@@ -512,16 +515,14 @@ class MastoApi {
     async resolveToot(toot) {
         const logger = getLogger('resolveToot()', toot.realURI);
         logger.trace(`called for`, toot);
-        const tootURI = toot.realURI;
-        const urlDomain = (0, string_helpers_1.extractDomain)(tootURI);
-        if (urlDomain == this.homeDomain)
+        if (toot.isLocal)
             return toot;
-        const lookupResult = await this.api.v2.search.list({ q: tootURI, resolve: true });
+        const lookupResult = await this.api.v2.search.list({ q: toot.realURI, resolve: true });
         if (!lookupResult?.statuses?.length) {
-            logger.logAndThrowError(`Got bad result for "${tootURI}"`, lookupResult);
+            logger.logAndThrowError(`Got bad result for "${toot.realURI}"`, lookupResult);
         }
         const resolvedStatus = lookupResult.statuses[0];
-        logger.trace(`found resolvedStatus for "${tootURI}":`, resolvedStatus);
+        logger.trace(`found resolvedStatus for "${toot.realURI}":`, resolvedStatus);
         return toot_1.default.build(resolvedStatus);
     }
     /**
@@ -574,6 +575,14 @@ class MastoApi {
      */
     accountUrl(account) {
         return account.homeserver == this.homeDomain ? account.url : this.endpointURL(`@${account.webfingerURI}`);
+    }
+    /**
+     * Returns true if the URL is a local URL on the Feialgo user's home server.
+     * @param {string} url - URL to check
+     * @returns {boolean}
+     */
+    isLocalUrl(url) {
+        return (0, string_helpers_1.extractDomain)(url) == this.homeDomain;
     }
     /**
      * Returns the URL for a tag on the Feialgo user's home server.

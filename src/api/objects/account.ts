@@ -50,6 +50,7 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
  * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
  * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
@@ -102,7 +103,8 @@ export default class Account implements AccountObj {
     }
 
     get description(): string { return `${this.displayName} (${this.webfingerURI})` };
-    get homeserver(): string { return extractDomain(this.url) || "unknown.server" };
+    get homeserver(): string { return extractDomain(this.url) };
+    get isLocal(): boolean { return MastoApi.instance.isLocalUrl(this.url) };
     get localServerUrl(): string { return MastoApi.instance.accountUrl(this) };
 
     // Returns HTML combining the note property with creation date, followers, and toots count
@@ -125,6 +127,12 @@ export default class Account implements AccountObj {
      * @returns {Account} The constructed Account instance.
      */
     static build(account: AccountLike): Account {
+        const tempAccount = account as Account;
+
+        if (tempAccount.webfingerURI) {
+            logger.trace(`Account.build() called with webfingerURI already set, description="${tempAccount.description}"`, tempAccount);
+        }
+
         const accountObj = new Account();
         accountObj.id = account.id;
         accountObj.username = account.username;

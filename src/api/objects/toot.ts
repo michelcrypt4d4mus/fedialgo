@@ -190,6 +190,7 @@ interface TootObj extends SerializableToot {
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
+ * @property {boolean} isLocal - True if this toot is from a user on the FediAlgo user's home server
  * @property {boolean} isPrivate - True if it's for followers only.
  * @property {boolean} isTrending - True if it's a trending toot or contains any trending hashtags or links.
  * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
@@ -272,6 +273,7 @@ export default class Toot implements TootObj {
     get author(): Account { return this.realToot.account };
     get isDM(): boolean { return this.visibility === TootVisibility.DIRECT_MSG };
     get isFollowed(): boolean { return !!(this.accounts.some(a => a.isFollowed) || this.realToot.followedTags?.length) };
+    get isLocal(): boolean { return MastoApi.instance.isLocalUrl(this.realURI) };
     get isPrivate(): boolean { return this.visibility === TootVisibility.PRIVATE };
     get isTrending(): boolean { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length) };
     get popularity() { return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]) };
@@ -841,7 +843,7 @@ export default class Toot implements TootObj {
         // Repair StatusMention.acct field for users on the home server by appending @serverDomain
         this.mentions.forEach((mention) => {
             if (mention.acct && !mention.acct.includes("@")) {
-                mention.acct += `@${extractDomain(mention.url)}`;
+                mention.acct += at(extractDomain(mention.url));
             }
         })
     }

@@ -75,6 +75,7 @@ interface TootObj extends SerializableToot {
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
+ * @property {boolean} isLocal - True if this toot is from a user on the FediAlgo user's home server
  * @property {boolean} isPrivate - True if it's for followers only.
  * @property {boolean} isTrending - True if it's a trending toot or contains any trending hashtags or links.
  * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
@@ -151,6 +152,7 @@ export default class Toot implements TootObj {
     get author(): Account;
     get isDM(): boolean;
     get isFollowed(): boolean;
+    get isLocal(): boolean;
     get isPrivate(): boolean;
     get isTrending(): boolean;
     get popularity(): number;

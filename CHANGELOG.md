@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Add isLocal getters to Account and Toot objects, improve extractDomain() helper method
+* Add isLocalUrl() method to MastoApi
 
 ### v0.70.2
 * Export `optionalSuffix()`

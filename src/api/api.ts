@@ -174,6 +174,7 @@ const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging
 const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetch", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
+
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
 const apiLogger = getLogger();
@@ -213,7 +214,9 @@ export default class MastoApi {
      * @returns {Promise<void>} Resolves when initialization is complete.
      */
     static async init(api: mastodon.rest.Client, user: Account): Promise<void> {
-        if (MastoApi.#instance) {
+        if (!(user.webfingerURI?.includes('@'))) {
+            apiLogger.logAndThrowError(`MastoApi.init() called with user without webfingerURI!`, user);
+        } else if (MastoApi.#instance) {
             apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
@@ -241,7 +244,7 @@ export default class MastoApi {
     private constructor(api: mastodon.rest.Client, user: Account) {
         this.api = api;
         this.user = user;
-        this.homeDomain = extractDomain(user.url);
+        this.homeDomain = user.homeserver;
         this.reset();
     }
 
@@ -665,17 +668,15 @@ export default class MastoApi {
     async resolveToot(toot: Toot): Promise<Toot> {
         const logger = getLogger('resolveToot()', toot.realURI);
         logger.trace(`called for`, toot);
-        const tootURI = toot.realURI;
-        const urlDomain = extractDomain(tootURI);
-        if (urlDomain == this.homeDomain) return toot;
-        const lookupResult = await this.api.v2.search.list({q: tootURI, resolve: true});
+        if (toot.isLocal) return toot;
+        const lookupResult = await this.api.v2.search.list({q: toot.realURI, resolve: true});
 
         if (!lookupResult?.statuses?.length) {
-            logger.logAndThrowError(`Got bad result for "${tootURI}"`, lookupResult);
+            logger.logAndThrowError(`Got bad result for "${toot.realURI}"`, lookupResult);
         }
 
         const resolvedStatus = lookupResult.statuses[0];
-        logger.trace(`found resolvedStatus for "${tootURI}":`, resolvedStatus);
+        logger.trace(`found resolvedStatus for "${toot.realURI}":`, resolvedStatus);
         return Toot.build(resolvedStatus as mastodon.v1.Status);
     }
 
@@ -730,6 +731,15 @@ export default class MastoApi {
      */
     accountUrl(account: Account): string {
         return account.homeserver == this.homeDomain ? account.url : this.endpointURL(`@${account.webfingerURI}`);
+    }
+
+    /**
+     * Returns true if the URL is a local URL on the Feialgo user's home server.
+     * @param {string} url - URL to check
+     * @returns {boolean}
+     */
+    isLocalUrl(url: string): boolean {
+        return extractDomain(url) == this.homeDomain;
     }
 
     /**
