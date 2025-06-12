@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add ability to filter by originating server
 * Don't sort `Toot` objects twice in `buildToots()`
 
 ### v0.70.5
@@ -11,7 +12,7 @@
 * Uniquify `Account` objects by `url`, not by `id` (IDs are only unique across a single server)
 
 ### v0.70.2
-* Export `optionalSuffix()`
+* Export `optionalSuffix()` helper
 * JSDoc comments for `string_helpers.ts` and `Logger`
 
 ### v0.70.1

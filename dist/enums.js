@@ -127,11 +127,12 @@ var TrendingType;
  */
 var BooleanFilterName;
 (function (BooleanFilterName) {
+    BooleanFilterName["APP"] = "app";
     BooleanFilterName["HASHTAG"] = "hashtag";
     BooleanFilterName["LANGUAGE"] = "language";
+    BooleanFilterName["SERVER"] = "server";
     BooleanFilterName["TYPE"] = "type";
     BooleanFilterName["USER"] = "user";
-    BooleanFilterName["APP"] = "app";
 })(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
 ;
 /**

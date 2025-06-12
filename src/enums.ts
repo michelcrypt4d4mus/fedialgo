@@ -125,11 +125,12 @@ export enum TrendingType {
  * @enum {string}
  */
 export enum BooleanFilterName {
+    APP = 'app',
     HASHTAG = 'hashtag',
     LANGUAGE = 'language',
+    SERVER = 'server',
     TYPE = 'type',
     USER = 'user',
-    APP = 'app'
 };
 
 /**

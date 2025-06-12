@@ -139,6 +139,7 @@ async function updateBooleanFilterOptions(filters, toots) {
         const decorateThisAccount = (option) => decorateAccount(option, toot.author);
         optionLists[enums_1.BooleanFilterName.USER].incrementCount(toot.author.webfingerURI, decorateThisAccount);
         optionLists[enums_1.BooleanFilterName.APP].incrementCount(toot.realToot.application.name);
+        optionLists[enums_1.BooleanFilterName.SERVER].incrementCount(toot.homeserver);
         optionLists[enums_1.BooleanFilterName.LANGUAGE].incrementCount(toot.realToot.language, decorateLanguage);
         // Aggregate counts for each kind ("type") of toot
         Object.entries(boolean_filter_1.TYPE_FILTERS).forEach(([name, typeFilter]) => {

@@ -73,6 +73,7 @@ interface TootObj extends SerializableToot {
  * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
  * @property {string} description - A string describing the toot, including author, content, and createdAt.
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot.
+ * @property {string} homeserver - The homeserver of the author of the toot.
  * @property {boolean} isDM - True if the toot is a direct message (DM) to the user.
  * @property {boolean} isFollowed - True if this toot is from a followed account or contains a followed tag.
  * @property {boolean} isLocal - True if this toot is from the FediAlgo user's home server.
@@ -150,6 +151,7 @@ export default class Toot implements TootObj {
     get ageInHours(): number;
     get allEmojis(): mastodon.v1.CustomEmoji[];
     get author(): Account;
+    get homeserver(): string;
     get isDM(): boolean;
     get isFollowed(): boolean;
     get isLocal(): boolean;
