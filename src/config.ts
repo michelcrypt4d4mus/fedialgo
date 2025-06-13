@@ -141,7 +141,24 @@ interface ConfigType {
 };
 
 
-// App level config that is not user configurable
+/**
+ * Centralized application configuration class for non-user configurable settings.
+ *
+ * The Config class provides strongly-typed, centralized access to all core settings for API requests,
+ * locale, scoring, trending, and fediverse-wide data. It includes logic for environment-specific overrides
+ * (debug, quick load, load test), validation of config values, and locale/language management.
+ *
+ * @class
+ * @implements {ConfigType}
+ * @property {ApiConfig} api - API request and caching configuration.
+ * @property {TagTootsConfig} favouritedTags - Settings for favourited tags and related toot fetching.
+ * @property {FediverseConfig} fediverse - Fediverse-wide server and trending configuration.
+ * @property {LocaleConfig} locale - Locale, language, and country settings.
+ * @property {ParticipatedTagsConfig} participatedTags - Settings for user's participated tags.
+ * @property {ScoringConfig} scoring - Scoring and weighting configuration for toots and tags.
+ * @property {TootsConfig} toots - Timeline and toot cache configuration.
+ * @property {TrendingConfig} trending - Trending data configuration for links, tags, and toots.
+ */
 class Config implements ConfigType {
     api = {
         backgroundLoadSleepBetweenRequestsMS: 1_500, // How long to wait between API requests during backgrund load
@@ -454,12 +471,17 @@ class Config implements ConfigType {
         },
     }
 
+    /** Construct a new Config instance, validate it, and logs the validated config. */
     constructor() {
         this.validate(this);
         console.debug(`${LOG_PREFIX} validated:`, this);
     };
 
-    // Compute min value for FEDIVERSE_CACHE_KEYS minutesUntilStale
+    /**
+     * Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
+     * Warns if any required keys are missing a value.
+     * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
+     */
     minTrendingMinutesUntilStale(): number {
         const trendStalenesses = FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
 
@@ -471,7 +493,11 @@ class Config implements ConfigType {
         }
     }
 
-    // Set the locale, language, and country if we have anything configured to support that language
+    /**
+     * Sets the locale, language, and country for the application if supported.
+     * Falls back to defaults if the locale is invalid or unsupported.
+     * @param {string} [locale] - The locale string (e.g., "en-CA").
+     */
     setLocale(locale?: string): void {
         locale ??= DEFAULT_LOCALE;
 
@@ -493,7 +519,12 @@ class Config implements ConfigType {
         }
     }
 
-    // Check for NaN values in number fields and emptry strings in string fields
+    /**
+     * Validates config values for correctness (e.g., checks for NaN or empty strings).
+     * Throws an error if invalid values are found.
+     * @private
+     * @param {ConfigType | object} [cfg] - The config object or sub-object to validate.
+     */
     private validate(cfg?: ConfigType | object): void {
         if (!cfg) {
             if (!this.api.data[CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes) {
