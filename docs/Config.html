@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FediAlgo Class: UserData</title>
+    <title>FediAlgo Class: Config</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: UserData</h1>
+    <h1 class="page-title">Class: Config</h1>
 
     
 
@@ -28,15 +28,13 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>UserData<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Config<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Represents background and scoring-related data about the current Fedialgo user.
-Used as a central source of user context for scoring, filtering, and personalization.
+            <div class="class-description">Centralized application configuration class for non-user configurable settings.
 
-This class aggregates and manages user-related data such as favourited accounts, followed tags,
-muted accounts, languages posted in, and server-side filters. It provides methods to build user data
-from the Mastodon API or from raw API data, and supports updating, counting, and filtering operations
-for use in scoring and filtering algorithms.</div>
+The Config class provides strongly-typed, centralized access to all core settings for API requests,
+locale, scoring, trending, and fediverse-wide data. It includes logic for environment-specific overrides
+(debug, quick load, load test), validation of config values, and locale/language management.</div>
         
     
 </header>
@@ -51,12 +49,16 @@ for use in scoring and filtering algorithms.</div>
     
 
     
-    <h4 class="name" id="UserData"><span class="type-signature"></span>new UserData<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Config"><span class="type-signature"></span>new Config<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
 
 
+
+<div class="description">
+    Construct a new Config instance, validate it, and logs the validated config.
+</div>
 
 
 
@@ -96,13 +98,13 @@ for use in scoring and filtering algorithms.</div>
 
         <tr>
             
-                <td class="name"><code>blockedDomains</code></td>
+                <td class="name"><code>api</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Set.&lt;string></span>
+<span class="param-type">ApiConfig</span>
 
 
             
@@ -112,30 +114,7 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">Set of domains the user has blocked.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>favouriteAccounts</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Accounts the user has favourited, retooted, or replied to.</td>
+            <td class="description last">API request and caching configuration.</td>
         </tr>
 
     
@@ -148,7 +127,7 @@ for use in scoring and filtering algorithms.</div>
             <td class="type">
             
                 
-<span class="param-type"><a href="TagList.html">TagList</a></span>
+<span class="param-type">TagTootsConfig</span>
 
 
             
@@ -158,20 +137,20 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">List of tags the user has favourited.</td>
+            <td class="description last">Settings for favourited tags and related toot fetching.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>followedAccounts</code></td>
+                <td class="name"><code>fediverse</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">StringNumberDict</span>
+<span class="param-type">FediverseConfig</span>
 
 
             
@@ -181,20 +160,20 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">Dictionary of accounts the user follows, keyed by account name.</td>
+            <td class="description last">Fediverse-wide server and trending configuration.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>followedTags</code></td>
+                <td class="name"><code>locale</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="TagList.html">TagList</a></span>
+<span class="param-type">LocaleConfig</span>
 
 
             
@@ -204,76 +183,7 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">List of tags the user follows.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>languagesPostedIn</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">ObjList</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">List of languages the user has posted in, with usage counts.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>mutedAccounts</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">AccountNames</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Dictionary of accounts the user has muted or blocked, keyed by Account["webfingerURI"].</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>mutedKeywordsRegex</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">RegExp</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Cached regex for muted keywords, built from server-side filters.</td>
+            <td class="description last">Locale, language, and country settings.</td>
         </tr>
 
     
@@ -286,7 +196,7 @@ for use in scoring and filtering algorithms.</div>
             <td class="type">
             
                 
-<span class="param-type"><a href="TagList.html">TagList</a></span>
+<span class="param-type">ParticipatedTagsConfig</span>
 
 
             
@@ -296,20 +206,20 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">List of tags the user has participated in.</td>
+            <td class="description last">Settings for user's participated tags.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>preferredLanguage</code></td>
+                <td class="name"><code>scoring</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">ScoringConfig</span>
 
 
             
@@ -319,20 +229,20 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">The user's preferred language (ISO code).</td>
+            <td class="description last">Scoring and weighting configuration for toots and tags.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>serverSideFilters</code></td>
+                <td class="name"><code>toots</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;mastodon.v2.Filter></span>
+<span class="param-type">TootsConfig</span>
 
 
             
@@ -342,7 +252,30 @@ for use in scoring and filtering algorithms.</div>
 
             
 
-            <td class="description last">Array of server-side filters set by the user.</td>
+            <td class="description last">Timeline and toot cache configuration.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>trending</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">TrendingConfig</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Trending data configuration for links, tags, and toots.</td>
         </tr>
 
     
@@ -364,6 +297,13 @@ for use in scoring and filtering algorithms.</div>
 
     
 
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li>ConfigType</li>
+        
+    </ul></dd>
     
 
     
@@ -434,7 +374,7 @@ for use in scoring and filtering algorithms.</div>
     
 
     
-    <h4 class="name" id=".getMutedKeywords"><span class="type-signature">(async, static) </span>getMutedKeywords<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;string>>}</span></h4>
+    <h4 class="name" id="minTrendingMinutesUntilStale"><span class="type-signature"></span>minTrendingMinutesUntilStale<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
     
 
     
@@ -442,7 +382,8 @@ for use in scoring and filtering algorithms.</div>
 
 
 <div class="description">
-    Get an array of keywords the user has muted on the server side
+    Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
+Warns if any required keys are missing a value.
 </div>
 
 
@@ -510,7 +451,7 @@ for use in scoring and filtering algorithms.</div>
 
         
 <div class="param-desc">
-    An array of muted keywords.
+    The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
 </div>
 
 
@@ -521,7 +462,7 @@ for use in scoring and filtering algorithms.</div>
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;Array.&lt;string>></span>
+<span class="param-type">number</span>
 
 
     </dd>
@@ -541,7 +482,7 @@ for use in scoring and filtering algorithms.</div>
     
 
     
-    <h4 class="name" id=".getMutedKeywordsRegex"><span class="type-signature">(async, static) </span>getMutedKeywordsRegex<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;RegExp>}</span></h4>
+    <h4 class="name" id="setLocale"><span class="type-signature"></span>setLocale<span class="signature">(locale<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -549,7 +490,8 @@ for use in scoring and filtering algorithms.</div>
 
 
 <div class="description">
-    Build a regex that matches any of the user's muted keywords.
+    Sets the locale, language, and country for the application if supported.
+Falls back to defaults if the locale is invalid or unsupported.
 </div>
 
 
@@ -558,6 +500,67 @@ for use in scoring and filtering algorithms.</div>
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>locale</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The locale string (e.g., "en-CA").</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -613,28 +616,6 @@ for use in scoring and filtering algorithms.</div>
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    A RegExp that matches any of the user's muted keywords.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;RegExp></span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
