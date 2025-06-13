@@ -1,6 +1,9 @@
 # NEXT RELEASE
-* Add lastCompletedAt() getter to Toot and compare lastEditedAt to completedAt when evaluating Toot completeness
-* Sort Toots most recent first when de-duping properties
+
+### v0.72.2
+* Add `lastEditedAt` getter to `Toot` and compare it to `completedAt` when evaluating `Toot` completeness so as to catch edits
+* Bust `Toot`'s `contentCache` at build time if Toot's `editedAt` property exists
+* Sort `Toot`s most recent first when de-duping properties
 
 ### v0.72.1
 * Fix bug when `DiversityFeedScorer` tries to build `scoringData` before `toot.trendingTags` is populated
