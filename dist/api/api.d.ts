@@ -109,7 +109,7 @@ export default class MastoApi {
      */
     getBlockedDomains(): Promise<string[]>;
     /**
-     * Generic data getter for cacheable toots with custom fetch logic.
+     * Generic data getter for cacheable Toots with custom fetch logic.
      * Used for various hashtag feeds (participated, trending, favourited).
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
@@ -143,8 +143,8 @@ export default class MastoApi {
     getFollowers(params?: ApiParams): Promise<Account[]>;
     /**
      * Get the public toots on the user's home server (recent toots from users on the same server).
-     * @param params
-     * @returns
+     * @param {ApiParams} params
+     * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
     getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]>;
     /**
