@@ -316,8 +316,8 @@ class MastoApi {
     }
     /**
      * Get the public toots on the user's home server (recent toots from users on the same server).
-     * @param params
-     * @returns
+     * @param {ApiParams} params
+     * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
     async getHomeserverTimelineToots(params) {
         return await this.getApiObjsAndUpdate({
