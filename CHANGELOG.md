@@ -1,7 +1,9 @@
 # NEXT RELEASE
+* Add lastCompletedAt() getter to Toot and compare lastEditedAt to completedAt when evaluating Toot completeness
+* Sort Toots most recent first when de-duping properties
 
 ### v0.72.1
-* Fix bug when DiversityFeedScorer tries to build scoringData before trendingTags is populated
+* Fix bug when `DiversityFeedScorer` tries to build `scoringData` before `toot.trendingTags` is populated
 
 ## v0.72.0
 * Add `MastoApi.getHomeserverTimelineToots()` and integrate local server toots into timeline

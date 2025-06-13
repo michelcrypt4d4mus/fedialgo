@@ -194,6 +194,7 @@ interface TootObj extends SerializableToot {
  * @property {boolean} isLocal - True if this toot is from the FediAlgo user's home server.
  * @property {boolean} isPrivate - True if it's for followers only.
  * @property {boolean} isTrending - True if it's a trending toot or contains any trending hashtags or links.
+ * @property {string} lastEditedAt - The date when the toot was last edited, or createdAt if never edited.
  * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
  * @property {TagWithUsageCounts[]} [participatedTags] - Tags that the user has participated in that exist in this toot
  * @property {number} popularity - Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
@@ -278,6 +279,7 @@ export default class Toot implements TootObj {
     get isLocal(): boolean { return MastoApi.instance.isLocalUrl(this.realURI) };
     get isPrivate(): boolean { return this.visibility === TootVisibility.PRIVATE };
     get isTrending(): boolean { return !!(this.trendingRank || this.trendingLinks?.length || this.trendingTags?.length) };
+    get lastEditedAt(): string { return this.editedAt || this.createdAt };
     get popularity() { return sumArray([this.favouritesCount, this.reblogsCount, this.repliesCount, this.trendingRank]) };
     get realToot(): Toot { return this.reblog ?? this };
     get realURI(): string { return this.realToot.uri };
@@ -303,8 +305,8 @@ export default class Toot implements TootObj {
     }
 
     get description(): string {
-        const msg = `${this.account.description} [${toISOFormat(this.createdAt)}, ID="${this.id}"]`;
-        return `${msg}: "${this.contentShortened()}"`;
+        const msg = `${this.account.description} [url="${this.url || this.uri}"`;
+        return `${msg}, createdAt="${toISOFormat(this.createdAt)}"]: "${this.contentShortened()}"`;
     }
 
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
@@ -316,7 +318,11 @@ export default class Toot implements TootObj {
      * @returns {Toot} The constructed Toot instance.
      */
     static build(toot: SerializableToot | Toot): Toot {
-        if (toot instanceof Toot) return toot;  // Already a Toot instance, just return it
+        if (toot instanceof Toot) {
+            // Clear the cache if the toot was edited // TODO: Probably not the ideal time to clear the cache
+            if (toot.editedAt) toot.contentCache = {};
+            return toot;
+        }
 
         const tootObj = new Toot();
         tootObj.id = toot.id;
@@ -656,7 +662,7 @@ export default class Toot implements TootObj {
         // Only set the completedAt field if isDeepInspect is true  // TODO: might be fast enough to try this again?
         if (isDeepInspect) {
             toot.trendingLinks = trendingLinks.filter(link => toot.matchesRegex(link.regex!));
-            this.completedAt = toot.completedAt = new Date().toISOString(); // Multiple assignmnet!
+            this.completedAt = toot.completedAt = new Date().toISOString(); // Note the multiple assignmnet!
         } else {
             toot.trendingLinks ||= [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
@@ -780,9 +786,11 @@ export default class Toot implements TootObj {
         }
     }
 
-    // Returns true if the toot should be re-completed
+    // Returns true if the toot needs to be (re-)evaluated for trending tags, links, etc.
     private isComplete(): boolean {
-        if (!this.completedAt) return false;  // If we haven't completed it yet, do it now
+        if (!this.completedAt || (this.completedAt < this.lastEditedAt)) {
+            return false;
+        }
 
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
@@ -901,7 +909,7 @@ export default class Toot implements TootObj {
         let completeToots: TootLike[] = [];
         let tootsToComplete = toots;
 
-        // If isDeepInspect separate toots that need completing bc it's slow to rely on shouldComplete() + batching
+        // If isDeepInspect separate toots that need completing bc it's slow to rely on isComplete() + batching
         if (isDeepInspect) {
             [completeToots, tootsToComplete] = (split(toots, (t) => t instanceof Toot && t.isComplete()));
         }
@@ -941,9 +949,10 @@ export default class Toot implements TootObj {
         Object.values(tootsByURI).forEach((uriToots) => {
             if (uriToots.length == 1) return;  // If there's only one toot, nothing to do
 
-            const firstCompleted = uriToots.find(toot => !!toot.realToot.completedAt);
-            const firstScoredToot = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably wrong
-            const firstTrendingRankToot = uriToots.find(toot => !!toot.realToot.trendingRank); // TODO: should probably use most recent toot
+            uriToots.sort((a, b) => (b.lastEditedAt < a.lastEditedAt) ? -1 : 1);
+            const lastCompleted = uriToots.find(toot => !!(toot.realToot.completedAt));
+            const lastScored = uriToots.find(toot => !!toot.scoreInfo); // TODO: this is probably not 100% correct
+            const lastTrendingRank = uriToots.find(toot => !!toot.realToot.trendingRank);
             // Deal with array properties that we want to collate
             const uniqFiltered = this.uniqFlatMap<mastodon.v1.FilterResult>(uriToots, "filtered", (f) => f.filter.id);
             const uniqFollowedTags = this.uniqFlatMap<mastodon.v1.Tag>(uriToots, "followedTags", (t) => t.name);
@@ -971,9 +980,9 @@ export default class Toot implements TootObj {
                 toot.realToot.reblogsCount = propsThatChange.reblogsCount;
                 toot.realToot.repliesCount = propsThatChange.repliesCount;
                 // Props set on first found
-                toot.realToot.completedAt ??= firstCompleted?.completedAt;  // DON'T automatically copy to base toot - some fields may need setting later
-                toot.realToot.trendingRank ??= firstTrendingRankToot?.trendingRank;
-                toot.scoreInfo ??= firstScoredToot?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
+                toot.realToot.completedAt ??= lastCompleted?.realToot.completedAt;
+                toot.realToot.trendingRank ??= lastTrendingRank?.realToot.trendingRank;
+                toot.scoreInfo ??= lastScored?.scoreInfo; // TODO: this is probably wrong... retoot scores could differ but should be corrected
                 // Tags + sources + server side filter matches
                 toot.realToot.followedTags = uniqFollowedTags;
                 toot.realToot.trendingLinks = uniqTrendingLinks;
@@ -990,7 +999,7 @@ export default class Toot implements TootObj {
                 // Reblog props
                 if (toot.reblog) {
                     toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
-                    toot.reblog.completedAt ??= firstCompleted?.completedAt;
+                    toot.reblog.completedAt ??= lastCompleted?.realToot.completedAt;
                     toot.reblog.filtered = uniqFiltered;
                     toot.reblog.reblogsBy = reblogsBy;
                     toot.reblog.sources = uniqSources;
