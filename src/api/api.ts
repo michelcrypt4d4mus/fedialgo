@@ -362,7 +362,7 @@ export default class MastoApi {
     }
 
     /**
-     * Generic data getter for cacheable toots with custom fetch logic.
+     * Generic data getter for cacheable Toots with custom fetch logic.
      * Used for various hashtag feeds (participated, trending, favourited).
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
@@ -395,6 +395,7 @@ export default class MastoApi {
             this.handleApiError({ cacheKey: cacheKey as CacheKey, logger }, [], err);
             return [];
         } finally {
+            this.waitTimes[cacheKey].markEnd();
             releaseMutex();
         }
     }
@@ -1081,7 +1082,7 @@ export default class MastoApi {
         let { cacheKey, logger } = params;
         const cacheResult = params.cacheResult;
         cacheKey ??= CacheKey.HOME_TIMELINE_TOOTS;  // TODO: this is a hack to avoid undefined cacheKey
-        logger ??= getLogger(cacheKey, 'handleApiError');
+        logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
@@ -1144,7 +1145,7 @@ export default class MastoApi {
         const withDefaults: FetchParamsWithDefaults<T> = {
             ...params,
             limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
-            logger: logger || this.loggerForParams(params),
+            logger: logger ?? this.loggerForParams(params),
             maxRecords: maxApiRecords,
             maxCacheRecords: requestDefaults?.maxCacheRecords,
         };
