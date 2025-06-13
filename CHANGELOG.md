@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove empty strings when generating wordsRegex()
 
 ### v0.72.3
 * Fix `UserData.mutedKeywordsRegex` when the user has no server side filters
