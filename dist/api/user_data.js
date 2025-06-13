@@ -62,7 +62,7 @@ const logger = new logger_1.Logger("UserData");
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 class UserData {
-    blockedDomains = new Set([]);
+    blockedDomains = new Set();
     favouriteAccounts = new obj_with_counts_list_1.BooleanFilterOptionList([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts = {};
@@ -72,7 +72,7 @@ class UserData {
     mutedKeywordsRegex; // Cached regex for muted keywords, built from server-side filters
     participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config_1.config.locale.defaultLanguage;
-    serverSideFilters = []; // TODO: currently unused, only here for getCurrentState() by client app
+    serverSideFilters = [];
     lastUpdatedAt;
     // Alternate constructor for the UserData object to build itself from the API (or cache)
     static async build() {

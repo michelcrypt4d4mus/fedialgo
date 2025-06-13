@@ -293,7 +293,7 @@ exports.wordRegex = wordRegex;
  */
 const wordsRegex = (patterns) => {
     if (patterns.length === 0)
-        return /(?:)/; // Empty regex that matches nothing
+        return /<THIS_REGEX_MATCHES_NOTHING>/;
     const escapedPatterns = patterns.map(regexp_escape_1.default).join('|');
     return new RegExp(`\\b(?:${escapedPatterns})\\b`, 'i');
 };

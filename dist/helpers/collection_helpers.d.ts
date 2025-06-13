@@ -1,5 +1,5 @@
 import { Logger } from './logger';
-import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
     rejectedReasons: unknown[];
@@ -241,10 +241,10 @@ export declare function split<T>(array: T[], condition: (element: T) => boolean)
 export declare function subtractConstant(dict: StringNumberDict, constant: number): StringNumberDict;
 /**
  * Sums the elements of an array, treating null/undefined as 0.
- * @param {(number | null | undefined)[]} arr - The array to sum.
+ * @param {OptionalNumber[]} array - The array to sum.
  * @returns {number} The sum.
  */
-export declare function sumArray(arr: (number | null | undefined)[]): number;
+export declare function sumArray(array: OptionalNumber[]): number;
 /**
  * Sums the values of a dictionary.
  * @param {StringNumberDict | Weights} obj - The dictionary.

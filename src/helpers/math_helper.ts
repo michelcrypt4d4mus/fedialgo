@@ -5,9 +5,7 @@ import { isFinite, isNil } from "lodash";
 
 import { byteString } from "./string_helpers";
 import { sumArray } from "./collection_helpers";
-import { type StringNumberDict } from "../types";
-
-type OptionalNumber = number | null | undefined;
+import { type OptionalNumber, type StringNumberDict } from "../types";
 
 const NUMBER_REGEX = /^[\d.]+$/;
 

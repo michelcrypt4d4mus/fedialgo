@@ -58,7 +58,7 @@ interface UserApiData {
  * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
  */
 export default class UserData {
-    blockedDomains: Set<string> = new Set([]);
+    blockedDomains: Set<string> = new Set();
     favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
@@ -68,7 +68,7 @@ export default class UserData {
     mutedKeywordsRegex!: RegExp;  // Cached regex for muted keywords, built from server-side filters
     participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
     preferredLanguage = config.locale.defaultLanguage;
-    serverSideFilters: mastodon.v2.Filter[] = [];  // TODO: currently unused, only here for getCurrentState() by client app
+    serverSideFilters: mastodon.v2.Filter[] = [];
 
     private lastUpdatedAt?: Date | null;
 
