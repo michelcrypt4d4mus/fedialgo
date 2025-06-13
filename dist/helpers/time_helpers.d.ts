@@ -1,4 +1,5 @@
-type DateArg = Date | number | string | null | undefined;
+import { type OptionalString } from "../types";
+type DateArg = Date | OptionalString | number;
 export declare const ageInHours: (date: DateArg, endTime?: DateArg) => number;
 export declare const ageInMinutes: (date: DateArg, endTime?: DateArg) => number;
 export declare const ageInSeconds: (date: DateArg, endTime?: DateArg) => number;

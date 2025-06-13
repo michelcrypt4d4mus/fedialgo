@@ -1,5 +1,5 @@
-import { type StringNumberDict } from '../types';
-type LoggerArg = string | boolean | null | undefined;
+import { type OptionalString, type StringNumberDict } from '../types';
+type LoggerArg = OptionalString | boolean;
 /**
  * Standardized logger for consistent, prefixed, and optionally colorized logging throughout the application.
  * Supports multiple log levels, custom prefixes, telemetry, and error handling utilities.

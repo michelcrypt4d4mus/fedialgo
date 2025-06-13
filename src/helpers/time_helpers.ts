@@ -3,8 +3,9 @@
  */
 import { config, SECONDS_IN_DAY } from "../config";
 import { NULL, quoted} from "./string_helpers";
+import { type OptionalString } from "../types";
 
-type DateArg = Date | number | string | null | undefined;
+type DateArg = Date | OptionalString | number;
 
 // TODO: use the formatting functions, don't do date lookup manually
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;

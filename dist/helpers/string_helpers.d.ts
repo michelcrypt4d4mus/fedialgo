@@ -1,5 +1,6 @@
 import { mastodon } from 'masto';
 import { MediaCategory } from '../enums';
+import { type OptionalString } from '../types';
 export declare const DEFAULT_FONT_SIZE = 15;
 export declare const KILOBYTE = 1024;
 export declare const MEGABYTE: number;
@@ -16,7 +17,7 @@ export declare const alphabetize: (arr: string[]) => string[];
 /** for use with sort() */
 export declare const compareStr: (a: string, b: string) => number;
 /** Check if it's empty (all whitespace or null or undefined) */
-export declare const isEmptyStr: (s: string | null | undefined) => boolean;
+export declare const isEmptyStr: (s: OptionalString) => boolean;
 /** "string" => "@string" */
 export declare const at: (str: string) => string;
 /** "foo" => "<foo>" */
@@ -63,7 +64,7 @@ export declare function createRandomString(length: number): string;
  * @param {string | null | undefined} uri - The URI to check.
  * @returns {MediaCategory | undefined} The detected media category, or undefined if not found.
  */
-export declare function determineMediaCategory(uri: string | null | undefined): MediaCategory | undefined;
+export declare function determineMediaCategory(uri: OptionalString): MediaCategory | undefined;
 /**
  * Extracts the domain from a URL string.
  * Examples:
