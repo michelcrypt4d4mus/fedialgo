@@ -37,7 +37,7 @@ export default class DiversityFeedScorer extends FeedScorer {
 
             // Penalties for trending tags are similar to those for accounts but we base the max penalty
             // on the TrendingTag's numAccounts property (the fediverse-wide number of accounts using that tag)
-            toot.realToot.trendingTags!.forEach((tag) => {
+            (toot.realToot.trendingTags ?? []).forEach((tag) => {
                 const penalizedTag = trendingTagsInFeed.incrementCount(tag.name);
                 penalizedTag.numAccounts = Math.max(tag.numAccounts || 0, penalizedTag.numAccounts || 0);
                 penalizedTag.penaltyIncrement = penalizedTag.numAccounts / penalizedTag.numToots!;
