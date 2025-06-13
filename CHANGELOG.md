@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-# v0.72.0
+## v0.72.0
 * Add MastoApi.getHomeserverTimelineToots() and integrate local server toots into timeline
 
 ### v0.71.2
@@ -10,7 +10,7 @@
 * Fix potential bug when truncating cached rows
 * Make ESLint happier
 
-# v0.71.0
+## v0.71.0
 * Add ability to filter by originating server
 * Don't sort `Toot` objects twice in `buildToots()`
 
