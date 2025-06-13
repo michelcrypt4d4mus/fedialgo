@@ -635,6 +635,7 @@ class TheAlgorithm {
     }
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
+        this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);
         this.feed = await Storage_1.default.getCoerced(enums_1.CacheKey.TIMELINE_TOOTS);
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
             const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
@@ -642,7 +643,6 @@ class TheAlgorithm {
             this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, this.logger);
             await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
         }
-        this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);
         this.trendingData = await Storage_1.default.getTrendingData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
