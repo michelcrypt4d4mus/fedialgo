@@ -211,8 +211,8 @@ class MastoApi {
      */
     async getBlockedAccounts() {
         const blockedAccounts = await this.getApiObjsAndUpdate({
+            cacheKey: enums_1.CacheKey.BLOCKED_ACCOUNTS,
             fetch: this.api.v1.blocks.list,
-            cacheKey: enums_1.CacheKey.BLOCKED_ACCOUNTS
         });
         account_1.default.logSuspendedAccounts(blockedAccounts, enums_1.CacheKey.BLOCKED_ACCOUNTS);
         return blockedAccounts;
@@ -224,8 +224,8 @@ class MastoApi {
      */
     async getBlockedDomains() {
         const domains = await this.getApiObjsAndUpdate({
-            fetch: this.api.v1.domainBlocks.list,
             cacheKey: enums_1.CacheKey.BLOCKED_DOMAINS,
+            fetch: this.api.v1.domainBlocks.list,
         });
         return domains.map(domain => domain.toLowerCase().trim());
     }
@@ -268,8 +268,8 @@ class MastoApi {
      */
     async getFavouritedToots(params) {
         return await this.getApiObjsAndUpdate({
-            fetch: this.api.v1.favourites.list,
             cacheKey: enums_1.CacheKey.FAVOURITED_TOOTS,
+            fetch: this.api.v1.favourites.list,
             ...(params || {})
         });
     }
@@ -280,8 +280,8 @@ class MastoApi {
      */
     async getFollowedAccounts(params) {
         return await this.getWithBackgroundFetch({
-            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             cacheKey: enums_1.CacheKey.FOLLOWED_ACCOUNTS,
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             minRecords: this.user.followingCount - 10,
             processFxn: (account) => account.isFollowed = true,
             ...(params || {})
@@ -294,8 +294,8 @@ class MastoApi {
      */
     async getFollowedTags(params) {
         return await this.getApiObjsAndUpdate({
-            fetch: this.api.v1.followedTags.list,
             cacheKey: enums_1.CacheKey.FOLLOWED_TAGS,
+            fetch: this.api.v1.followedTags.list,
             processFxn: (tag) => (0, tag_1.repairTag)(tag),
             ...(params || {})
         });
@@ -307,8 +307,8 @@ class MastoApi {
      */
     async getFollowers(params) {
         return await this.getWithBackgroundFetch({
-            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             cacheKey: enums_1.CacheKey.FOLLOWERS,
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             minRecords: this.user.followersCount - 10,
             processFxn: (account) => account.isFollower = true,
             ...(params || {})
@@ -321,8 +321,8 @@ class MastoApi {
      */
     async getMutedAccounts(params) {
         const mutedAccounts = await this.getApiObjsAndUpdate({
-            fetch: this.api.v1.mutes.list,
             cacheKey: enums_1.CacheKey.MUTED_ACCOUNTS,
+            fetch: this.api.v1.mutes.list,
             ...(params || {})
         });
         account_1.default.logSuspendedAccounts(mutedAccounts, enums_1.CacheKey.MUTED_ACCOUNTS);
@@ -335,8 +335,8 @@ class MastoApi {
      */
     async getNotifications(params) {
         return await this.getApiObjsAndUpdate({
-            fetch: this.api.v1.notifications.list,
             cacheKey: enums_1.CacheKey.NOTIFICATIONS,
+            fetch: this.api.v1.notifications.list,
             ...(params || {})
         });
     }
@@ -347,8 +347,8 @@ class MastoApi {
      */
     async getRecentUserToots(params) {
         return await this.getApiObjsAndUpdate({
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             cacheKey: enums_1.CacheKey.RECENT_USER_TOOTS,
+            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             ...(params || {})
         });
     }
@@ -451,8 +451,8 @@ class MastoApi {
         const startedAt = new Date();
         try {
             const toots = await this.getApiObjsAndUpdate({
-                fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 cacheKey: enums_1.CacheKey.HASHTAG_TOOTS,
+                fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 logger,
                 maxRecords,
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
