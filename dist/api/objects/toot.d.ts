@@ -79,6 +79,7 @@ interface TootObj extends SerializableToot {
  * @property {boolean} isLocal - True if this toot is from the FediAlgo user's home server.
  * @property {boolean} isPrivate - True if it's for followers only.
  * @property {boolean} isTrending - True if it's a trending toot or contains any trending hashtags or links.
+ * @property {string} lastEditedAt - The date when the toot was last edited, or createdAt if never edited.
  * @property {number} [numTimesShown] - Managed in client app. # of times the Toot has been shown to the user.
  * @property {TagWithUsageCounts[]} [participatedTags] - Tags that the user has participated in that exist in this toot
  * @property {number} popularity - Sum of the trendingRank, numReblogs, replies, and local server favourites. Currently unused.
@@ -157,6 +158,7 @@ export default class Toot implements TootObj {
     get isLocal(): boolean;
     get isPrivate(): boolean;
     get isTrending(): boolean;
+    get lastEditedAt(): string;
     get popularity(): number;
     get realToot(): Toot;
     get realURI(): string;

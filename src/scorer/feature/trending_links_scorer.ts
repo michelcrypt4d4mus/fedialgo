@@ -30,7 +30,7 @@ export default class TrendingLinksScorer extends FeatureScorer {
 
     async _score(toot: Toot): Promise<number> {
         if (!toot.realToot.trendingLinks) {
-            this.logger.warn(`No trendingLinks found for toot:`, toot);
+            this.logger.warn(`No trendingLinks found for toot: ${toot.description}`);
             return 0;
         }
 
