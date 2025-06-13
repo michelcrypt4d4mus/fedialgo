@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.72.1
+* Fix bug when DiversityFeedScorer tries to build scoringData before trendingTags is populated
+
 ## v0.72.0
 * Add `MastoApi.getHomeserverTimelineToots()` and integrate local server toots into timeline
 
