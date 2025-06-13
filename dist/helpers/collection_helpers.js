@@ -524,11 +524,11 @@ exports.subtractConstant = subtractConstant;
 ;
 /**
  * Sums the elements of an array, treating null/undefined as 0.
- * @param {(number | null | undefined)[]} arr - The array to sum.
+ * @param {OptionalNumber[]} array - The array to sum.
  * @returns {number} The sum.
  */
-function sumArray(arr) {
-    const numArray = arr.map((x) => (x ?? 0));
+function sumArray(array) {
+    const numArray = array.map((x) => (x ?? 0));
     return numArray.reduce((a, b) => a + b, 0);
 }
 exports.sumArray = sumArray;

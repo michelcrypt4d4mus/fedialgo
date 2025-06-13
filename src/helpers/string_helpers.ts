@@ -301,7 +301,7 @@ export const wordRegex = (pattern: string): RegExp => {
  * @returns {RegExp} The generated regular expression.
  */
 export const wordsRegex = (patterns: string[]): RegExp => {
-    if (patterns.length === 0) return /(?:)/; // Empty regex that matches nothing
+    if (patterns.length === 0) return /<THIS_REGEX_MATCHES_NOTHING>/;
     const escapedPatterns = patterns.map(escape).join('|');
     return new RegExp(`\\b(?:${escapedPatterns})\\b`, 'i');
 };

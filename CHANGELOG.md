@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.72.3
+* Fix `UserData.mutedKeywordsRegex` when the user has no server side filters
+
 ### v0.72.2
 * Add `lastEditedAt` getter to `Toot` and compare it to `completedAt` when evaluating `Toot` completeness so as to catch edits
 * Bust `Toot`'s `contentCache` at build time if Toot's `editedAt` property exists

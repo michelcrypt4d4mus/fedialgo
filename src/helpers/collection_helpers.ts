@@ -15,6 +15,7 @@ import {
     type MastodonObjWithID,
     type MinMax,
     type MinMaxID,
+    type OptionalNumber,
     type OptionalString,
     type PromiseDict,
     type StringDict,
@@ -623,11 +624,11 @@ export function subtractConstant(dict: StringNumberDict, constant: number): Stri
 
 /**
  * Sums the elements of an array, treating null/undefined as 0.
- * @param {(number | null | undefined)[]} arr - The array to sum.
+ * @param {OptionalNumber[]} array - The array to sum.
  * @returns {number} The sum.
  */
-export function sumArray(arr: (number | null | undefined)[]): number {
-    const numArray: number[] = arr.map((x) => (x ?? 0));
+export function sumArray(array: OptionalNumber[]): number {
+    const numArray: number[] = array.map((x) => (x ?? 0));
     return numArray.reduce((a, b) => a + b, 0);
 };
 
