@@ -193,7 +193,7 @@ export declare function removeKeys<T extends object, K extends keyof T>(obj: T, 
  * @param {Logger} logger - Logger instance for logging errors.
  * @returns {Promise<Record<string, any>>} The cleaned object.
  */
-export declare function resolvePromiseDict(dict: PromiseDict, logger: Logger, defaultValue?: unknown): Promise<Record<string, any>>;
+export declare function resolvePromiseDict(dict: PromiseDict, logger: Logger, defaultValue?: ((key: string) => unknown) | unknown): Promise<Record<string, any>>;
 /**
  * Randomizes the order of an array.
  * @template T

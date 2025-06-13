@@ -104,10 +104,11 @@ exports.batchMap = batchMap;
  * @param {Logger} logger - Logger to use for warnings.
  */
 function checkUniqueIDs(array, logger) {
-    const objsByID = groupBy(array, (e) => e.id);
-    const uniqueIDs = Object.keys(objsByID);
-    if (uniqueIDs.length != array.length) {
-        logger.warn(`${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
+    const objsById = groupBy(array, (e) => e.id);
+    const uniqueIds = Object.keys(objsById);
+    if (uniqueIds.length != array.length) {
+        const objsWithDuplicates = Object.entries(objsById).filter(([_, objs]) => objs.length > 1);
+        logger.warn(`${array.length} objs only have ${uniqueIds.length} unique IDs! Dupes:`, objsWithDuplicates);
     }
 }
 exports.checkUniqueIDs = checkUniqueIDs;
@@ -400,8 +401,9 @@ async function resolvePromiseDict(dict, logger, defaultValue = null) {
             return r.value;
         }
         else {
-            logger.warn(`resolvePromiseDict() - Promise for key "${indexed[0][i]}" failed with reason:`, r.reason);
-            return defaultValue;
+            const failedKey = indexed[0][i];
+            logger.warn(`resolvePromiseDict() - Promise for key "${failedKey}" failed with reason:`, r.reason);
+            return typeof defaultValue == 'function' ? defaultValue(failedKey) : defaultValue;
         }
     });
     return zipArrays(indexed[0], resolved);

@@ -51,6 +51,7 @@ interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
     backgroundLoadSleepBetweenRequestsMS: number;
     data: Readonly<ApiDataConfig>;
+    daysBeforeFullCacheRefresh: number; // How many days before the cache is considered stale and needs to be refreshed completely
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
@@ -163,6 +164,7 @@ class Config implements ConfigType {
     api = {
         backgroundLoadSleepBetweenRequestsMS: 1_500, // How long to wait between API requests during backgrund load
         backgroundLoadIntervalMinutes: 10,      // Time between background polling for additional user data after initial load
+        daysBeforeFullCacheRefresh: 21,         // Days before the cache is considered stale and needs to be refreshed completely  // TODO: currently unused
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints

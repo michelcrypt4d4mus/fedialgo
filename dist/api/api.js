@@ -927,7 +927,7 @@ class MastoApi {
     buildFromApiObjects(key, objects, logger) {
         if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             const accounts = objects.map(obj => account_1.default.build(obj));
-            return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.url, key);
+            return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.webfingerURI, key);
         }
         else if (Storage_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));

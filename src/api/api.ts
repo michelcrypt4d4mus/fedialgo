@@ -1120,7 +1120,7 @@ export default class MastoApi {
     private buildFromApiObjects(key: CacheKey, objects: MastodonApiObj[], logger: Logger): MastodonApiObj[] {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             const accounts = objects.map(obj => Account.build(obj as AccountLike));
-            return uniquifyByProp(accounts, (obj) => obj.url, key);
+            return uniquifyByProp(accounts, (obj) => obj.webfingerURI, key);
         } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => Toot.build(obj as TootLike));
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));

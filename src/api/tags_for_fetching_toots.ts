@@ -9,7 +9,7 @@ import { config, TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { tagInfoStr } from "./objects/tag";
 import { TagTootsCacheKey } from "../enums";
-import { truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
+import { resolvePromiseDict, truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
 type TagTootsBuildConfig = {
@@ -110,16 +110,14 @@ export default class TagsForFetchingToots {
 
     // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
     static async rawTagLists(): Promise<Record<TagTootsCacheKey, TagList>> {
-        const tagLists = await Promise.all([
-            TagList.fromFavourites(),
-            TagList.fromParticipated(),
-            MastodonServer.fediverseTrendingTags(),
-        ]);
-
-        return {
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
-            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
-        };
+        return await resolvePromiseDict(
+            {
+                [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: TagList.fromFavourites(),
+                [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: TagList.fromParticipated(),
+                [TagTootsCacheKey.TRENDING_TAG_TOOTS]: MastodonServer.fediverseTrendingTags(),
+            },
+            new Logger("TagsForFetchingToots.rawTagLists()"),
+            (failedKey: TagTootsCacheKey) => new TagList([], failedKey)
+        );
     }
 };

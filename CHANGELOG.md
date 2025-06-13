@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Uniquify accounts on webfingerURI
+* (Demo App) Fix handling of missing toot.trendingLinks
 
 ### v0.72.4
 * Remove empty strings when generating `wordsRegex()`

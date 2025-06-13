@@ -56,6 +56,7 @@ class Config {
     api = {
         backgroundLoadSleepBetweenRequestsMS: 1500,
         backgroundLoadIntervalMinutes: 10,
+        daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,
         hashtagTootRetrievalDelaySeconds: 1,
         maxConcurrentHashtagRequests: 15,

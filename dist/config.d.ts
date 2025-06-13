@@ -24,6 +24,7 @@ interface ApiConfig {
     backgroundLoadIntervalMinutes: number;
     backgroundLoadSleepBetweenRequestsMS: number;
     data: Readonly<ApiDataConfig>;
+    daysBeforeFullCacheRefresh: number;
     defaultRecordsPerPage: number;
     hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
@@ -122,6 +123,7 @@ declare class Config implements ConfigType {
     api: {
         backgroundLoadSleepBetweenRequestsMS: number;
         backgroundLoadIntervalMinutes: number;
+        daysBeforeFullCacheRefresh: number;
         defaultRecordsPerPage: number;
         hashtagTootRetrievalDelaySeconds: number;
         maxConcurrentHashtagRequests: number;

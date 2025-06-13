@@ -85,16 +85,11 @@ class TagsForFetchingToots {
     }
     // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
     static async rawTagLists() {
-        const tagLists = await Promise.all([
-            tag_list_1.default.fromFavourites(),
-            tag_list_1.default.fromParticipated(),
-            mastodon_server_1.default.fediverseTrendingTags(),
-        ]);
-        return {
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tagLists[0],
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tagLists[1],
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: tagLists[2],
-        };
+        return await (0, collection_helpers_1.resolvePromiseDict)({
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tag_list_1.default.fromFavourites(),
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tag_list_1.default.fromParticipated(),
+            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: mastodon_server_1.default.fediverseTrendingTags(),
+        }, new logger_1.Logger("TagsForFetchingToots.rawTagLists()"), (failedKey) => new tag_list_1.default([], failedKey));
     }
 }
 exports.default = TagsForFetchingToots;

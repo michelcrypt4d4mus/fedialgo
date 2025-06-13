@@ -135,11 +135,12 @@ export async function batchMap<T, U>(
  * @param {Logger} logger - Logger to use for warnings.
  */
 export function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void {
-    const objsByID = groupBy<MastodonObjWithID>(array, (e) => e.id);
-    const uniqueIDs = Object.keys(objsByID);
+    const objsById = groupBy<MastodonObjWithID>(array, (e) => e.id);
+    const uniqueIds = Object.keys(objsById);
 
-    if (uniqueIDs.length != array.length) {
-        logger.warn(`${array.length} objs only have ${uniqueIDs.length} unique IDs!`, objsByID);
+    if (uniqueIds.length != array.length) {
+        const objsWithDuplicates = Object.entries(objsById).filter(([_, objs]) => objs.length > 1);
+        logger.warn(`${array.length} objs only have ${uniqueIds.length} unique IDs! Dupes:`, objsWithDuplicates);
     }
 };
 
@@ -475,7 +476,7 @@ export function removeKeys<T extends object, K extends keyof T>(
 export async function resolvePromiseDict(
     dict: PromiseDict,
     logger: Logger,
-    defaultValue: unknown = null
+    defaultValue: ((key: string) => unknown) | unknown = null
 ): Promise<Record<string, any>> {
     // Ensure order of keys and values // TODO: is this necessary?
     const indexed = Object.entries(dict).reduce(
@@ -491,8 +492,9 @@ export async function resolvePromiseDict(
         if (r.status === "fulfilled") {
             return r.value;
         } else {
-            logger.warn(`resolvePromiseDict() - Promise for key "${indexed[0][i]}" failed with reason:`, r.reason);
-            return defaultValue;
+            const failedKey = indexed[0][i];
+            logger.warn(`resolvePromiseDict() - Promise for key "${failedKey}" failed with reason:`, r.reason);
+            return typeof defaultValue == 'function' ? defaultValue(failedKey) : defaultValue;
         }
     });
 
