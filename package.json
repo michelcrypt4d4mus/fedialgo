@@ -9,7 +9,7 @@
         "docs": "npm run build && jsdoc -c jsdoc.config.json --readme README.md",
         "test": "jest --coverage",
         "testTS": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-        "lint": "eslint ./src --fix"
+        "lint": "eslint ./src"
     },
     "dependencies": {
         "@react-native-async-storage/async-storage": "^1.18.1",
@@ -36,6 +36,7 @@
         "@types/jest": "^29.5.14",
         "@types/lodash": "^4.17.17",
         "@types/node": "^20.1.0",
+        "@types/regexp.escape": "^2.0.0",
         "@types/semver": "^7.5.0",
         "@types/ws": "^8.5.4",
         "dotenv": "^16.3.1",

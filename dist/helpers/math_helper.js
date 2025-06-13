@@ -68,6 +68,8 @@ exports.sizeFromBufferByteLength = sizeFromBufferByteLength;
 function sizeOf(obj, sizes) {
     if ((0, lodash_1.isNil)(obj))
         return 0;
+    let stringLength = 0;
+    let fxnLength = 0;
     let bytes = 0;
     switch (typeof obj) {
         case "boolean":
@@ -75,7 +77,7 @@ function sizeOf(obj, sizes) {
             sizes.booleans += 4;
             break;
         case "function":
-            const fxnLength = strBytes(obj.toString());
+            fxnLength = strBytes(obj.toString());
             bytes += fxnLength; // functions aren't serialized in JSON i don't think?
             sizes.functions += fxnLength;
             break;
@@ -84,7 +86,7 @@ function sizeOf(obj, sizes) {
             sizes.numbers += 8;
             break;
         case "string":
-            const stringLength = strBytes(obj);
+            stringLength = strBytes(obj);
             bytes += stringLength;
             sizes.strings += stringLength;
             break;
@@ -108,7 +110,7 @@ function sizeOf(obj, sizes) {
             break;
         default:
             console.warn(`sizeOf() unknown type: ${typeof obj}`);
-            bytes += strBytes(obj.toString());
+            bytes += strBytes(`${obj}`);
             break;
     }
     return bytes;

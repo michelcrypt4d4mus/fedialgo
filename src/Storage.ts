@@ -179,7 +179,7 @@ export default class Storage {
 
     // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeights(): Promise<Weights> {
-        let weights = await this.get(AlgorithmStorageKey.WEIGHTS) as Weights;
+        const weights = await this.get(AlgorithmStorageKey.WEIGHTS) as Weights;
         if (!weights) return JSON.parse(JSON.stringify(DEFAULT_WEIGHTS)) as Weights;
         let shouldSave = false;
 
@@ -304,7 +304,7 @@ export default class Storage {
     }
 
     // Dump information about the size of the data stored in localForage
-    static async storedObjsInfo(): Promise<Record<string, any>> {
+    static async storedObjsInfo(): Promise<Record<string, unknown>> {
         const keyStrings = Object.values(CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as CacheKey)));
         const storedData = await zipPromiseCalls(keys, async (k) => localForage.getItem(k));

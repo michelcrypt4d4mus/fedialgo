@@ -92,7 +92,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     constructor(params) {
         const { invertSelection, propertyName, selectedOptions } = params;
-        let optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], propertyName);
+        const optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], propertyName);
         let description;
         if (propertyName == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -131,7 +131,7 @@ class BooleanFilter extends toot_filter_1.default {
      * @returns {BooleanFilterOptionList}
      */
     optionsSortedByName(minToots = 0) {
-        let options = this.options.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.displayName || a.name, b.displayName || b.name));
+        const options = this.options.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.displayName || a.name, b.displayName || b.name));
         return this.optionListWithMinToots(options, minToots);
     }
     /**

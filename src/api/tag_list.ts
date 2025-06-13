@@ -4,7 +4,6 @@
 import MastoApi from "./api";
 import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
 import Toot from "./objects/toot";
-import UserData from "./user_data";
 import { config } from "../config";
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
@@ -60,7 +59,7 @@ export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
     // # of times the tag appears in the 'toots' array of Toot objects.
     static fromUsageCounts(toots: Toot[], source: ObjListDataSource): TagList {
         // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
-        let retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
+        const retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
         const isRetooter = (retootsPct > config.participatedTags.minPctToCountRetoots);
         toots = isRetooter ? toots.map(toot => toot.realToot) : toots;
 

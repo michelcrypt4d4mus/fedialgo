@@ -110,7 +110,7 @@ class MastodonServer {
      */
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
-        let trendingTags = await this.fetchTrending(enums_2.TrendingType.TAGS, numTags);
+        const trendingTags = await this.fetchTrending(enums_2.TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)(tag));
         return trendingTags;
     }

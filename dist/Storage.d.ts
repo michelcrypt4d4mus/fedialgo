@@ -30,7 +30,7 @@ export default class Storage {
     static set(key: StorageKey, value: StorableObj): Promise<void>;
     static setFilters(filters: FeedFilterSettings): Promise<void>;
     static setWeightings(userWeightings: Weights): Promise<void>;
-    static storedObjsInfo(): Promise<Record<string, any>>;
+    static storedObjsInfo(): Promise<Record<string, unknown>>;
     private static buildKey;
     private static deserialize;
     private static getIdentity;

@@ -247,10 +247,10 @@ const OVERRULE_LANG_ACCURACY = 0.03;
 const VERY_HIGH_LANG_ACCURACY = 0.7;
 
 // International locales, see: https://gist.github.com/wpsmith/7604842
-const GREEK_LOCALE = `${LANGUAGE_NAMES.greek}-GR`;
-const JAPANESE_LOCALE = `${LANGUAGE_NAMES.japanese}-JP`;
-const KOREAN_LOCALE = `${LANGUAGE_NAMES.korean}-KR`;
-const RUSSIAN_LOCALE = `${LANGUAGE_NAMES.russian}-${LANGUAGE_NAMES.russian.toUpperCase()}`;
+// const GREEK_LOCALE = `${LANGUAGE_NAMES.greek}-GR`;
+// const JAPANESE_LOCALE = `${LANGUAGE_NAMES.japanese}-JP`;
+// const KOREAN_LOCALE = `${LANGUAGE_NAMES.korean}-KR`;
+// const RUSSIAN_LOCALE = `${LANGUAGE_NAMES.russian}-${LANGUAGE_NAMES.russian.toUpperCase()}`;
 
 const IGNORE_LANGUAGES: StringSet = new Set([
     "ber",  // Berber

@@ -220,7 +220,7 @@ class Toot {
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;
     }
     get description() {
-        let msg = `${this.account.description} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID="${this.id}"]`;
+        const msg = `${this.account.description} [${(0, time_helpers_1.toISOFormat)(this.createdAt)}, ID="${this.id}"]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
     // Temporary caches for performance (profiler said contentWithCard() was using a lot of runtime)
@@ -418,7 +418,7 @@ class Toot {
      * @returns {boolean}
      */
     isInTimeline(filters) {
-        let isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
+        const isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
         return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
     }
     /**

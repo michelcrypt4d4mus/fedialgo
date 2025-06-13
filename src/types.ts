@@ -18,7 +18,7 @@ export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
 export type ObjNames = Record<string, NamedTootCount>;
-export type PromiseDict = Record<string, Promise<any>>;
+export type PromiseDict = Record<string, Promise<unknown>>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
@@ -248,23 +248,4 @@ export type WeightName = ScoreName | NonScoreWeightName;
 
 export interface WithCreatedAt {
     createdAt: string | Date;  // ISO date string
-};
-
-
-// TODO: unused stuff below here
-// From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm
-function promiseWithTimeout<T>(
-    promise: Promise<T>,
-    milliseconds: number,
-    timeoutError = new Error('Promise timed out')
-): Promise<T> {
-    // create a promise that rejects in milliseconds
-    const timeout = new Promise<never>((_, reject) => {
-        setTimeout(() => {
-            reject(timeoutError);
-        }, milliseconds);
-    });
-
-    // returns a race between timeout and the passed promise
-    return Promise.race<T>([promise, timeout]);
 };

@@ -28,7 +28,7 @@ interface PromiseRejectedResult { status: "rejected", reason: unknown };
 
 type PromisesResults<T> = {
     fulfilled: T[];
-    rejectedReasons: any[];
+    rejectedReasons: unknown[];
 };
 
 const BATCH_MAP = "batchMap()";
@@ -96,20 +96,21 @@ export function average(values: number[]): number {
  * @param {number} [options.sleepBetweenMS] - Sleep between batches in ms.
  * @returns {Promise<any[]>} The results of mapping items with fxn().
  */
-export async function batchMap<T>(
+export async function batchMap<T, U>(
     array: T[],
-    fxn: (e: T) => Promise<any>,
+    fxn: (e: T) => Promise<U>,
     options?: {
         batchSize?: number,
         logger?: Logger,
         sleepBetweenMS?: number
     }
-): Promise<any[]> {
-    let { batchSize, logger, sleepBetweenMS } = (options || {});
-    logger = logger ? logger.tempLogger(BATCH_MAP) : new Logger(BATCH_MAP);
+): Promise<U[]> {
+    options ??= {};
+    const { batchSize, sleepBetweenMS } = options;
+    const logger = options.logger ? options.logger.tempLogger(BATCH_MAP) : new Logger(BATCH_MAP);
     const chunkSize = batchSize || config.scoring.scoringBatchSize;
     const chunks = makeChunks(array, { chunkSize, logger });
-    let results: any[] = [];
+    let results: U[] = [];
 
     for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
@@ -382,7 +383,8 @@ export function makeChunks<T>(
         numChunks?: number
     }
 ): T[][] {
-    let { chunkSize, logger, numChunks } = options;
+    const { logger, numChunks } = options;
+    let { chunkSize } = options;
 
     if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
         throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
@@ -471,7 +473,7 @@ export function removeKeys<T extends object, K extends keyof T>(
 export async function resolvePromiseDict(
     dict: PromiseDict,
     logger: Logger,
-    defaultValue: any = null
+    defaultValue: unknown = null
 ): Promise<Record<string, any>> {
     // Ensure order of keys and values // TODO: is this necessary?
     const indexed = Object.entries(dict).reduce(
@@ -480,7 +482,7 @@ export async function resolvePromiseDict(
             keysAndValues[1].push(v);
             return keysAndValues;
         },
-        [[], []] as [string[], Promise<any>[]]
+        [[], []] as [string[], Promise<unknown>[]]
     );
 
     const resolved = (await Promise.allSettled(indexed[1])).map((r, i) => {
@@ -586,7 +588,7 @@ export function sortObjsByProps<T>(
  * @returns {T[]} The sorted array.
  */
 export function sortObjsByCreatedAt<T extends WithCreatedAt>(array: T[]): T[] {
-    return sortObjsByProps<T>(arguments[0], "createdAt");
+    return sortObjsByProps<T>(array, "createdAt");
 };
 
 
@@ -677,12 +679,13 @@ export function transformKeys<T>(data: T, transform: (key: string) => string): T
 
 /**
  * Truncates an array to a maximum length, logging if truncated.
- * @param {any[]} array - The array to truncate.
+ * @template T
+ * @param {T[]} array - The array to truncate.
  * @param {number} maxRecords - The maximum length.
  * @param {Logger} [logger] - Logger instance.
- * @returns {any[]} The truncated array.
+ * @returns {T[]} The truncated array.
  */
-export function truncateToConfiguredLength(array: any[], maxRecords: number, logger?: Logger): any[] {
+export function truncateToConfiguredLength<T>(array: T[], maxRecords: number, logger?: Logger): T[] {
     if (array.length <= maxRecords) return array;
     logger ||= new Logger("truncateToConfiguredLength()");
     const startLen = array.length;
@@ -771,4 +774,23 @@ export async function zipPromiseCalls<T>(
         },
         {} as Record<string, T>
     );
+};
+
+
+// TODO: unused stuff below here
+// From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm
+function _promiseWithTimeout<T>(
+    promise: Promise<T>,
+    milliseconds: number,
+    timeoutError = new Error('Promise timed out')
+): Promise<T> {
+    // create a promise that rejects in milliseconds
+    const timeout = new Promise<never>((_, reject) => {
+        setTimeout(() => {
+            reject(timeoutError);
+        }, milliseconds);
+    });
+
+    // returns a race between timeout and the passed promise
+    return Promise.race<T>([promise, timeout]);
 };

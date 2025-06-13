@@ -109,7 +109,7 @@ export default class Account implements AccountObj {
 
     // Returns HTML combining the note property with creation date, followers, and toots count
     get noteWithAccountInfo(): string {
-        let txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
+        const txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);
 
         const accountStats = [

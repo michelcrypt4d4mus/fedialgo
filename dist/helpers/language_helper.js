@@ -243,10 +243,10 @@ const MIN_TINYLD_ACCURACY = 0.4; // TinyLD is better at some languages but can b
 const OVERRULE_LANG_ACCURACY = 0.03;
 const VERY_HIGH_LANG_ACCURACY = 0.7;
 // International locales, see: https://gist.github.com/wpsmith/7604842
-const GREEK_LOCALE = `${exports.LANGUAGE_NAMES.greek}-GR`;
-const JAPANESE_LOCALE = `${exports.LANGUAGE_NAMES.japanese}-JP`;
-const KOREAN_LOCALE = `${exports.LANGUAGE_NAMES.korean}-KR`;
-const RUSSIAN_LOCALE = `${exports.LANGUAGE_NAMES.russian}-${exports.LANGUAGE_NAMES.russian.toUpperCase()}`;
+// const GREEK_LOCALE = `${LANGUAGE_NAMES.greek}-GR`;
+// const JAPANESE_LOCALE = `${LANGUAGE_NAMES.japanese}-JP`;
+// const KOREAN_LOCALE = `${LANGUAGE_NAMES.korean}-KR`;
+// const RUSSIAN_LOCALE = `${LANGUAGE_NAMES.russian}-${LANGUAGE_NAMES.russian.toUpperCase()}`;
 const IGNORE_LANGUAGES = new Set([
     "ber",
     "eo",

@@ -2,7 +2,7 @@ import { Logger } from './logger';
 import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
-    rejectedReasons: any[];
+    rejectedReasons: unknown[];
 };
 /**
  * Adds up an arbitrary number of StringNumberDicts, returning a new dict.
@@ -41,11 +41,11 @@ export declare function average(values: number[]): number;
  * @param {number} [options.sleepBetweenMS] - Sleep between batches in ms.
  * @returns {Promise<any[]>} The results of mapping items with fxn().
  */
-export declare function batchMap<T>(array: T[], fxn: (e: T) => Promise<any>, options?: {
+export declare function batchMap<T, U>(array: T[], fxn: (e: T) => Promise<U>, options?: {
     batchSize?: number;
     logger?: Logger;
     sleepBetweenMS?: number;
-}): Promise<any[]>;
+}): Promise<U[]>;
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
  * @param {MastodonObjWithID[]} array - Array of objects with IDs.
@@ -193,7 +193,7 @@ export declare function removeKeys<T extends object, K extends keyof T>(obj: T, 
  * @param {Logger} logger - Logger instance for logging errors.
  * @returns {Promise<Record<string, any>>} The cleaned object.
  */
-export declare function resolvePromiseDict(dict: PromiseDict, logger: Logger, defaultValue?: any): Promise<Record<string, any>>;
+export declare function resolvePromiseDict(dict: PromiseDict, logger: Logger, defaultValue?: unknown): Promise<Record<string, any>>;
 /**
  * Randomizes the order of an array.
  * @template T
@@ -268,12 +268,13 @@ export declare function swapKeysAndValues<T extends StringDict>(dict: T): String
 export declare function transformKeys<T>(data: T, transform: (key: string) => string): T;
 /**
  * Truncates an array to a maximum length, logging if truncated.
- * @param {any[]} array - The array to truncate.
+ * @template T
+ * @param {T[]} array - The array to truncate.
  * @param {number} maxRecords - The maximum length.
  * @param {Logger} [logger] - Logger instance.
- * @returns {any[]} The truncated array.
+ * @returns {T[]} The truncated array.
  */
-export declare function truncateToConfiguredLength(array: any[], maxRecords: number, logger?: Logger): any[];
+export declare function truncateToConfiguredLength<T>(array: T[], maxRecords: number, logger?: Logger): T[];
 /**
  * Returns a new array with only unique, non-null string values.
  * @param {(string | undefined)[]} array - The array to uniquify.

@@ -77,8 +77,9 @@ exports.average = average;
  * @returns {Promise<any[]>} The results of mapping items with fxn().
  */
 async function batchMap(array, fxn, options) {
-    let { batchSize, logger, sleepBetweenMS } = (options || {});
-    logger = logger ? logger.tempLogger(BATCH_MAP) : new logger_1.Logger(BATCH_MAP);
+    options ??= {};
+    const { batchSize, sleepBetweenMS } = options;
+    const logger = options.logger ? options.logger.tempLogger(BATCH_MAP) : new logger_1.Logger(BATCH_MAP);
     const chunkSize = batchSize || config_1.config.scoring.scoringBatchSize;
     const chunks = makeChunks(array, { chunkSize, logger });
     let results = [];
@@ -318,7 +319,8 @@ exports.keyByProperty = keyByProperty;
  * @returns {T[][]} The array of chunks.
  */
 function makeChunks(array, options) {
-    let { chunkSize, logger, numChunks } = options;
+    const { logger, numChunks } = options;
+    let { chunkSize } = options;
     if ((numChunks && chunkSize) || (!numChunks && !chunkSize)) {
         throw new Error(`${logger?.logPrefix || 'makeChunks'} requires numChunks OR chunkSize. options=${JSON.stringify(options)}`);
     }
@@ -490,7 +492,7 @@ exports.sortObjsByProps = sortObjsByProps;
  * @returns {T[]} The sorted array.
  */
 function sortObjsByCreatedAt(array) {
-    return sortObjsByProps(arguments[0], "createdAt");
+    return sortObjsByProps(array, "createdAt");
 }
 exports.sortObjsByCreatedAt = sortObjsByCreatedAt;
 ;
@@ -575,10 +577,11 @@ exports.transformKeys = transformKeys;
 ;
 /**
  * Truncates an array to a maximum length, logging if truncated.
- * @param {any[]} array - The array to truncate.
+ * @template T
+ * @param {T[]} array - The array to truncate.
  * @param {number} maxRecords - The maximum length.
  * @param {Logger} [logger] - Logger instance.
- * @returns {any[]} The truncated array.
+ * @returns {T[]} The truncated array.
  */
 function truncateToConfiguredLength(array, maxRecords, logger) {
     if (array.length <= maxRecords)
@@ -663,5 +666,18 @@ async function zipPromiseCalls(args, promiser, logger) {
     }, {});
 }
 exports.zipPromiseCalls = zipPromiseCalls;
+;
+// TODO: unused stuff below here
+// From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm
+function _promiseWithTimeout(promise, milliseconds, timeoutError = new Error('Promise timed out')) {
+    // create a promise that rejects in milliseconds
+    const timeout = new Promise((_, reject) => {
+        setTimeout(() => {
+            reject(timeoutError);
+        }, milliseconds);
+    });
+    // returns a race between timeout and the passed promise
+    return Promise.race([promise, timeout]);
+}
 ;
 //# sourceMappingURL=collection_helpers.js.map

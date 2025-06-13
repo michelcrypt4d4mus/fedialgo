@@ -141,7 +141,7 @@ export default class MastodonServer {
      */
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = config.trending.tags.numTagsPerServer;
-        let trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
+        const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => decorateTagHistory(tag));
         return trendingTags;
     }

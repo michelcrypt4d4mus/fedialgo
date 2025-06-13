@@ -69,8 +69,10 @@ export function sizeFromBufferByteLength(obj: object): number {
 
 
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
-export function sizeOf(obj: any, sizes: BytesDict): number {
+export function sizeOf(obj: unknown, sizes: BytesDict): number {
     if (isNil(obj)) return 0;
+    let stringLength = 0;
+    let fxnLength = 0;
     let bytes = 0;
 
     switch (typeof obj) {
@@ -79,7 +81,7 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
             sizes.booleans += 4;
             break;
         case "function":
-            const fxnLength = strBytes(obj.toString());
+            fxnLength = strBytes(obj.toString());
             bytes += fxnLength; // functions aren't serialized in JSON i don't think?
             sizes.functions += fxnLength;
             break;
@@ -88,7 +90,7 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
             sizes.numbers += 8;
             break;
         case "string":
-            const stringLength = strBytes(obj);
+            stringLength = strBytes(obj);
             bytes += stringLength;
             sizes.strings += stringLength;
             break;
@@ -98,7 +100,7 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
                 bytes += arrayBytes;
                 sizes.arrays += arrayBytes;
             } else {
-                Object.entries(obj).forEach(([key, value]) => {
+                Object.entries(obj as object).forEach(([key, value]) => {
                     const keyBytes = strBytes(key);
                     bytes += keyBytes;
                     sizes.strings += keyBytes;
@@ -113,7 +115,7 @@ export function sizeOf(obj: any, sizes: BytesDict): number {
             break;
         default:
             console.warn(`sizeOf() unknown type: ${typeof obj}`);
-            bytes += strBytes(obj.toString());
+            bytes += strBytes(`${obj}`);
             break;
     }
 

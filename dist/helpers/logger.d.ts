@@ -33,25 +33,25 @@ export declare class Logger {
      * @param {...any} args - Additional arguments to log.
      * @returns {string} The error message string.
      */
-    error(msg: string | Error, ...args: any[]): string;
+    error(msg: string | Error, ...args: unknown[]): string;
     /**
      * Call console.warn() with the logger's prefix. Checks for Error objs in args in the same way as `error()`.
      * @param {string} msg - The warning message.
      * @param {...any} args - Additional arguments to log.
      */
-    warn: (msg: string, ...args: any[]) => void;
+    warn: (msg: string, ...args: unknown[]) => void;
     /** console.log() with the logger's prefix. */
-    log: (msg: string, ...args: any[]) => void;
+    log: (msg: string, ...args: unknown[]) => void;
     /** console.info() with the logger's prefix. */
-    info: (msg: string, ...args: any[]) => void;
+    info: (msg: string, ...args: unknown[]) => void;
     /** console.debug() with the logger's prefix. */
-    debug: (msg: string, ...args: any[]) => void;
+    debug: (msg: string, ...args: unknown[]) => void;
     /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
-    trace: (msg: string, ...args: any[]) => void;
+    trace: (msg: string, ...args: unknown[]) => void;
     /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
-    deep: (msg: string, ...args: any[]) => void;
+    deep: (msg: string, ...args: unknown[]) => void;
     /** Logs a warning message with a warn colored prefix (not a real warning level). */
-    warnWithoutTrace: (msg: string, ...args: any[]) => void;
+    warnWithoutTrace: (msg: string, ...args: unknown[]) => void;
     /**
      * Concatenates the logger's prefix and the given message.
      * @param {string|undefined} msg - The message to prefix.
@@ -64,7 +64,7 @@ export declare class Logger {
      * @param {...any} args - Additional arguments to include in the error.
      * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
-    logAndThrowError(msg: string, ...args: any[]): never;
+    logAndThrowError(msg: string, ...args: unknown[]): never;
     /**
      * Logs the reduction in size of an array (e.g., after filtering or deduplication).
      * @param {T[]} before - The array before reduction.
@@ -85,7 +85,7 @@ export declare class Logger {
      * @param {Date} startedAt - The start time to compute elapsed time.
      * @param {...any} args - Additional arguments or labels.
      */
-    logTelemetry(msg: string, startedAt: Date, ...args: any[]): void;
+    logTelemetry(msg: string, startedAt: Date, ...args: unknown[]): void;
     /**
      * Adds a random string to the logger's prefix (useful for distinguishing logs in concurrent contexts).
      */

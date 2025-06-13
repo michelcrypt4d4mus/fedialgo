@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Fix potential bug when truncating cached rows
+* Make ESLint happier
 
 # v0.71.0
 * Add ability to filter by originating server

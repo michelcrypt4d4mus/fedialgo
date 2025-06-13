@@ -451,7 +451,7 @@ class Config implements ConfigType {
     }
 
     constructor() {
-        this.validate();
+        this.validate(this);
         console.debug(`${LOG_PREFIX} validated:`, this);
     };
 
@@ -491,10 +491,14 @@ class Config implements ConfigType {
 
     // Check for NaN values in number fields and emptry strings in string fields
     private validate(cfg?: ConfigType | object): void {
-        cfg ??= this;
+        if (!cfg) {
+            if (!this.api.data[CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes) {
+                throw new Error(`${LOG_PREFIX} HOME_TIMELINE_TOOTS lookbackForUpdatesMinutes is not set!`);
+            }
+        }
 
         // Check that all the values are valid
-        Object.entries(cfg).forEach(([key, value]) => {
+        Object.entries(cfg || this).forEach(([key, value]) => {
             if (typeof value === "object") {
                 this.validate(value);
             } else if (typeof value == "number" && isNaN(value)) {
