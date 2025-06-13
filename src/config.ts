@@ -207,6 +207,10 @@ class Config implements ConfigType {
                 lookbackForUpdatesMinutes: 180,  // How far before the most recent toot we already have to look back for updates (edits, increased reblogs, etc.)
                 supportsMinMaxId: true,
             },
+            [CacheKey.HOMESERVER_TIMELINE_TOOTS]: {
+                initialMaxRecords: 20,
+                minutesUntilStale: 10,
+            },
             [CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,

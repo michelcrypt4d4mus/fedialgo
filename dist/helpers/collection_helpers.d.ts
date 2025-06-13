@@ -1,5 +1,5 @@
 import { Logger } from './logger';
-import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
     rejectedReasons: unknown[];
@@ -68,7 +68,7 @@ export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => num
  * @param {boolean} [countNulls] - Whether to count null keys.
  * @returns {StringNumberDict} The counts dictionary.
  */
-export declare function countValues<T>(items: T[], getKey?: (item: T) => string | null | undefined, countNulls?: boolean): StringNumberDict;
+export declare function countValues<T>(items: T[], getKey?: (item: T) => OptionalString, countNulls?: boolean): StringNumberDict;
 /**
  * Filters an array and logs the number of elements removed.
  * @template T

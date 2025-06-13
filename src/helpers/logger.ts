@@ -5,10 +5,10 @@ import { ageString } from './time_helpers';
 import { isDebugMode, isDeepDebug } from './environment_helpers';
 import { sortKeysByValue, split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr, optionalSuffix } from './string_helpers';
-import { type StringNumberDict } from '../types';
+import { type OptionalString, type StringNumberDict } from '../types';
 
 type ErrorArgs = {args: unknown[], error?: Error};
-type LoggerArg = string | boolean | null | undefined;  // boolean so we can filter out optional args that are falsey
+type LoggerArg = OptionalString | boolean;  // boolean so we can filter out optional args that are falsey
 
 const PREFIXERS = [
     bracketed,

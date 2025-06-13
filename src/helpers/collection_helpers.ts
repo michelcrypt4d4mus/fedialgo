@@ -15,6 +15,7 @@ import {
     type MastodonObjWithID,
     type MinMax,
     type MinMaxID,
+    type OptionalString,
     type PromiseDict,
     type StringDict,
     type StringNumberDict,
@@ -178,7 +179,7 @@ export function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | un
  */
 export function countValues<T>(
     items: T[],
-    getKey: (item: T) => string | null | undefined = (item) => item as string,
+    getKey: (item: T) => OptionalString = (item) => item as string,
     countNulls?: boolean
 ): StringNumberDict {
     return items.reduce(

@@ -9,6 +9,7 @@ import { isEmpty, isNil } from "lodash";
 import { mastodon } from 'masto';
 
 import { MediaCategory } from '../enums';
+import { type OptionalString } from '../types';
 
 // Number constants
 export const DEFAULT_FONT_SIZE = 15;
@@ -56,7 +57,7 @@ export const alphabetize = (arr: string[]) => arr.sort(compareStr);
 /** for use with sort() */
 export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
 /** Check if it's empty (all whitespace or null or undefined) */
-export const isEmptyStr = (s: string | null | undefined) => isNil(s) || isEmpty(s!.trim());
+export const isEmptyStr = (s: OptionalString) => isNil(s) || isEmpty(s!.trim());
 
 /** "string" => "@string" */
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
@@ -128,7 +129,7 @@ export function createRandomString(length: number): string {
  * @param {string | null | undefined} uri - The URI to check.
  * @returns {MediaCategory | undefined} The detected media category, or undefined if not found.
  */
-export function determineMediaCategory(uri: string | null | undefined): MediaCategory | undefined {
+export function determineMediaCategory(uri: OptionalString): MediaCategory | undefined {
     if (!uri) return undefined;
     let category: MediaCategory | undefined;
 
@@ -164,7 +165,6 @@ export function extractDomain(inUrl: string): string {
         return UNKNOWN_SERVER;
     }
 };
-
 
 
 /**

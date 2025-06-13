@@ -21,7 +21,8 @@ export enum CacheKey {
     FOLLOWED_TAGS = 'FollowedTags',  // this used to be actually set to ScoreName.FOLLOWED_TAGS (same string)... i don't think there's any reason to keep that now
     FOLLOWERS = 'Followers',
     HASHTAG_TOOTS = 'HashtagToots',  // TODO: there's nothing actually stored here but it's a flag for Toot serialization
-    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',// Toots that the API returns for the home timeline
+    HOME_TIMELINE_TOOTS = 'HomeTimelineToots',  // Toots that the API returns for the home timeline
+    HOMESERVER_TIMELINE_TOOTS = 'HomeserverTimelineToots',
     MUTED_ACCOUNTS = 'MutedAccounts',
     NOTIFICATIONS = 'Notifications',
     RECENT_USER_TOOTS = 'RecentUserToots',

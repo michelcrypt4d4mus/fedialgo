@@ -111,6 +111,7 @@ interface FetchParams<T extends MastodonApiObj> extends ApiParamsWithMaxID {
     fetch?: ApiFetcher<T>,
     fetchGenerator?: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
+    local?: boolean,
     processFxn?: (obj: T) => void,
     skipMutex?: boolean,
 };
@@ -338,8 +339,8 @@ export default class MastoApi {
      */
     async getBlockedAccounts(): Promise<Account[]> {
         const blockedAccounts = await this.getApiObjsAndUpdate<mastodon.v1.Account>({
+            cacheKey: CacheKey.BLOCKED_ACCOUNTS,
             fetch: this.api.v1.blocks.list,
-            cacheKey: CacheKey.BLOCKED_ACCOUNTS
         }) as Account[];
 
         Account.logSuspendedAccounts(blockedAccounts, CacheKey.BLOCKED_ACCOUNTS);
@@ -353,8 +354,8 @@ export default class MastoApi {
      */
     async getBlockedDomains(): Promise<string[]> {
         const domains = await this.getApiObjsAndUpdate<string>({
-            fetch: this.api.v1.domainBlocks.list,
             cacheKey: CacheKey.BLOCKED_DOMAINS,
+            fetch: this.api.v1.domainBlocks.list,
         });
 
         return domains.map(domain => domain.toLowerCase().trim());
@@ -405,8 +406,8 @@ export default class MastoApi {
      */
     async getFavouritedToots(params?: ApiParams): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
-            fetch: this.api.v1.favourites.list,
             cacheKey: CacheKey.FAVOURITED_TOOTS,
+            fetch: this.api.v1.favourites.list,
             ...(params || {})
         }) as Toot[];
     }
@@ -418,8 +419,8 @@ export default class MastoApi {
      */
     async getFollowedAccounts(params?: ApiParams): Promise<Account[]> {
         return await this.getWithBackgroundFetch<mastodon.v1.Account>({
-            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             cacheKey: CacheKey.FOLLOWED_ACCOUNTS,
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             minRecords: this.user.followingCount - 10, // We want to get at least this many followed accounts
             processFxn: (account) => (account as Account).isFollowed = true,
             ...(params || {})
@@ -433,8 +434,8 @@ export default class MastoApi {
      */
     async getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Tag>({
-            fetch: this.api.v1.followedTags.list,
             cacheKey: CacheKey.FOLLOWED_TAGS,
+            fetch: this.api.v1.followedTags.list,
             processFxn: (tag) => repairTag(tag),
             ...(params || {})
         }) as mastodon.v1.Tag[];
@@ -447,12 +448,26 @@ export default class MastoApi {
      */
     async getFollowers(params?: ApiParams): Promise<Account[]> {
         return await this.getWithBackgroundFetch<mastodon.v1.Account>({
-            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             cacheKey: CacheKey.FOLLOWERS,
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             minRecords: this.user.followersCount - 10, // We want to get at least this many followed accounts
             processFxn: (account) => (account as Account).isFollower = true,
             ...(params || {})
         }) as Account[];
+    }
+
+    /**
+     * Get the public toots on the user's home server (recent toots from users on the same server).
+     * @param params
+     * @returns
+     */
+    async getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]> {
+        return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
+            cacheKey: CacheKey.HOMESERVER_TIMELINE_TOOTS,
+            fetch: this.api.v1.timelines.public.list,
+            local: true,
+            ...(params || {})
+        }) as Toot[];
     }
 
     /**
@@ -462,8 +477,8 @@ export default class MastoApi {
      */
     async getMutedAccounts(params?: ApiParams): Promise<Account[]> {
         const mutedAccounts = await this.getApiObjsAndUpdate<mastodon.v1.Account>({
-            fetch: this.api.v1.mutes.list,
             cacheKey: CacheKey.MUTED_ACCOUNTS,
+            fetch: this.api.v1.mutes.list,
             ...(params || {})
         }) as Account[];
 
@@ -477,14 +492,11 @@ export default class MastoApi {
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
     async getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]> {
-        const notifs = await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
-            fetch: this.api.v1.notifications.list,
+        return await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
             cacheKey: CacheKey.NOTIFICATIONS,
+            fetch: this.api.v1.notifications.list,
             ...(params || {})
         }) as mastodon.v1.Notification[];
-
-        this.logger.log(`[${CacheKey.NOTIFICATIONS}] getNotifications() retrieved ${notifs.length} notifications:`);
-        return notifs;
     }
 
     /**
@@ -494,8 +506,8 @@ export default class MastoApi {
      */
     async getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             cacheKey: CacheKey.RECENT_USER_TOOTS,
+            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
             ...(params || {})
         }) as Toot[];
     }
@@ -512,13 +524,13 @@ export default class MastoApi {
         try {
             let filters = await Storage.getIfNotStale<mastodon.v2.Filter[]>(CacheKey.SERVER_SIDE_FILTERS);
 
-            if (!filters){
+            if (!filters) {
                 filters = await this.api.v2.filters.list();
 
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
                     // Before Mastodon 4.0 Filter objects lacked a 'context' property altogether
-                    if (filter.context?.length > 0 && !filter.context.includes("home")) return false;
+                    if (filter.context?.length && !filter.context.includes("home")) return false;
                     if (filter.filterAction != "hide") return false;
                     return true;
                 });
@@ -607,8 +619,8 @@ export default class MastoApi {
 
         try {
             const toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({
-                fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 cacheKey: CacheKey.HASHTAG_TOOTS,  // This CacheKey is just for log prefixes + signaling how to serialize
+                fetch: this.api.v1.timelines.tag.$select(tagName).list,
                 logger,
                 maxRecords,
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -763,6 +775,7 @@ export default class MastoApi {
      * @returns {string} The full endpoint URL.
      */
     private endpointURL = (endpoint: string): string => `https://${this.homeDomain}/${endpoint}`;
+
     /**
      * Checks if the config supports min/max ID for a given cache key.
      * @private
@@ -818,6 +831,7 @@ export default class MastoApi {
                 waitTime.markStart();  // Reset timer for next page
             }
 
+            if (cacheKey != CacheKey.HASHTAG_TOOTS) logger.info(`Retrieved ${newRows.length} objects`);
             return newRows;
         } catch (e) {
             return this.handleApiError<T>(params, newRows, e);
@@ -962,13 +976,14 @@ export default class MastoApi {
      * Builds API request parameters for pagination.
      * @private
      * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams} API pagination parameters.
+     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
      */
     private buildParams<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): mastodon.DefaultPaginationParams {
-        const { limit, minIdForFetch, maxIdForFetch } = params;
-        let apiParams: mastodon.DefaultPaginationParams = { limit };
+        const { limit, local, minIdForFetch, maxIdForFetch } = params;
+        let apiParams: mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams = { limit };
         if (minIdForFetch) apiParams = {...apiParams, minId: `${minIdForFetch}`};
         if (maxIdForFetch) apiParams = {...apiParams, maxId: `${maxIdForFetch}`};
+        if (local) apiParams = {...apiParams, local: true};
         return apiParams;
     }
 

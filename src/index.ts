@@ -299,6 +299,7 @@ class TheAlgorithm {
 
         dataLoads = dataLoads.concat([
             ...Object.values(TagTootsCacheKey).map(hashtagToots),
+            this.fetchAndMergeToots(MastoApi.instance.getHomeserverTimelineToots(), new Logger(CacheKey.HOMESERVER_TIMELINE_TOOTS)),
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
