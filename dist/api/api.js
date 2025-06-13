@@ -315,6 +315,19 @@ class MastoApi {
         });
     }
     /**
+     * Get the public toots on the user's home server (recent toots from users on the same server).
+     * @param params
+     * @returns
+     */
+    async getHomeserverTimelineToots(params) {
+        return await this.getApiObjsAndUpdate({
+            cacheKey: enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS,
+            fetch: this.api.v1.timelines.public.list,
+            local: true,
+            ...(params || {})
+        });
+    }
+    /**
      * Gets all muted accounts (including fully blocked accounts).
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of muted and blocked accounts.
@@ -779,15 +792,17 @@ class MastoApi {
      * Builds API request parameters for pagination.
      * @private
      * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams} API pagination parameters.
+     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
      */
     buildParams(params) {
-        const { limit, minIdForFetch, maxIdForFetch } = params;
+        const { limit, local, minIdForFetch, maxIdForFetch } = params;
         let apiParams = { limit };
         if (minIdForFetch)
             apiParams = { ...apiParams, minId: `${minIdForFetch}` };
         if (maxIdForFetch)
             apiParams = { ...apiParams, maxId: `${maxIdForFetch}` };
+        if (local)
+            apiParams = { ...apiParams, local: true };
         return apiParams;
     }
     /**

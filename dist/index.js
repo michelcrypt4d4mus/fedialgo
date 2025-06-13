@@ -290,6 +290,7 @@ class TheAlgorithm {
         };
         dataLoads = dataLoads.concat([
             ...Object.values(enums_1.TagTootsCacheKey).map(hashtagToots),
+            this.fetchAndMergeToots(api_1.default.instance.getHomeserverTimelineToots(), new logger_1.Logger(enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS)),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),

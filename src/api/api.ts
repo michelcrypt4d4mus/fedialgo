@@ -111,6 +111,7 @@ interface FetchParams<T extends MastodonApiObj> extends ApiParamsWithMaxID {
     fetch?: ApiFetcher<T>,
     fetchGenerator?: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
+    local?: boolean,
     processFxn?: (obj: T) => void,
     skipMutex?: boolean,
 };
@@ -453,6 +454,20 @@ export default class MastoApi {
             processFxn: (account) => (account as Account).isFollower = true,
             ...(params || {})
         }) as Account[];
+    }
+
+    /**
+     * Get the public toots on the user's home server (recent toots from users on the same server).
+     * @param params
+     * @returns
+     */
+    async getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]> {
+        return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
+            cacheKey: CacheKey.HOMESERVER_TIMELINE_TOOTS,
+            fetch: this.api.v1.timelines.public.list,
+            local: true,
+            ...(params || {})
+        }) as Toot[];
     }
 
     /**
@@ -961,13 +976,14 @@ export default class MastoApi {
      * Builds API request parameters for pagination.
      * @private
      * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams} API pagination parameters.
+     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
      */
     private buildParams<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): mastodon.DefaultPaginationParams {
-        const { limit, minIdForFetch, maxIdForFetch } = params;
-        let apiParams: mastodon.DefaultPaginationParams = { limit };
+        const { limit, local, minIdForFetch, maxIdForFetch } = params;
+        let apiParams: mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams = { limit };
         if (minIdForFetch) apiParams = {...apiParams, minId: `${minIdForFetch}`};
         if (maxIdForFetch) apiParams = {...apiParams, maxId: `${maxIdForFetch}`};
+        if (local) apiParams = {...apiParams, local: true};
         return apiParams;
     }
 

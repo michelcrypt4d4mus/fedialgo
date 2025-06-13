@@ -142,6 +142,12 @@ export default class MastoApi {
      */
     getFollowers(params?: ApiParams): Promise<Account[]>;
     /**
+     * Get the public toots on the user's home server (recent toots from users on the same server).
+     * @param params
+     * @returns
+     */
+    getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]>;
+    /**
      * Gets all muted accounts (including fully blocked accounts).
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of muted and blocked accounts.
@@ -292,7 +298,7 @@ export default class MastoApi {
      * Builds API request parameters for pagination.
      * @private
      * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams} API pagination parameters.
+     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
      */
     private buildParams;
     /**

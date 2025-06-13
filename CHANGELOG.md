@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add MastoApi.getHomeserverTimelineToots() and integrate local server toots into timeline
 
 ### v0.71.2
 * (Demo App) Fix `logout()` call

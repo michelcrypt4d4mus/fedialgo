@@ -100,6 +100,10 @@ class Config {
                 lookbackForUpdatesMinutes: 180,
                 supportsMinMaxId: true,
             },
+            [enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS]: {
+                initialMaxRecords: 20,
+                minutesUntilStale: 10,
+            },
             [enums_1.CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
