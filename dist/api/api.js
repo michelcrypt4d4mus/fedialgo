@@ -148,14 +148,14 @@ class MastoApi {
      */
     async fetchHomeFeed(params) {
         const { maxRecords, mergeTootsToFeed, moar } = params;
-        let { maxId } = params;
         const cacheKey = enums_1.CacheKey.HOME_TIMELINE_TOOTS;
         const logger = this.loggerForParams({ ...params, cacheKey });
-        const startedAt = new Date();
+        let { maxId } = params;
         let homeTimelineToots = await Storage_1.default.getCoerced(cacheKey);
         let allNewToots = [];
         let cutoffAt = (0, time_helpers_1.timelineCutoffAt)();
         let oldestTootStr = "no oldest toot";
+        const startedAt = new Date();
         if (moar) {
             const minMaxId = (0, collection_helpers_1.findMinMaxId)(homeTimelineToots);
             if (minMaxId)

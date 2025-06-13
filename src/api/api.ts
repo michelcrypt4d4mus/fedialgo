@@ -270,15 +270,15 @@ export default class MastoApi {
      */
     async fetchHomeFeed(params: HomeTimelineParams): Promise<Toot[]> {
         const { maxRecords, mergeTootsToFeed, moar } = params;
-        let { maxId } = params;
         const cacheKey = CacheKey.HOME_TIMELINE_TOOTS;
         const logger = this.loggerForParams({ ...params, cacheKey });
-        const startedAt = new Date();
+        let { maxId } = params;
 
         let homeTimelineToots = await Storage.getCoerced<Toot>(cacheKey);
         let allNewToots: Toot[] = [];
         let cutoffAt = timelineCutoffAt();
         let oldestTootStr = "no oldest toot";
+        const startedAt = new Date();
 
         if (moar) {
             const minMaxId = findMinMaxId(homeTimelineToots);
