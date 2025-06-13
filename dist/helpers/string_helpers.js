@@ -292,6 +292,7 @@ exports.wordRegex = wordRegex;
  * @returns {RegExp} The generated regular expression.
  */
 const wordsRegex = (patterns) => {
+    patterns = patterns.filter(pattern => !(0, exports.isEmptyStr)(pattern)); // Remove empty strings
     if (patterns.length === 0)
         return /<THIS_REGEX_MATCHES_NOTHING>/;
     const escapedPatterns = patterns.map(regexp_escape_1.default).join('|');
