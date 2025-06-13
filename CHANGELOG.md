@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.72.5
 * Uniquify accounts on webfingerURI
 * (Demo App) Fix handling of missing toot.trendingLinks
 
