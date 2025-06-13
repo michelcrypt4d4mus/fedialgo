@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.72.0
 * Add MastoApi.getHomeserverTimelineToots() and integrate local server toots into timeline
 
 ### v0.71.2
