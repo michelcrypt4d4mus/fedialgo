@@ -90,7 +90,6 @@ class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data) {
         const userData = new UserData();
-        userData.populateFavouriteAccounts(data);
         userData.blockedDomains = new Set(data.blockedDomains);
         userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
@@ -100,7 +99,8 @@ class UserData {
         userData.participatedTags = tag_list_1.default.fromUsageCounts(data.recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
         userData.serverSideFilters = data.serverSideFilters;
         userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
-        //Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
+        userData.populateFavouriteAccounts(data);
+        // Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
         userData.lastUpdatedAt = (0, toot_1.mostRecentTootedAt)([...data.recentToots, ...data.favouritedToots]);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config_1.config.locale.defaultLanguage;
         logger.trace("Built from data:", userData);

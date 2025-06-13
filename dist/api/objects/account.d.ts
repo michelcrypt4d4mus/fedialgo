@@ -125,6 +125,6 @@ export default class Account implements AccountObj {
      * @param {Account[]} accounts - Array of Account objects.
      * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
      */
-    static logSuspendedAccounts(accounts: Account[], logPrefix?: string): void;
+    static logSuspendedAccounts(accounts: Account[], logPrefix: string): void;
 }
 export {};

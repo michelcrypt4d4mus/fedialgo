@@ -219,9 +219,9 @@ class Account {
      * @param {Account[]} accounts - Array of Account objects.
      * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
      */
-    static logSuspendedAccounts(accounts, logPrefix = 'logSuspendedAccounts()') {
+    static logSuspendedAccounts(accounts, logPrefix) {
         accounts.filter(a => !!a.suspended).forEach(a => {
-            console.warn(`${(0, string_helpers_1.bracketed)(logPrefix)} Found suspended account:`, a);
+            logger.warn(`${(0, string_helpers_1.bracketed)(logPrefix)} Found suspended account:`, a);
         });
     }
 }

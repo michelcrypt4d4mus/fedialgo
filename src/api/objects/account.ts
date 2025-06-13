@@ -9,7 +9,7 @@ import MastoApi from "../api";
 import MastodonServer, { InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
-import { keyByProperty } from "../../helpers/collection_helpers";
+import { groupBy, keyByProperty } from "../../helpers/collection_helpers";
 import { Logger } from "../../helpers/logger";
 import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
 
@@ -246,9 +246,9 @@ export default class Account implements AccountObj {
      * @param {Account[]} accounts - Array of Account objects.
      * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
      */
-    static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
+    static logSuspendedAccounts(accounts: Account[], logPrefix: string): void {
         accounts.filter(a => !!a.suspended).forEach(a => {
-            console.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
+            logger.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
         });
     }
 };

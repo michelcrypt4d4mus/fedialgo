@@ -679,6 +679,7 @@ class TheAlgorithm {
 
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
+        this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
         this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE_TOOTS);
 
         if (this.feed.length == config.toots.maxTimelineLength) {
@@ -688,7 +689,6 @@ class TheAlgorithm {
             await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
         }
 
-        this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
         this.trendingData = await Storage.getTrendingData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
         await updateBooleanFilterOptions(this.filters, this.feed);

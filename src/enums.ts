@@ -161,7 +161,6 @@ export enum TypeFilterName {
     VIDEOS = 'videos'
 };
 
-
 /**
  * Array of all cache keys (CacheKey and TagTootsCacheKey values).
  * @private

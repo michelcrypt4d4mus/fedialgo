@@ -1,7 +1,11 @@
 # NEXT RELEASE
 
+### v0.72.5
+* Uniquify accounts on webfingerURI
+* (Demo App) Fix handling of missing toot.trendingLinks
+
 ### v0.72.4
-* Remove empty strings when generating wordsRegex()
+* Remove empty strings when generating `wordsRegex()`
 
 ### v0.72.3
 * Fix `UserData.mutedKeywordsRegex` when the user has no server side filters
@@ -841,7 +845,7 @@
 ### v0.33.1
 * Return existing score instead of 0 if `Scorer` isn't ready yet (if it exists)
 
-# v0.33.0
+## v0.33.0
 * Sort built toots by their preliminary score, not by their popularity
 * Increase default `FOLLOWED_TAGS` weight to 4
 * Decrease default `TRENDING` weight to 0.15
@@ -852,7 +856,7 @@
 * Separate out the backfill functionality to `TheAlgorithm.triggerHomeTimelineBackFill()`
 * Improve `Storage.dumpData()` method; remove unused `StorageKey`s
 
-# v0.32.0
+## v0.32.0
 * Add `moreOldToots` parameter to `triggerFeedUpdate()`
 * Fix bug where `getParticipatedHashtag()` toots wasn't returning a promise
 * Up `Config.toots.maxCachedTimelineToots` to 2,500
@@ -1067,7 +1071,7 @@
 * Exclude followed tags from the pulling of hashtag participation toots (followed tags are already in timeline)
 * Refactor common handling for cacheable toot fetches
 
-# v0.24.0
+## v0.24.0
 * Rename `Config.maxTimelineTootsToFetch` to `Config.maxInitialTimelineToots`
 * Create a `UserData` object, expose a `userData` prop on `TheAlgorithm`
 * `repairTag()` now replaces the `tag.url` property with link to the tag on the user's homeserver
@@ -1323,41 +1327,41 @@
 * `DiversityFeedScorer` logs at DEBUG level
 * [Demo App] "What's Trending" accordion section
 
-## 0.15.3
+### 0.15.3
 * Fix miscased `Scorer.ts` files in `dist/` package.
 
-## 0.15.2
+### 0.15.2
 * Fix `unknown` media type for video files with extension `.mp4`
 
-## `0.15.1`
+### `0.15.1`
 * Fix demo app dependency
 
 ## `0.15.0`
 * Make `Poll` a filterable type
 
-## `0.14.2`
+### `0.14.2`
 * [bug] Force removal of duplicats `Toot.reblogsBy` values
 * Exclude `bsky.brid.gy` from MAU numbers
 
-## `0.14.1`
+### `0.14.1`
 * Make sure `trendingRank` is set correctly on trending toots retooted by people you follow
 
 ## `0.14.0`
 * `accountNameWithEmojis()` and `Toot.contentWithEmojis()` API methods
 
-## `0.13.4`
+### `0.13.4`
 * [bug] Remove dupes from `Toot.reblogsBy` array
 * Unified `Toot.realURI()` method
 * Tweak default weights
 
-## `0.13.3`
+### `0.13.3`
 * Convert `Toot.reblogBy` (an `Account`) to `Toot.reblogsBy` (an `Account[]`)
 * Make `DiversityFeedScorer` properly account for retoots
 
-## `0.13.2`
+### `0.13.2`
 * [bug] Fix retoots being scored based on the retooter not on the original toot
 
-## `0.13.1`
+### `0.13.1`
 * [bug] `videoAttachments()` wasn't including `gifv` videos
 * [bug] export `WeightName` enum for usage in client app
 
@@ -1374,14 +1378,14 @@
 * Add `MentionsFollowedScorer`
 * Add handling for audio `mediaAttachment`
 
-## `0.10.1`
+### `0.10.1`
 * Refactor a `MastodonServer` class for calls to the public API
 
 ## `0.10.0`
 * Add `Toot.isDM()` instance method and filter option
 * Stop muted accounts from sneaking into the feed via trending toots
 
-## `0.9.1`
+### `0.9.1`
 * `DiversityFeedScorer` sorts by MD5 of id to get random but repeatable ordering so scores don't bounce around as incremental loads happen
 * `ChaosScorer` uses a hashing function to generate a deterministic score instead of `Math.random()`
 * Don't decide whether to reload feed (leave that to the client app using this package)
@@ -1389,24 +1393,24 @@
 ## `0.9.0`
 * (demo app) switch to sort filters by count instead of by name
 
-## `0.8.6`
+### `0.8.6`
 * Remove followed servers that don't meet MAU requirements from trending data
 * Standardize caching of data fetched from Mastodon
 
-## `0.8.5`
+### `0.8.5`
 * [bug] Handle `FeatureScorer` not being ready if page is reloaded
 
-## `0.8.4`
+### `0.8.4`
 * Fix de/serialization of score data on `Toot` objects introduced by `Toot` refactor
 
-## `0.8.3`
+### `0.8.3`
 * Enable `reloadFeed()` method to return true after 10 minutes has passed since latest toot in timline
 * Refactor out a proper `Toot` class
 
-## `0.8.2`
+### `0.8.2`
 * [bug] Fix server side filter application
 
-## `0.8.1`
+### `0.8.1`
 * Pull and apply server side filters to trending toots manually because user's server side filters can't be applied to toots pulled from other servers
 
 ## `0.8.0`
@@ -1416,7 +1420,7 @@
 * Add filtering based on username
 * Implement a real incremental load
 
-## `0.6.1`
+### `0.6.1`
 * Convert the filtering of sources to the standard model
 * [bug] Fix doublecounting of toot categories
 
@@ -1424,7 +1428,7 @@
 * Allow inverting filters for apps and languages (not just hashtags)
 * Standardize a `FilterSection` object structure for app, language, hashtag, etc. filtering
 
-## `0.5.1`
+### `0.5.1`
 * Rudimentary ability to keep loading more toots in the background after delivering the first batch
 
 ## `0.5.0`
