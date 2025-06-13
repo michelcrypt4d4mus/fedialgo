@@ -61,7 +61,7 @@ export default abstract class TootFilter {
     }
 
     /** Must be overridden in subclasses. */
-    static isValidFilterProperty(name: string): boolean {
+    static isValidFilterProperty(_name: string): boolean {
         throw new Error("isValidFilterProperty() must be implemented in subclasses");
     }
 

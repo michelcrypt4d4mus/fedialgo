@@ -2,7 +2,6 @@
  * Background polling to try to get more user data for the scoring algorithm
  * after things have died down from the intitial load.
  */
-import { mastodon } from 'masto';
 import { Mutex } from 'async-mutex';
 
 import MastoApi, { ApiParams } from "../api/api";
@@ -29,7 +28,7 @@ export async function getMoarData(): Promise<boolean> {
     const startedAt = new Date();
 
     // TODO: Add followed accounts?  for people who follow > 5,000 users?
-    let pollers: Poller[] = [
+    const pollers: Poller[] = [
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
         MastoApi.instance.getNotifications.bind(MastoApi.instance),
@@ -38,7 +37,7 @@ export async function getMoarData(): Promise<boolean> {
 
     try {
         // Call without moar boolean to check how big the cache is
-        let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
+        const cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
 
         // Launch with moar flag those that are insufficient
         const newRecordCounts = await Promise.all(

@@ -40,7 +40,7 @@ class TootFilter {
         };
     }
     /** Must be overridden in subclasses. */
-    static isValidFilterProperty(name) {
+    static isValidFilterProperty(_name) {
         throw new Error("isValidFilterProperty() must be implemented in subclasses");
     }
     /** Remove any filter args from the list whose propertyName is invalid */

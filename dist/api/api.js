@@ -130,9 +130,8 @@ class MastoApi {
         this.reset();
     }
     /**
-     * Get the value of MastoApi object's properties.
-     * @param {mastodon.rest.Client} api - Mastodon REST API client.
-     * @param {Account} user - The authenticated user account.
+     * Get the value of some MastoApi object's properties. For debugging/presentation only.
+     * @returns {Record<string, object|string>}
      */
     currentState() {
         return {
@@ -148,7 +147,8 @@ class MastoApi {
      * @returns {Promise<Toot[]>} Array of Toots in the home feed.
      */
     async fetchHomeFeed(params) {
-        let { maxId, maxRecords, mergeTootsToFeed, moar } = params;
+        const { maxRecords, mergeTootsToFeed, moar } = params;
+        let { maxId } = params;
         const cacheKey = enums_1.CacheKey.HOME_TIMELINE_TOOTS;
         const logger = this.loggerForParams({ ...params, cacheKey });
         const startedAt = new Date();
@@ -198,7 +198,7 @@ class MastoApi {
             }
         });
         homeTimelineToots = toot_1.default.dedupeToots([...allNewToots, ...homeTimelineToots], logger);
-        let msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
+        const msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots).reverse(); // TODO: should we sort by score?
         homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger);
@@ -223,7 +223,7 @@ class MastoApi {
      * @returns {Promise<string[]>} Set of blocked domains.
      */
     async getBlockedDomains() {
-        let domains = await this.getApiObjsAndUpdate({
+        const domains = await this.getApiObjsAndUpdate({
             fetch: this.api.v1.domainBlocks.list,
             cacheKey: enums_1.CacheKey.BLOCKED_DOMAINS,
         });
@@ -415,7 +415,7 @@ class MastoApi {
             }
         }
         const toots = results.fulfilled.flat();
-        let msg = `#${tagName}: search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
+        const msg = `#${tagName}: search endpoint got ${results.fulfilled[0]?.length || 0} toots, ` +
             `hashtag timeline got ${results.fulfilled[1]?.length || 0} ` +
             `${(0, time_helpers_1.ageString)(startedAt)} (total ${toots.length}, oldest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.earliestTootedAt)(toots))}`;
         logger.trace(`${msg}, newest=${(0, time_helpers_1.quotedISOFmt)((0, toot_1.mostRecentTootedAt)(toots))})`);
@@ -486,7 +486,7 @@ class MastoApi {
             this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
             const v1Instance = await this.api.v1.instance.fetch();
             if (v1Instance) {
-                let msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
+                const msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
                 this.logger.logAndThrowError(msg, v1Instance);
             }
             else {
@@ -618,9 +618,9 @@ class MastoApi {
      */
     async fetchApiObjs(params) {
         this.validateFetchParams(params);
-        let { breakIf, cacheKey, fetch, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
+        const { breakIf, cacheKey, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
         // Create a new Iterator for the fetch if fetchGenerator is provided
-        fetch = fetchGenerator ? fetchGenerator() : fetch;
+        const fetch = fetchGenerator ? fetchGenerator() : params.fetch;
         const waitTime = this.waitTimes[cacheKey];
         waitTime.markStart(); // Telemetry
         let newRows = [];
@@ -664,7 +664,7 @@ class MastoApi {
      */
     async getApiObjsAndUpdate(inParams) {
         const paramsWithCache = await this.addCacheDataToParams(inParams);
-        let { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
+        const { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
         const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.cacheMutexes[cacheKey], hereLogger);
         try {
@@ -699,8 +699,8 @@ class MastoApi {
      * @returns {Promise<MastodonApiObj[]>} Array of API objects.
      */
     async getApiObjs(params) {
-        let { cacheKey, isBackgroundFetch, logger, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
-        logger = logger.tempLogger('getApiObjs');
+        const { cacheKey, isBackgroundFetch, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
+        const logger = params.logger.tempLogger('getApiObjs');
         params = { ...params, logger };
         if (this.apiMutexes[cacheKey].isLocked()) {
             if (isBackgroundFetch) {
@@ -731,7 +731,8 @@ class MastoApi {
             if (maxCacheRecords && objs.length > maxCacheRecords) {
                 logger.warn(`Truncating ${objs.length} rows to maxCacheRecords=${maxCacheRecords}`);
                 // TODO: there's a Mastodon object w/out created_at, so this would break but for now that object has no maxCacheRecords set for that endpoint
-                newRows = (0, collection_helpers_1.truncateToConfiguredLength)((0, collection_helpers_1.sortObjsByCreatedAt)(objs), maxCacheRecords, logger);
+                const sortedByCreatedAt = (0, collection_helpers_1.sortObjsByCreatedAt)(objs);
+                newRows = (0, collection_helpers_1.truncateToConfiguredLength)(sortedByCreatedAt, maxCacheRecords, logger);
             }
             if (processFxn)
                 objs.forEach(obj => obj && processFxn(obj));
@@ -740,7 +741,7 @@ class MastoApi {
             return objs;
         }
         catch (err) {
-            let msg = `Error fetching API records for ${cacheKey} where there really shouldn't be!`;
+            const msg = `Error fetching API records for ${cacheKey} where there really shouldn't be!`;
             logger.error(msg, err);
             this.apiErrors.push(new Error(msg, { cause: err }));
             return [];
@@ -798,7 +799,8 @@ class MastoApi {
      */
     async addCacheDataToParams(inParams) {
         const params = this.fillInDefaultParams(inParams);
-        let { logger, maxId, maxRecords, moar } = params;
+        const { logger, maxId, moar } = params;
+        let { maxRecords } = params;
         const cacheResult = await this.getCacheResult(params);
         const minMaxIdParams = { maxIdForFetch: null, minIdForFetch: null };
         // If min/maxId is supported then we find the min/max ID in the cached data to use in the next request
@@ -868,7 +870,8 @@ class MastoApi {
      * @returns {T[]} Array of rows to use.
      */
     handleApiError(params, rows, err) {
-        let { cacheKey, cacheResult, logger } = params;
+        let { cacheKey, logger } = params;
+        const cacheResult = params.cacheResult;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
         logger ??= getLogger(cacheKey, 'handleApiError');
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
@@ -928,7 +931,7 @@ class MastoApi {
      * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
      */
     fillInDefaultParams(params) {
-        let { cacheKey, logger, maxRecords } = params;
+        const { cacheKey, logger, maxRecords } = params;
         const requestDefaults = config_1.config.api.data[cacheKey];
         const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || config_1.MIN_RECORDS_FOR_FEATURE_SCORING;
         const withDefaults = {
@@ -968,8 +971,8 @@ class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
     validateFetchParams(params) {
-        let { cacheKey, fetch, fetchGenerator, logger, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
-        logger = logger.tempLogger('validateFetchParams');
+        const { cacheKey, fetch, fetchGenerator, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        const logger = params.logger.tempLogger('validateFetchParams');
         if (!(fetch || fetchGenerator)) {
             logger.logAndThrowError(`No fetch or fetchGenerator provided for ${cacheKey}`, params);
         }

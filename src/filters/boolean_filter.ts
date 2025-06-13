@@ -103,7 +103,7 @@ export default class BooleanFilter extends TootFilter {
      */
     constructor(params: BooleanFilterArgs) {
         const { invertSelection, propertyName, selectedOptions } = params;
-        let optionInfo = new BooleanFilterOptionList([], propertyName);
+        const optionInfo = new BooleanFilterOptionList([], propertyName);
         let description: string;
 
         if (propertyName == BooleanFilterName.TYPE) {
@@ -145,7 +145,10 @@ export default class BooleanFilter extends TootFilter {
      * @returns {BooleanFilterOptionList}
      */
     optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
-        let options = this.options.objs.toSorted((a, b) => compareStr(a.displayName || a.name, b.displayName || b.name));
+        const options = this.options.objs.toSorted(
+            (a, b) => compareStr(a.displayName || a.name, b.displayName || b.name)
+        );
+
         return this.optionListWithMinToots(options, minToots);
     }
 

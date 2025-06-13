@@ -160,7 +160,7 @@ class Storage {
     }
     // Return the user's stored timeline weightings or the default weightings if none are found
     static async getWeights() {
-        let weights = await this.get(enums_1.AlgorithmStorageKey.WEIGHTS);
+        const weights = await this.get(enums_1.AlgorithmStorageKey.WEIGHTS);
         if (!weights)
             return JSON.parse(JSON.stringify(weight_presets_1.DEFAULT_WEIGHTS));
         let shouldSave = false;

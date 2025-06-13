@@ -84,7 +84,7 @@ class Logger {
     /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
     deep = (msg, ...args) => { environment_helpers_1.isDeepDebug && this.debug(msg, ...args); };
     /** Logs a warning message with a warn colored prefix (not a real warning level). */
-    warnWithoutTrace = (msg, ...args) => console.log(`%cWarning: ${msg}`, 'color: orange;');
+    warnWithoutTrace = (msg, ...args) => console.log(`%cWarning: ${msg}`, 'color: orange;', args);
     /**
      * Concatenates the logger's prefix and the given message.
      * @param {string|undefined} msg - The message to prefix.

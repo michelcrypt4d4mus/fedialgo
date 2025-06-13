@@ -97,7 +97,7 @@ class Account {
     ;
     // Returns HTML combining the note property with creation date, followers, and toots count
     get noteWithAccountInfo() {
-        let txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
+        const txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
         const createdAt = new Date(this.createdAt);
         const accountStats = [
             `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,

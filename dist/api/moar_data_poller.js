@@ -4,6 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMoarData = exports.moarDataLogger = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
+/*
+ * Background polling to try to get more user data for the scoring algorithm
+ * after things have died down from the intitial load.
+ */
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -21,7 +25,7 @@ async function getMoarData() {
     const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.moarDataLogger);
     const startedAt = new Date();
     // TODO: Add followed accounts?  for people who follow > 5,000 users?
-    let pollers = [
+    const pollers = [
         // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
         api_1.default.instance.getFavouritedToots.bind(api_1.default.instance),
         api_1.default.instance.getNotifications.bind(api_1.default.instance),
@@ -29,7 +33,7 @@ async function getMoarData() {
     ];
     try {
         // Call without moar boolean to check how big the cache is
-        let cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
+        const cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
         // Launch with moar flag those that are insufficient
         const newRecordCounts = await Promise.all(cacheSizes.map(async (size, i) => {
             if (size >= config_1.config.api.maxRecordsForFeatureScoring) {

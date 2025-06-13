@@ -100,7 +100,7 @@ const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
 const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load";
-const DEFAULT_SET_TIMELINE_IN_APP = (feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
+const DEFAULT_SET_TIMELINE_IN_APP = (_feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 
 const EMPTY_TRENDING_DATA: TrendingData = {
     links: [],
@@ -285,7 +285,7 @@ class TheAlgorithm {
         MastoApi.instance.getUserData();
         ScorerCache.prepareScorers();
 
-        let dataLoads: Promise<any>[] = [
+        let dataLoads: Promise<unknown>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
         ];
 
@@ -384,7 +384,7 @@ class TheAlgorithm {
      * Return an object describing the state of the world. Mostly for debugging.
      * @returns {Promise<Record<string, any>>} State object.
      */
-    async getCurrentState(): Promise<Record<string, any>> {
+    async getCurrentState(): Promise<Record<string, unknown>> {
         return {
             Algorithm: this.statusDict(),
             Api: MastoApi.instance.currentState(),
@@ -774,7 +774,7 @@ class TheAlgorithm {
     }
 
     // Info about the state of this TheAlgorithm instance
-    private statusDict(): Record<string, any> {
+    private statusDict(): Record<string, unknown> {
         const mostRecentTootAt = this.mostRecentHomeTootAt();
         const oldestTootAt = earliestTootedAt(this.homeFeed);
         let numHoursInHomeFeed: number | null = null;

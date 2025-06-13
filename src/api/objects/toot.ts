@@ -303,7 +303,7 @@ export default class Toot implements TootObj {
     }
 
     get description(): string {
-        let msg = `${this.account.description} [${toISOFormat(this.createdAt)}, ID="${this.id}"]`;
+        const msg = `${this.account.description} [${toISOFormat(this.createdAt)}, ID="${this.id}"]`;
         return `${msg}: "${this.contentShortened()}"`;
     }
 
@@ -518,7 +518,7 @@ export default class Toot implements TootObj {
      * @returns {boolean}
      */
     isInTimeline(filters: FeedFilterSettings): boolean {
-        let isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
+        const isOK = Object.values(filters.booleanFilters).every((section) => section.isAllowed(this));
         return isOK && Object.values(filters.numericFilters).every((filter) => filter.isAllowed(this));
     }
 
@@ -1082,7 +1082,7 @@ export default class Toot implements TootObj {
      */
     private static uniqFlatMap<T>(
         toots: Toot[],
-        property: KeysOfValueType<Toot, any[] | undefined>,
+        property: KeysOfValueType<Toot, unknown[] | undefined>,
         uniqFxn: (elem: T) => string
     ): T[] {
         const mappedReblogs = toots.flatMap(toot => (toot.reblog?.[property] as T[] | undefined) ?? []);

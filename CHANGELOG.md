@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.71.1
+* Fix potential bug when truncating cached rows
+* Make ESLint happier
+
 # v0.71.0
 * Add ability to filter by originating server
 * Don't sort `Toot` objects twice in `buildToots()`

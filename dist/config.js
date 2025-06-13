@@ -336,7 +336,7 @@ class Config {
         },
     };
     constructor() {
-        this.validate();
+        this.validate(this);
         console.debug(`${LOG_PREFIX} validated:`, this);
     }
     ;
@@ -372,9 +372,13 @@ class Config {
     }
     // Check for NaN values in number fields and emptry strings in string fields
     validate(cfg) {
-        cfg ??= this;
+        if (!cfg) {
+            if (!this.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS]?.lookbackForUpdatesMinutes) {
+                throw new Error(`${LOG_PREFIX} HOME_TIMELINE_TOOTS lookbackForUpdatesMinutes is not set!`);
+            }
+        }
         // Check that all the values are valid
-        Object.entries(cfg).forEach(([key, value]) => {
+        Object.entries(cfg || this).forEach(([key, value]) => {
             if (typeof value === "object") {
                 this.validate(value);
             }

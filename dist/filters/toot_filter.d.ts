@@ -42,7 +42,7 @@ export default abstract class TootFilter {
      */
     toArgs(): FilterArgs;
     /** Must be overridden in subclasses. */
-    static isValidFilterProperty(name: string): boolean;
+    static isValidFilterProperty(_name: string): boolean;
     /** Remove any filter args from the list whose propertyName is invalid */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[];
 }

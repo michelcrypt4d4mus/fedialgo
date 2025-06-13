@@ -7,7 +7,7 @@ import { sortKeysByValue, split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr, optionalSuffix } from './string_helpers';
 import { type StringNumberDict } from '../types';
 
-type ErrorArgs = {args: any[], error?: Error};
+type ErrorArgs = {args: unknown[], error?: Error};
 type LoggerArg = string | boolean | null | undefined;  // boolean so we can filter out optional args that are falsey
 
 const PREFIXERS = [
@@ -68,7 +68,7 @@ export class Logger {
      * @param {...any} args - Additional arguments to log.
      * @returns {string} The error message string.
      */
-    error(msg: string | Error, ...args: any[]): string {
+    error(msg: string | Error, ...args: unknown[]): string {
         const allArgs = [msg, ...args];
         msg = this.errorStr(...allArgs);
         console.error(this.line(msg), ...allArgs);
@@ -80,19 +80,19 @@ export class Logger {
      * @param {string} msg - The warning message.
      * @param {...any} args - Additional arguments to log.
      */
-    warn =  (msg: string, ...args: any[]) => console.warn(this.line(this.errorStr(...[msg, ...args])));
+    warn =  (msg: string, ...args: unknown[]) => console.warn(this.line(this.errorStr(...[msg, ...args])));
     /** console.log() with the logger's prefix. */
-    log =   (msg: string, ...args: any[]) => console.log(this.line(msg), ...args);
+    log =   (msg: string, ...args: unknown[]) => console.log(this.line(msg), ...args);
     /** console.info() with the logger's prefix. */
-    info =  (msg: string, ...args: any[]) => console.info(this.line(msg), ...args);
+    info =  (msg: string, ...args: unknown[]) => console.info(this.line(msg), ...args);
     /** console.debug() with the logger's prefix. */
-    debug = (msg: string, ...args: any[]) => console.debug(this.line(msg), ...args);
+    debug = (msg: string, ...args: unknown[]) => console.debug(this.line(msg), ...args);
     /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
-    trace = (msg: string, ...args: any[]) => {(isDebugMode || isDeepDebug) && this.debug(msg, ...args)};
+    trace = (msg: string, ...args: unknown[]) => {(isDebugMode || isDeepDebug) && this.debug(msg, ...args)};
     /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
-    deep =  (msg: string, ...args: any[]) => {isDeepDebug && this.debug(msg, ...args)};
+    deep =  (msg: string, ...args: unknown[]) => {isDeepDebug && this.debug(msg, ...args)};
     /** Logs a warning message with a warn colored prefix (not a real warning level). */
-    warnWithoutTrace = (msg: string, ...args: any[]) => console.log(`%cWarning: ${msg}`, 'color: orange;');
+    warnWithoutTrace = (msg: string, ...args: unknown[]) => console.log(`%cWarning: ${msg}`, 'color: orange;', args);
 
     /**
      * Concatenates the logger's prefix and the given message.
@@ -109,7 +109,7 @@ export class Logger {
      * @param {...any} args - Additional arguments to include in the error.
      * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
-    logAndThrowError(msg: string, ...args: any[]): never {
+    logAndThrowError(msg: string, ...args: unknown[]): never {
         console.error(msg, ...args);
         const errorArgs = this.findErrorArg(args);
 
@@ -150,7 +150,7 @@ export class Logger {
      * @param {Date} startedAt - The start time to compute elapsed time.
      * @param {...any} args - Additional arguments or labels.
      */
-    logTelemetry(msg: string, startedAt: Date, ...args: any[]): void {
+    logTelemetry(msg: string, startedAt: Date, ...args: unknown[]): void {
         msg = `${TELEMETRY} ${msg} ${ageString(startedAt)}`;
 
         // If there's ...args and first arg is a string, assume it's a label for any other arg objects
@@ -186,7 +186,7 @@ export class Logger {
      * @param {...any} args - Additional arguments.
      * @returns {string} The formatted error message.
      */
-    private errorStr(...args: any[]): string {
+    private errorStr(...args: unknown[]): string {
         const errorArgs = this.findErrorArg(args);
         const stringArgs = errorArgs.args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg, null, 4));
         const stringArg = stringArgs.length > 0 ? stringArgs.join(', ') : undefined;
@@ -205,7 +205,7 @@ export class Logger {
      * @param {...any} args - Additional arguments.
      * @returns {ErrorArgs} Object with `args` containing non-Error args and `error` if an Error was found.
      */
-    private findErrorArg(args: any[]): ErrorArgs {
+    private findErrorArg(args: unknown[]): ErrorArgs {
         const [errorArgs, otherArgs] = split(args, arg => arg instanceof Error);
 
         if (errorArgs.length > 0) {

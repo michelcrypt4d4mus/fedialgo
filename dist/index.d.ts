@@ -126,7 +126,7 @@ declare class TheAlgorithm {
      * Return an object describing the state of the world. Mostly for debugging.
      * @returns {Promise<Record<string, any>>} State object.
      */
-    getCurrentState(): Promise<Record<string, any>>;
+    getCurrentState(): Promise<Record<string, unknown>>;
     /**
      * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc. with Recharts.
      * @param {number} numPercentiles - Number of percentiles for stats.

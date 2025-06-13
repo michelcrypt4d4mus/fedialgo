@@ -8,7 +8,7 @@ exports.wordsRegex = exports.wordRegex = exports.toLocaleInt = exports.replaceHt
  * @fileovervier Helpers for dealing with strings.
  * @module string_helpers
  */
-const escape = require('regexp.escape');
+const regexp_escape_1 = __importDefault(require("regexp.escape"));
 const blueimp_md5_1 = __importDefault(require("blueimp-md5"));
 const html_entities_1 = require("html-entities");
 const lodash_1 = require("lodash");
@@ -294,7 +294,7 @@ exports.wordRegex = wordRegex;
 const wordsRegex = (patterns) => {
     if (patterns.length === 0)
         return /(?:)/; // Empty regex that matches nothing
-    const escapedPatterns = patterns.map(escape).join('|');
+    const escapedPatterns = patterns.map(regexp_escape_1.default).join('|');
     return new RegExp(`\\b(?:${escapedPatterns})\\b`, 'i');
 };
 exports.wordsRegex = wordsRegex;

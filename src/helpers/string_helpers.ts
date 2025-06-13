@@ -2,7 +2,7 @@
  * @fileovervier Helpers for dealing with strings.
  * @module string_helpers
  */
-const escape = require('regexp.escape');
+import escape from 'regexp.escape';
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';
 import { isEmpty, isNil } from "lodash";
