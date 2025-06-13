@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.71.2
+* (Demo App) Fix `logout()` call
+
 ### v0.71.1
 * Fix potential bug when truncating cached rows
 * Make ESLint happier
