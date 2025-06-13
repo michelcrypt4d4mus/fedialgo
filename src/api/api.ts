@@ -477,14 +477,11 @@ export default class MastoApi {
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
     async getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]> {
-        const notifs = await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
+        return await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
             fetch: this.api.v1.notifications.list,
             cacheKey: CacheKey.NOTIFICATIONS,
             ...(params || {})
         }) as mastodon.v1.Notification[];
-
-        this.logger.log(`[${CacheKey.NOTIFICATIONS}] getNotifications() retrieved ${notifs.length} notifications:`);
-        return notifs;
     }
 
     /**
@@ -518,7 +515,7 @@ export default class MastoApi {
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
                     // Before Mastodon 4.0 Filter objects lacked a 'context' property altogether
-                    if (filter.context?.length > 0 && !filter.context.includes("home")) return false;
+                    if (filter.context?.length && !filter.context.includes("home")) return false;
                     if (filter.filterAction != "hide") return false;
                     return true;
                 });
@@ -818,6 +815,7 @@ export default class MastoApi {
                 waitTime.markStart();  // Reset timer for next page
             }
 
+            if (cacheKey != CacheKey.HASHTAG_TOOTS) logger.info(`Retrieved ${newRows.length} objects`);
             return newRows;
         } catch (e) {
             return this.handleApiError<T>(params, newRows, e);

@@ -334,13 +334,11 @@ class MastoApi {
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
     async getNotifications(params) {
-        const notifs = await this.getApiObjsAndUpdate({
+        return await this.getApiObjsAndUpdate({
             fetch: this.api.v1.notifications.list,
             cacheKey: enums_1.CacheKey.NOTIFICATIONS,
             ...(params || {})
         });
-        this.logger.log(`[${enums_1.CacheKey.NOTIFICATIONS}] getNotifications() retrieved ${notifs.length} notifications:`);
-        return notifs;
     }
     /**
      * Gets the user's recent toots.
@@ -369,7 +367,7 @@ class MastoApi {
                 // Filter out filters that either are just warnings or don't apply to the home context
                 filters = filters.filter(filter => {
                     // Before Mastodon 4.0 Filter objects lacked a 'context' property altogether
-                    if (filter.context?.length > 0 && !filter.context.includes("home"))
+                    if (filter.context?.length && !filter.context.includes("home"))
                         return false;
                     if (filter.filterAction != "hide")
                         return false;
@@ -649,6 +647,8 @@ class MastoApi {
                 }
                 waitTime.markStart(); // Reset timer for next page
             }
+            if (cacheKey != enums_1.CacheKey.HASHTAG_TOOTS)
+                logger.info(`Retrieved ${newRows.length} objects`);
             return newRows;
         }
         catch (e) {
