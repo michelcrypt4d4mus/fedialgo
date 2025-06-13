@@ -246,9 +246,9 @@ export default class Account implements AccountObj {
      * @param {Account[]} accounts - Array of Account objects.
      * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
      */
-    static logSuspendedAccounts(accounts: Account[], logPrefix: string = 'logSuspendedAccounts()'): void {
+    static logSuspendedAccounts(accounts: Account[], logPrefix: string): void {
         accounts.filter(a => !!a.suspended).forEach(a => {
-            console.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
+            logger.warn(`${bracketed(logPrefix)} Found suspended account:`, a);
         });
     }
 };
