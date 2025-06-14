@@ -26,7 +26,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.STORAGE_KEYS_WITH_UNIQUE_IDS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = void 0;
 /*
  * Use localForage to store and retrieve data from the browser's IndexedDB storage.
  */
@@ -39,7 +38,6 @@ const tag_list_1 = __importDefault(require("./api/tag_list"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
-const enums_1 = require("./enums");
 const feed_filters_1 = require("./filters/feed_filters");
 const math_helper_1 = require("./helpers/math_helper");
 const string_helpers_1 = require("./helpers/string_helpers");
@@ -49,22 +47,13 @@ const weight_presets_1 = require("./scorer/weight_presets");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const logger_1 = require("./helpers/logger");
 const math_helper_2 = require("./helpers/math_helper");
+const enums_1 = require("./enums");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
     name: string_helpers_1.FEDIALGO,
     storeName: `${string_helpers_1.FEDIALGO}_user_data`,
 });
 ;
-;
-exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []).concat(Object.values(enums_1.TagTootsCacheKey));
-exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(enums_1.CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
-// Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
-exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
-    ...exports.STORAGE_KEYS_WITH_TOOTS,
-    ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
-    enums_1.CacheKey.NOTIFICATIONS,
-    enums_1.CacheKey.SERVER_SIDE_FILTERS,
-];
 const logger = new logger_1.Logger('STORAGE');
 class Storage {
     static lastUpdatedAt = null; // Last time the storage was updated
@@ -205,8 +194,8 @@ class Storage {
             hereLogger.trace(msg);
         }
         // Check for unique IDs in the stored data if we're in debug mode
-        if (environment_helpers_1.isDebugMode && exports.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, hereLogger);
+        if (environment_helpers_1.isDebugMode) {
+            (0, collection_helpers_1.checkUniqueRows)(key, withTimestamp.value, hereLogger);
         }
         return {
             isStale,
@@ -334,10 +323,10 @@ class Storage {
         return `${user.id}_${key}`;
     }
     static deserialize(key, value) {
-        if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+        if (enums_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return (0, class_transformer_1.plainToInstance)(account_1.default, value);
         }
-        else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        else if (enums_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             return (0, class_transformer_1.plainToInstance)(toot_1.default, value);
         }
         else {
@@ -378,10 +367,10 @@ class Storage {
         }
     }
     static serialize(key, value) {
-        if (exports.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+        if (enums_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return (0, class_transformer_1.instanceToPlain)(value);
         }
-        else if (exports.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        else if (enums_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             return (0, class_transformer_1.instanceToPlain)(value);
         }
         else {

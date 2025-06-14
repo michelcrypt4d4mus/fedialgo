@@ -3,6 +3,18 @@
  */
 
 /**
+ * Enum of storage keys for user data and app state (not API cache).
+ * @enum {string}
+ * @private
+ */
+export enum AlgorithmStorageKey {
+    APP_OPENS = 'AppOpens',
+    FILTERS = 'Filters',
+    USER = 'FedialgoUser',
+    WEIGHTS = 'Weights'
+};
+
+/**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
@@ -31,8 +43,9 @@ export enum CacheKey {
 };
 
 /**
- * Enum of cache keys for hashtag-related lists of Toots
+ * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
+ * @private
  */
 export enum TagTootsCacheKey {
     FAVOURITED_TAG_TOOTS = 'FavouritedHashtagToots',
@@ -40,23 +53,6 @@ export enum TagTootsCacheKey {
     TRENDING_TAG_TOOTS = 'TrendingTagToots'
 };
 
-/**
- * Type representing any valid API cache key (CacheKey or TagTootsCacheKey).
- * @private
- */
-export type ApiCacheKey = CacheKey | TagTootsCacheKey;
-
-
-/**
- * Enum of storage keys for user data and app state (not API cache).
- * @private
- */
-export enum AlgorithmStorageKey {
-    APP_OPENS = 'AppOpens',
-    FILTERS = 'Filters',
-    USER = 'FedialgoUser',
-    WEIGHTS = 'Weights'
-};
 
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
@@ -110,6 +106,7 @@ export enum MediaCategory {
     VIDEO = "video"
 };
 
+
 /**
  * Enum of trending data types that can be fetched from the API. *
  * @enum {string}
@@ -120,6 +117,7 @@ export enum TrendingType {
     STATUSES = "statuses",
     TAGS = "tags"
 };
+
 
 /**
  * Enum of boolean filter names for filtering toots by property.
@@ -161,12 +159,67 @@ export enum TypeFilterName {
     VIDEOS = 'videos'
 };
 
-/**
- * Array of all cache keys (CacheKey and TagTootsCacheKey values).
- * @private
- */
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
 
+//////////////////
+//    Types     //
+//////////////////
+
+/** API data is written to browser storage with these cache keys. */
+export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+/** All browser storage indexedDB keys. */
+export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
+/** Possible uniqufiiers for a class of ApiObjs. */
+type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
+/** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
+type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
+
+
+///////////////////////////
+//      Constants        //
+///////////////////////////
+
+// Objects fetched with these keys need to be built into proper Toot objects.
+export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
+    (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
+    [] as StorageKey[]
+).concat(Object.values(TagTootsCacheKey));
+
+// Objects fetched with these keys need to be built into proper Account objects.
+export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
+    (keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
+    [] as StorageKey[]
+);
+
+// The property that can be used to uniquely identify objects stored at that ApiCacheKey.
+export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
+    ...STORAGE_KEYS_WITH_TOOTS.reduce(
+        (dict, key) => {
+            dict[key as ApiCacheKey] = 'uri';
+            return dict;
+        },
+        {} as UniqueIdProperties
+    ),
+    ...STORAGE_KEYS_WITH_ACCOUNTS.reduce(
+        (dict, key) => {
+            dict[key as ApiCacheKey] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
+            return dict;
+        },
+        {} as UniqueIdProperties
+    ),
+    [CacheKey.FOLLOWED_TAGS]: 'name', // Followed tags have a 'name' property
+    [CacheKey.NOTIFICATIONS]: 'id',
+    [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
+} as const;
+
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
+export const CONVERSATION = 'conversation';
+export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
+export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
+
+
+///////////////////////////////
+//      Helper Methods       //
+///////////////////////////////
 
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
@@ -199,10 +252,10 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 
-/** True if argument is a member of ScoreName enum. */
-export const isScoreName = isValueInStringEnum(ScoreName);
 /** True if argument is a member of NonScoreWeightName enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+/** True if argument is a member of ScoreName enum. */
+export const isScoreName = isValueInStringEnum(ScoreName);
 /** True if argument is a member of TypeFilterName enum. */
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */

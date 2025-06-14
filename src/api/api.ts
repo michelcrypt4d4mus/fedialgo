@@ -8,14 +8,10 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
+import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
-import Storage, {
-    STORAGE_KEYS_WITH_ACCOUNTS,
-    STORAGE_KEYS_WITH_TOOTS,
-    STORAGE_KEYS_WITH_UNIQUE_IDS,
-    type CacheTimestamp,
-} from "../Storage";
+import { type CacheTimestamp } from "../types";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { CacheKey, buildCacheKeyDict, type ApiCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
@@ -26,37 +22,49 @@ import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
 import { TrendingType } from '../enums';
 import {
+    STORAGE_KEYS_WITH_ACCOUNTS,
+    STORAGE_KEYS_WITH_TOOTS,
+    UNIQUE_ID_PROPERTIES,
+} from "../enums";
+import {
     findMinMaxId,
     getPromiseResults,
     removeKeys,
     sortObjsByCreatedAt,
     truncateToConfiguredLength,
-    uniquifyByProp
+    uniquifyApiObjs,
 } from "../helpers/collection_helpers";
 import {
     type AccountLike,
+    type ApiObj,
+    type ApiObjWithID,
     type ConcurrencyLockRelease,
-    type MastodonApiObj,
-    type MastodonObjWithID,
     type MastodonTag,
     type MinMaxID,
-    type StatusList,
     type TootLike,
     type WithCreatedAt,
 } from "../types";
 
-type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
+/** Paginated data retrieval method from masto.js. */
+type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => (
+    mastodon.Paginator<T[], mastodon.DefaultPaginationParams>
+);
+
+/** Conditional type that maps mastodon.v1.Status to Toot and mastodon.v1.Account to Account. */
+type ResponseRow<T extends ApiObj> = T extends mastodon.v1.Status
+    ? Toot
+    : (T extends mastodon.v1.Account ? Account : T);
 
 /**
  * Represents cached rows of API objects, including optional min/max ID information and cache timestamp.
  * @template T
  * @augments CacheTimestamp
  * @property {MinMaxID | null} [minMaxId] - The min/max ID in the cache if supported by the request.
- * @property {T[]} rows - Cached rows of API objects.
+ * @property {ResponseRow<T>[]} rows - Cached rows of API objects.
  */
-interface CachedRows<T> extends CacheTimestamp {
-    minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
-    rows: T[];                     // Cached rows of API objects
+interface CacheResult<T extends ApiObj> extends CacheTimestamp {
+    minMaxId?: MinMaxID | null;
+    rows: ResponseRow<T>[];
 };
 
 /**
@@ -94,7 +102,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
 };
 
 /**
- * Parameters for fetching up to maxRecords pages of a user's data from the API.
+ * Parameters for fetching up to maxRecords rows of a user's data from the API.
  * @template T
  * @augments ApiParamsWithMaxID
  * @property {(pageOfResults: T[], allResults: T[]) => Promise<true | undefined>} [breakIf] - Function to check if more pages should be fetched.
@@ -105,7 +113,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  * @property {(obj: T) => void} [processFxn] - Optional function to process the object before storing and returning it.
  * @property {boolean} [skipMutex] - If true, don't lock the endpoint mutex when making requests.
  */
-interface FetchParams<T extends MastodonApiObj> extends ApiParamsWithMaxID {
+interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     cacheKey: CacheKey,
     fetch?: ApiFetcher<T>,
@@ -122,7 +130,7 @@ interface FetchParams<T extends MastodonApiObj> extends ApiParamsWithMaxID {
  * @augments FetchParams<T>
  * @property {number} minRecords - Minimum number of records to fetch.
  */
-interface BackgroundFetchparams<T extends MastodonApiObj> extends FetchParams<T> {
+interface BackgroundFetchparams<T extends ApiObj> extends FetchParams<T> {
     minRecords: number,
 };
 
@@ -135,7 +143,7 @@ interface BackgroundFetchparams<T extends MastodonApiObj> extends FetchParams<T>
  * @property {number} [maxCacheRecords] - Optional maximum number of records to keep in the cache.
  * @property {number} maxRecords - Maximum number of records to fetch.
  */
-interface FetchParamsWithDefaults<T extends MastodonApiObj> extends FetchParams<T> {
+interface FetchParamsWithDefaults<T extends ApiObj> extends FetchParams<T> {
     limit: number,
     logger: Logger,
     maxCacheRecords?: number,
@@ -159,11 +167,11 @@ interface MinMaxIDParams {
  * @augments MinMaxIDParams
  * @property {CachedRows<T> | null} cacheResult - The cached result for the request, if any.
  */
-interface FetchParamsWithCacheData<T extends MastodonApiObj> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
-    cacheResult: CachedRows<T> | null,
+interface FetchParamsWithCacheData<T extends ApiObj> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
+    cacheResult: CacheResult<T> | null,
 };
 
-type FetchParamName = keyof FetchParamsWithCacheData<MastodonApiObj>;
+type FetchParamName = keyof FetchParamsWithCacheData<ApiObj>;
 
 export const BIG_NUMBER = 10_000_000_000;
 export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
@@ -180,6 +188,7 @@ const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", 
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
 const apiLogger = getLogger();
+
 
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
@@ -302,7 +311,7 @@ export default class MastoApi {
             maxRecords: maxRecords,
             skipCache: true,  // Home timeline manages its own cache state via breakIf()
             skipMutex: true,
-            breakIf: async (newStatuses: StatusList, allStatuses: StatusList) => {
+            breakIf: async (newStatuses: TootLike[], allStatuses: TootLike[]) => {
                 const oldestTootAt = earliestTootedAt(newStatuses);
 
                 if (!oldestTootAt) {
@@ -790,11 +799,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ApiObj[]>} Array of API objects.
      */
-    private async fetchApiObjs<T extends MastodonApiObj>(
+    private async fetchApiObjs<T extends ApiObj>(
         params: FetchParamsWithCacheData<T>
-    ): Promise<MastodonApiObj[]> {
+    ): Promise<ApiObj[]> {
         this.validateFetchParams<T>(params);
         const { breakIf, cacheKey, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
 
@@ -844,11 +853,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ApiObj[]>} Array of API objects.
      */
-    private async getApiObjsAndUpdate<T extends MastodonApiObj>(
+    private async getApiObjsAndUpdate<T extends ApiObj>(
         inParams: FetchParams<T>
-    ): Promise<T[]> {
+    ): Promise<ResponseRow<T>[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         const { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
@@ -870,7 +879,7 @@ export default class MastoApi {
 
                 return cacheResult.rows;
             } else {
-                return await this.getApiObjs<T>(paramsWithCache) as T[];
+                return await this.getApiObjs<T>(paramsWithCache);
             }
         } finally {
             releaseMutex?.();
@@ -882,11 +891,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
-    private async getApiObjs<T extends MastodonApiObj>(
+    private async getApiObjs<T extends ApiObj>(
         params: FetchParamsWithCacheData<T>
-    ): Promise<MastodonApiObj[]> {
+    ): Promise<ResponseRow<T>[]> {
         const { cacheKey, isBackgroundFetch, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
         const logger = params.logger.tempLogger('getApiObjs');
         params = { ...params, logger };
@@ -913,15 +922,15 @@ export default class MastoApi {
                 return cachedRows;
             }
 
-            let newRows = await this.fetchApiObjs<T>(params) as T[];
+            let newRows = await this.fetchApiObjs<T>(params);
 
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            if (cacheKey) {
                 newRows = [...newRows, ...cachedRows];
             }
 
-            const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
+            const objs = this.buildFromApiObjects<T>(cacheKey, newRows as T[], logger);
 
             // If we have a maxCacheRecords limit, truncate the new rows to that limit
             if (maxCacheRecords && objs.length > maxCacheRecords) {
@@ -949,16 +958,16 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
-     * @returns {Promise<T[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
-    private async getWithBackgroundFetch<T extends MastodonApiObj>(
+    private async getWithBackgroundFetch<T extends ApiObj>(
         params: BackgroundFetchparams<T>
-    ): Promise<T[]> {
+    ): Promise<ResponseRow<T>[]> {
         const { minRecords } = params;
         const logger = this.loggerForParams(params).tempLogger('getWithBackgroundFetch');
         if (!params.fetchGenerator) logger.logAndThrowError(`Missing fetchGenerator!`, params);
         logger.trace(`Called with minRecords ${minRecords}`);
-        const objs = await this.getApiObjsAndUpdate<T>(params) as T[];
+        const objs = await this.getApiObjsAndUpdate<T>(params);
 
         if (objs.length < minRecords) {
             logger.log(`Fewer rows (${objs.length}) than required (${minRecords}), launching bg job to get the rest`);
@@ -979,7 +988,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
      * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
      */
-    private buildParams<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): mastodon.DefaultPaginationParams {
+    private buildParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): mastodon.DefaultPaginationParams {
         const { limit, local, minIdForFetch, maxIdForFetch } = params;
         let apiParams: mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams = { limit };
         if (minIdForFetch) apiParams = {...apiParams, minId: `${minIdForFetch}`};
@@ -995,7 +1004,7 @@ export default class MastoApi {
      * @param {FetchParams<T>} inParams - Fetch parameters.
      * @returns {Promise<FetchParamsWithCacheData<T>>} Completed fetch parameters with cache data.
      */
-    private async addCacheDataToParams<T extends MastodonApiObj>(
+    private async addCacheDataToParams<T extends ApiObj>(
         inParams: FetchParams<T>
     ): Promise<FetchParamsWithCacheData<T>> {
         const params = this.fillInDefaultParams<T>(inParams);
@@ -1041,16 +1050,16 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
-     * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
+     * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
-    private async getCacheResult<T extends MastodonApiObj>(
+    private async getCacheResult<T extends ApiObj>(
         params: FetchParamsWithDefaults<T>
-    ): Promise<CachedRows<T> | null> {
+    ): Promise<CacheResult<T> | null> {
         const { bustCache, cacheKey, skipCache } = params;
         if (bustCache || skipCache) return null;
         const cachedData = await Storage.getWithStaleness(cacheKey);
         if (!cachedData) return null;
-        const rows = cachedData?.obj as T[];
+        const rows = cachedData.obj as ResponseRow<T>[];
 
         // NOTE: Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
         // or future. For a while we used a small offset to the list of toots sorted by created_at instead
@@ -1058,7 +1067,7 @@ export default class MastoApi {
         return {
             isStale: cachedData.isStale,
             // minMaxId is not returned  if endpoint doesn't support min/max ID API requests (even if it exists)
-            minMaxId: this.supportsMinMaxId(cacheKey) ? findMinMaxId(rows as MastodonObjWithID[]) : null,
+            minMaxId: this.supportsMinMaxId(cacheKey) ? findMinMaxId(rows as ApiObjWithID[]) : null,
             rows,
             updatedAt: cachedData.updatedAt,
         };
@@ -1070,33 +1079,34 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {Partial<FetchParamsWithCacheData<T>>} params - Partial fetch parameters.
-     * @param {T[]} rows - Rows fetched so far.
+     * @param {T[]} newRows - Rows fetched so far.
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
-    private handleApiError<T extends MastodonApiObj>(
+    private handleApiError<T extends ApiObj>(
         params: Partial<FetchParamsWithCacheData<T>>,
-        rows: T[],
+        newRows: T[],
         err: Error | unknown,
-    ): T[] {
+    ): ResponseRow<T>[] {
         let { cacheKey, logger } = params;
         const cacheResult = params.cacheResult;
         cacheKey ??= CacheKey.HOME_TIMELINE_TOOTS;  // TODO: this is a hack to avoid undefined cacheKey
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
-        let msg = `"${err} after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
+        const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            logger.warn(`${msg} Merging cached rows with new rows based on ID`);
+        if (UNIQUE_ID_PROPERTIES[cacheKey]) {
+            logger.warn(`${msg} Merging cached + new rows on uniq property: "${UNIQUE_ID_PROPERTIES[cacheKey]}"`);
             return [...cachedRows, ...rows];
         } else if (!cacheResult?.minMaxId) {
             msg += ` Query didn't use incremental min/max ID.`;
 
-            if (rows.length < cachedRows.length) {
+            if (newRows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
                 return cachedRows;
             } else {
@@ -1110,25 +1120,32 @@ export default class MastoApi {
     }
 
     /**
-     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
+     * are returned as-is, possibly uniquified by ID.
      * @private
      * @param {CacheKey} key - The cache key.
-     * @param {MastodonApiObj[]} objects - Array of API objects.
+     * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
-     * @returns {MastodonApiObj[]} Array of constructed objects.
+     * @returns {ApiObj[]} Array of constructed objects.
      */
-    private buildFromApiObjects(key: CacheKey, objects: MastodonApiObj[], logger: Logger): MastodonApiObj[] {
-        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            const accounts = objects.map(obj => Account.build(obj as AccountLike));
-            return uniquifyByProp(accounts, (obj) => obj.webfingerURI, key);
-        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+    private buildFromApiObjects<T extends ApiObj>(
+        key: CacheKey,
+        objects: T[],
+        logger: Logger
+    ): ResponseRow<T>[] {
+        let newObjects: ResponseRow<T>[];
+
+        // Toots get special handling for deduplication
+        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => Toot.build(obj as TootLike));
-            return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
-        } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return uniquifyByProp(objects as MastodonObjWithID[], (obj) => obj.id, key);
+            return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`)) as ResponseRow<T>[];
+        } else if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            newObjects = objects.map(obj => Account.build(obj as AccountLike)) as ResponseRow<T>[];
         } else {
-            return objects;
+            newObjects = objects as ResponseRow<T>[];
         }
+
+        return uniquifyApiObjs(key, newObjects, logger);  // This is a no-op for non-unique ID objects
     }
 
     /**
@@ -1137,7 +1154,7 @@ export default class MastoApi {
      * @param {FetchParams<T>} params - Fetch parameters.
      * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
      */
-    private fillInDefaultParams<T extends MastodonApiObj>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
+    private fillInDefaultParams<T extends ApiObj>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
         const { cacheKey, logger, maxRecords } = params;
         const requestDefaults = config.api.data[cacheKey];
         const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
@@ -1159,7 +1176,7 @@ export default class MastoApi {
      * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
-    private loggerForParams<T extends MastodonApiObj>(params: Omit<FetchParams<T>, "fetch">): Logger {
+    private loggerForParams<T extends ApiObj>(params: Omit<FetchParams<T>, "fetch">): Logger {
         const { cacheKey, isBackgroundFetch, moar } = params;
         return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
     }
@@ -1171,7 +1188,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {boolean} True if cached rows should be returned.
      */
-    private shouldReturnCachedRows<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): boolean {
+    private shouldReturnCachedRows<T extends ApiObj>(params: FetchParamsWithCacheData<T>): boolean {
         const { cacheResult, moar } = params;
         return !!(cacheResult?.rows && !cacheResult.isStale && !moar);
     }
@@ -1182,7 +1199,7 @@ export default class MastoApi {
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
-    private validateFetchParams<T extends MastodonApiObj>(params: FetchParamsWithCacheData<T>): void {
+    private validateFetchParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): void {
         const { cacheKey, fetch, fetchGenerator, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
         const logger = params.logger.tempLogger('validateFetchParams');
 

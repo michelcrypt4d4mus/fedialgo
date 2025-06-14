@@ -12,23 +12,32 @@ import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
-import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, type ApiCacheKey } from "./enums";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
-import { checkUniqueIDs, zipPromiseCalls } from "./helpers/collection_helpers";
+import { checkUniqueRows, zipPromiseCalls } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
 import { Logger } from './helpers/logger';
 import { sizeOf } from "./helpers/math_helper";
 import {
+    AlgorithmStorageKey,
+    CacheKey,
+    TagTootsCacheKey,
+    STORAGE_KEYS_WITH_ACCOUNTS,
+    STORAGE_KEYS_WITH_TOOTS,
+    type StorageKey,
+    type ApiCacheKey
+} from "./enums";
+import {
+    type ApiObj,
+    type CacheableApiObj,
+    type CacheTimestamp,
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
     type MastodonInstances,
-    type MastodonObjWithID,
     type StorableObj,
-    type CacheableApiObj,
     type StorableWithTimestamp,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -44,34 +53,9 @@ localForage.config({
     storeName   : `${FEDIALGO}_user_data`,
 });
 
-export interface CacheTimestamp {
-    isStale: boolean;
-    updatedAt: Date;
-};
-
 interface StorableObjWithStaleness extends CacheTimestamp {
     obj: CacheableApiObj,
 };
-
-type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
-
-export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
-    (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
-    [] as StorageKey[]
-).concat(Object.values(TagTootsCacheKey));
-
-export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
-    (keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
-    [] as StorageKey[]
-);
-
-// Keys at which objs that have (mostly) unique 'id' properties are stored (Mastodon IDs aren't unique across servers)
-export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
-    ...STORAGE_KEYS_WITH_TOOTS,
-    ...STORAGE_KEYS_WITH_ACCOUNTS,
-    CacheKey.NOTIFICATIONS,
-    CacheKey.SERVER_SIDE_FILTERS,
-]
 
 const logger = new Logger('STORAGE');
 
@@ -229,8 +213,8 @@ export default class Storage {
         }
 
         // Check for unique IDs in the stored data if we're in debug mode
-        if (isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], hereLogger);
+        if (isDebugMode) {
+            checkUniqueRows(key, withTimestamp.value as ApiObj[], hereLogger);
         }
 
         return {

@@ -107,7 +107,6 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
-const types_2 = require("./types");
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -434,7 +433,7 @@ class TheAlgorithm {
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ bustCache: true });
         logger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
-        await toot_1.default.completeToots(this.feed, logger, types_2.JUST_MUTING);
+        await toot_1.default.completeToots(this.feed, logger, enums_1.JUST_MUTING);
         await this.finishFeedUpdate();
     }
     /**

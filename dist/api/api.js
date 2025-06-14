@@ -29,9 +29,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
+const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
-const Storage_1 = __importStar(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const config_1 = require("../config");
@@ -41,6 +41,7 @@ const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const time_helpers_2 = require("../helpers/time_helpers");
 const enums_2 = require("../enums");
+const enums_3 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 ;
@@ -626,7 +627,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ApiObj[]>} Array of API objects.
      */
     async fetchApiObjs(params) {
         this.validateFetchParams(params);
@@ -674,7 +675,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ApiObj[]>} Array of API objects.
      */
     async getApiObjsAndUpdate(inParams) {
         const paramsWithCache = await this.addCacheDataToParams(inParams);
@@ -710,7 +711,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     async getApiObjs(params) {
         const { cacheKey, isBackgroundFetch, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
@@ -737,7 +738,7 @@ class MastoApi {
             let newRows = await this.fetchApiObjs(params);
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            if (cacheKey) {
                 newRows = [...newRows, ...cachedRows];
             }
             const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
@@ -769,7 +770,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
-     * @returns {Promise<T[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     async getWithBackgroundFetch(params) {
         const { minRecords } = params;
@@ -854,7 +855,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
-     * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
+     * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     async getCacheResult(params) {
         const { bustCache, cacheKey, skipCache } = params;
@@ -863,7 +864,7 @@ class MastoApi {
         const cachedData = await Storage_1.default.getWithStaleness(cacheKey);
         if (!cachedData)
             return null;
-        const rows = cachedData?.obj;
+        const rows = cachedData.obj;
         // NOTE: Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
         // or future. For a while we used a small offset to the list of toots sorted by created_at instead
         // of the actual min/max.
@@ -881,28 +882,29 @@ class MastoApi {
      * @private
      * @template T
      * @param {Partial<FetchParamsWithCacheData<T>>} params - Partial fetch parameters.
-     * @param {T[]} rows - Rows fetched so far.
+     * @param {T[]} newRows - Rows fetched so far.
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
-    handleApiError(params, rows, err) {
+    handleApiError(params, newRows, err) {
         let { cacheKey, logger } = params;
         const cacheResult = params.cacheResult;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
-        let msg = `"${err} after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
+        const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            logger.warn(`${msg} Merging cached rows with new rows based on ID`);
+        if (enums_3.UNIQUE_ID_PROPERTIES[cacheKey]) {
+            logger.warn(`${msg} Merging cached + new rows on uniq property: "${enums_3.UNIQUE_ID_PROPERTIES[cacheKey]}"`);
             return [...cachedRows, ...rows];
         }
         else if (!cacheResult?.minMaxId) {
             msg += ` Query didn't use incremental min/max ID.`;
-            if (rows.length < cachedRows.length) {
+            if (newRows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
                 return cachedRows;
             }
@@ -917,28 +919,28 @@ class MastoApi {
         }
     }
     /**
-     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
+     * are returned as-is, possibly uniquified by ID.
      * @private
      * @param {CacheKey} key - The cache key.
-     * @param {MastodonApiObj[]} objects - Array of API objects.
+     * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
-     * @returns {MastodonApiObj[]} Array of constructed objects.
+     * @returns {ApiObj[]} Array of constructed objects.
      */
     buildFromApiObjects(key, objects, logger) {
-        if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            const accounts = objects.map(obj => account_1.default.build(obj));
-            return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.webfingerURI, key);
-        }
-        else if (Storage_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        let newObjects;
+        // Toots get special handling for deduplication
+        if (enums_3.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));
             return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
-        else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id, key);
+        else if (enums_3.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            newObjects = objects.map(obj => account_1.default.build(obj));
         }
         else {
-            return objects;
+            newObjects = objects;
         }
+        return (0, collection_helpers_1.uniquifyApiObjs)(key, newObjects, logger); // This is a no-op for non-unique ID objects
     }
     /**
      * Populates fetch options with basic defaults for API requests.

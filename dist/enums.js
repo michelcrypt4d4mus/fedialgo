@@ -3,7 +3,20 @@
  * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isNonScoreWeightName = exports.isScoreName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.ALL_CACHE_KEYS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.AlgorithmStorageKey = exports.TagTootsCacheKey = exports.CacheKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
+/**
+ * Enum of storage keys for user data and app state (not API cache).
+ * @enum {string}
+ * @private
+ */
+var AlgorithmStorageKey;
+(function (AlgorithmStorageKey) {
+    AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
+    AlgorithmStorageKey["FILTERS"] = "Filters";
+    AlgorithmStorageKey["USER"] = "FedialgoUser";
+    AlgorithmStorageKey["WEIGHTS"] = "Weights";
+})(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
+;
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
@@ -34,8 +47,9 @@ var CacheKey;
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;
 /**
- * Enum of cache keys for hashtag-related lists of Toots
+ * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
+ * @private
  */
 var TagTootsCacheKey;
 (function (TagTootsCacheKey) {
@@ -43,18 +57,6 @@ var TagTootsCacheKey;
     TagTootsCacheKey["PARTICIPATED_TAG_TOOTS"] = "ParticipatedHashtagToots";
     TagTootsCacheKey["TRENDING_TAG_TOOTS"] = "TrendingTagToots";
 })(TagTootsCacheKey || (exports.TagTootsCacheKey = TagTootsCacheKey = {}));
-;
-/**
- * Enum of storage keys for user data and app state (not API cache).
- * @private
- */
-var AlgorithmStorageKey;
-(function (AlgorithmStorageKey) {
-    AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
-    AlgorithmStorageKey["FILTERS"] = "Filters";
-    AlgorithmStorageKey["USER"] = "FedialgoUser";
-    AlgorithmStorageKey["WEIGHTS"] = "Weights";
-})(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
 ;
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
@@ -164,11 +166,34 @@ var TypeFilterName;
     TypeFilterName["VIDEOS"] = "videos";
 })(TypeFilterName || (exports.TypeFilterName = TypeFilterName = {}));
 ;
-/**
- * Array of all cache keys (CacheKey and TagTootsCacheKey values).
- * @private
- */
+///////////////////////////
+//      Constants        //
+///////////////////////////
+// Objects fetched with these keys need to be built into proper Toot objects.
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []).concat(Object.values(TagTootsCacheKey));
+// Objects fetched with these keys need to be built into proper Account objects.
+exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
+// The property that can be used to uniquely identify objects stored at that ApiCacheKey.
+exports.UNIQUE_ID_PROPERTIES = {
+    ...exports.STORAGE_KEYS_WITH_TOOTS.reduce((dict, key) => {
+        dict[key] = 'uri';
+        return dict;
+    }, {}),
+    ...exports.STORAGE_KEYS_WITH_ACCOUNTS.reduce((dict, key) => {
+        dict[key] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
+        return dict;
+    }, {}),
+    [CacheKey.FOLLOWED_TAGS]: 'name',
+    [CacheKey.NOTIFICATIONS]: 'id',
+    [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
+};
 exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
+exports.CONVERSATION = 'conversation';
+exports.JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
+exports.TOOT_SOURCES = [...exports.STORAGE_KEYS_WITH_TOOTS, exports.CONVERSATION, exports.JUST_MUTING];
+///////////////////////////////
+//      Helper Methods       //
+///////////////////////////////
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
@@ -197,10 +222,10 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
-/** True if argument is a member of ScoreName enum. */
-exports.isScoreName = isValueInStringEnum(ScoreName);
 /** True if argument is a member of NonScoreWeightName enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
+/** True if argument is a member of ScoreName enum. */
+exports.isScoreName = isValueInStringEnum(ScoreName);
 /** True if argument is a member of TypeFilterName enum. */
 exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */

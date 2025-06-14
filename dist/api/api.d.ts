@@ -267,7 +267,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ApiObj[]>} Array of API objects.
      */
     private fetchApiObjs;
     /**
@@ -275,7 +275,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ApiObj[]>} Array of API objects.
      */
     private getApiObjsAndUpdate;
     /**
@@ -283,7 +283,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     private getApiObjs;
     /**
@@ -291,7 +291,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
-     * @returns {Promise<T[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     private getWithBackgroundFetch;
     /**
@@ -314,7 +314,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
-     * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
+     * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     private getCacheResult;
     /**
@@ -323,18 +323,19 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {Partial<FetchParamsWithCacheData<T>>} params - Partial fetch parameters.
-     * @param {T[]} rows - Rows fetched so far.
+     * @param {T[]} newRows - Rows fetched so far.
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
     private handleApiError;
     /**
-     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
+     * are returned as-is, possibly uniquified by ID.
      * @private
      * @param {CacheKey} key - The cache key.
-     * @param {MastodonApiObj[]} objects - Array of API objects.
+     * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
-     * @returns {MastodonApiObj[]} Array of constructed objects.
+     * @returns {ApiObj[]} Array of constructed objects.
      */
     private buildFromApiObjects;
     /**

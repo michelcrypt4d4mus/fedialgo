@@ -10,8 +10,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
-import { STORAGE_KEYS_WITH_TOOTS } from './Storage';
+import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey, TOOT_SOURCES } from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -33,15 +32,9 @@ export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterProperty = BooleanFilterName | TootNumberProp;
 export type OptionalNumber = number | null | undefined;
 export type OptionalString = string | null | undefined;
-export type StatusList = TootLike[];
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
-
-
-export const CONVERSATION = 'conversation';
-export const JUST_MUTING = "justMuting";  // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
-const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
 export type TootSource = (typeof TOOT_SOURCES)[number];
 
 ////////////////////
@@ -98,24 +91,19 @@ export type KeysOfValueType<T, SuperClass> = Exclude<
 //    Mastodon API    //
 ////////////////////////
 
-export type CacheableApiObj = (
-    MastodonApiObj[] |
-    MastodonInstances
-);
-
 /**
  * Union type representing any object that can be returned from the Mastodon API and handled by the app
  * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
  */
-export type MastodonApiObj = (
-    MastodonObjWithID |
+export type ApiObj = (
+    ApiObjWithID |
     MastodonTag |
     mastodon.v1.TrendLink |
     string
 );
 
-// All these types have an id property
-export type MastodonObjWithID = (
+/** Most (but not all) Mastodon API objects have an 'id' property. */
+export type ApiObjWithID = (
     Account |
     TootLike |
     mastodon.v1.Account |
@@ -124,18 +112,28 @@ export type MastodonObjWithID = (
     mastodon.v2.Filter
 );
 
-/**
- * Local extension to the Mastodon Instance type that adds some additional properties
- * @extends {mastodon.v2.Instance}
- * @property {number} [followedPctOfMAU] - Pct of the instance's monthly active users (MAU) the user follows
- * @property {number} [MAU] - Monthly active users of the instance, if available
- */
+/** Any CacheableApiObj will also be written to localForage with these properties. */
+export interface CacheTimestamp {
+    isStale: boolean;
+    updatedAt: Date;
+};
+
+/** ApiObjs are stored in cache as arrays; MastodonInstances is our custom data structure. */
+export type CacheableApiObj = (
+    ApiObj[]
+  | MastodonInstances
+);
+
+/** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;  // MAU data is buried in the Instance hierarchy so this just a copy on the top level
 };
 
-export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
+export type MastodonTag = (
+    TagWithUsageCounts
+  | mastodon.v1.Tag
+);
 
 export interface MinMax {
     min: number;
@@ -153,7 +151,7 @@ export type MinMaxID = {
     max: string;
 };
 
-// Abstract interface for objects that have numToots of some kind
+/** Abstract interface for objects that have numToots of some kind */
 export interface NamedTootCount extends TootCount {
     displayName?: string;
     displayNameWithEmoji?: string; // TODO: just testing this
@@ -178,21 +176,6 @@ export type ScoreType = keyof WeightedScore;
 // export interface ServerSideFilter extends mastodon.v2.Filter {
 //     regex?: RegExp;
 // };
-
-// Types that are valid for browser local storage
-export type StorableObj = (
-    CacheableApiObj |
-    FeedFilterSettingsSerialized |
-    MastodonApiObj |
-    StringNumberDict |
-    Weights |
-    number
-);
-
-export type StorableWithTimestamp = {
-    updatedAt: string;
-    value: StorableObj;
-};
 
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
@@ -250,4 +233,24 @@ export type WeightName = ScoreName | NonScoreWeightName;
 
 export interface WithCreatedAt {
     createdAt: string | Date;  // ISO date string
+};
+
+
+////////////////////
+//    Storage     //
+////////////////////
+
+/** All types that can be written to storage. */
+export type StorableObj = (
+    CacheableApiObj |
+    FeedFilterSettingsSerialized |
+    ApiObj |
+    StringNumberDict |
+    Weights |
+    number
+);
+
+export type StorableWithTimestamp = {
+    updatedAt: string;
+    value: StorableObj;
 };

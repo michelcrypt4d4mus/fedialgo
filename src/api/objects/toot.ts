@@ -18,7 +18,7 @@ import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
-import { MediaCategory, ScoreName } from '../../enums';
+import { MediaCategory, ScoreName, CONVERSATION, JUST_MUTING } from '../../enums';
 import { repairTag } from "./tag";
 import { TypeFilterName } from '../../enums';
 import {
@@ -53,14 +53,11 @@ import {
     wordRegex,
 } from "../../helpers/string_helpers";
 import {
-    CONVERSATION,
-    JUST_MUTING,
     type AccountLike,
     type FeedFilterSettings,
     type KeysOfValueType,
     type MastodonTag,
     type ScoreType,
-    type StatusList,
     type TagWithUsageCounts,
     type TootLike,
     type TootNumberProp,
@@ -84,11 +81,7 @@ enum TootCacheKey {
 };
 
 // Cache for methods that build strings from the toot content.
-// TODO: we should bust the cache if the took is edited...
-type TootCache = {
-    [key in TootCacheKey]?: string;
-};
-
+type TootCache = {[key in TootCacheKey]?: string};
 
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
@@ -788,7 +781,7 @@ export default class Toot implements TootObj {
 
     // Returns true if the toot needs to be (re-)evaluated for trending tags, links, etc.
     private isComplete(): boolean {
-        if (!this.completedAt || (this.completedAt < this.lastEditedAt)) {
+        if (!this.completedAt || (this.completedAt < this.lastEditedAt) || !this.trendingLinks) {
             return false;
         }
 
@@ -1111,18 +1104,18 @@ export const tootedAt = (toot: TootLike): Date => new Date(toot.createdAt);
 /**
  * Get the earliest toot from a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
  */
-export const earliestToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots)[0];
+export const earliestToot = (toots: TootLike[]): TootLike | null => sortByCreatedAt(toots)[0];
 
 /**
  * Get the most recent toot from a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
  */
-export const mostRecentToot = (toots: StatusList): TootLike | null => sortByCreatedAt(toots).slice(-1)[0];
+export const mostRecentToot = (toots: TootLike[]): TootLike | null => sortByCreatedAt(toots).slice(-1)[0];
 
 /**
  * Returns array with oldest toot first.
@@ -1131,17 +1124,17 @@ export const mostRecentToot = (toots: StatusList): TootLike | null => sortByCrea
  * @param {T} toots - List of toots.
  * @returns {T}
  */
-export function sortByCreatedAt<T extends StatusList>(toots: T): T {
+export function sortByCreatedAt<T extends TootLike[]>(toots: T): T {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1) as T;
 };
 
 /**
  * Get the Date of the earliest toot in a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
  */
-export const earliestTootedAt = (toots: StatusList): Date | null => {
+export const earliestTootedAt = (toots: TootLike[]): Date | null => {
     const earliest = earliestToot(toots);
     return earliest ? tootedAt(earliest) : null;
 };
@@ -1149,10 +1142,10 @@ export const earliestTootedAt = (toots: StatusList): Date | null => {
 /**
  * Get the Date of the most recent toot in a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
  */
-export const mostRecentTootedAt = (toots: StatusList): Date | null => {
+export const mostRecentTootedAt = (toots: TootLike[]): Date | null => {
     const newest = mostRecentToot(toots);
     return newest ? tootedAt(newest) : null;
 };
