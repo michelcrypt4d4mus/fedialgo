@@ -81,11 +81,7 @@ enum TootCacheKey {
 };
 
 // Cache for methods that build strings from the toot content.
-// TODO: we should bust the cache if the took is edited...
-type TootCache = {
-    [key in TootCacheKey]?: string;
-};
-
+type TootCache = {[key in TootCacheKey]?: string};
 
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';

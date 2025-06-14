@@ -1,11 +1,12 @@
 # NEXT RELEASE
-* Use appropriate conditional types in `MastoApi`, rename `MastodonApiObj` to `ApiObj`
-* Standardize the uniquification step across all ApiObjs
 
+### v0.72.6
+* Use appropriate conditional types in `MastoApi`, rename `MastodonApiObj` to `ApiObj`
+* Standardize the uniquification step across all the various types of `ApiObj`s
 
 ### v0.72.5
-* Uniquify accounts on webfingerURI
-* (Demo App) Fix handling of missing toot.trendingLinks
+* Uniquify accounts on `webfingerURI`
+* (Demo App) Fix handling of missing `toot.trendingLinks`
 
 ### v0.72.4
 * Remove empty strings when generating `wordsRegex()`
