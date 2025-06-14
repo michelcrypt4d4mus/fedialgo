@@ -24,7 +24,6 @@ export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterProperty = BooleanFilterName | TootNumberProp;
 export type OptionalNumber = number | null | undefined;
 export type OptionalString = string | null | undefined;
-export type StatusList = TootLike[];
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
@@ -65,24 +64,26 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
 export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;
-export type CacheableApiObj = (MastodonApiObj[] | MastodonInstances);
 /**
  * Union type representing any object that can be returned from the Mastodon API and handled by the app
  * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
  */
-export type MastodonApiObj = (MastodonObjWithID | MastodonTag | mastodon.v1.TrendLink | string);
-export type MastodonObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
-/**
- * Local extension to the Mastodon Instance type that adds some additional properties
- * @extends {mastodon.v2.Instance}
- * @property {number} [followedPctOfMAU] - Pct of the instance's monthly active users (MAU) the user follows
- * @property {number} [MAU] - Monthly active users of the instance, if available
- */
+export type ApiObj = (ApiObjWithID | MastodonTag | mastodon.v1.TrendLink | string);
+/** Most (but not all) Mastodon API objects have an 'id' property. */
+export type ApiObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
+/** Any CacheableApiObj will also be written to localForage with these properties. */
+export interface CacheTimestamp {
+    isStale: boolean;
+    updatedAt: Date;
+}
+/** ApiObjs are stored in cache as arrays; MastodonInstances is our custom data structure. */
+export type CacheableApiObj = (ApiObj[] | MastodonInstances);
+/** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;
 }
-export type MastodonTag = mastodon.v1.Tag | TagWithUsageCounts;
+export type MastodonTag = (TagWithUsageCounts | mastodon.v1.Tag);
 export interface MinMax {
     min: number;
     max: number;
@@ -96,6 +97,7 @@ export type MinMaxID = {
     min: string;
     max: string;
 };
+/** Abstract interface for objects that have numToots of some kind */
 export interface NamedTootCount extends TootCount {
     displayName?: string;
     displayNameWithEmoji?: string;
@@ -108,7 +110,7 @@ export type ScoreStats = {
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
-export type StorableObj = (CacheableApiObj | FeedFilterSettingsSerialized | MastodonApiObj | StringNumberDict | Weights | number);
+export type StorableObj = (CacheableApiObj | FeedFilterSettingsSerialized | ApiObj | StringNumberDict | Weights | number);
 export type StorableWithTimestamp = {
     updatedAt: string;
     value: StorableObj;

@@ -1,5 +1,5 @@
 import { Logger } from './logger';
-import { type CountKey, type MastodonObjWithID, type MinMax, type MinMaxID, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type CountKey, type ApiObjWithID, type MinMax, type MinMaxID, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
     rejectedReasons: unknown[];
@@ -48,10 +48,10 @@ export declare function batchMap<T, U>(array: T[], fxn: (e: T) => Promise<U>, op
 }): Promise<U[]>;
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
- * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @param {Logger} logger - Logger to use for warnings.
  */
-export declare function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void;
+export declare function checkUniqueIDs(array: ApiObjWithID[], logger: Logger): void;
 /**
  * Computes the minimum and maximum values from an array using a value function.
  * @template T
@@ -94,10 +94,10 @@ objType?: string): T[];
  *     const idx = Math.min(toots.length - 1, MAX_ID_IDX);
  *     return sortByCreatedAt(toots)[idx].id;
  * }
- * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @returns {MinMaxID | null} The min and max IDs, or null if invalid.
  */
-export declare function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null;
+export declare function findMinMaxId(array: ApiObjWithID[]): MinMaxID | null;
 /**
  * Collates the fulfilled and rejected results from Promise.allSettled() into an easier to handle format.
  * @template T
@@ -136,7 +136,7 @@ export declare function decrementCount(counts: StringNumberDict, k?: CountKey | 
  * @param {T[]} array - Array of objects with id property.
  * @returns {Record<string, T>} The keyed dictionary.
  */
-export declare function keyById<T extends MastodonObjWithID>(array: T[]): Record<string, T>;
+export declare function keyById<T extends ApiObjWithID>(array: T[]): Record<string, T>;
 /**
  * Builds a dictionary from an array keyed by a property.
  * @template T

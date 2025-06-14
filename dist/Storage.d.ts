@@ -1,11 +1,7 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
 import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, type ApiCacheKey } from "./enums";
-import { type FeedFilterSettings, type StorableObj, type CacheableApiObj, type TrendingData, type Weights } from "./types";
-export interface CacheTimestamp {
-    isStale: boolean;
-    updatedAt: Date;
-}
+import { type CacheableApiObj, type CacheTimestamp, type FeedFilterSettings, type StorableObj, type TrendingData, type Weights } from "./types";
 interface StorableObjWithStaleness extends CacheTimestamp {
     obj: CacheableApiObj;
 }

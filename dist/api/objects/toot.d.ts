@@ -2,7 +2,7 @@ import { mastodon } from "masto";
 import Account from "./account";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
-import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type StatusList, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
+import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo
  * that should be serialized to storage.
@@ -354,17 +354,17 @@ export declare const tootedAt: (toot: TootLike) => Date;
 /**
  * Get the earliest toot from a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
  */
-export declare const earliestToot: (toots: StatusList) => TootLike | null;
+export declare const earliestToot: (toots: TootLike[]) => TootLike | null;
 /**
  * Get the most recent toot from a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
  */
-export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
+export declare const mostRecentToot: (toots: TootLike[]) => TootLike | null;
 /**
  * Returns array with oldest toot first.
  * @private
@@ -372,19 +372,19 @@ export declare const mostRecentToot: (toots: StatusList) => TootLike | null;
  * @param {T} toots - List of toots.
  * @returns {T}
  */
-export declare function sortByCreatedAt<T extends StatusList>(toots: T): T;
+export declare function sortByCreatedAt<T extends TootLike[]>(toots: T): T;
 /**
  * Get the Date of the earliest toot in a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
  */
-export declare const earliestTootedAt: (toots: StatusList) => Date | null;
+export declare const earliestTootedAt: (toots: TootLike[]) => Date | null;
 /**
  * Get the Date of the most recent toot in a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
  */
-export declare const mostRecentTootedAt: (toots: StatusList) => Date | null;
+export declare const mostRecentTootedAt: (toots: TootLike[]) => Date | null;
 export {};

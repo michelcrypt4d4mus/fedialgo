@@ -23,12 +23,13 @@ import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
 import { Logger } from './helpers/logger';
 import { sizeOf } from "./helpers/math_helper";
 import {
+    type ApiObjWithID,
+    type CacheableApiObj,
+    type CacheTimestamp,
     type FeedFilterSettings,
     type FeedFilterSettingsSerialized,
     type MastodonInstances,
-    type MastodonObjWithID,
     type StorableObj,
-    type CacheableApiObj,
     type StorableWithTimestamp,
     type StringNumberDict,
     type TagWithUsageCounts,
@@ -43,11 +44,6 @@ localForage.config({
     name        : FEDIALGO,
     storeName   : `${FEDIALGO}_user_data`,
 });
-
-export interface CacheTimestamp {
-    isStale: boolean;
-    updatedAt: Date;
-};
 
 interface StorableObjWithStaleness extends CacheTimestamp {
     obj: CacheableApiObj,
@@ -230,7 +226,7 @@ export default class Storage {
 
         // Check for unique IDs in the stored data if we're in debug mode
         if (isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            checkUniqueIDs(withTimestamp.value as MastodonObjWithID[], hereLogger);
+            checkUniqueIDs(withTimestamp.value as ApiObjWithID[], hereLogger);
         }
 
         return {

@@ -12,7 +12,7 @@ import { Logger } from './logger';
 import { sleep } from './time_helpers';
 import {
     type CountKey,
-    type MastodonObjWithID,
+    type ApiObjWithID,
     type MinMax,
     type MinMaxID,
     type OptionalNumber,
@@ -131,11 +131,11 @@ export async function batchMap<T, U>(
 
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
- * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @param {Logger} logger - Logger to use for warnings.
  */
-export function checkUniqueIDs(array: MastodonObjWithID[], logger: Logger): void {
-    const objsById = groupBy<MastodonObjWithID>(array, (e) => e.id);
+export function checkUniqueIDs(array: ApiObjWithID[], logger: Logger): void {
+    const objsById = groupBy<ApiObjWithID>(array, (e) => e.id);
     const uniqueIds = Object.keys(objsById);
 
     if (uniqueIds.length != array.length) {
@@ -230,10 +230,10 @@ export function filterWithLog<T>(
  *     const idx = Math.min(toots.length - 1, MAX_ID_IDX);
  *     return sortByCreatedAt(toots)[idx].id;
  * }
- * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @returns {MinMaxID | null} The min and max IDs, or null if invalid.
  */
-export function findMinMaxId(array: MastodonObjWithID[]): MinMaxID | null {
+export function findMinMaxId(array: ApiObjWithID[]): MinMaxID | null {
     if (!array?.length) {
         console.warn(`[findMinMaxId()] called with 0 length array:`, array);
         return null;
@@ -345,7 +345,7 @@ export function decrementCount(counts: StringNumberDict, k?: CountKey | null, in
  * @param {T[]} array - Array of objects with id property.
  * @returns {Record<string, T>} The keyed dictionary.
  */
-export function keyById<T extends MastodonObjWithID>(array: T[]): Record<string, T> {
+export function keyById<T extends ApiObjWithID>(array: T[]): Record<string, T> {
     return keyByProperty<T>(array, obj => obj.id);
 };
 

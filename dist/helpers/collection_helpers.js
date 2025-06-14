@@ -100,7 +100,7 @@ exports.batchMap = batchMap;
 ;
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
- * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @param {Logger} logger - Logger to use for warnings.
  */
 function checkUniqueIDs(array, logger) {
@@ -183,7 +183,7 @@ exports.filterWithLog = filterWithLog;
  *     const idx = Math.min(toots.length - 1, MAX_ID_IDX);
  *     return sortByCreatedAt(toots)[idx].id;
  * }
- * @param {MastodonObjWithID[]} array - Array of objects with IDs.
+ * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @returns {MinMaxID | null} The min and max IDs, or null if invalid.
  */
 function findMinMaxId(array) {

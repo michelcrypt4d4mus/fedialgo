@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use appropriate conditional types in `MastoApi`
 
 ### v0.72.5
 * Uniquify accounts on webfingerURI

@@ -952,7 +952,7 @@ exports.tootedAt = tootedAt;
 /**
  * Get the earliest toot from a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
  */
 const earliestToot = (toots) => sortByCreatedAt(toots)[0];
@@ -960,7 +960,7 @@ exports.earliestToot = earliestToot;
 /**
  * Get the most recent toot from a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
  */
 const mostRecentToot = (toots) => sortByCreatedAt(toots).slice(-1)[0];
@@ -980,7 +980,7 @@ exports.sortByCreatedAt = sortByCreatedAt;
 /**
  * Get the Date of the earliest toot in a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
  */
 const earliestTootedAt = (toots) => {
@@ -991,7 +991,7 @@ exports.earliestTootedAt = earliestTootedAt;
 /**
  * Get the Date of the most recent toot in a list.
  * @private
- * @param {StatusList} toots - List of toots.
+ * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
  */
 const mostRecentTootedAt = (toots) => {
