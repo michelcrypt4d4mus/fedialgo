@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueIDs = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquifyApiObjs = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueRows = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
 /**
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
@@ -12,6 +12,7 @@ const api_1 = require("../api/api");
 const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
+const enums_1 = require("../enums");
 ;
 ;
 const BATCH_MAP = "batchMap()";
@@ -103,15 +104,13 @@ exports.batchMap = batchMap;
  * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @param {Logger} logger - Logger to use for warnings.
  */
-function checkUniqueIDs(array, logger) {
-    const objsById = groupBy(array, (e) => e.id);
-    const uniqueIds = Object.keys(objsById);
-    if (uniqueIds.length != array.length) {
-        const objsWithDuplicates = Object.entries(objsById).filter(([_, objs]) => objs.length > 1);
-        logger.warn(`${array.length} objs only have ${uniqueIds.length} unique IDs! Dupes:`, objsWithDuplicates);
+function checkUniqueRows(cacheKey, array, logger) {
+    const uniqObjs = uniquifyApiObjs(cacheKey, array, logger);
+    if (uniqObjs.length != array.length) {
+        logger.warn(`checkUniqueRows() Found ${array.length - uniqObjs.length} duplicate objects in "${cacheKey}"`);
     }
 }
-exports.checkUniqueIDs = checkUniqueIDs;
+exports.checkUniqueRows = checkUniqueRows;
 ;
 /**
  * Computes the minimum and maximum values from an array using a value function.
@@ -609,6 +608,30 @@ const uniquify = (array) => {
     return newArray;
 };
 exports.uniquify = uniquify;
+/**
+ * Uniquify an array of API objects by the appropriate property. This is a no-op for API objects
+ * that don't have a property that can be used to uniquely identify them.
+ * @template T
+ * @param {ApiCacheKey} cacheKey - The cache key to determine the unique property.
+ * @param {T[]} array - Array of API objects.
+ * @param {Logger} logger - Logger to use for warnings.
+ */
+function uniquifyApiObjs(cacheKey, array, logger) {
+    const uniqueProperty = enums_1.UNIQUE_ID_PROPERTIES[cacheKey];
+    const thisLogger = logger.tempLogger(`uniquifyApiObjs`);
+    if (!uniqueProperty) {
+        thisLogger.trace(`No unique property for "${cacheKey}", skipping uniquify...`);
+        return array;
+    }
+    else if (array.length && (0, lodash_1.isNil)(array[0][uniqueProperty])) {
+        thisLogger.error(`checkUniqueRows() called with array that has no "${uniqueProperty}" property!`, array);
+        return array;
+    }
+    logger.trace(`Uniquifying array of ${array.length} objects by "${uniqueProperty}" property`);
+    return uniquifyByProp(array, (obj) => obj[uniqueProperty], cacheKey);
+}
+exports.uniquifyApiObjs = uniquifyApiObjs;
+;
 /**
  * Removes elements of an array with duplicate values for a given property.
  * @template T

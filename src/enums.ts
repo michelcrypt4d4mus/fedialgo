@@ -168,6 +168,10 @@ export enum TypeFilterName {
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 /** All browser storage indexedDB keys. */
 export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
+/** Possible uniqufiiers for a class of ApiObjs. */
+type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
+/** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
+type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 
 
 ///////////////////////////
@@ -186,13 +190,26 @@ export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey)
     [] as StorageKey[]
 );
 
-// API objects that have unique IDs and are stored in the browser's IndexedDB.
-export const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[] = [
-    ...STORAGE_KEYS_WITH_TOOTS,
-    ...STORAGE_KEYS_WITH_ACCOUNTS,
-    CacheKey.NOTIFICATIONS,
-    CacheKey.SERVER_SIDE_FILTERS,
-];
+// The property that can be used to uniquely identify objects stored at that ApiCacheKey.
+export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
+    ...STORAGE_KEYS_WITH_TOOTS.reduce(
+        (dict, key) => {
+            dict[key as ApiCacheKey] = 'uri';
+            return dict;
+        },
+        {} as UniqueIdProperties
+    ),
+    ...STORAGE_KEYS_WITH_ACCOUNTS.reduce(
+        (dict, key) => {
+            dict[key as ApiCacheKey] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
+            return dict;
+        },
+        {} as UniqueIdProperties
+    ),
+    [CacheKey.FOLLOWED_TAGS]: 'name', // Followed tags have a 'name' property
+    [CacheKey.NOTIFICATIONS]: 'id',
+    [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
+} as const;
 
 export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
 export const CONVERSATION = 'conversation';

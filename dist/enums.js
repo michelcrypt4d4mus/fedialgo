@@ -3,7 +3,7 @@
  * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.STORAGE_KEYS_WITH_UNIQUE_IDS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
 /**
  * Enum of storage keys for user data and app state (not API cache).
  * @enum {string}
@@ -173,13 +173,20 @@ var TypeFilterName;
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []).concat(Object.values(TagTootsCacheKey));
 // Objects fetched with these keys need to be built into proper Account objects.
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
-// API objects that have unique IDs and are stored in the browser's IndexedDB.
-exports.STORAGE_KEYS_WITH_UNIQUE_IDS = [
-    ...exports.STORAGE_KEYS_WITH_TOOTS,
-    ...exports.STORAGE_KEYS_WITH_ACCOUNTS,
-    CacheKey.NOTIFICATIONS,
-    CacheKey.SERVER_SIDE_FILTERS,
-];
+// The property that can be used to uniquely identify objects stored at that ApiCacheKey.
+exports.UNIQUE_ID_PROPERTIES = {
+    ...exports.STORAGE_KEYS_WITH_TOOTS.reduce((dict, key) => {
+        dict[key] = 'uri';
+        return dict;
+    }, {}),
+    ...exports.STORAGE_KEYS_WITH_ACCOUNTS.reduce((dict, key) => {
+        dict[key] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
+        return dict;
+    }, {}),
+    [CacheKey.FOLLOWED_TAGS]: 'name',
+    [CacheKey.NOTIFICATIONS]: 'id',
+    [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
+};
 exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)];
 exports.CONVERSATION = 'conversation';
 exports.JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot

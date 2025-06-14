@@ -329,7 +329,8 @@ export default class MastoApi {
      */
     private handleApiError;
     /**
-     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
+     * are returned as-is, possibly uniquified by ID.
      * @private
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.

@@ -194,8 +194,8 @@ class Storage {
             hereLogger.trace(msg);
         }
         // Check for unique IDs in the stored data if we're in debug mode
-        if (environment_helpers_1.isDebugMode && enums_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            (0, collection_helpers_1.checkUniqueIDs)(withTimestamp.value, hereLogger);
+        if (environment_helpers_1.isDebugMode) {
+            (0, collection_helpers_1.checkUniqueRows)(key, withTimestamp.value, hereLogger);
         }
         return {
             isStale,

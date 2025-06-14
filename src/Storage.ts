@@ -15,7 +15,7 @@ import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
 import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
-import { checkUniqueIDs, zipPromiseCalls } from "./helpers/collection_helpers";
+import { checkUniqueRows, zipPromiseCalls } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
 import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
@@ -27,12 +27,11 @@ import {
     TagTootsCacheKey,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
-    STORAGE_KEYS_WITH_UNIQUE_IDS,
     type StorageKey,
     type ApiCacheKey
 } from "./enums";
 import {
-    type ApiObjWithID,
+    type ApiObj,
     type CacheableApiObj,
     type CacheTimestamp,
     type FeedFilterSettings,
@@ -214,8 +213,8 @@ export default class Storage {
         }
 
         // Check for unique IDs in the stored data if we're in debug mode
-        if (isDebugMode && STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            checkUniqueIDs(withTimestamp.value as ApiObjWithID[], hereLogger);
+        if (isDebugMode) {
+            checkUniqueRows(key, withTimestamp.value as ApiObj[], hereLogger);
         }
 
         return {

@@ -10,7 +10,9 @@ import { isAccessTokenRevokedError } from '../api/api';
 import { isNumberOrNumberString } from "./math_helper";
 import { Logger } from './logger';
 import { sleep } from './time_helpers';
+import { UNIQUE_ID_PROPERTIES, type ApiCacheKey } from "../enums";
 import {
+    type ApiObj,
     type CountKey,
     type ApiObjWithID,
     type MinMax,
@@ -134,13 +136,11 @@ export async function batchMap<T, U>(
  * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @param {Logger} logger - Logger to use for warnings.
  */
-export function checkUniqueIDs(array: ApiObjWithID[], logger: Logger): void {
-    const objsById = groupBy<ApiObjWithID>(array, (e) => e.id);
-    const uniqueIds = Object.keys(objsById);
+export function checkUniqueRows<T extends ApiObj>(cacheKey: ApiCacheKey, array: T[], logger: Logger): void {
+    const uniqObjs = uniquifyApiObjs(cacheKey, array, logger);
 
-    if (uniqueIds.length != array.length) {
-        const objsWithDuplicates = Object.entries(objsById).filter(([_, objs]) => objs.length > 1);
-        logger.warn(`${array.length} objs only have ${uniqueIds.length} unique IDs! Dupes:`, objsWithDuplicates);
+    if (uniqObjs.length != array.length) {
+        logger.warn(`checkUniqueRows() Found ${array.length - uniqObjs.length} duplicate objects in "${cacheKey}"`);
     }
 };
 
@@ -290,7 +290,7 @@ export async function getPromiseResults<T>(promises: Promise<T>[]): Promise<Prom
  * @param {(item: T) => string} makeKey - Function to get group key.
  * @returns {Record<string, T[]>} The grouped object.
  */
-export function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]> {
+export function groupBy<T>(array: T[], makeKey: (item: T) => string | number): Record<string, T[]> {
     return array.reduce(
         (grouped, item) => {
             const group = makeKey(item);
@@ -709,6 +709,31 @@ export const uniquify = (array: (string | undefined)[]): string[] | undefined =>
     let newArray = array.filter((e) => e != undefined) as string[];
     newArray = [...new Set(newArray)];
     return newArray;
+};
+
+
+/**
+ * Uniquify an array of API objects by the appropriate property. This is a no-op for API objects
+ * that don't have a property that can be used to uniquely identify them.
+ * @template T
+ * @param {ApiCacheKey} cacheKey - The cache key to determine the unique property.
+ * @param {T[]} array - Array of API objects.
+ * @param {Logger} logger - Logger to use for warnings.
+ */
+export function uniquifyApiObjs<T extends ApiObj>(cacheKey: ApiCacheKey, array: T[], logger: Logger): T[] {
+    const uniqueProperty = UNIQUE_ID_PROPERTIES[cacheKey] as keyof ApiObj;
+    const thisLogger = logger.tempLogger(`uniquifyApiObjs`);
+
+    if (!uniqueProperty) {
+        thisLogger.trace(`No unique property for "${cacheKey}", skipping uniquify...`);
+        return array;
+    } else if (array.length && isNil(array[0][uniqueProperty])) {
+        thisLogger.error(`checkUniqueRows() called with array that has no "${uniqueProperty}" property!`, array);
+        return array;
+    }
+
+    logger.trace(`Uniquifying array of ${array.length} objects by "${uniqueProperty}" property`);
+    return uniquifyByProp(array, (obj) => obj[uniqueProperty], cacheKey);
 };
 
 

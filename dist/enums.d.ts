@@ -146,9 +146,13 @@ export declare enum TypeFilterName {
 export type ApiCacheKey = CacheKey | TagTootsCacheKey;
 /** All browser storage indexedDB keys. */
 export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
+/** Possible uniqufiiers for a class of ApiObjs. */
+type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
+/** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
+type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
-export declare const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[];
+export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
 export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
 export declare const CONVERSATION = "conversation";
 export declare const JUST_MUTING = "justMuting";
@@ -177,3 +181,4 @@ export declare const isScoreName: (str: string) => boolean;
 export declare const isTypeFilterName: (str: string) => boolean;
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export declare const isWeightName: (str: string) => boolean;
+export {};

@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Use appropriate conditional types in `MastoApi`
+* Use appropriate conditional types in `MastoApi`, rename `MastodonApiObj` to `ApiObj`
+* Standardize the uniquification step across all ApiObjs
+
 
 ### v0.72.5
 * Uniquify accounts on webfingerURI

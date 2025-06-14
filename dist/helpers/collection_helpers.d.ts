@@ -1,5 +1,6 @@
 import { Logger } from './logger';
-import { type CountKey, type ApiObjWithID, type MinMax, type MinMaxID, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type ApiCacheKey } from "../enums";
+import { type ApiObj, type CountKey, type ApiObjWithID, type MinMax, type MinMaxID, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
     rejectedReasons: unknown[];
@@ -51,7 +52,7 @@ export declare function batchMap<T, U>(array: T[], fxn: (e: T) => Promise<U>, op
  * @param {ApiObjWithID[]} array - Array of objects with IDs.
  * @param {Logger} logger - Logger to use for warnings.
  */
-export declare function checkUniqueIDs(array: ApiObjWithID[], logger: Logger): void;
+export declare function checkUniqueRows<T extends ApiObj>(cacheKey: ApiCacheKey, array: T[], logger: Logger): void;
 /**
  * Computes the minimum and maximum values from an array using a value function.
  * @template T
@@ -113,7 +114,7 @@ export declare function getPromiseResults<T>(promises: Promise<T>[]): Promise<Pr
  * @param {(item: T) => string} makeKey - Function to get group key.
  * @returns {Record<string, T[]>} The grouped object.
  */
-export declare function groupBy<T>(array: T[], makeKey: (item: T) => string): Record<string, T[]>;
+export declare function groupBy<T>(array: T[], makeKey: (item: T) => string | number): Record<string, T[]>;
 /**
  * Increments the count for a key in a dictionary by 'increment'.
  * @param {StringNumberDict} counts - The counts dictionary.
@@ -281,6 +282,15 @@ export declare function truncateToConfiguredLength<T>(array: T[], maxRecords: nu
  * @returns {string[] | undefined} The unique array or undefined if empty.
  */
 export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;
+/**
+ * Uniquify an array of API objects by the appropriate property. This is a no-op for API objects
+ * that don't have a property that can be used to uniquely identify them.
+ * @template T
+ * @param {ApiCacheKey} cacheKey - The cache key to determine the unique property.
+ * @param {T[]} array - Array of API objects.
+ * @param {Logger} logger - Logger to use for warnings.
+ */
+export declare function uniquifyApiObjs<T extends ApiObj>(cacheKey: ApiCacheKey, array: T[], logger: Logger): T[];
 /**
  * Removes elements of an array with duplicate values for a given property.
  * @template T

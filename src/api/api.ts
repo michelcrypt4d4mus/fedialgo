@@ -24,7 +24,7 @@ import { TrendingType } from '../enums';
 import {
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
-    STORAGE_KEYS_WITH_UNIQUE_IDS
+    UNIQUE_ID_PROPERTIES,
 } from "../enums";
 import {
     findMinMaxId,
@@ -32,7 +32,7 @@ import {
     removeKeys,
     sortObjsByCreatedAt,
     truncateToConfiguredLength,
-    uniquifyByProp
+    uniquifyApiObjs,
 } from "../helpers/collection_helpers";
 import {
     type AccountLike,
@@ -102,7 +102,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
 };
 
 /**
- * Parameters for fetching up to maxRecords pages of a user's data from the API.
+ * Parameters for fetching up to maxRecords rows of a user's data from the API.
  * @template T
  * @augments ApiParamsWithMaxID
  * @property {(pageOfResults: T[], allResults: T[]) => Promise<true | undefined>} [breakIf] - Function to check if more pages should be fetched.
@@ -188,6 +188,7 @@ const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", 
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
 const apiLogger = getLogger();
+
 
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
@@ -925,11 +926,11 @@ export default class MastoApi {
 
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            if (cacheKey) {
                 newRows = [...newRows, ...cachedRows];
             }
 
-            const objs = this.buildFromApiObjects<T>(cacheKey, newRows, logger);
+            const objs = this.buildFromApiObjects<T>(cacheKey, newRows as T[], logger);
 
             // If we have a maxCacheRecords limit, truncate the new rows to that limit
             if (maxCacheRecords && objs.length > maxCacheRecords) {
@@ -1099,8 +1100,8 @@ export default class MastoApi {
         const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            logger.warn(`${msg} Merging cached rows with new rows based on ID`);
+        if (UNIQUE_ID_PROPERTIES[cacheKey]) {
+            logger.warn(`${msg} Merging cached + new rows on uniq property: "${UNIQUE_ID_PROPERTIES[cacheKey]}"`);
             return [...cachedRows, ...rows];
         } else if (!cacheResult?.minMaxId) {
             msg += ` Query didn't use incremental min/max ID.`;
@@ -1119,7 +1120,8 @@ export default class MastoApi {
     }
 
     /**
-     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
+     * are returned as-is, possibly uniquified by ID.
      * @private
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.
@@ -1128,20 +1130,22 @@ export default class MastoApi {
      */
     private buildFromApiObjects<T extends ApiObj>(
         key: CacheKey,
-        objects: ApiObj[],
+        objects: T[],
         logger: Logger
     ): ResponseRow<T>[] {
-        if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            const accounts = objects.map(obj => Account.build(obj as AccountLike));
-            return uniquifyByProp(accounts, (obj) => obj.webfingerURI, key) as ResponseRow<T>[];
-        } else if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        let newObjects: ResponseRow<T>[];
+
+        // Toots get special handling for deduplication
+        if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => Toot.build(obj as TootLike));
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`)) as ResponseRow<T>[];
-        } else if (STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return uniquifyByProp(objects as ApiObjWithID[], (obj) => obj.id, key) as ResponseRow<T>[];
+        } else if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            newObjects = objects.map(obj => Account.build(obj as AccountLike)) as ResponseRow<T>[];
         } else {
-            return objects as ResponseRow<T>[];
+            newObjects = objects as ResponseRow<T>[];
         }
+
+        return uniquifyApiObjs(key, newObjects, logger);  // This is a no-op for non-unique ID objects
     }
 
     /**

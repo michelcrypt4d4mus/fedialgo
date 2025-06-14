@@ -738,7 +738,7 @@ class MastoApi {
             let newRows = await this.fetchApiObjs(params);
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            if (enums_3.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            if (cacheKey) {
                 newRows = [...newRows, ...cachedRows];
             }
             const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
@@ -898,8 +898,8 @@ class MastoApi {
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (enums_3.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
-            logger.warn(`${msg} Merging cached rows with new rows based on ID`);
+        if (enums_3.UNIQUE_ID_PROPERTIES[cacheKey]) {
+            logger.warn(`${msg} Merging cached + new rows on uniq property: "${enums_3.UNIQUE_ID_PROPERTIES[cacheKey]}"`);
             return [...cachedRows, ...rows];
         }
         else if (!cacheResult?.minMaxId) {
@@ -919,7 +919,8 @@ class MastoApi {
         }
     }
     /**
-     * Constructs Account or Toot objects from API objects, or returns the object as-is.
+     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
+     * are returned as-is, possibly uniquified by ID.
      * @private
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.
@@ -927,20 +928,19 @@ class MastoApi {
      * @returns {ApiObj[]} Array of constructed objects.
      */
     buildFromApiObjects(key, objects, logger) {
-        if (enums_3.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
-            const accounts = objects.map(obj => account_1.default.build(obj));
-            return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.webfingerURI, key);
-        }
-        else if (enums_3.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        let newObjects;
+        // Toots get special handling for deduplication
+        if (enums_3.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));
             return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
-        else if (enums_3.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
-            return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id, key);
+        else if (enums_3.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+            newObjects = objects.map(obj => account_1.default.build(obj));
         }
         else {
-            return objects;
+            newObjects = objects;
         }
+        return (0, collection_helpers_1.uniquifyApiObjs)(key, newObjects, logger); // This is a no-op for non-unique ID objects
     }
     /**
      * Populates fetch options with basic defaults for API requests.
