@@ -36,7 +36,6 @@ const tag_1 = require("./tag");
 const enums_2 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
-const types_1 = require("../../types");
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -396,11 +395,11 @@ class Toot {
      * @returns {Promise<Toot[]>}
      */
     async getConversation() {
-        const logger = tootLogger.tempLogger(types_1.CONVERSATION);
+        const logger = tootLogger.tempLogger(enums_1.CONVERSATION);
         logger.debug(`Fetching conversation for toot:`, this.description);
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], types_1.CONVERSATION);
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], enums_1.CONVERSATION);
         logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.description));
         return toots;
     }
@@ -525,7 +524,7 @@ class Toot {
         if (source) {
             this.sources ??= [];
             // TODO: this JUST_MUTING thing is a really ugly hack to allow muting accounts in real time
-            if (source != types_1.JUST_MUTING && !this.sources.includes(source)) {
+            if (source != enums_1.JUST_MUTING && !this.sources.includes(source)) {
                 this.sources?.push(source);
             }
         }
@@ -745,7 +744,7 @@ class Toot {
         toots = Toot.dedupeToots(toots, logger);
         // "Best effort" scoring. Note scoreToots() does not sort 'toots' in place but the return value is sorted.
         const tootsSortedByScore = await scorer_1.default.scoreToots(toots, false);
-        if (source != types_1.CONVERSATION) {
+        if (source != enums_1.CONVERSATION) {
             toots = this.removeUsersOwnToots(tootsSortedByScore, logger);
         }
         logger.trace(`${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);

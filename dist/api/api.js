@@ -29,9 +29,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
+const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
-const Storage_1 = __importStar(require("../Storage"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const config_1 = require("../config");
@@ -41,6 +41,7 @@ const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const time_helpers_2 = require("../helpers/time_helpers");
 const enums_2 = require("../enums");
+const enums_3 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 ;
@@ -737,7 +738,7 @@ class MastoApi {
             let newRows = await this.fetchApiObjs(params);
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+            if (enums_3.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
                 newRows = [...newRows, ...cachedRows];
             }
             const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
@@ -897,7 +898,7 @@ class MastoApi {
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
+        if (enums_3.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
             logger.warn(`${msg} Merging cached rows with new rows based on ID`);
             return [...cachedRows, ...rows];
         }
@@ -926,15 +927,15 @@ class MastoApi {
      * @returns {ApiObj[]} Array of constructed objects.
      */
     buildFromApiObjects(key, objects, logger) {
-        if (Storage_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+        if (enums_3.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             const accounts = objects.map(obj => account_1.default.build(obj));
             return (0, collection_helpers_1.uniquifyByProp)(accounts, (obj) => obj.webfingerURI, key);
         }
-        else if (Storage_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        else if (enums_3.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));
             return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
-        else if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
+        else if (enums_3.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(key)) {
             return (0, collection_helpers_1.uniquifyByProp)(objects, (obj) => obj.id, key);
         }
         else {

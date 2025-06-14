@@ -1,14 +1,10 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { AlgorithmStorageKey, CacheKey, TagTootsCacheKey, type ApiCacheKey } from "./enums";
+import { CacheKey, type StorageKey, type ApiCacheKey } from "./enums";
 import { type CacheableApiObj, type CacheTimestamp, type FeedFilterSettings, type StorableObj, type TrendingData, type Weights } from "./types";
 interface StorableObjWithStaleness extends CacheTimestamp {
     obj: CacheableApiObj;
 }
-type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
-export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
-export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
-export declare const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[];
 export default class Storage {
     static lastUpdatedAt: Date | null;
     static clearAll(): Promise<void>;

@@ -18,7 +18,7 @@ import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
-import { MediaCategory, ScoreName } from '../../enums';
+import { MediaCategory, ScoreName, CONVERSATION, JUST_MUTING } from '../../enums';
 import { repairTag } from "./tag";
 import { TypeFilterName } from '../../enums';
 import {
@@ -53,8 +53,6 @@ import {
     wordRegex,
 } from "../../helpers/string_helpers";
 import {
-    CONVERSATION,
-    JUST_MUTING,
     type AccountLike,
     type FeedFilterSettings,
     type KeysOfValueType,

@@ -10,8 +10,7 @@ import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
 import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
-import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey } from './enums';
-import { STORAGE_KEYS_WITH_TOOTS } from './Storage';
+import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey, TOOT_SOURCES } from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -36,11 +35,6 @@ export type OptionalString = string | null | undefined;
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
-
-
-export const CONVERSATION = 'conversation';
-export const JUST_MUTING = "justMuting";  // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
-const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
 export type TootSource = (typeof TOOT_SOURCES)[number];
 
 ////////////////////

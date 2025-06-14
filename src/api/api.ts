@@ -8,13 +8,9 @@ import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
 import Account from "./objects/account";
+import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
-import Storage, {
-    STORAGE_KEYS_WITH_ACCOUNTS,
-    STORAGE_KEYS_WITH_TOOTS,
-    STORAGE_KEYS_WITH_UNIQUE_IDS,
-} from "../Storage";
 import { type CacheTimestamp } from "../types";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { CacheKey, buildCacheKeyDict, type ApiCacheKey } from "../enums";
@@ -25,6 +21,11 @@ import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
 import { TrendingType } from '../enums';
+import {
+    STORAGE_KEYS_WITH_ACCOUNTS,
+    STORAGE_KEYS_WITH_TOOTS,
+    STORAGE_KEYS_WITH_UNIQUE_IDS
+} from "../enums";
 import {
     findMinMaxId,
     getPromiseResults,

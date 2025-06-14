@@ -65,6 +65,7 @@ import {
     TrendingType,
     TypeFilterName,
     TagTootsCacheKey,
+    JUST_MUTING,
     isValueInStringEnum,
 } from "./enums";
 import {
@@ -75,7 +76,6 @@ import {
     truncateToConfiguredLength,
 } from "./helpers/collection_helpers";
 import {
-    JUST_MUTING,
     type BooleanFilterOption,
     type FeedFilterSettings,
     type FilterOptionDataSource,

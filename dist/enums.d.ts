@@ -1,4 +1,15 @@
 /**
+ * Enum of storage keys for user data and app state (not API cache).
+ * @enum {string}
+ * @private
+ */
+export declare enum AlgorithmStorageKey {
+    APP_OPENS = "AppOpens",
+    FILTERS = "Filters",
+    USER = "FedialgoUser",
+    WEIGHTS = "Weights"
+}
+/**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
@@ -26,28 +37,14 @@ export declare enum CacheKey {
     TIMELINE_TOOTS = "TimelineToots"
 }
 /**
- * Enum of cache keys for hashtag-related lists of Toots
+ * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
+ * @private
  */
 export declare enum TagTootsCacheKey {
     FAVOURITED_TAG_TOOTS = "FavouritedHashtagToots",
     PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
     TRENDING_TAG_TOOTS = "TrendingTagToots"
-}
-/**
- * Type representing any valid API cache key (CacheKey or TagTootsCacheKey).
- * @private
- */
-export type ApiCacheKey = CacheKey | TagTootsCacheKey;
-/**
- * Enum of storage keys for user data and app state (not API cache).
- * @private
- */
-export declare enum AlgorithmStorageKey {
-    APP_OPENS = "AppOpens",
-    FILTERS = "Filters",
-    USER = "FedialgoUser",
-    WEIGHTS = "Weights"
 }
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
@@ -145,11 +142,17 @@ export declare enum TypeFilterName {
     TRENDING_TOOTS = "trending toots",
     VIDEOS = "videos"
 }
-/**
- * Array of all cache keys (CacheKey and TagTootsCacheKey values).
- * @private
- */
+/** API data is written to browser storage with these cache keys. */
+export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+/** All browser storage indexedDB keys. */
+export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
+export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
+export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
+export declare const STORAGE_KEYS_WITH_UNIQUE_IDS: StorageKey[];
 export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
+export declare const CONVERSATION = "conversation";
+export declare const JUST_MUTING = "justMuting";
+export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @template T
@@ -166,10 +169,10 @@ export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys
  * @returns {(value: string) => boolean} The checker function.
  */
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
-/** True if argument is a member of ScoreName enum. */
-export declare const isScoreName: (str: string) => boolean;
 /** True if argument is a member of NonScoreWeightName enum. */
 export declare const isNonScoreWeightName: (str: string) => boolean;
+/** True if argument is a member of ScoreName enum. */
+export declare const isScoreName: (str: string) => boolean;
 /** True if argument is a member of TypeFilterName enum. */
 export declare const isTypeFilterName: (str: string) => boolean;
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
