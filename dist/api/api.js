@@ -710,7 +710,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     async getApiObjs(params) {
         const { cacheKey, isBackgroundFetch, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
@@ -769,7 +769,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
-     * @returns {Promise<T[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     async getWithBackgroundFetch(params) {
         const { minRecords } = params;
@@ -881,20 +881,21 @@ class MastoApi {
      * @private
      * @template T
      * @param {Partial<FetchParamsWithCacheData<T>>} params - Partial fetch parameters.
-     * @param {T[]} rows - Rows fetched so far.
+     * @param {T[]} newRows - Rows fetched so far.
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
-    handleApiError(params, rows, err) {
+    handleApiError(params, newRows, err) {
         let { cacheKey, logger } = params;
         const cacheResult = params.cacheResult;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
         const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
-        let msg = `"${err} after pulling ${rows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
+        const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
         if (Storage_1.STORAGE_KEYS_WITH_UNIQUE_IDS.includes(cacheKey)) {
             logger.warn(`${msg} Merging cached rows with new rows based on ID`);
@@ -902,7 +903,7 @@ class MastoApi {
         }
         else if (!cacheResult?.minMaxId) {
             msg += ` Query didn't use incremental min/max ID.`;
-            if (rows.length < cachedRows.length) {
+            if (newRows.length < cachedRows.length) {
                 logger.warn(`${msg} Discarding new rows and returning old ones bc there's more of them.`);
                 return cachedRows;
             }

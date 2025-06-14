@@ -283,7 +283,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
-     * @returns {Promise<MastodonApiObj[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     private getApiObjs;
     /**
@@ -291,7 +291,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
-     * @returns {Promise<T[]>} Array of API objects.
+     * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
     private getWithBackgroundFetch;
     /**
@@ -323,7 +323,7 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {Partial<FetchParamsWithCacheData<T>>} params - Partial fetch parameters.
-     * @param {T[]} rows - Rows fetched so far.
+     * @param {T[]} newRows - Rows fetched so far.
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
