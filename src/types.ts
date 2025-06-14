@@ -183,21 +183,6 @@ export type ScoreType = keyof WeightedScore;
 //     regex?: RegExp;
 // };
 
-// Types that are valid for browser local storage
-export type StorableObj = (
-    CacheableApiObj |
-    FeedFilterSettingsSerialized |
-    ApiObj |
-    StringNumberDict |
-    Weights |
-    number
-);
-
-export type StorableWithTimestamp = {
-    updatedAt: string;
-    value: StorableObj;
-};
-
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 };
@@ -254,4 +239,24 @@ export type WeightName = ScoreName | NonScoreWeightName;
 
 export interface WithCreatedAt {
     createdAt: string | Date;  // ISO date string
+};
+
+
+////////////////////
+//    Storage     //
+////////////////////
+
+/** All types that can be written to storage. */
+export type StorableObj = (
+    CacheableApiObj |
+    FeedFilterSettingsSerialized |
+    ApiObj |
+    StringNumberDict |
+    Weights |
+    number
+);
+
+export type StorableWithTimestamp = {
+    updatedAt: string;
+    value: StorableObj;
 };

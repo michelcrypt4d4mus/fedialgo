@@ -1054,7 +1054,7 @@ export default class MastoApi {
         if (bustCache || skipCache) return null;
         const cachedData = await Storage.getWithStaleness(cacheKey);
         if (!cachedData) return null;
-        const rows = cachedData?.obj as ResponseRow<T>[];
+        const rows = cachedData.obj as ResponseRow<T>[];
 
         // NOTE: Unfortunately sometimes the mastodon API returns toots that occurred like 100 years into the past
         // or future. For a while we used a small offset to the list of toots sorted by created_at instead

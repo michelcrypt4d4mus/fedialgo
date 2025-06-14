@@ -110,11 +110,6 @@ export type ScoreStats = {
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
-export type StorableObj = (CacheableApiObj | FeedFilterSettingsSerialized | ApiObj | StringNumberDict | Weights | number);
-export type StorableWithTimestamp = {
-    updatedAt: string;
-    value: StorableObj;
-};
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 }
@@ -160,4 +155,10 @@ export type WeightName = ScoreName | NonScoreWeightName;
 export interface WithCreatedAt {
     createdAt: string | Date;
 }
+/** All types that can be written to storage. */
+export type StorableObj = (CacheableApiObj | FeedFilterSettingsSerialized | ApiObj | StringNumberDict | Weights | number);
+export type StorableWithTimestamp = {
+    updatedAt: string;
+    value: StorableObj;
+};
 export {};
