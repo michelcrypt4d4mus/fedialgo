@@ -45,18 +45,26 @@ import {
     type WithCreatedAt,
 } from "../types";
 
-type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => mastodon.Paginator<T[], mastodon.DefaultPaginationParams>;
+/** Paginated data retrieval method from masto.js. */
+type ApiFetcher<T> = (params: mastodon.DefaultPaginationParams) => (
+    mastodon.Paginator<T[], mastodon.DefaultPaginationParams>
+);
+
+/** Conditional type that maps mastodon.v1.Status to Toot and mastodon.v1.Account to Account. */
+type ResponseRow<T extends ApiObj> = T extends mastodon.v1.Status
+    ? Toot
+    : (T extends mastodon.v1.Account ? Account : T);
 
 /**
  * Represents cached rows of API objects, including optional min/max ID information and cache timestamp.
  * @template T
  * @augments CacheTimestamp
  * @property {MinMaxID | null} [minMaxId] - The min/max ID in the cache if supported by the request.
- * @property {T[]} rows - Cached rows of API objects.
+ * @property {ResponseRow<T>[]} rows - Cached rows of API objects.
  */
-interface CachedRows<T extends ApiObj> extends CacheTimestamp {
-    minMaxId?: MinMaxID | null;    // If the request supports min/max ID, the min/max ID in the cache
-    rows: ResponseRow<T>[];                     // Cached rows of API objects
+interface CacheResult<T extends ApiObj> extends CacheTimestamp {
+    minMaxId?: MinMaxID | null;
+    rows: ResponseRow<T>[];
 };
 
 /**
@@ -160,15 +168,10 @@ interface MinMaxIDParams {
  * @property {CachedRows<T> | null} cacheResult - The cached result for the request, if any.
  */
 interface FetchParamsWithCacheData<T extends ApiObj> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
-    cacheResult: CachedRows<T> | null,
+    cacheResult: CacheResult<T> | null,
 };
 
 type FetchParamName = keyof FetchParamsWithCacheData<ApiObj>;
-
-// Conditional type
-type ResponseRow<T extends ApiObj> = T extends mastodon.v1.Status
-    ? Toot
-    : (T extends mastodon.v1.Account ? Account : T);
 
 export const BIG_NUMBER = 10_000_000_000;
 export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
@@ -1046,11 +1049,11 @@ export default class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
-     * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
+     * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     private async getCacheResult<T extends ApiObj>(
         params: FetchParamsWithDefaults<T>
-    ): Promise<CachedRows<T> | null> {
+    ): Promise<CacheResult<T> | null> {
         const { bustCache, cacheKey, skipCache } = params;
         if (bustCache || skipCache) return null;
         const cachedData = await Storage.getWithStaleness(cacheKey);

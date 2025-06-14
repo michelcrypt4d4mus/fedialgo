@@ -855,7 +855,7 @@ class MastoApi {
      * @private
      * @template T
      * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
-     * @returns {Promise<CachedRows<T> | null>} Cached rows or null.
+     * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     async getCacheResult(params) {
         const { bustCache, cacheKey, skipCache } = params;
