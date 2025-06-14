@@ -781,7 +781,7 @@ export default class Toot implements TootObj {
 
     // Returns true if the toot needs to be (re-)evaluated for trending tags, links, etc.
     private isComplete(): boolean {
-        if (!this.completedAt || (this.completedAt < this.lastEditedAt)) {
+        if (!this.completedAt || (this.completedAt < this.lastEditedAt) || !this.trendingLinks) {
             return false;
         }
 

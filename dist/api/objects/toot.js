@@ -660,7 +660,7 @@ class Toot {
     }
     // Returns true if the toot needs to be (re-)evaluated for trending tags, links, etc.
     isComplete() {
-        if (!this.completedAt || (this.completedAt < this.lastEditedAt)) {
+        if (!this.completedAt || (this.completedAt < this.lastEditedAt) || !this.trendingLinks) {
             return false;
         }
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
