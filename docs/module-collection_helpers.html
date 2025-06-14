@@ -1163,7 +1163,7 @@
     
 
     
-    <h4 class="name" id="~checkUniqueIDs"><span class="type-signature">(inner) </span>checkUniqueIDs<span class="signature">(array, logger)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~checkUniqueRows"><span class="type-signature">(inner) </span>checkUniqueRows<span class="signature">(array, logger)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1213,7 +1213,7 @@
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;MastodonObjWithID></span>
+<span class="param-type">Array.&lt;ApiObjWithID></span>
 
 
             
@@ -2338,7 +2338,7 @@ static findMinIdForMaxIdParam(toots: Toot[]): string | null {
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;MastodonObjWithID></span>
+<span class="param-type">Array.&lt;ApiObjWithID></span>
 
 
             
@@ -6754,6 +6754,187 @@ TODO: Standard library Object.groupBy() requires some tsconfig setting that i do
     
 
     
+    <h4 class="name" id="~uniquifyApiObjs"><span class="type-signature">(inner) </span>uniquifyApiObjs<span class="signature">(cacheKey, array, logger)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Uniquify an array of API objects by the appropriate property. This is a no-op for API objects
+that don't have a property that can be used to uniquely identify them.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>cacheKey</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">ApiCacheKey</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The cache key to determine the unique property.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>array</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;T></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Array of API objects.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>logger</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Logger.html">Logger</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Logger to use for warnings.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="~uniquifyByProp"><span class="type-signature">(inner) </span>uniquifyByProp<span class="signature">(rows, transform, logPrefix<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;T>}</span></h4>
     
 
@@ -7405,13 +7586,13 @@ just logs a warning and moves on.
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-collection_helpers.html">collection_helpers</a></li><li><a href="module-string_helpers.html">string_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="Config.html">Config</a></li><li><a href="Logger.html">Logger</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="MastodonServer.html">MastodonServer</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="Toot.html">Toot</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BooleanFilterName">BooleanFilterName</a></li><li><a href="global.html#MediaCategory">MediaCategory</a></li><li><a href="global.html#NonScoreWeightName">NonScoreWeightName</a></li><li><a href="global.html#ScoreName">ScoreName</a></li><li><a href="global.html#TagTootsCacheKey">TagTootsCacheKey</a></li><li><a href="global.html#TrendingType">TrendingType</a></li><li><a href="global.html#TypeFilterName">TypeFilterName</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isNonScoreWeightName">isNonScoreWeightName</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#isScoreName">isScoreName</a></li><li><a href="global.html#isTypeFilterName">isTypeFilterName</a></li><li><a href="global.html#isValueInStringEnum">isValueInStringEnum</a></li><li><a href="global.html#isWeightName">isWeightName</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-collection_helpers.html">collection_helpers</a></li><li><a href="module-string_helpers.html">string_helpers</a></li></ul><h3>Classes</h3><ul><li><a href="Account.html">Account</a></li><li><a href="BooleanFilter.html">BooleanFilter</a></li><li><a href="BooleanFilterOptionList.html">BooleanFilterOptionList</a></li><li><a href="Config.html">Config</a></li><li><a href="Logger.html">Logger</a></li><li><a href="MastoApi.html">MastoApi</a></li><li><a href="MastodonServer.html">MastodonServer</a></li><li><a href="NumericFilter.html">NumericFilter</a></li><li><a href="ObjWithCountList.html">ObjWithCountList</a></li><li><a href="TagList.html">TagList</a></li><li><a href="TheAlgorithm.html">TheAlgorithm</a></li><li><a href="Toot.html">Toot</a></li><li><a href="TootFilter.html">TootFilter</a></li><li><a href="UserData.html">UserData</a></li></ul><h3>Global</h3><ul><li><a href="global.html#BooleanFilterName">BooleanFilterName</a></li><li><a href="global.html#MediaCategory">MediaCategory</a></li><li><a href="global.html#NonScoreWeightName">NonScoreWeightName</a></li><li><a href="global.html#ScoreName">ScoreName</a></li><li><a href="global.html#TrendingType">TrendingType</a></li><li><a href="global.html#TypeFilterName">TypeFilterName</a></li><li><a href="global.html#isAccessTokenRevokedError">isAccessTokenRevokedError</a></li><li><a href="global.html#isNonScoreWeightName">isNonScoreWeightName</a></li><li><a href="global.html#isRateLimitError">isRateLimitError</a></li><li><a href="global.html#isScoreName">isScoreName</a></li><li><a href="global.html#isTypeFilterName">isTypeFilterName</a></li><li><a href="global.html#isValueInStringEnum">isValueInStringEnum</a></li><li><a href="global.html#isWeightName">isWeightName</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Jun 13 2025 19:11:26 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sat Jun 14 2025 18:18:34 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
