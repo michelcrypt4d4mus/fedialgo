@@ -18,9 +18,8 @@ import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
-import { MediaCategory, ScoreName, CONVERSATION, JUST_MUTING } from '../../enums';
+import { MediaCategory, ScoreName, TypeFilterName, CONVERSATION, JUST_MUTING } from '../../enums';
 import { repairTag } from "./tag";
-import { TypeFilterName } from '../../enums';
 import {
     asOptionalArray,
     batchMap,
