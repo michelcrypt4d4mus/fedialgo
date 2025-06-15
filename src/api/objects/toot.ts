@@ -657,7 +657,7 @@ export default class Toot implements TootObj {
             toot.trendingLinks = trendingLinks.filter(link => toot.matchesRegex(link.regex!));
             this.completedAt = toot.completedAt = new Date().toISOString(); // Note the multiple assignmnet!
         } else {
-            toot.trendingLinks ||= [];  // Very slow to calculate so skip it unless isDeepInspect is true
+            toot.trendingLinks ??= [];  // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
 

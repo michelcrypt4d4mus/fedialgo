@@ -551,7 +551,7 @@ class Toot {
             this.completedAt = toot.completedAt = new Date().toISOString(); // Note the multiple assignmnet!
         }
         else {
-            toot.trendingLinks ||= []; // Very slow to calculate so skip it unless isDeepInspect is true
+            toot.trendingLinks ??= []; // Very slow to calculate so skip it unless isDeepInspect is true
         }
     }
     // Generate a string describing the followed and trending tags in the toot

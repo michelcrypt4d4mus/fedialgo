@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.72.7
-* Mark Toot objects that are missing a trendingLinks property as needing to be recompleted
+* Mark `Toot` objects that are missing a `trendingLinks` property as needing to be recompleted
 
 ### v0.72.6
 * Use appropriate conditional types in `MastoApi`, rename `MastodonApiObj` to `ApiObj`
