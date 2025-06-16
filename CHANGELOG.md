@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.72.8
 * Rename `FeatureScorer` to `TootScorer`
 * Rename `HOMESERVER_TIMELINE_TOOTS` to just `HOMESERVER_TOOTS`
 * Remove moreOldToots argument from triggerFeedUpate() (client app should call triggerHomeTimelineBackFill())
