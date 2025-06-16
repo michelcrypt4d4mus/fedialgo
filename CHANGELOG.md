@@ -1,7 +1,7 @@
 # NEXT RELEASE
 * Rename `FeatureScorer` to `TootScorer`
-* Remove config hashtagTootRetrievalDelaySeconds; don't sleep before launching hashtag Toot retrieval
-* Rename HOMESERVER_TIMELINE_TOOTS to just HOMESERVER_TOOTS
+* Remove config `hashtagTootRetrievalDelaySeconds`; don't sleep before launching hashtag `Toot` retrieval
+* Rename `HOMESERVER_TIMELINE_TOOTS` to just `HOMESERVER_TOOTS`
 
 ### v0.72.7
 * Mark `Toot` objects that are missing a `trendingLinks` property as needing to be recompleted

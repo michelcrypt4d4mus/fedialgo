@@ -103,8 +103,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  * @augments ApiParamsWithMaxID
  * @property {(pageOfResults: T[], allResults: T[]) => Promise<true | undefined>} [breakIf] - Function to check if more pages should be fetched.
  * @property {CacheKey} cacheKey - Cache key for storage.
- * @property {ApiFetcher<T>} [fetch] - Data fetching function to call with params.
- * @property {() => ApiFetcher<T>} [fetchGenerator] - Function to create a new iterator of the same type as fetch().
+ * @property {() => ApiFetcher<T>} fetchGenerator - Function to create a new API paginator for fetching data.
  * @property {boolean} [isBackgroundFetch] - Logging flag to indicate if this is a background fetch.
  * @property {(obj: T) => void} [processFxn] - Optional function to process the object before storing and returning it.
  * @property {boolean} [skipMutex] - If true, don't lock the endpoint mutex when making requests.
@@ -112,8 +111,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
 interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
     cacheKey: CacheKey,
-    fetch?: ApiFetcher<T>,
-    fetchGenerator?: () => ApiFetcher<T>,
+    fetchGenerator: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
     local?: boolean,
     processFxn?: (obj: T) => void,
@@ -178,7 +176,7 @@ const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too m
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging
-const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetch", "logger", "processFxn"];
+const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetchGenerator", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
 
 // Loggers prefixed by [API]
@@ -301,7 +299,7 @@ export default class MastoApi {
         // getApiRecords() returns Toots that haven't had completeProperties() called on them
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({
-            fetch: this.api.v1.timelines.home.list,
+            fetchGenerator: () => this.api.v1.timelines.home.list,
             cacheKey: cacheKey,
             maxId: maxId,
             maxRecords: maxRecords,
@@ -345,7 +343,7 @@ export default class MastoApi {
     async getBlockedAccounts(): Promise<Account[]> {
         const blockedAccounts = await this.getApiObjsAndUpdate<mastodon.v1.Account>({
             cacheKey: CacheKey.BLOCKED_ACCOUNTS,
-            fetch: this.api.v1.blocks.list,
+            fetchGenerator: () => this.api.v1.blocks.list,
         }) as Account[];
 
         Account.logSuspendedAccounts(blockedAccounts, CacheKey.BLOCKED_ACCOUNTS);
@@ -360,7 +358,7 @@ export default class MastoApi {
     async getBlockedDomains(): Promise<string[]> {
         const domains = await this.getApiObjsAndUpdate<string>({
             cacheKey: CacheKey.BLOCKED_DOMAINS,
-            fetch: this.api.v1.domainBlocks.list,
+            fetchGenerator: () => this.api.v1.domainBlocks.list,
         });
 
         return domains.map(domain => domain.toLowerCase().trim());
@@ -413,7 +411,7 @@ export default class MastoApi {
     async getFavouritedToots(params?: ApiParams): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             cacheKey: CacheKey.FAVOURITED_TOOTS,
-            fetch: this.api.v1.favourites.list,
+            fetchGenerator: () => this.api.v1.favourites.list,
             ...(params || {})
         }) as Toot[];
     }
@@ -441,7 +439,7 @@ export default class MastoApi {
     async getFollowedTags(params?: ApiParams): Promise<mastodon.v1.Tag[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Tag>({
             cacheKey: CacheKey.FOLLOWED_TAGS,
-            fetch: this.api.v1.followedTags.list,
+            fetchGenerator: () => this.api.v1.followedTags.list,
             processFxn: (tag) => repairTag(tag),
             ...(params || {})
         }) as mastodon.v1.Tag[];
@@ -470,7 +468,7 @@ export default class MastoApi {
     async getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             cacheKey: CacheKey.HOMESERVER_TOOTS,
-            fetch: this.api.v1.timelines.public.list,
+            fetchGenerator: () => this.api.v1.timelines.public.list,
             local: true,
             ...(params || {})
         }) as Toot[];
@@ -484,7 +482,7 @@ export default class MastoApi {
     async getMutedAccounts(params?: ApiParams): Promise<Account[]> {
         const mutedAccounts = await this.getApiObjsAndUpdate<mastodon.v1.Account>({
             cacheKey: CacheKey.MUTED_ACCOUNTS,
-            fetch: this.api.v1.mutes.list,
+            fetchGenerator: () => this.api.v1.mutes.list,
             ...(params || {})
         }) as Account[];
 
@@ -500,7 +498,7 @@ export default class MastoApi {
     async getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Notification>({
             cacheKey: CacheKey.NOTIFICATIONS,
-            fetch: this.api.v1.notifications.list,
+            fetchGenerator: () => this.api.v1.notifications.list,
             ...(params || {})
         }) as mastodon.v1.Notification[];
     }
@@ -513,7 +511,7 @@ export default class MastoApi {
     async getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             cacheKey: CacheKey.RECENT_USER_TOOTS,
-            fetch: this.api.v1.accounts.$select(this.user.id).statuses.list,
+            fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).statuses.list,
             ...(params || {})
         }) as Toot[];
     }
@@ -626,7 +624,7 @@ export default class MastoApi {
         try {
             const toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({
                 cacheKey: CacheKey.HASHTAG_TOOTS,  // This CacheKey is just for log prefixes + signaling how to serialize
-                fetch: this.api.v1.timelines.tag.$select(tagName).list,
+                fetchGenerator: () => this.api.v1.timelines.tag.$select(tagName).list,
                 logger,
                 maxRecords,
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -802,23 +800,20 @@ export default class MastoApi {
     ): Promise<ApiObj[]> {
         this.validateFetchParams<T>(params);
         const { breakIf, cacheKey, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
-
-        // Create a new Iterator for the fetch if fetchGenerator is provided
-        const fetch = fetchGenerator ? fetchGenerator() : params.fetch;
         const waitTime = this.waitTimes[cacheKey];
         waitTime.markStart();  // Telemetry
         let newRows: T[] = [];
         let pageNumber = 0;
 
         try {
-            for await (const page of fetch!(this.buildParams(params))) {
+            for await (const page of fetchGenerator()(this.buildParams(params))) {
                 waitTime.markEnd(); // telemetry
                 newRows = newRows.concat(page as T[]);
 
                 // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
-                let resultsMsg = `fetched ${page.length} in page ${++pageNumber}, ${newRows.length} records so far`;
-                resultsMsg += ` ${waitTime.ageString()}`;
+                let resultsMsg = `fetched ${page.length} ${waitTime.ageString()} in page ${++pageNumber}`;
+                resultsMsg += `, ${newRows.length} records so far`;
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     logger.debug(`Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`);
@@ -1169,10 +1164,10 @@ export default class MastoApi {
     /**
      * Returns a logger instance for the given fetch parameters.
      * @template T
-     * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
+     * @param {Omit<FetchParams<T>, "fetchGenerator">} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
-    private loggerForParams<T extends ApiObj>(params: Omit<FetchParams<T>, "fetch">): Logger {
+    private loggerForParams<T extends ApiObj>(params: Omit<FetchParams<T>, "fetchGenerator">): Logger {
         const { cacheKey, isBackgroundFetch, moar } = params;
         return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
     }
@@ -1196,14 +1191,8 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
     private validateFetchParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): void {
-        const { cacheKey, fetch, fetchGenerator, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        const { cacheKey, fetchGenerator, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
         const logger = params.logger.tempLogger('validateFetchParams');
-
-        if (!(fetch || fetchGenerator)) {
-            logger.logAndThrowError(`No fetch or fetchGenerator provided for ${cacheKey}`, params);
-        } else if (fetch && fetchGenerator) {
-            logger.logAndThrowError(`Both fetch and fetchGenerator provided for ${cacheKey}`, params);
-        }
 
         if (moar && (skipCache || maxId)) {
             logger.warn(`skipCache=true AND moar or maxId set!`);
