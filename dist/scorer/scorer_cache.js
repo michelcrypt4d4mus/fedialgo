@@ -8,27 +8,27 @@ const async_mutex_1 = require("async-mutex");
 const time_helpers_1 = require("../helpers/time_helpers");
 const SCORERS_MUTEX = new async_mutex_1.Mutex();
 class ScorerCache {
-    // These can score a toot without knowing about the rest of the toots in the feed
-    static featureScorers = [];
     // These scorers require the complete feed to work properly
     static feedScorers = [];
+    // These can score a toot without knowing about the rest of the toots in the feed
+    static tootScorers = [];
     // All scorers that can be weighted
     static weightedScorers = [];
-    static addScorers(featureScorers, feedScorers) {
-        this.featureScorers = featureScorers;
+    static addScorers(tootScorers, feedScorers) {
         this.feedScorers = feedScorers;
-        this.weightedScorers = [...featureScorers, ...feedScorers];
+        this.tootScorers = tootScorers;
+        this.weightedScorers = [...tootScorers, ...feedScorers];
     }
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
     static async prepareScorers(force) {
         const startedAt = new Date();
         const releaseMutex = await SCORERS_MUTEX.acquire();
         try {
-            const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
+            const scorersToPrepare = this.tootScorers.filter(scorer => force || !scorer.isReady);
             if (scorersToPrepare.length == 0)
                 return;
             await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready ${(0, time_helpers_1.ageString)(startedAt)}`);
+            console.log(`[ScorerCache] ${this.tootScorers.length} scorers ready ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
         finally {
             releaseMutex();

@@ -76,12 +76,13 @@ declare class TheAlgorithm {
     private loadStartedAt;
     private totalNumTimesShown;
     private logger;
+    private loadingMutex;
     private mergeMutex;
     private numTriggers;
     private cacheUpdater?;
     private dataPoller?;
-    private featureScorers;
     private feedScorers;
+    private tootScorers;
     private weightedScorers;
     weightsInfo: WeightInfoDict;
     /**
@@ -104,7 +105,7 @@ declare class TheAlgorithm {
      * @param {boolean} [moreOldToots] - Backfill older toots instead of getting new toots
      * @returns {Promise<void>}
      */
-    triggerFeedUpdate(moreOldToots?: boolean): Promise<void>;
+    triggerFeedUpdate(): Promise<void>;
     /**
      * Trigger the loading of additional toots, farther back on the home timeline.
      * @returns {Promise<void>}

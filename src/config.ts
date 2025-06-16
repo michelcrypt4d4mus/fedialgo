@@ -53,7 +53,6 @@ interface ApiConfig {
     data: Readonly<ApiDataConfig>;
     daysBeforeFullCacheRefresh: number; // How many days before the cache is considered stale and needs to be refreshed completely
     defaultRecordsPerPage: number;
-    hashtagTootRetrievalDelaySeconds: number;
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     maxSecondsPerPage: number;
@@ -162,11 +161,10 @@ interface ConfigType {
  */
 class Config implements ConfigType {
     api = {
-        backgroundLoadSleepBetweenRequestsMS: 1_500, // How long to wait between API requests during backgrund load
+        backgroundLoadSleepBetweenRequestsMS: 1_000, // How long to wait between API requests during backgrund load
         backgroundLoadIntervalMinutes: 10,      // Time between background polling for additional user data after initial load
         daysBeforeFullCacheRefresh: 21,         // Days before the cache is considered stale and needs to be refreshed completely  // TODO: currently unused
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
-        hashtagTootRetrievalDelaySeconds: 1,    // Delay before pulling trending & participated hashtag toots
         maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up
@@ -226,7 +224,7 @@ class Config implements ConfigType {
                 lookbackForUpdatesMinutes: 180,  // How far before the most recent toot we already have to look back for updates (edits, increased reblogs, etc.)
                 supportsMinMaxId: true,
             },
-            [CacheKey.HOMESERVER_TIMELINE_TOOTS]: {
+            [CacheKey.HOMESERVER_TOOTS]: {
                 initialMaxRecords: 20,
                 minutesUntilStale: 10,
             },

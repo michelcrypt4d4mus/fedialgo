@@ -34,34 +34,34 @@ require("reflect-metadata"); // Required for class-transformer
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./api/objects/account"));
 exports.Account = account_1.default;
-const already_shown_scorer_1 = __importDefault(require("./scorer/feature/already_shown_scorer"));
-const author_followers_scorer_1 = __importDefault(require("./scorer/feature/author_followers_scorer"));
+const already_shown_scorer_1 = __importDefault(require("./scorer/toot/already_shown_scorer"));
+const author_followers_scorer_1 = __importDefault(require("./scorer/toot/author_followers_scorer"));
 const boolean_filter_1 = __importDefault(require("./filters/boolean_filter"));
 exports.BooleanFilter = boolean_filter_1.default;
-const chaos_scorer_1 = __importDefault(require("./scorer/feature/chaos_scorer"));
+const chaos_scorer_1 = __importDefault(require("./scorer/toot/chaos_scorer"));
 const diversity_feed_scorer_1 = __importDefault(require("./scorer/feed/diversity_feed_scorer"));
-const favourited_tags_scorer_1 = __importDefault(require("./scorer/feature/favourited_tags_scorer"));
-const followed_accounts_scorer_1 = __importDefault(require("./scorer/feature/followed_accounts_scorer"));
-const followed_tags_scorer_1 = __importDefault(require("./scorer/feature/followed_tags_scorer"));
-const followers_scorer_1 = __importDefault(require("./scorer/feature/followers_scorer"));
-const hashtag_participation_scorer_1 = __importDefault(require("./scorer/feature/hashtag_participation_scorer"));
-const image_attachment_scorer_1 = __importDefault(require("./scorer/feature/image_attachment_scorer"));
-const interactions_scorer_1 = __importDefault(require("./scorer/feature/interactions_scorer"));
+const favourited_tags_scorer_1 = __importDefault(require("./scorer/toot/favourited_tags_scorer"));
+const followed_accounts_scorer_1 = __importDefault(require("./scorer/toot/followed_accounts_scorer"));
+const followed_tags_scorer_1 = __importDefault(require("./scorer/toot/followed_tags_scorer"));
+const followers_scorer_1 = __importDefault(require("./scorer/toot/followers_scorer"));
+const hashtag_participation_scorer_1 = __importDefault(require("./scorer/toot/hashtag_participation_scorer"));
+const image_attachment_scorer_1 = __importDefault(require("./scorer/toot/image_attachment_scorer"));
+const interactions_scorer_1 = __importDefault(require("./scorer/toot/interactions_scorer"));
 const api_1 = __importStar(require("./api/api"));
 Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return api_1.isAccessTokenRevokedError; } });
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
-const mentions_followed_scorer_1 = __importDefault(require("./scorer/feature/mentions_followed_scorer"));
-const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_favourited_accounts_scorer"));
-const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_replied_accounts_scorer"));
-const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/feature/most_retooted_accounts_scorer"));
+const mentions_followed_scorer_1 = __importDefault(require("./scorer/toot/mentions_followed_scorer"));
+const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_favourited_accounts_scorer"));
+const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_replied_accounts_scorer"));
+const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_retooted_accounts_scorer"));
 const numeric_filter_1 = __importDefault(require("./filters/numeric_filter"));
 exports.NumericFilter = numeric_filter_1.default;
-const num_favourites_scorer_1 = __importDefault(require("./scorer/feature/num_favourites_scorer"));
-const num_replies_scorer_1 = __importDefault(require("./scorer/feature/num_replies_scorer"));
-const num_retoots_scorer_1 = __importDefault(require("./scorer/feature/num_retoots_scorer"));
+const num_favourites_scorer_1 = __importDefault(require("./scorer/toot/num_favourites_scorer"));
+const num_replies_scorer_1 = __importDefault(require("./scorer/toot/num_replies_scorer"));
+const num_retoots_scorer_1 = __importDefault(require("./scorer/toot/num_retoots_scorer"));
 const obj_with_counts_list_1 = __importDefault(require("./api/obj_with_counts_list"));
 exports.ObjWithCountList = obj_with_counts_list_1.default;
-const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/feature/retoots_in_feed_scorer"));
+const retoots_in_feed_scorer_1 = __importDefault(require("./scorer/toot/retoots_in_feed_scorer"));
 const scorer_1 = __importDefault(require("./scorer/scorer"));
 const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
@@ -70,11 +70,11 @@ exports.TagList = tag_list_1.default;
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
 const tags_for_fetching_toots_1 = __importDefault(require("./api/tags_for_fetching_toots"));
-const trending_links_scorer_1 = __importDefault(require("./scorer/feature/trending_links_scorer"));
-const trending_tags_scorer_1 = __importDefault(require("./scorer/feature/trending_tags_scorer"));
-const trending_toots_scorer_1 = __importDefault(require("./scorer/feature/trending_toots_scorer"));
+const trending_links_scorer_1 = __importDefault(require("./scorer/toot/trending_links_scorer"));
+const trending_tags_scorer_1 = __importDefault(require("./scorer/toot/trending_tags_scorer"));
+const trending_toots_scorer_1 = __importDefault(require("./scorer/toot/trending_toots_scorer"));
 const user_data_1 = __importDefault(require("./api/user_data"));
-const video_attachment_scorer_1 = __importDefault(require("./scorer/feature/video_attachment_scorer"));
+const video_attachment_scorer_1 = __importDefault(require("./scorer/toot/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const log_helpers_1 = require("./helpers/log_helpers");
@@ -185,13 +185,18 @@ class TheAlgorithm {
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     // Utility
     logger = new logger_1.Logger(`TheAlgorithm`);
+    loadingMutex = new async_mutex_1.Mutex();
     mergeMutex = new async_mutex_1.Mutex();
     numTriggers = 0; // How many times has a load been triggered, only matters for QUICK_LOAD mode
     // Background tasks
     cacheUpdater;
     dataPoller;
+    // These scorers require the complete feed to work properly
+    feedScorers = [
+        new diversity_feed_scorer_1.default(),
+    ];
     // These can score a toot without knowing about the rest of the toots in the feed
-    featureScorers = [
+    tootScorers = [
         new already_shown_scorer_1.default(),
         new author_followers_scorer_1.default(),
         new chaos_scorer_1.default(),
@@ -215,12 +220,8 @@ class TheAlgorithm {
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
     ];
-    // These scorers require the complete feed to work properly
-    feedScorers = [
-        new diversity_feed_scorer_1.default(),
-    ];
     weightedScorers = [
-        ...this.featureScorers,
+        ...this.tootScorers,
         ...this.feedScorers,
     ];
     weightsInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
@@ -247,7 +248,7 @@ class TheAlgorithm {
         await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ ...params, user });
-        scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
+        scorer_cache_1.default.addScorers(algo.tootScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
     }
@@ -265,35 +266,29 @@ class TheAlgorithm {
      * @param {boolean} [moreOldToots] - Backfill older toots instead of getting new toots
      * @returns {Promise<void>}
      */
-    async triggerFeedUpdate(moreOldToots) {
+    async triggerFeedUpdate() {
         const logger = this.logger.tempLogger(log_helpers_1.TRIGGER_FEED);
-        logger.log(`called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        logger.info(`called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
-        if (moreOldToots)
-            return await this.triggerHomeTimelineBackFill();
         if (this.checkIfSkipping())
             return;
         this.markLoadStartedAt();
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
-        // Launch these asynchronously so we can start pulling toots right away
-        api_1.default.instance.getUserData();
-        scorer_cache_1.default.prepareScorers();
-        let dataLoads = [
-            this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-        ];
-        // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
-        const hashtagToots = async (key) => {
+        const tootsForHashtags = async (key) => {
             const tagList = await tags_for_fetching_toots_1.default.create(key);
             return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
         };
-        dataLoads = dataLoads.concat([
-            ...Object.values(enums_1.TagTootsCacheKey).map(hashtagToots),
-            this.fetchAndMergeToots(api_1.default.instance.getHomeserverTimelineToots(), new logger_1.Logger(enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS)),
+        // Launch these asynchronously so we can start pulling toots right away
+        api_1.default.instance.getUserData();
+        scorer_cache_1.default.prepareScorers();
+        const dataLoads = [
+            this.getHomeTimeline().then((toots) => this.homeFeed = toots),
+            this.fetchAndMergeToots(api_1.default.instance.getHomeserverTimelineToots(), new logger_1.Logger(enums_1.CacheKey.HOMESERVER_TOOTS)),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), trendingTootsLogger),
+            ...Object.values(enums_1.TagTootsCacheKey).map(tootsForHashtags),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-        ]);
+        ];
         const allResults = await Promise.allSettled(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();

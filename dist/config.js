@@ -54,11 +54,10 @@ const LOG_PREFIX = '[Config]';
  */
 class Config {
     api = {
-        backgroundLoadSleepBetweenRequestsMS: 1500,
+        backgroundLoadSleepBetweenRequestsMS: 1000,
         backgroundLoadIntervalMinutes: 10,
         daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,
-        hashtagTootRetrievalDelaySeconds: 1,
         maxConcurrentHashtagRequests: 15,
         maxRecordsForFeatureScoring: 1500,
         maxSecondsPerPage: 30,
@@ -118,7 +117,7 @@ class Config {
                 lookbackForUpdatesMinutes: 180,
                 supportsMinMaxId: true,
             },
-            [enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS]: {
+            [enums_1.CacheKey.HOMESERVER_TOOTS]: {
                 initialMaxRecords: 20,
                 minutesUntilStale: 10,
             },

@@ -348,7 +348,7 @@ export default class MastoApi {
     /**
      * Returns a logger instance for the given fetch parameters.
      * @template T
-     * @param {Omit<FetchParams<T>, "fetch">} params - Fetch parameters (excluding fetch).
+     * @param {Omit<FetchParams<T>, "fetchGenerator">} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
     private loggerForParams;
