@@ -285,25 +285,14 @@ class TheAlgorithm {
         MastoApi.instance.getUserData();
         ScorerCache.prepareScorers();
 
-        let dataLoads: Promise<unknown>[] = [
+        const dataLoads: Promise<unknown>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-        ];
-
-        // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await sleep(config.api.hashtagTootRetrievalDelaySeconds * 1000);  // TODO: do we really need to do this sleeping?
-
-        const hashtagToots = async (key: TagTootsCacheKey) => {
-            const tagList = await TagsForFetchingToots.create(key);
-            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
-        };
-
-        dataLoads = dataLoads.concat([
-            ...Object.values(TagTootsCacheKey).map(hashtagToots),
-            this.fetchAndMergeToots(MastoApi.instance.getHomeserverTimelineToots(), new Logger(CacheKey.HOMESERVER_TIMELINE_TOOTS)),
+            ...Object.values(TagTootsCacheKey).map(this.hashtagListToots),
+            this.fetchAndMergeToots(MastoApi.instance.getHomeserverTimelineToots(), new Logger(CacheKey.HOMESERVER_TOOTS)),
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-        ]);
+        ];
 
         const allResults = await Promise.allSettled(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
@@ -658,6 +647,12 @@ class TheAlgorithm {
             moar: moreOldToots
         });
     }
+
+    /** Helper to fetch and merge toots for a kind of tag (participated/favourited/trending). */
+    private async hashtagListToots(key: TagTootsCacheKey) {
+        const tagList = await TagsForFetchingToots.create(key);
+        return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+    };
 
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage

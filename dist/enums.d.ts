@@ -29,7 +29,7 @@ export declare enum CacheKey {
     FOLLOWERS = "Followers",
     HASHTAG_TOOTS = "HashtagToots",
     HOME_TIMELINE_TOOTS = "HomeTimelineToots",
-    HOMESERVER_TIMELINE_TOOTS = "HomeserverTimelineToots",
+    HOMESERVER_TOOTS = "HomeserverToots",
     MUTED_ACCOUNTS = "MutedAccounts",
     NOTIFICATIONS = "Notifications",
     RECENT_USER_TOOTS = "RecentUserToots",

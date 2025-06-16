@@ -38,7 +38,7 @@ var CacheKey;
     CacheKey["FOLLOWERS"] = "Followers";
     CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
     CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
-    CacheKey["HOMESERVER_TIMELINE_TOOTS"] = "HomeserverTimelineToots";
+    CacheKey["HOMESERVER_TOOTS"] = "HomeserverToots";
     CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     CacheKey["NOTIFICATIONS"] = "Notifications";
     CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";

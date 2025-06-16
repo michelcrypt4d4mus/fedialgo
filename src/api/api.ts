@@ -11,7 +11,6 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
-import { type CacheTimestamp } from "../types";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { CacheKey, buildCacheKeyDict, type ApiCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
@@ -20,12 +19,8 @@ import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
+import { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, UNIQUE_ID_PROPERTIES } from "../enums";
 import { TrendingType } from '../enums';
-import {
-    STORAGE_KEYS_WITH_ACCOUNTS,
-    STORAGE_KEYS_WITH_TOOTS,
-    UNIQUE_ID_PROPERTIES,
-} from "../enums";
 import {
     findMinMaxId,
     getPromiseResults,
@@ -38,6 +33,7 @@ import {
     type AccountLike,
     type ApiObj,
     type ApiObjWithID,
+    type CacheTimestamp,
     type ConcurrencyLockRelease,
     type MastodonTag,
     type MinMaxID,
@@ -473,7 +469,7 @@ export default class MastoApi {
      */
     async getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
-            cacheKey: CacheKey.HOMESERVER_TIMELINE_TOOTS,
+            cacheKey: CacheKey.HOMESERVER_TOOTS,
             fetch: this.api.v1.timelines.public.list,
             local: true,
             ...(params || {})

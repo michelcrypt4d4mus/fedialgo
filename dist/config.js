@@ -118,7 +118,7 @@ class Config {
                 lookbackForUpdatesMinutes: 180,
                 supportsMinMaxId: true,
             },
-            [enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS]: {
+            [enums_1.CacheKey.HOMESERVER_TOOTS]: {
                 initialMaxRecords: 20,
                 minutesUntilStale: 10,
             },

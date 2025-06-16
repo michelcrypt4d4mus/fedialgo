@@ -278,22 +278,14 @@ class TheAlgorithm {
         // Launch these asynchronously so we can start pulling toots right away
         api_1.default.instance.getUserData();
         scorer_cache_1.default.prepareScorers();
-        let dataLoads = [
+        const dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-        ];
-        // Sleep to Delay the trending tag etc. toot pulls a bit because they generate a ton of API calls
-        await (0, time_helpers_1.sleep)(config_1.config.api.hashtagTootRetrievalDelaySeconds * 1000); // TODO: do we really need to do this sleeping?
-        const hashtagToots = async (key) => {
-            const tagList = await tags_for_fetching_toots_1.default.create(key);
-            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
-        };
-        dataLoads = dataLoads.concat([
-            ...Object.values(enums_1.TagTootsCacheKey).map(hashtagToots),
-            this.fetchAndMergeToots(api_1.default.instance.getHomeserverTimelineToots(), new logger_1.Logger(enums_1.CacheKey.HOMESERVER_TIMELINE_TOOTS)),
+            ...Object.values(enums_1.TagTootsCacheKey).map(this.hashtagListToots),
+            this.fetchAndMergeToots(api_1.default.instance.getHomeserverTimelineToots(), new logger_1.Logger(enums_1.CacheKey.HOMESERVER_TOOTS)),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), trendingTootsLogger),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-        ]);
+        ];
         const allResults = await Promise.allSettled(dataLoads);
         logger.deep(`FINISHED promises, allResults:`, allResults);
         await this.finishFeedUpdate();
@@ -620,6 +612,12 @@ class TheAlgorithm {
             moar: moreOldToots
         });
     }
+    /** Helper to fetch and merge toots for a kind of tag (participated/favourited/trending). */
+    async hashtagListToots(key) {
+        const tagList = await tags_for_fetching_toots_1.default.create(key);
+        return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+    }
+    ;
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage
     launchBackgroundPollers() {
