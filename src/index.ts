@@ -178,6 +178,7 @@ class TheAlgorithm {
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
     // Utility
     private logger: Logger = new Logger(`TheAlgorithm`);
+    private loadingMutex = new Mutex();
     private mergeMutex = new Mutex();
     private numTriggers = 0;  // How many times has a load been triggered, only matters for QUICK_LOAD mode
     // Background tasks
@@ -272,11 +273,10 @@ class TheAlgorithm {
      * @param {boolean} [moreOldToots] - Backfill older toots instead of getting new toots
      * @returns {Promise<void>}
      */
-    async triggerFeedUpdate(moreOldToots?: boolean): Promise<void> {
+    async triggerFeedUpdate(): Promise<void> {
         const logger = this.logger.tempLogger(TRIGGER_FEED);
         logger.info(`called, ${++this.numTriggers} triggers so far, state:`, this.statusDict());
         this.checkIfLoading();
-        if (moreOldToots) return await this.triggerHomeTimelineBackFill();
         if (this.checkIfSkipping()) return;
         this.markLoadStartedAt();
         this.setLoadingStateVariables(TRIGGER_FEED);

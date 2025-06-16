@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Rename `FeatureScorer` to `TootScorer`
 * Rename `HOMESERVER_TIMELINE_TOOTS` to just `HOMESERVER_TOOTS`
+* Remove moreOldToots argument from triggerFeedUpate() (client app should call triggerHomeTimelineBackFill())
 * Remove config `hashtagTootRetrievalDelaySeconds`; don't sleep before launching hashtag `Toot` retrieval
 * Use `fetchGenerator() for all API calls instead of either `fetch()` or `fetchGenerator()`
 

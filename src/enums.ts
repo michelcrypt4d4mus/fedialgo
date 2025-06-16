@@ -39,7 +39,7 @@ export enum CacheKey {
     NOTIFICATIONS = 'Notifications',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE_TOOTS = 'TimelineToots',// The entire timeline (home timeline + trending toots etc.)
+    TIMELINE_TOOTS = 'TimelineToots',  // The entire timeline (home timeline + trending toots etc.)
 };
 
 /**
