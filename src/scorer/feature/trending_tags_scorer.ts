@@ -2,14 +2,14 @@
  * Scores with the number of accounts that have posted a toot with the trending tag
  * across the Fediverse.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { config } from '../../config';
 import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
-export default class TrendingTagsScorer extends FeatureScorer {
+export default class TrendingTagsScorer extends TootScorer {
     description = "Favour hashtags that are trending in the Fediverse";
 
     constructor() {

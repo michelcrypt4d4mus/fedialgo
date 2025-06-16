@@ -1,15 +1,15 @@
 /*
  * Score toots containing hashtags the user posts about a lot
  */
-import FeatureScorer from '../feature_scorer';
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 import { type StringNumberDict } from "../../types";
 
 
-export default class HashtagParticipationScorer extends FeatureScorer {
+export default class HashtagParticipationScorer extends TootScorer {
     description = "Favour hastags you've tooted about";
 
     constructor() {

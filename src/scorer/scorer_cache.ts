@@ -4,25 +4,25 @@
  */
 import { Mutex } from "async-mutex";
 
-import FeatureScorer from "./feature_scorer";
 import FeedScorer from "./feed_scorer";
+import TootScorer from "./feature_scorer";
 import { ageString } from "../helpers/time_helpers";
 
 const SCORERS_MUTEX = new Mutex();
 
 
 export default class ScorerCache {
-    // These can score a toot without knowing about the rest of the toots in the feed
-    static featureScorers: FeatureScorer[] = [];
     // These scorers require the complete feed to work properly
     static feedScorers: FeedScorer[] = [];
+    // These can score a toot without knowing about the rest of the toots in the feed
+    static tootScorers: TootScorer[] = [];
     // All scorers that can be weighted
-    static weightedScorers: (FeedScorer | FeatureScorer)[] = [];
+    static weightedScorers: (FeedScorer | TootScorer)[] = [];
 
-    static addScorers(featureScorers: FeatureScorer[], feedScorers: FeedScorer[]) {
-        this.featureScorers = featureScorers;
+    static addScorers(tootScorers: TootScorer[], feedScorers: FeedScorer[]) {
         this.feedScorers = feedScorers;
-        this.weightedScorers = [...featureScorers, ...feedScorers];
+        this.tootScorers = tootScorers;
+        this.weightedScorers = [...tootScorers, ...feedScorers];
     }
 
     // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
@@ -31,10 +31,10 @@ export default class ScorerCache {
         const releaseMutex = await SCORERS_MUTEX.acquire();
 
         try {
-            const scorersToPrepare = this.featureScorers.filter(scorer => force || !scorer.isReady);
+            const scorersToPrepare = this.tootScorers.filter(scorer => force || !scorer.isReady);
             if (scorersToPrepare.length == 0) return;
             await Promise.all(scorersToPrepare.map(scorer => scorer.fetchRequiredData()));
-            console.log(`[ScorerCache] ${this.featureScorers.length} scorers ready ${ageString(startedAt)}`);
+            console.log(`[ScorerCache] ${this.tootScorers.length} scorers ready ${ageString(startedAt)}`);
         } finally {
             releaseMutex();
         }

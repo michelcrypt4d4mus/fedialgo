@@ -1,12 +1,12 @@
 /*
  * Random number generator to mix up the feed.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 
 
-export default class ChaosScorer extends FeatureScorer {
+export default class ChaosScorer extends TootScorer {
     description = "Insert Chaos into the scoring (social media ist krieg)";
 
     constructor() {

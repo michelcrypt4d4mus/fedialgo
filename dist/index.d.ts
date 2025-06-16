@@ -80,8 +80,8 @@ declare class TheAlgorithm {
     private numTriggers;
     private cacheUpdater?;
     private dataPoller?;
-    private featureScorers;
     private feedScorers;
+    private tootScorers;
     private weightedScorers;
     weightsInfo: WeightInfoDict;
     /**

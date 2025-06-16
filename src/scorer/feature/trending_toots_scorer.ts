@@ -2,12 +2,12 @@
  * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
  * that as the score.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 
 
-export default class TrendingTootScorer extends FeatureScorer {
+export default class TrendingTootScorer extends TootScorer {
     description = "Favour toots that are trending in the Fediverse";
 
     constructor() {

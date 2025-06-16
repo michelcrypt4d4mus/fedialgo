@@ -13,7 +13,6 @@ import BooleanFilter, {  } from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/feature/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/feature/favourited_tags_scorer';
-import FeatureScorer from './scorer/feature_scorer';
 import FeedScorer from './scorer/feed_scorer';
 import FollowedAccountsScorer from './scorer/feature/followed_accounts_scorer';
 import FollowedTagsScorer from "./scorer/feature/followed_tags_scorer";
@@ -38,6 +37,7 @@ import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
+import TootScorer from './scorer/feature_scorer';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";
@@ -184,8 +184,13 @@ class TheAlgorithm {
     private cacheUpdater?: ReturnType<typeof setInterval>;
     private dataPoller?: ReturnType<typeof setInterval>;
 
+    // These scorers require the complete feed to work properly
+    private feedScorers: FeedScorer[] = [
+        new DiversityFeedScorer(),
+    ];
+
     // These can score a toot without knowing about the rest of the toots in the feed
-    private featureScorers: FeatureScorer[] = [
+    private tootScorers: TootScorer[] = [
         new AlreadyShownScorer(),
         new AuthorFollowersScorer(),
         new ChaosScorer(),
@@ -210,13 +215,8 @@ class TheAlgorithm {
         new VideoAttachmentScorer(),
     ];
 
-    // These scorers require the complete feed to work properly
-    private feedScorers: FeedScorer[] = [
-        new DiversityFeedScorer(),
-    ];
-
     private weightedScorers: Scorer[] = [
-        ...this.featureScorers,
+        ...this.tootScorers,
         ...this.feedScorers,
     ];
 
@@ -252,7 +252,7 @@ class TheAlgorithm {
 
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ ...params, user });
-        ScorerCache.addScorers(algo.featureScorers, algo.feedScorers);
+        ScorerCache.addScorers(algo.tootScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
     }

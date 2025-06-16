@@ -3,10 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Scores with the number of accounts that have posted a toot with the trending tag
- * across the Fediverse.
- */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const config_1 = require("../../config");
 const enums_1 = require("../../enums");

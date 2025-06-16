@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Score toots containing hashtags the user posts about a lot
  */
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const tag_list_1 = __importDefault(require("../../api/tag_list"));
+const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class HashtagParticipationScorer extends feature_scorer_1.default {

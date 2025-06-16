@@ -1,15 +1,15 @@
 /*
  * Score how many times the user has replied to the creator of the toot.
  */
-import FeatureScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { countValues, sumArray } from '../../helpers/collection_helpers';
 import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-export default class MostRepliedAccountsScorer extends FeatureScorer {
+export default class MostRepliedAccountsScorer extends TootScorer {
     description = "Favour accounts you often reply to";
 
     constructor() {

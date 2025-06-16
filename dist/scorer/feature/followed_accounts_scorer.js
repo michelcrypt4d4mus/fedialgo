@@ -8,8 +8,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * RetootsInFeedScorer).
  */
 const account_1 = __importDefault(require("../../api/objects/account"));
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
+const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const enums_1 = require("../../enums");
 class FollowedAccountsScorer extends feature_scorer_1.default {
     description = "Favour accounts you follow";

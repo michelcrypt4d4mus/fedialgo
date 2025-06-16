@@ -1,12 +1,12 @@
 /*
  * Score how many times a toot has been retooted by other accounts in the feed.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 
 
-export default class RetootsInFeedScorer extends FeatureScorer {
+export default class RetootsInFeedScorer extends TootScorer {
     description = "Favour toots retooted by accounts you follow";
 
     constructor() {

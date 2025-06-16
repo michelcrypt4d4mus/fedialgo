@@ -3,9 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Random number generator to mix up the feed.
- */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const enums_1 = require("../../enums");
 class ChaosScorer extends feature_scorer_1.default {

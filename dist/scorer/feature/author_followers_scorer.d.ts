@@ -1,6 +1,6 @@
-import FeatureScorer from "../feature_scorer";
 import Toot from "../../api/objects/toot";
-export default class AuthorFollowersScorer extends FeatureScorer {
+import TootScorer from "../feature_scorer";
+export default class AuthorFollowersScorer extends TootScorer {
     description: string;
     constructor();
     _score(toot: Toot): Promise<number>;

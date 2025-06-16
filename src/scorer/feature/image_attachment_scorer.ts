@@ -1,12 +1,12 @@
 /*
  * Score the number of image attachments in the toot.
  */
-import FeatureScorer from '../feature_scorer';
+import TootScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 
 
-export default class ImageAttachmentScorer extends FeatureScorer {
+export default class ImageAttachmentScorer extends TootScorer {
     description = "Favour toots with images";
 
     constructor() {

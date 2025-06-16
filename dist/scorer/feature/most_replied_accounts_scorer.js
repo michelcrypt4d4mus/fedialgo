@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Score how many times the user has replied to the creator of the toot.
  */
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
+const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const enums_1 = require("../../enums");
 class MostRepliedAccountsScorer extends feature_scorer_1.default {

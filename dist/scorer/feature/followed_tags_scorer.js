@@ -3,10 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Populate the 'followedTags' property on Toot object and return the number of tags
- * on the Toot that the user is following.
- */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const enums_1 = require("../../enums");
 class FollowedTagsScorer extends feature_scorer_1.default {

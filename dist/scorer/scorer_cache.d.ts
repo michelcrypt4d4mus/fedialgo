@@ -1,10 +1,10 @@
-import FeatureScorer from "./feature_scorer";
 import FeedScorer from "./feed_scorer";
+import TootScorer from "./feature_scorer";
 export default class ScorerCache {
-    static featureScorers: FeatureScorer[];
     static feedScorers: FeedScorer[];
-    static weightedScorers: (FeedScorer | FeatureScorer)[];
-    static addScorers(featureScorers: FeatureScorer[], feedScorers: FeedScorer[]): void;
+    static tootScorers: TootScorer[];
+    static weightedScorers: (FeedScorer | TootScorer)[];
+    static addScorers(tootScorers: TootScorer[], feedScorers: FeedScorer[]): void;
     static prepareScorers(force?: boolean): Promise<void>;
     static resetScorers(): void;
 }

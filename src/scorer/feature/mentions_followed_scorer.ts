@@ -2,14 +2,14 @@
  * Score how many accounts that the user follows are mentioned in the toot.
  */
 import Account from '../../api/objects/account';
-import FeatureScorer from '../feature_scorer';
+import TootScorer from '../feature_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-export default class MentionsFollowedScorer extends FeatureScorer {
+export default class MentionsFollowedScorer extends TootScorer {
     description = "Favour toots that mention accounts you follow";
 
     constructor() {

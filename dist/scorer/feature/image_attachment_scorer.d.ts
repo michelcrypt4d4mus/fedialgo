@@ -1,6 +1,6 @@
-import FeatureScorer from '../feature_scorer';
+import TootScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
-export default class ImageAttachmentScorer extends FeatureScorer {
+export default class ImageAttachmentScorer extends TootScorer {
     description: string;
     constructor();
     _score(toot: Toot): Promise<number>;

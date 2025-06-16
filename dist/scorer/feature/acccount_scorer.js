@@ -3,10 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Abstract extension of FeatureScorer to score a toot based on the account that created it.
- * Requires that the scoreData is a map of webfingerURIs to scores.
- */
 const feature_scorer_1 = __importDefault(require("../feature_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 class AccountScorer extends feature_scorer_1.default {

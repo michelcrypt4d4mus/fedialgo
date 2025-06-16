@@ -3,12 +3,12 @@
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 
 
-export default class NumFavouritesScorer extends FeatureScorer {
+export default class NumFavouritesScorer extends TootScorer {
     description = "Favour toots favourited by your server's users";
 
     constructor() {

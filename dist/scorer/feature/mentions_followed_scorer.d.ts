@@ -1,7 +1,7 @@
-import FeatureScorer from '../feature_scorer';
+import TootScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
 import { type StringNumberDict } from '../../types';
-export default class MentionsFollowedScorer extends FeatureScorer {
+export default class MentionsFollowedScorer extends TootScorer {
     description: string;
     constructor();
     prepareScoreData(): Promise<StringNumberDict>;

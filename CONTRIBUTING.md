@@ -24,7 +24,7 @@ To add a new metric for scoring toots you must:
 1. Add an entry to the `ScoreName` enum
 1. Create a new subclass of [`Scorer`](src/scorer/scorer.ts)
 1. Add a default weight for your scorer to [`DEFAULT_WEIGHTS`](src/scorer/weight_presets.ts)
-1. Instantiate an instance of your new `Scorer` in the appropriate array in [`TheAlgorithm`](src/index.ts) (`featureScorers` if it's a self contained score that requires only the information in a single toot, `feedScorers` if it's a scorer that requires the entire set of timeline toots to score a toot)
+1. Instantiate an instance of your new `Scorer` in the appropriate array in [`TheAlgorithm`](src/index.ts) (`tootScorers` if it's a self contained score that requires only the information in a single toot, `feedScorers` if it's a scorer that requires the entire set of timeline toots to score a toot)
 
 ### Deploying Changes
 For changes to propagate you must run `npm run build` to generate changes to files in `dist/` and then check those files into git (it's terrible, I know).

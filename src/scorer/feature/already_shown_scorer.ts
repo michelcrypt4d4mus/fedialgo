@@ -1,13 +1,13 @@
 /*
  * Score based on the numTimesShown, which is managed by the client app.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
-export default class AlreadyShownScorer extends FeatureScorer {
+export default class AlreadyShownScorer extends TootScorer {
     description = 'Favour toots marked as already seen';
 
     constructor() {

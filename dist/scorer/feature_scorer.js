@@ -4,15 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /*
- * Base class for a "feature scorer" which appears to be something that can score
- * a toot based solely on the properties of that toot, optionally coupled with other
- * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
+ * Base class for a Scorer that can score a toot based solely on the properties of that
+ * toot, optionally coupled with the fedialgo user's account data. Most importantly a
+ * TootScorer does *not* require information about any other Toots in the feed (unlike a FeedScorer,
+ * which requires knowledge of the entire timeline to render a score).
  */
 const scorer_1 = __importDefault(require("./scorer"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
-// TODO: Find a better name than "Feature" for this class
-class FeatureScorer extends scorer_1.default {
+class TootScorer extends scorer_1.default {
     constructor(scoreName) {
         super(scoreName);
     }
@@ -38,6 +38,6 @@ class FeatureScorer extends scorer_1.default {
         return {};
     }
 }
-exports.default = FeatureScorer;
+exports.default = TootScorer;
 ;
 //# sourceMappingURL=feature_scorer.js.map

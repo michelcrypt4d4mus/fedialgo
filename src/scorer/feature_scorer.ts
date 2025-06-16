@@ -1,7 +1,8 @@
 /*
- * Base class for a "feature scorer" which appears to be something that can score
- * a toot based solely on the properties of that toot, optionally coupled with other
- * data can be compiled before retrieving the whole feed, e.g. numFavorites, etc.
+ * Base class for a Scorer that can score a toot based solely on the properties of that
+ * toot, optionally coupled with the fedialgo user's account data. Most importantly a
+ * TootScorer does *not* require information about any other Toots in the feed (unlike a FeedScorer,
+ * which requires knowledge of the entire timeline to render a score).
  */
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
@@ -10,8 +11,7 @@ import { ScoreName } from '../enums';
 import { type StringNumberDict } from "../types";
 
 
-// TODO: Find a better name than "Feature" for this class
-export default abstract class FeatureScorer extends Scorer {
+export default abstract class TootScorer extends Scorer {
     constructor(scoreName: ScoreName) {
         super(scoreName);
     }

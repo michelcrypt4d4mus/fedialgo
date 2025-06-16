@@ -190,8 +190,12 @@ class TheAlgorithm {
     // Background tasks
     cacheUpdater;
     dataPoller;
+    // These scorers require the complete feed to work properly
+    feedScorers = [
+        new diversity_feed_scorer_1.default(),
+    ];
     // These can score a toot without knowing about the rest of the toots in the feed
-    featureScorers = [
+    tootScorers = [
         new already_shown_scorer_1.default(),
         new author_followers_scorer_1.default(),
         new chaos_scorer_1.default(),
@@ -215,12 +219,8 @@ class TheAlgorithm {
         new trending_toots_scorer_1.default(),
         new video_attachment_scorer_1.default(),
     ];
-    // These scorers require the complete feed to work properly
-    feedScorers = [
-        new diversity_feed_scorer_1.default(),
-    ];
     weightedScorers = [
-        ...this.featureScorers,
+        ...this.tootScorers,
         ...this.feedScorers,
     ];
     weightsInfo = this.weightedScorers.reduce((scorerInfos, scorer) => {
@@ -247,7 +247,7 @@ class TheAlgorithm {
         await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
         const algo = new TheAlgorithm({ ...params, user });
-        scorer_cache_1.default.addScorers(algo.featureScorers, algo.feedScorers);
+        scorer_cache_1.default.addScorers(algo.tootScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
     }

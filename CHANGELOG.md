@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename FeatureScorer to TootScorer
 
 ### v0.72.7
 * Mark `Toot` objects that are missing a `trendingLinks` property as needing to be recompleted

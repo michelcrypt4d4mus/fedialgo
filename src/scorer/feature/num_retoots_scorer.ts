@@ -1,12 +1,12 @@
 /*
  * Score how many times the toot has been retooted.
  */
-import FeatureScorer from '../feature_scorer';
 import Toot from '../../api/objects/toot';
+import TootScorer from '../feature_scorer';
 import { ScoreName } from '../../enums';
 
 
-export default class NumRetootsScorer extends FeatureScorer {
+export default class NumRetootsScorer extends TootScorer {
     description = "Favour toots that are retooted a lot";
 
     constructor() {
