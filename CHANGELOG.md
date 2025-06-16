@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Rework logging situation in TheAlgorithm
+* Rework logging situation in `TheAlgorithm`
 
 ### v0.72.8
 * Rename `FeatureScorer` to `TootScorer`

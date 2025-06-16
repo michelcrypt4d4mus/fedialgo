@@ -111,7 +111,6 @@ const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
-const PULLING_USER_HISTORY = `Pulling your historical data`;
 const READY_TO_LOAD_MSG = "Ready to load";
 exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
@@ -125,12 +124,20 @@ var LogPrefix;
 (function (LogPrefix) {
     LogPrefix["FINISH_FEED_UPDATE"] = "finishFeedUpdate";
     LogPrefix["REFRESH_MUTED_ACCOUNTS"] = "refreshMutedAccounts";
+    LogPrefix["RESET"] = "reset";
     LogPrefix["SET_LOADING_STATUS"] = "setLoadingStateVariables";
     LogPrefix["TRIGGER_FEED_UPDATE"] = "triggerFeedUpdate";
+    LogPrefix["TRIGGER_MOAR_DATA"] = "triggerMoarData";
     LogPrefix["TRIGGER_PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
     LogPrefix["TRIGGER_TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
 })(LogPrefix || (LogPrefix = {}));
 ;
+const LOADING_STATUS_MSGS = {
+    [LogPrefix.RESET]: `Resetting state`,
+    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching moar data`,
+    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
+    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+};
 const logger = new logger_1.Logger(`TheAlgorithm`);
 const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key));
 Object.values(LogPrefix).forEach((prefix) => loggers[prefix] = logger.tempLogger(prefix));
@@ -178,16 +185,13 @@ class TheAlgorithm {
     trendingData = EMPTY_TRENDING_DATA;
     get apiErrorMsgs() { return api_1.default.instance.apiErrors.map(e => e.message); }
     ;
-    // TODO: Using loadingStatus as the marker for loading state is a bit (or a lot) janky.
-    get isLoading() { return !!(this.loadingStatus && this.loadingStatus != READY_TO_LOAD_MSG); }
+    get isLoading() { return this.loadingMutex.isLocked(); }
     ;
     get timeline() { return [...this.feed]; }
     ;
     get userData() { return api_1.default.instance.userData || new user_data_1.default(); }
     ;
-    // Constructor argument variables
-    api;
-    user;
+    // Constructor arguments
     setTimelineInApp; // Optional callback to set the feed in the app using this package
     // Other private variables
     feed = [];
@@ -199,6 +203,7 @@ class TheAlgorithm {
     loadingMutex = new async_mutex_1.Mutex();
     mergeMutex = new async_mutex_1.Mutex();
     numTriggers = 0; // How many times has a load been triggered, only matters for QUICK_LOAD mode
+    _releaseLoadingMutex; // Mutex release function for loading state
     // Background tasks
     cacheUpdater;
     dataPoller;
@@ -258,7 +263,7 @@ class TheAlgorithm {
         await api_1.default.init(params.api, user);
         await Storage_1.default.logAppOpen(user);
         // Construct the algorithm object, set the default weights, load feed and filters
-        const algo = new TheAlgorithm({ ...params, user });
+        const algo = new TheAlgorithm(params);
         scorer_cache_1.default.addScorers(algo.tootScorers, algo.feedScorers);
         await algo.loadCachedData();
         return algo;
@@ -268,8 +273,6 @@ class TheAlgorithm {
      * @param {AlgorithmArgs} params - Constructor params (API client, user, and optional timeline callback/locale).
      */
     constructor(params) {
-        this.api = params.api;
-        this.user = params.user;
         this.setTimelineInApp = params.setTimelineInApp ?? DEFAULT_SET_TIMELINE_IN_APP;
     }
     /**
@@ -278,42 +281,46 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerFeedUpdate() {
-        loggers[LogPrefix.TRIGGER_FEED_UPDATE].info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
-        this.checkIfLoading();
         if (this.shouldSkip())
             return;
-        this.markLoadStartedAt();
-        this.setLoadingStateVariables(LogPrefix.TRIGGER_FEED_UPDATE);
-        const tootsForHashtags = async (key) => {
-            const tagList = await tags_for_fetching_toots_1.default.create(key);
-            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
-        };
-        const dataLoads = [
-            // Toot fetchers
-            this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-            this.fetchAndMergeToots(api_1.default.instance.getHomeserverToots(), loggers[enums_1.CacheKey.HOMESERVER_TOOTS]),
-            this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]),
-            ...Object.values(enums_1.TagTootsCacheKey).map(tootsForHashtags),
-            // Other data fetchers
-            mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
-            api_1.default.instance.getUserData(),
-            scorer_cache_1.default.prepareScorers(),
-        ];
-        const allResults = await Promise.allSettled(dataLoads);
-        loggers[LogPrefix.TRIGGER_FEED_UPDATE].deep(`FINISHED promises, allResults:`, allResults);
-        await this.finishFeedUpdate();
+        await this.lockLoadingMutex(LogPrefix.TRIGGER_FEED_UPDATE);
+        try {
+            const tootsForHashtags = async (key) => {
+                const tagList = await tags_for_fetching_toots_1.default.create(key);
+                return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+            };
+            const dataLoads = [
+                // Toot fetchers
+                this.getHomeTimeline().then((toots) => this.homeFeed = toots),
+                this.fetchAndMergeToots(api_1.default.instance.getHomeserverToots(), loggers[enums_1.CacheKey.HOMESERVER_TOOTS]),
+                this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]),
+                ...Object.values(enums_1.TagTootsCacheKey).map(tootsForHashtags),
+                // Other data fetchers
+                mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
+                api_1.default.instance.getUserData(),
+                scorer_cache_1.default.prepareScorers(),
+            ];
+            const allResults = await Promise.allSettled(dataLoads);
+            loggers[LogPrefix.TRIGGER_FEED_UPDATE].deep(`FINISHED promises, allResults:`, allResults);
+            await this.finishFeedUpdate();
+        }
+        finally {
+            this.releaseLoadingMutex();
+        }
     }
     /**
      * Trigger the loading of additional toots, farther back on the home timeline.
      * @returns {Promise<void>}
      */
     async triggerHomeTimelineBackFill() {
-        loggers[LogPrefix.TRIGGER_TIMELINE_BACKFILL].log(`called, state:`, this.statusDict());
-        this.checkIfLoading();
-        this.markLoadStartedAt();
-        this.setLoadingStateVariables(LogPrefix.TRIGGER_TIMELINE_BACKFILL);
-        this.homeFeed = await this.getHomeTimeline(true);
-        await this.finishFeedUpdate();
+        await this.lockLoadingMutex(LogPrefix.TRIGGER_TIMELINE_BACKFILL);
+        try {
+            this.homeFeed = await this.getHomeTimeline(true);
+            await this.finishFeedUpdate();
+        }
+        finally {
+            this.releaseLoadingMutex();
+        }
     }
     /**
      * Manually trigger the loading of "moar" user data (recent toots, favourites, notifications, etc).
@@ -321,26 +328,24 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData() {
-        this.checkIfLoading();
-        this.loadingStatus = `Triggering moar data fetching...`;
+        await this.lockLoadingMutex(LogPrefix.TRIGGER_MOAR_DATA);
         let shouldReenablePoller = false;
-        if (this.dataPoller) {
-            moar_data_poller_1.moarDataLogger.log(`Disabling current data poller...`);
-            this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
-            this.dataPoller = undefined;
-            shouldReenablePoller = true;
-        }
         try {
-            const _shouldContinue = await (0, moar_data_poller_1.getMoarData)();
+            if (this.dataPoller) {
+                moar_data_poller_1.moarDataLogger.log(`Disabling current data poller...`);
+                this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
+                this.dataPoller = undefined;
+                shouldReenablePoller = true;
+            }
+            await (0, moar_data_poller_1.getMoarData)();
         }
         catch (error) {
             api_1.default.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         }
         finally {
-            // reenable when finished
             if (shouldReenablePoller)
-                this.enableMoarDataBackgroundPoller();
-            this.loadingStatus = null;
+                this.enableMoarDataBackgroundPoller(); // Reenable poller when finished
+            this.releaseLoadingMutex();
         }
     }
     /**
@@ -350,12 +355,9 @@ class TheAlgorithm {
      */
     async triggerPullAllUserData() {
         const hereLogger = loggers[LogPrefix.TRIGGER_PULL_ALL_USER_DATA];
-        hereLogger.log(`Called, state:`, this.statusDict());
-        this.checkIfLoading();
-        this.markLoadStartedAt();
-        this.setLoadingStateVariables(LogPrefix.TRIGGER_PULL_ALL_USER_DATA);
-        this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
+        this.lockLoadingMutex(LogPrefix.TRIGGER_PULL_ALL_USER_DATA);
         try {
+            this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
             const _allResults = await Promise.allSettled([
                 api_1.default.instance.getFavouritedToots(api_1.FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
@@ -369,7 +371,7 @@ class TheAlgorithm {
             api_1.default.throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
         }
         finally {
-            this.loadingStatus = null; // TODO: should we restart the data poller?
+            this.releaseLoadingMutex(); // TODO: should we restart the data poller?
         }
     }
     /**
@@ -447,26 +449,31 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async reset(complete = false) {
-        logger.warn(`reset() called, clearing all storage...`);
-        this.dataPoller && clearInterval(this.dataPoller);
-        this.dataPoller = undefined;
-        this.cacheUpdater && clearInterval(this.cacheUpdater);
-        this.cacheUpdater = undefined;
-        this.hasProvidedAnyTootsToClient = false;
-        this.loadingStatus = READY_TO_LOAD_MSG;
-        this.loadStartedAt = null;
-        this.numTriggers = 0;
-        this.feed = [];
-        this.setTimelineInApp([]);
-        // Call other classes' reset methods
-        api_1.default.instance.reset();
-        scorer_cache_1.default.resetScorers();
-        await Storage_1.default.clearAll();
-        if (complete) {
-            await Storage_1.default.remove(enums_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
+        await this.lockLoadingMutex(LogPrefix.RESET);
+        try {
+            this.dataPoller && clearInterval(this.dataPoller);
+            this.dataPoller = undefined;
+            this.cacheUpdater && clearInterval(this.cacheUpdater);
+            this.cacheUpdater = undefined;
+            this.hasProvidedAnyTootsToClient = false;
+            this.loadingStatus = READY_TO_LOAD_MSG;
+            this.loadStartedAt = null;
+            this.numTriggers = 0;
+            this.feed = [];
+            this.setTimelineInApp([]);
+            // Call other classes' reset methods
+            api_1.default.instance.reset();
+            scorer_cache_1.default.resetScorers();
+            await Storage_1.default.clearAll();
+            if (complete) {
+                await Storage_1.default.remove(enums_1.AlgorithmStorageKey.USER); // Remove user data so it gets reloaded
+            }
+            else {
+                await this.loadCachedData();
+            }
         }
-        else {
-            await this.loadCachedData();
+        finally {
+            this.releaseLoadingMutex();
         }
     }
     /**
@@ -542,15 +549,9 @@ class TheAlgorithm {
     ///////////////////////////////
     //      Private Methods      //
     ///////////////////////////////
-    // Throw an error if the feed is loading
-    checkIfLoading() {
-        if (this.isLoading) {
-            logger.warn(`Load in progress already!`, this.statusDict());
-            throw new Error(GET_FEED_BUSY_MSG);
-        }
-    }
     // Return true if we're in QUICK_MODE and the feed is fresh enough that we don't need to update it (for dev)
     shouldSkip() {
+        loggers[LogPrefix.TRIGGER_FEED_UPDATE].info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
             feedAgeInMinutes /= 60;
@@ -667,12 +668,32 @@ class TheAlgorithm {
         }
     }
     ;
+    // Throws an error if the feed is loading, otherwise lock the mutex and set the loadStartedAt timestamp.
+    async lockLoadingMutex(logPrefix) {
+        loggers[logPrefix].log(`called, state:`, this.statusDict());
+        if (this.isLoading) {
+            loggers[logPrefix].warn(`Load in progress already!`, this.statusDict());
+            throw new Error(GET_FEED_BUSY_MSG);
+        }
+        this._releaseLoadingMutex = await (0, log_helpers_1.lockExecution)(this.loadingMutex, logger);
+        this.loadStartedAt = new Date();
+        if (!this.feed.length) {
+            this.loadingStatus = INITIAL_LOAD_STATUS;
+        }
+        else if (logPrefix in LOADING_STATUS_MSGS) {
+            this.loadingStatus = LOADING_STATUS_MSGS[logPrefix];
+        }
+        else if (this.homeFeed.length > 0) {
+            const mostRecentAt = this.mostRecentHomeTootAt();
+            this.loadingStatus = `Loading new toots` + (0, string_helpers_1.optionalSuffix)(mostRecentAt, t => `since ${(0, time_helpers_1.timeString)(t)}`);
+        }
+        else {
+            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
+        }
+    }
     // Log timing info
     logTelemetry(msg, startedAt, inLogger) {
         (inLogger || logger).logTelemetry(msg, startedAt, 'current state', this.statusDict());
-    }
-    markLoadStartedAt() {
-        this.loadStartedAt = new Date();
     }
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
@@ -683,13 +704,29 @@ class TheAlgorithm {
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         inLogger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
-        this.setLoadingStateVariables(inLogger.logPrefix);
+        if (this.homeFeed.length > 0) {
+            const mostRecentAt = this.mostRecentHomeTootAt();
+            this.loadingStatus = `Loading new toots` + (0, string_helpers_1.optionalSuffix)(mostRecentAt, t => `since ${(0, time_helpers_1.timeString)(t)}`);
+        }
+        else {
+            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
+        }
     }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     async recomputeScorers() {
         await api_1.default.instance.getUserData(true); // Refresh user data
         await scorer_cache_1.default.prepareScorers(true); // The "true" arg is the key here
         await this.scoreAndFilterFeed();
+    }
+    releaseLoadingMutex() {
+        this.loadingStatus = null;
+        if (this._releaseLoadingMutex) {
+            logger.info(`releaseLoadingMutex() called, releasing mutex...`);
+            this._releaseLoadingMutex();
+        }
+        else {
+            logger.warn(`releaseLoadingMutex() called but no mutex to release!`);
+        }
     }
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
@@ -699,27 +736,6 @@ class TheAlgorithm {
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, logger.tempLogger('scoreAndFilterFeed()'));
         await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
-    }
-    // sets this.loadingStatus to a message indicating the current state of the feed
-    setLoadingStateVariables(logPrefix) {
-        // If feed is empty then it's an initial load, otherwise it's a catchup if TRIGGER_FEED
-        if (!this.feed.length) {
-            this.loadingStatus = INITIAL_LOAD_STATUS;
-        }
-        else if (logPrefix == LogPrefix.TRIGGER_TIMELINE_BACKFILL) {
-            this.loadingStatus = `Loading older home timeline toots`;
-        }
-        else if (logPrefix == LogPrefix.TRIGGER_PULL_ALL_USER_DATA) {
-            this.loadingStatus = PULLING_USER_HISTORY;
-        }
-        else if (this.homeFeed.length > 0) {
-            const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `Loading new toots` + (0, string_helpers_1.optionalSuffix)(mostRecentAt, t => `since ${(0, time_helpers_1.timeString)(t)}`);
-        }
-        else {
-            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
-        }
-        loggers[LogPrefix.SET_LOADING_STATUS].trace(`${logPrefix}`, this.statusDict());
     }
     // Info about the state of this TheAlgorithm instance
     statusDict() {

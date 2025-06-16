@@ -67,8 +67,6 @@ declare class TheAlgorithm {
     get isLoading(): boolean;
     get timeline(): Toot[];
     get userData(): UserData;
-    private api;
-    private user;
     private setTimelineInApp;
     private feed;
     private homeFeed;
@@ -78,6 +76,7 @@ declare class TheAlgorithm {
     private loadingMutex;
     private mergeMutex;
     private numTriggers;
+    private _releaseLoadingMutex?;
     private cacheUpdater?;
     private dataPoller?;
     private feedScorers;
@@ -194,7 +193,6 @@ declare class TheAlgorithm {
      * @returns {Promise<Toot[]>} The filtered and rescored feed.
      */
     updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]>;
-    private checkIfLoading;
     private shouldSkip;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
@@ -203,12 +201,12 @@ declare class TheAlgorithm {
     private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;
+    private lockLoadingMutex;
     private logTelemetry;
-    private markLoadStartedAt;
     private mergeTootsToFeed;
     private recomputeScorers;
+    private releaseLoadingMutex;
     private scoreAndFilterFeed;
-    private setLoadingStateVariables;
     private statusDict;
     private enableMoarDataBackgroundPoller;
 }
