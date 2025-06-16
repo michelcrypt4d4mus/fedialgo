@@ -96,6 +96,23 @@ import {
     type Weights,
 } from "./types";
 
+enum LogPrefix {
+    FINISH_FEED_UPDATE = 'finishFeedUpdate',
+    REFRESH_MUTED_ACCOUNTS = 'refreshMutedAccounts',
+    RESET = 'reset',
+    TRIGGER_FEED_UPDATE = "triggerFeedUpdate",
+    TRIGGER_MOAR_DATA = 'triggerMoarData',
+    TRIGGER_PULL_ALL_USER_DATA = "triggerPullAllUserData",
+    TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill",
+};
+
+const LOADING_STATUS_MSGS: {[key in LogPrefix]?: string} = {
+    [LogPrefix.RESET]: `Resetting state`,
+    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
+    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
+    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+};
+
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 const INITIAL_LOAD_STATUS = "Retrieving initial data";
@@ -107,24 +124,6 @@ const EMPTY_TRENDING_DATA: TrendingData = {
     tags: new TagList([], TagTootsCacheKey.TRENDING_TAG_TOOTS),
     servers: {},
     toots: []
-};
-
-enum LogPrefix {
-    FINISH_FEED_UPDATE = 'finishFeedUpdate',
-    REFRESH_MUTED_ACCOUNTS = 'refreshMutedAccounts',
-    RESET = 'reset',
-    SET_LOADING_STATUS = 'setLoadingStateVariables',
-    TRIGGER_FEED_UPDATE = "triggerFeedUpdate",
-    TRIGGER_MOAR_DATA = 'triggerMoarData',
-    TRIGGER_PULL_ALL_USER_DATA = "triggerPullAllUserData",
-    TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill",
-};
-
-const LOADING_STATUS_MSGS: {[key in LogPrefix]?: string} = {
-    [LogPrefix.RESET]: `Resetting state`,
-    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching moar data`,
-    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
-    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
 };
 
 const logger = new Logger(`TheAlgorithm`);
@@ -633,7 +632,7 @@ class TheAlgorithm {
         this.loadingStatus = FINALIZING_SCORES_MSG;
 
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
-        loggers[LogPrefix.FINISH_FEED_UPDATE].debug(`${this.loadingStatus}...`);
+        hereLogger.debug(`${this.loadingStatus}...`);
         await Toot.completeToots(this.feed, hereLogger);
         this.feed = await Toot.removeInvalidToots(this.feed, hereLogger);
         // TODO: removeUsersOwnToots() shouldn't be necessary but bc of a bug user toots ending up in the feed. Remove in a week or so.
@@ -726,10 +725,10 @@ class TheAlgorithm {
         this._releaseLoadingMutex = await lockExecution(this.loadingMutex, logger);
         this.loadStartedAt = new Date();
 
-        if (!this.feed.length) {
-            this.loadingStatus = INITIAL_LOAD_STATUS;
-        } else if (logPrefix in LOADING_STATUS_MSGS) {
+        if (logPrefix in LOADING_STATUS_MSGS) {
             this.loadingStatus = LOADING_STATUS_MSGS[logPrefix as LogPrefix]!;
+        } else if (!this.feed.length) {
+            this.loadingStatus = INITIAL_LOAD_STATUS;
         } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + optionalSuffix(mostRecentAt, t => `since ${timeString(t)}`);

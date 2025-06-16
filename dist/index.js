@@ -107,6 +107,23 @@ const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
 Object.defineProperty(exports, "makePercentileChunks", { enumerable: true, get: function () { return collection_helpers_1.makePercentileChunks; } });
 Object.defineProperty(exports, "sortKeysByValue", { enumerable: true, get: function () { return collection_helpers_1.sortKeysByValue; } });
+var LogPrefix;
+(function (LogPrefix) {
+    LogPrefix["FINISH_FEED_UPDATE"] = "finishFeedUpdate";
+    LogPrefix["REFRESH_MUTED_ACCOUNTS"] = "refreshMutedAccounts";
+    LogPrefix["RESET"] = "reset";
+    LogPrefix["TRIGGER_FEED_UPDATE"] = "triggerFeedUpdate";
+    LogPrefix["TRIGGER_MOAR_DATA"] = "triggerMoarData";
+    LogPrefix["TRIGGER_PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
+    LogPrefix["TRIGGER_TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
+})(LogPrefix || (LogPrefix = {}));
+;
+const LOADING_STATUS_MSGS = {
+    [LogPrefix.RESET]: `Resetting state`,
+    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
+    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
+    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+};
 const FINALIZING_SCORES_MSG = `Finalizing scores`;
 const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
 exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
@@ -119,24 +136,6 @@ const EMPTY_TRENDING_DATA = {
     tags: new tag_list_1.default([], enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
     servers: {},
     toots: []
-};
-var LogPrefix;
-(function (LogPrefix) {
-    LogPrefix["FINISH_FEED_UPDATE"] = "finishFeedUpdate";
-    LogPrefix["REFRESH_MUTED_ACCOUNTS"] = "refreshMutedAccounts";
-    LogPrefix["RESET"] = "reset";
-    LogPrefix["SET_LOADING_STATUS"] = "setLoadingStateVariables";
-    LogPrefix["TRIGGER_FEED_UPDATE"] = "triggerFeedUpdate";
-    LogPrefix["TRIGGER_MOAR_DATA"] = "triggerMoarData";
-    LogPrefix["TRIGGER_PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
-    LogPrefix["TRIGGER_TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
-})(LogPrefix || (LogPrefix = {}));
-;
-const LOADING_STATUS_MSGS = {
-    [LogPrefix.RESET]: `Resetting state`,
-    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching moar data`,
-    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
-    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
 };
 const logger = new logger_1.Logger(`TheAlgorithm`);
 const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key));
@@ -599,7 +598,7 @@ class TheAlgorithm {
         const hereLogger = loggers[LogPrefix.FINISH_FEED_UPDATE];
         this.loadingStatus = FINALIZING_SCORES_MSG;
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
-        loggers[LogPrefix.FINISH_FEED_UPDATE].debug(`${this.loadingStatus}...`);
+        hereLogger.debug(`${this.loadingStatus}...`);
         await toot_1.default.completeToots(this.feed, hereLogger);
         this.feed = await toot_1.default.removeInvalidToots(this.feed, hereLogger);
         // TODO: removeUsersOwnToots() shouldn't be necessary but bc of a bug user toots ending up in the feed. Remove in a week or so.
@@ -677,11 +676,11 @@ class TheAlgorithm {
         }
         this._releaseLoadingMutex = await (0, log_helpers_1.lockExecution)(this.loadingMutex, logger);
         this.loadStartedAt = new Date();
-        if (!this.feed.length) {
-            this.loadingStatus = INITIAL_LOAD_STATUS;
-        }
-        else if (logPrefix in LOADING_STATUS_MSGS) {
+        if (logPrefix in LOADING_STATUS_MSGS) {
             this.loadingStatus = LOADING_STATUS_MSGS[logPrefix];
+        }
+        else if (!this.feed.length) {
+            this.loadingStatus = INITIAL_LOAD_STATUS;
         }
         else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();

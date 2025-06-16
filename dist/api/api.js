@@ -488,7 +488,7 @@ class MastoApi {
         }
     }
     /**
-     * Retrieves the user's home instance (mastodon server) configuration from the API.
+     * Retrieve the user's home instance (mastodon server) configuration from the API.
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */
     async instanceInfo() {
