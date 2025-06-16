@@ -58,7 +58,6 @@ class Config {
         backgroundLoadIntervalMinutes: 10,
         daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,
-        hashtagTootRetrievalDelaySeconds: 1,
         maxConcurrentHashtagRequests: 15,
         maxRecordsForFeatureScoring: 1500,
         maxSecondsPerPage: 30,
