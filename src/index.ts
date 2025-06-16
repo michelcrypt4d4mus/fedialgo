@@ -281,15 +281,20 @@ class TheAlgorithm {
         this.markLoadStartedAt();
         this.setLoadingStateVariables(TRIGGER_FEED);
 
+        const tootsForHashtags = async (key: TagTootsCacheKey): Promise<Toot[]> => {
+            const tagList = await TagsForFetchingToots.create(key);
+            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+        };
+
         // Launch these asynchronously so we can start pulling toots right away
         MastoApi.instance.getUserData();
         ScorerCache.prepareScorers();
 
         const dataLoads: Promise<unknown>[] = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-            ...Object.values(TagTootsCacheKey).map(async (k) => await this.hashtagListToots(k)),
             this.fetchAndMergeToots(MastoApi.instance.getHomeserverTimelineToots(), new Logger(CacheKey.HOMESERVER_TOOTS)),
             this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), trendingTootsLogger),
+            ...Object.values(TagTootsCacheKey).map(tootsForHashtags),
             // Population of instance variables - these are not required to be done before the feed is loaded
             MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ];
@@ -647,12 +652,6 @@ class TheAlgorithm {
             moar: moreOldToots
         });
     }
-
-    /** Helper to fetch and merge toots for a kind of tag (participated/favourited/trending). */
-    private async hashtagListToots(key: TagTootsCacheKey): Promise<Toot[]> {
-        const tagsToFetchTootsFor = await TagsForFetchingToots.create(key);
-        return await this.fetchAndMergeToots(tagsToFetchTootsFor.getToots(), tagsToFetchTootsFor.logger);
-    };
 
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage

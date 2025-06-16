@@ -4,6 +4,7 @@
 * Remove moreOldToots argument from triggerFeedUpate() (client app should call triggerHomeTimelineBackFill())
 * Remove config `hashtagTootRetrievalDelaySeconds`; don't sleep before launching hashtag `Toot` retrieval
 * Use `fetchGenerator() for all API calls instead of either `fetch()` or `fetchGenerator()`
+* Lower config.api.backgroundLoadSleepBetweenRequestsMS to 1000
 
 ### v0.72.7
 * Mark `Toot` objects that are missing a `trendingLinks` property as needing to be recompleted

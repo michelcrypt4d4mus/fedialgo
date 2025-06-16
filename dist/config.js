@@ -54,7 +54,7 @@ const LOG_PREFIX = '[Config]';
  */
 class Config {
     api = {
-        backgroundLoadSleepBetweenRequestsMS: 1500,
+        backgroundLoadSleepBetweenRequestsMS: 1000,
         backgroundLoadIntervalMinutes: 10,
         daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,

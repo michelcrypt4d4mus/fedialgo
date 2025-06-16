@@ -655,8 +655,10 @@ class MastoApi {
                     (pageNumber % 5 == 0) ? logger.debug(resultsMsg) : logger.trace(resultsMsg);
                 }
                 if (isBackgroundFetch) {
-                    logger.trace(`Background fetch, sleeping for ${config_1.config.api.backgroundLoadSleepBetweenRequestsMS / 1000}s`);
-                    await (0, time_helpers_2.sleep)(config_1.config.api.backgroundLoadSleepBetweenRequestsMS + Math.random() * 1000); // Add jitter to space out requests
+                    // Add jitter to space out requests
+                    const sleepMS = config_1.config.api.backgroundLoadSleepBetweenRequestsMS + (Math.random() * 1000);
+                    logger.trace(`Background fetch, sleeping for ${(sleepMS / 1000).toFixed(3)}s`);
+                    await (0, time_helpers_2.sleep)(sleepMS);
                 }
                 waitTime.markStart(); // Reset timer for next page
             }

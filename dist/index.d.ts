@@ -201,8 +201,6 @@ declare class TheAlgorithm {
     private filterFeedAndSetInApp;
     private finishFeedUpdate;
     private getHomeTimeline;
-    /** Helper to fetch and merge toots for a kind of tag (participated/favourited/trending). */
-    private hashtagListToots;
     private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;

@@ -825,8 +825,10 @@ export default class MastoApi {
                 }
 
                 if (isBackgroundFetch) {
-                    logger.trace(`Background fetch, sleeping for ${config.api.backgroundLoadSleepBetweenRequestsMS / 1000}s`);
-                    await sleep(config.api.backgroundLoadSleepBetweenRequestsMS + Math.random() * 1000);  // Add jitter to space out requests
+                    // Add jitter to space out requests
+                    const sleepMS = config.api.backgroundLoadSleepBetweenRequestsMS + (Math.random() * 1000);
+                    logger.trace(`Background fetch, sleeping for ${(sleepMS / 1000).toFixed(3)}s`);
+                    await sleep(sleepMS);
                 }
 
                 waitTime.markStart();  // Reset timer for next page

@@ -274,14 +274,18 @@ class TheAlgorithm {
             return;
         this.markLoadStartedAt();
         this.setLoadingStateVariables(log_helpers_1.TRIGGER_FEED);
+        const tootsForHashtags = async (key) => {
+            const tagList = await tags_for_fetching_toots_1.default.create(key);
+            return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
+        };
         // Launch these asynchronously so we can start pulling toots right away
         api_1.default.instance.getUserData();
         scorer_cache_1.default.prepareScorers();
         const dataLoads = [
             this.getHomeTimeline().then((toots) => this.homeFeed = toots),
-            ...Object.values(enums_1.TagTootsCacheKey).map(async (k) => await this.hashtagListToots(k)),
             this.fetchAndMergeToots(api_1.default.instance.getHomeserverTimelineToots(), new logger_1.Logger(enums_1.CacheKey.HOMESERVER_TOOTS)),
             this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), trendingTootsLogger),
+            ...Object.values(enums_1.TagTootsCacheKey).map(tootsForHashtags),
             // Population of instance variables - these are not required to be done before the feed is loaded
             mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
         ];
@@ -611,12 +615,6 @@ class TheAlgorithm {
             moar: moreOldToots
         });
     }
-    /** Helper to fetch and merge toots for a kind of tag (participated/favourited/trending). */
-    async hashtagListToots(key) {
-        const tagsToFetchTootsFor = await tags_for_fetching_toots_1.default.create(key);
-        return await this.fetchAndMergeToots(tagsToFetchTootsFor.getToots(), tagsToFetchTootsFor.logger);
-    }
-    ;
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage
     launchBackgroundPollers() {
