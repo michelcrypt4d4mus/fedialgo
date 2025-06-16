@@ -39,6 +39,7 @@ var CacheKey;
     CacheKey["HASHTAG_TOOTS"] = "HashtagToots";
     CacheKey["HOME_TIMELINE_TOOTS"] = "HomeTimelineToots";
     CacheKey["HOMESERVER_TOOTS"] = "HomeserverToots";
+    CacheKey["INSTANCE_INFO"] = "InstanceInfo";
     CacheKey["MUTED_ACCOUNTS"] = "MutedAccounts";
     CacheKey["NOTIFICATIONS"] = "Notifications";
     CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";

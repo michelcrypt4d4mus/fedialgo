@@ -649,19 +649,26 @@ export default class MastoApi {
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */
     async instanceInfo(): Promise<mastodon.v2.Instance> {
-        try {
-            return await this.api.v2.instance.fetch();
-        } catch (err) {
-            this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
-            const v1Instance = await this.api.v1.instance.fetch();
+        let instanceInfo = await Storage.getIfNotStale<mastodon.v2.Instance>(CacheKey.INSTANCE_INFO);
 
-            if (v1Instance) {
-                const msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
-                this.logger.logAndThrowError(msg, v1Instance);
-            } else {
-                this.logger.logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+        if (!instanceInfo) {
+            try {
+                instanceInfo = await this.api.v2.instance.fetch();
+                await Storage.set(CacheKey.INSTANCE_INFO, instanceInfo);
+            } catch (err) {
+                this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
+                const v1Instance = await this.api.v1.instance.fetch();
+
+                if (v1Instance) {
+                    const msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
+                    this.logger.logAndThrowError(msg, v1Instance);
+                } else {
+                    this.logger.logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+                }
             }
         }
+
+        return instanceInfo;
     }
 
     /**

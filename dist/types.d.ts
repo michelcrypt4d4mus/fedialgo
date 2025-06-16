@@ -74,7 +74,7 @@ export interface CacheTimestamp {
     updatedAt: Date;
 }
 /** ApiObjs are stored in cache as arrays; MastodonInstances is our custom data structure. */
-export type CacheableApiObj = (ApiObj[] | MastodonInstances);
+export type CacheableApiObj = (ApiObj[] | MastodonInstances | mastodon.v2.Instance);
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;

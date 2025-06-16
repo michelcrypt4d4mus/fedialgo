@@ -122,6 +122,7 @@ export interface CacheTimestamp {
 export type CacheableApiObj = (
     ApiObj[]
   | MastodonInstances
+  | mastodon.v2.Instance
 );
 
 /** Local extension to the Mastodon Instance type that adds some additional properties */
@@ -242,12 +243,12 @@ export interface WithCreatedAt {
 
 /** All types that can be written to storage. */
 export type StorableObj = (
-    CacheableApiObj |
-    FeedFilterSettingsSerialized |
-    ApiObj |
-    StringNumberDict |
-    Weights |
-    number
+    CacheableApiObj
+  | FeedFilterSettingsSerialized
+  | ApiObj
+  | StringNumberDict
+  | Weights
+  | number
 );
 
 export type StorableWithTimestamp = {
