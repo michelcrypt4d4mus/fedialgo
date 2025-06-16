@@ -732,7 +732,7 @@ export function uniquifyApiObjs<T extends ApiObj>(cacheKey: ApiCacheKey, array: 
         return array;
     }
 
-    logger.trace(`Uniquifying array of ${array.length} objects by "${uniqueProperty}" property`);
+    logger.deep(`Uniquifying array of ${array.length} objects by "${uniqueProperty}" property`);
     return uniquifyByProp(array, (obj) => obj[uniqueProperty], cacheKey);
 };
 
