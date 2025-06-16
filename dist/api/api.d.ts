@@ -146,7 +146,7 @@ export default class MastoApi {
      * @param {ApiParams} params
      * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
-    getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]>;
+    getHomeserverToots(params?: ApiParams): Promise<Toot[]>;
     /**
      * Gets all muted accounts (including fully blocked accounts).
      * @param {ApiParams} [params] - Optional parameters.

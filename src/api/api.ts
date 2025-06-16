@@ -465,7 +465,7 @@ export default class MastoApi {
      * @param {ApiParams} params
      * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
-    async getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]> {
+    async getHomeserverToots(params?: ApiParams): Promise<Toot[]> {
         return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
             cacheKey: CacheKey.HOMESERVER_TOOTS,
             fetchGenerator: () => this.api.v1.timelines.public.list,

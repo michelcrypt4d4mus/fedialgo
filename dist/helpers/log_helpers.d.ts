@@ -1,9 +1,6 @@
 import { Mutex, Semaphore } from 'async-mutex';
 import { Logger } from './logger';
 import { type ConcurrencyLockRelease } from '../types';
-export declare const BACKFILL_FEED = "triggerHomeTimelineBackFill";
-export declare const PREP_SCORERS = "prepareScorers";
-export declare const TRIGGER_FEED = "triggerFeedUpdate";
 /**
  * Lock a Semaphore or Mutex and log the time it took to acquire the lock
  * @param {Mutex | Semaphore} locker - The lock to acquire

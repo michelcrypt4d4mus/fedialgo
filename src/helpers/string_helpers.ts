@@ -19,7 +19,6 @@ export const MEGABYTE = KILOBYTE * 1024;
 // String constants
 export const FEDIALGO = 'FediAlgo';
 export const NULL = "<<NULL>>";
-export const SET_LOADING_STATUS = "SET_LOADING_STATUS";
 export const TELEMETRY = 'TELEMETRY';
 const UNKNOWN_SERVER = 'unknown.server';
 

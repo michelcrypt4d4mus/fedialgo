@@ -75,7 +75,6 @@ declare class TheAlgorithm {
     private hasProvidedAnyTootsToClient;
     private loadStartedAt;
     private totalNumTimesShown;
-    private logger;
     private loadingMutex;
     private mergeMutex;
     private numTriggers;
@@ -196,7 +195,7 @@ declare class TheAlgorithm {
      */
     updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]>;
     private checkIfLoading;
-    private checkIfSkipping;
+    private shouldSkip;
     private fetchAndMergeToots;
     private filterFeedAndSetInApp;
     private finishFeedUpdate;
