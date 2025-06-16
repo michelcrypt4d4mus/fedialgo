@@ -2,7 +2,7 @@
  * Score the number of video attachments in the toot.
  */
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 
 

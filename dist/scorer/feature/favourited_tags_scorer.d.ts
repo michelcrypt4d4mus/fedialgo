@@ -1,5 +1,5 @@
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import { type StringNumberDict } from '../../types';
 export default class FavouritedTagsScorer extends TootScorer {
     description: string;

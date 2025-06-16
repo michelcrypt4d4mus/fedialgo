@@ -2,7 +2,7 @@
  * Score a toot based on how many followers the author has.
  */
 import Toot from "../../api/objects/toot";
-import TootScorer from "../feature_scorer";
+import TootScorer from "../toot_scorer";
 import { ScoreName } from '../../enums';
 
 

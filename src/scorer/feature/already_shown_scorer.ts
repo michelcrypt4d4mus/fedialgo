@@ -2,7 +2,7 @@
  * Score based on the numTimesShown, which is managed by the client app.
  */
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 

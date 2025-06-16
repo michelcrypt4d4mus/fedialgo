@@ -2,7 +2,7 @@
  * Score toots that contain currently trending links.
  * https://docs.joinmastodon.org/methods/trends/#links
  */
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import MastodonServer from '../../api/mastodon_server';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';

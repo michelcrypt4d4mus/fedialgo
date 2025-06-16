@@ -1,7 +1,7 @@
 /*
  * Score how many times the toot has been replied to by other users.
  */
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 

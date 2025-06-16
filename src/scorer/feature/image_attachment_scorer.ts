@@ -1,7 +1,7 @@
 /*
  * Score the number of image attachments in the toot.
  */
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 

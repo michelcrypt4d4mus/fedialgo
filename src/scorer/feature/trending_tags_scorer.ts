@@ -3,7 +3,7 @@
  * across the Fediverse.
  */
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import { config } from '../../config';
 import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';

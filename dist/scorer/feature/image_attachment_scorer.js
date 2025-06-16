@@ -6,9 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Score the number of image attachments in the toot.
  */
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
-class ImageAttachmentScorer extends feature_scorer_1.default {
+class ImageAttachmentScorer extends toot_scorer_1.default {
     description = "Favour toots with images";
     constructor() {
         super(enums_1.ScoreName.IMAGE_ATTACHMENTS);

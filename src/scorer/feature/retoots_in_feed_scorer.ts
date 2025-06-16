@@ -2,7 +2,7 @@
  * Score how many times a toot has been retooted by other accounts in the feed.
  */
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 
 

@@ -37,7 +37,7 @@ import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
-import TootScorer from './scorer/feature_scorer';
+import TootScorer from './scorer/toot_scorer';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
 import TrendingLinksScorer from './scorer/feature/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/feature/trending_tags_scorer";

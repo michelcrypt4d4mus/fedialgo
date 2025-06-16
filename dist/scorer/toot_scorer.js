@@ -40,4 +40,4 @@ class TootScorer extends scorer_1.default {
 }
 exports.default = TootScorer;
 ;
-//# sourceMappingURL=feature_scorer.js.map
+//# sourceMappingURL=toot_scorer.js.map

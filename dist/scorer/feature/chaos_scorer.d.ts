@@ -1,5 +1,5 @@
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 export default class ChaosScorer extends TootScorer {
     description: string;
     constructor();

@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
-class FollowedTagsScorer extends feature_scorer_1.default {
+class FollowedTagsScorer extends toot_scorer_1.default {
     description = "Favour toots containing hashtags you follow";
     constructor() {
         super(enums_1.ScoreName.FOLLOWED_TAGS);

@@ -7,11 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Score toots that contain currently trending links.
  * https://docs.joinmastodon.org/methods/trends/#links
  */
-const feature_scorer_1 = __importDefault(require("../feature_scorer"));
+const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const mastodon_server_1 = __importDefault(require("../../api/mastodon_server"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-class TrendingLinksScorer extends feature_scorer_1.default {
+class TrendingLinksScorer extends toot_scorer_1.default {
     description = "Favour links that are trending in the Fediverse";
     constructor() {
         super(enums_1.ScoreName.TRENDING_LINKS);

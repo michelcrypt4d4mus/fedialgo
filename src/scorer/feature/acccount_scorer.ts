@@ -3,7 +3,7 @@
  * Requires that the scoreData is a map of webfingerURIs to scores.
  */
 import Toot from '../../api/objects/toot';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import { sumArray } from '../../helpers/collection_helpers';
 
 

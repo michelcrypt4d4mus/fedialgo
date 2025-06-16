@@ -1,4 +1,4 @@
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import Toot from '../../api/objects/toot';
 import { type StringNumberDict } from "../../types";
 export default class TrendingLinksScorer extends TootScorer {

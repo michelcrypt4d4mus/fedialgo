@@ -5,7 +5,7 @@
 import { Mutex } from "async-mutex";
 
 import FeedScorer from "./feed_scorer";
-import TootScorer from "./feature_scorer";
+import TootScorer from "./toot_scorer";
 import { ageString } from "../helpers/time_helpers";
 
 const SCORERS_MUTEX = new Mutex();

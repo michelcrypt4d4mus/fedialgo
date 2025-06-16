@@ -2,7 +2,7 @@
  * Score how many accounts that the user follows are mentioned in the toot.
  */
 import Account from '../../api/objects/account';
-import TootScorer from '../feature_scorer';
+import TootScorer from '../toot_scorer';
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
