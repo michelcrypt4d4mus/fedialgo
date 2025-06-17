@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
 /** Score how many times the toot has been retooted. */

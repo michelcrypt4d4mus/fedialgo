@@ -3,9 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @module toot_scorers
- */
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const mastodon_server_1 = __importDefault(require("../../api/mastodon_server"));
 const enums_1 = require("../../enums");
