@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FediAlgo Class: Config</title>
+    <title>FediAlgo Class: Scorer</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Config</h1>
+    <h1 class="page-title">Class: Scorer</h1>
 
     
 
@@ -28,13 +28,12 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Config<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature">(abstract) </span></span>Scorer<span class="signature">(name)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Centralized application configuration class for non-user configurable settings.
+            <div class="class-description">Abstract base class for scoring Mastodon Toots.
 
-The Config class provides strongly-typed, centralized access to all core settings for API requests,
-locale, scoring, trending, and fediverse-wide data. It includes logic for environment-specific overrides
-(debug, quick load, load test), validation of config values, and locale/language management.</div>
+Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and filtering feeds.
+This class manages scorer state, logging, and provides a public API for scoring, as well as static utilities for scoring arrays of toots.</div>
         
     
 </header>
@@ -49,16 +48,13 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
     
 
     
-    <h4 class="name" id="Config"><span class="type-signature"></span>new Config<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Scorer"><span class="type-signature">(abstract) </span>new Scorer<span class="signature">(name)</span><span class="type-signature"></span></h4>
     
 
     
 
 
 
-<div class="description">
-    Construct a new Config instance, validate it, and logs the validated config.
-</div>
 
 
 
@@ -66,6 +62,54 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
 
 
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#ScoreName">ScoreName</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name/key of this scorer.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -98,13 +142,13 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
         <tr>
             
-                <td class="name"><code>api</code></td>
+                <td class="name"><code>description</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">ApiConfig</span>
+<span class="param-type">string</span>
 
 
             
@@ -114,20 +158,20 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
             
 
-            <td class="description last">API request and caching configuration.</td>
+            <td class="description last">Description of the scoring algorithm.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>favouritedTags</code></td>
+                <td class="name"><code>isReady</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">TagTootsConfig</span>
+<span class="param-type">boolean</span>
 
 
             
@@ -137,20 +181,20 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
             
 
-            <td class="description last">Settings for favourited tags and related toot fetching.</td>
+            <td class="description last">True if the scorer is ready to score toots.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>fediverse</code></td>
+                <td class="name"><code>logger</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">FediverseConfig</span>
+<span class="param-type"><a href="Logger.html">Logger</a></span>
 
 
             
@@ -160,20 +204,20 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
             
 
-            <td class="description last">Fediverse-wide server and trending configuration.</td>
+            <td class="description last">Logger instance for this scorer.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>locale</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">LocaleConfig</span>
+<span class="param-type"><a href="global.html#ScoreName">ScoreName</a></span>
 
 
             
@@ -183,20 +227,20 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
             
 
-            <td class="description last">Locale, language, and country settings.</td>
+            <td class="description last">The name/key of this scorer.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>participatedTags</code></td>
+                <td class="name"><code>scoreData</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">ParticipatedTagsConfig</span>
+<span class="param-type">StringNumberDict</span>
 
 
             
@@ -206,76 +250,7 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
             
 
-            <td class="description last">Settings for user's participated tags.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>scoring</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">ScoringConfig</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Scoring and weighting configuration for toots and tags.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>toots</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">TootsConfig</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Timeline and toot cache configuration.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>trending</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">TrendingConfig</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Trending data configuration for links, tags, and toots.</td>
+            <td class="description last">Background data used to score a toot.</td>
         </tr>
 
     
@@ -297,13 +272,6 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
     
 
-    
-    <dt class="implements">Implements:</dt>
-    <dd class="implements"><ul>
-        
-            <li>ConfigType</li>
-        
-    </ul></dd>
     
 
     
@@ -374,7 +342,7 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
     
 
     
-    <h4 class="name" id="minTrendingMinutesUntilStale"><span class="type-signature"></span>minTrendingMinutesUntilStale<span class="signature">()</span><span class="type-signature"> &rarr; {number}</span></h4>
+    <h4 class="name" id="getInfo"><span class="type-signature"></span>getInfo<span class="signature">()</span><span class="type-signature"> &rarr; {WeightInfo}</span></h4>
     
 
     
@@ -382,8 +350,7 @@ locale, scoring, trending, and fediverse-wide data. It includes logic for enviro
 
 
 <div class="description">
-    Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
-Warns if any required keys are missing a value.
+    Returns a WeightInfo object with the description of the scorer.
 </div>
 
 
@@ -451,7 +418,7 @@ Warns if any required keys are missing a value.
 
         
 <div class="param-desc">
-    The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
+    The weight info for this scorer.
 </div>
 
 
@@ -462,7 +429,7 @@ Warns if any required keys are missing a value.
     </dt>
     <dd>
         
-<span class="param-type">number</span>
+<span class="param-type">WeightInfo</span>
 
 
     </dd>
@@ -482,7 +449,7 @@ Warns if any required keys are missing a value.
     
 
     
-    <h4 class="name" id="setLocale"><span class="type-signature"></span>setLocale<span class="signature">(locale<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -490,8 +457,92 @@ Warns if any required keys are missing a value.
 
 
 <div class="description">
-    Sets the locale, language, and country for the application if supported.
-Falls back to defaults if the locale is invalid or unsupported.
+    Resets the scorer's state and score data.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="score"><span class="type-signature">(async) </span>score<span class="signature">(toot)</span><span class="type-signature"> &rarr; {Promise.&lt;number>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Public API for scoring a toot. Returns the score, or 0 if not ready.
 </div>
 
 
@@ -515,8 +566,6 @@ Falls back to defaults if the locale is invalid or unsupported.
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
         
 
@@ -529,33 +578,23 @@ Falls back to defaults if the locale is invalid or unsupported.
 
         <tr>
             
-                <td class="name"><code>locale</code></td>
+                <td class="name"><code>toot</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="Toot.html">Toot</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
 
             
 
-            <td class="description last">The locale string (e.g., "en-CA").</td>
+            <td class="description last">The toot to score.</td>
         </tr>
 
     
@@ -614,6 +653,392 @@ Falls back to defaults if the locale is invalid or unsupported.
 
 
 
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The computed score for the toot.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;number></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".scoreToots"><span class="type-signature">(async, static) </span>scoreToots<span class="signature">(toots, isScoringFeed<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="Toot.html">Toot</a>>>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Scores and returns an array of toots sorted by score (descending). Does NOT mutate the input array!
+If you need the sorted array you need to use the return value.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>toots</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;<a href="Toot.html">Toot</a>></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Array of toots to score.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isScoringFeed</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">If true, refreshes feed scorer data and locks scoring.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Array of scored and sorted toots.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Array.&lt;<a href="Toot.html">Toot</a>>></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".validateWeights"><span class="type-signature">(static) </span>validateWeights<span class="signature">(weights)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Validates that the weights object contains valid weight names and values.
+Throws an error if any weight is invalid or missing.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>weights</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Weights</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Weights object to validate.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        If any weight is invalid or missing.
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
 
 
 
