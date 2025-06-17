@@ -44,6 +44,7 @@ import {
     type ConcurrencyLockRelease,
     type MastodonTag,
     type MinMaxID,
+    type Optional,
     type TootLike,
     type WithCreatedAt,
 } from "../types";
@@ -87,16 +88,17 @@ export interface ApiParams {
 };
 
 /**
- * Parameters for endpoints that support a max_id parameter, extending ApiParams.
+ * Extending ApiParams for endpoints that support a max_id parameter, extending ApiParams.
  * @augments ApiParams
  * @property {string | number | null} [maxId] - Optional maxId to use for pagination.
  */
 interface ApiParamsWithMaxID extends ApiParams {
-    maxId?: string | number | null,
+    maxId?: Optional<string> | Optional<number>,
 };
 
 /**
- * Parameters for fetching the home timeline, extending ApiParamsWithMaxID.
+ * Extends ApiParamsWithMaxID with a mergeTootsToFeed function that merges fetched Toots into the main feed
+ * as they are retrieved.
  * @augments ApiParamsWithMaxID
  * @property {(toots: Toot[], logger: Logger) => Promise<void>} mergeTootsToFeed - Function to merge fetched Toots into the main feed.
  */
@@ -136,7 +138,7 @@ interface BackgroundFetchparams<T extends ApiObj> extends FetchParams<T> {
 };
 
 /**
- * Same as FetchParams but all properties are required and 'limit' is added.
+ * Same as FetchParams but with default/configured values filled in for some parameters.
  * @template T
  * @augments FetchParams<T>
  * @property {number} limit - The limit for the API request.
@@ -144,7 +146,7 @@ interface BackgroundFetchparams<T extends ApiObj> extends FetchParams<T> {
  * @property {number} [maxCacheRecords] - Optional maximum number of records to keep in the cache.
  * @property {number} maxRecords - Maximum number of records to fetch.
  */
-interface FetchParamsWithDefaults<T extends ApiObj> extends FetchParams<T> {
+interface FetchParamsComplete<T extends ApiObj> extends FetchParams<T> {
     limit: number,
     logger: Logger,
     maxCacheRecords?: number,
@@ -157,19 +159,19 @@ interface FetchParamsWithDefaults<T extends ApiObj> extends FetchParams<T> {
  * @property {string | number | null} minIdForFetch - The min ID to use for the API request.
  */
 interface MinMaxIDParams {
-    maxIdForFetch: string | number | null,  // The max ID to use for the API request
-    minIdForFetch: string | number | null,
+    maxIdForFetch: Optional<string> | Optional<number>,  // The max ID to use for the API request
+    minIdForFetch: Optional<string> | Optional<number>,
 };
 
 /**
  * Same as FetchParams but with a few derived fields, including cache data and min/max ID params.
  * @template T
- * @augments FetchParamsWithDefaults<T>
+ * @augments FetchParamsComplete<T>
  * @augments MinMaxIDParams
  * @property {CachedRows<T> | null} cacheResult - The cached result for the request, if any.
  */
-interface FetchParamsWithCacheData<T extends ApiObj> extends FetchParamsWithDefaults<T>, MinMaxIDParams {
-    cacheResult: CacheResult<T> | null,
+interface FetchParamsWithCacheData<T extends ApiObj> extends FetchParamsComplete<T>, MinMaxIDParams {
+    cacheResult: Optional<CacheResult<T>>,
 };
 
 type FetchParamName = keyof FetchParamsWithCacheData<ApiObj>;
@@ -1053,12 +1055,12 @@ export default class MastoApi {
      * Loads rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
      * @private
      * @template T
-     * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
+     * @param {FetchParamsComplete<T>} params - Fetch parameters with defaults.
      * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     private async getCacheResult<T extends ApiObj>(
-        params: FetchParamsWithDefaults<T>
-    ): Promise<CacheResult<T> | null> {
+        params: FetchParamsComplete<T>
+    ): Promise<Optional<CacheResult<T>>> {
         const { bustCache, cacheKey, skipCache } = params;
         if (bustCache || skipCache) return null;
         const cachedData = await Storage.getWithStaleness(cacheKey);
@@ -1156,14 +1158,14 @@ export default class MastoApi {
      * Populates fetch options with basic defaults for API requests.
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
-     * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
+     * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
      */
-    private fillInDefaultParams<T extends ApiObj>(params: FetchParams<T>): FetchParamsWithDefaults<T> {
+    private fillInDefaultParams<T extends ApiObj>(params: FetchParams<T>): FetchParamsComplete<T> {
         const { cacheKey, logger, maxRecords } = params;
         const requestDefaults = config.api.data[cacheKey];
         const maxApiRecords = maxRecords || requestDefaults?.initialMaxRecords || MIN_RECORDS_FOR_FEATURE_SCORING;
 
-        const withDefaults: FetchParamsWithDefaults<T> = {
+        const withDefaults: FetchParamsComplete<T> = {
             ...params,
             limit: Math.min(maxApiRecords, requestDefaults?.limit ?? config.api.defaultRecordsPerPage),
             logger: logger ?? this.loggerForParams(params),

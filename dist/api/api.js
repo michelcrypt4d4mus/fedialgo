@@ -856,7 +856,7 @@ class MastoApi {
      * Loads rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
      * @private
      * @template T
-     * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
+     * @param {FetchParamsComplete<T>} params - Fetch parameters with defaults.
      * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     async getCacheResult(params) {
@@ -948,7 +948,7 @@ class MastoApi {
      * Populates fetch options with basic defaults for API requests.
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
-     * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
+     * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
      */
     fillInDefaultParams(params) {
         const { cacheKey, logger, maxRecords } = params;
