@@ -32,7 +32,7 @@ export default class CountedList<T extends NamedTootCount> {
     /**
      * Like the standard Array.filter().
      * @param {function} predicate - Function to test each object in the list.
-     * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
+     * @returns {this<T>} A new CountedList containing only the objects that match the predicate.
      */
     filter(predicate: (obj: T) => boolean): CountedList<T>;
     /**

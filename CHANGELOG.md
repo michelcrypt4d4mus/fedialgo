@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Merge `TagList`'s `removeMutedTags()` into `removeInvalidTrendingTags()`
 
 ## v0.73.0
 * Use a real mutex to lock `TheAlgorithm`'s toot fetch methods; rework logging situation
