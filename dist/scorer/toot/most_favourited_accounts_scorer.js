@@ -10,6 +10,7 @@ const enums_1 = require("../../enums");
 /**
  * Score how many times the current user has favourited the tooter in the past.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class MostFavouritedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often favourite";

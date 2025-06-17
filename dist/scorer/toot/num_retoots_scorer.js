@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Score how many times the toot has been retooted.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class NumRetootsScorer extends toot_scorer_1.default {
     description = "Favour toots that are retooted a lot";

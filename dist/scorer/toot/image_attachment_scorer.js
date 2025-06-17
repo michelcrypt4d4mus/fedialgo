@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Score the number of image attachments in the toot.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class ImageAttachmentScorer extends toot_scorer_1.default {
     description = "Favour toots with images";

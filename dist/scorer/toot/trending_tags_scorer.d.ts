@@ -4,6 +4,7 @@ import TootScorer from '../toot_scorer';
  * Scores with the number of accounts that have posted a toot with the trending tag
  * across the Fediverse.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class TrendingTagsScorer extends TootScorer {
     description: string;

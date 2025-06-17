@@ -9,6 +9,7 @@ import { type StringNumberDict } from '../../types';
 /**
  * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class FollowedAccountsScorer extends TootScorer {
     description = "Favour accounts you follow";

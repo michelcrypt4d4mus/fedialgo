@@ -16,6 +16,7 @@ const environment_helpers_1 = require("../helpers/environment_helpers");
  * TootScorer does *not* require information about any other Toots in the feed (unlike a FeedScorer,
  * which requires knowledge of the entire timeline to render a score).
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class TootScorer extends scorer_1.default {
     constructor(scoreName) {

@@ -6,6 +6,7 @@ import { ScoreName } from '../../enums';
 /**
  * Score a toot based on how many followers the author has.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class AuthorFollowersScorer extends TootScorer {
     description = "Favour accounts with a lot of followers";

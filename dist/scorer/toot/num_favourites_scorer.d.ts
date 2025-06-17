@@ -5,6 +5,7 @@ import TootScorer from '../toot_scorer';
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class NumFavouritesScorer extends TootScorer {
     description: string;

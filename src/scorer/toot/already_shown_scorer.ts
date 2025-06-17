@@ -7,6 +7,7 @@ import { sumArray } from '../../helpers/collection_helpers';
 /**
  * Score based on the numTimesShown, which is managed by the client app.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class AlreadyShownScorer extends TootScorer {
     description = 'Favour toots marked as already seen';

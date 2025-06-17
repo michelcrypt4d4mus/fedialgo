@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Score the number of video attachments in the toot.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class VideoAttachmentScorer extends toot_scorer_1.default {
     description = "Favour video attachments";

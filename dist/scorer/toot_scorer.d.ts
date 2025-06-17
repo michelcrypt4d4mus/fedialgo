@@ -11,6 +11,7 @@ import { type StringNumberDict } from "../types";
  * TootScorer does *not* require information about any other Toots in the feed (unlike a FeedScorer,
  * which requires knowledge of the entire timeline to render a score).
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default abstract class TootScorer extends Scorer {
     constructor(scoreName: ScoreName);

@@ -8,6 +8,7 @@ import { ScoreName } from '../../enums';
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class NumFavouritesScorer extends TootScorer {
     description = "Favour toots favourited by your server's users";

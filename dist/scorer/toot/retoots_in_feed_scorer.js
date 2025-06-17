@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Score how many times a toot has been retooted by other accounts in the feed.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class RetootsInFeedScorer extends toot_scorer_1.default {
     description = "Favour toots retooted by accounts you follow";

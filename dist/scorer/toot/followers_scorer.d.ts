@@ -3,6 +3,7 @@ import { type StringNumberDict } from '../../types';
 /**
  * One point for accounts that follow the Fedialgo user.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class FollowersScorer extends AccountScorer {
     description: string;

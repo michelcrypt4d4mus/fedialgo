@@ -6,6 +6,7 @@ import { ScoreName } from '../../enums';
 /**
  * Random number generator to mix up the feed.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class ChaosScorer extends TootScorer {
     description = "Insert Chaos into the scoring (social media ist krieg)";

@@ -10,6 +10,7 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
  * Score how many times the current user has favourited the toot's hashtags in the past.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class FavouritedTagsScorer extends toot_scorer_1.default {
     description = "Favour toots containing hashtags you favourite";
