@@ -25,25 +25,49 @@ const TRENDING_WEIGHTS = new Set([
     enums_1.ScoreName.TRENDING_TOOTS,
 ]);
 const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
+/**
+ * Abstract base class for scoring Mastodon Toots.
+ *
+ * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and filtering feeds.
+ * This class manages scorer state, logging, and provides a public API for scoring, as well as static utilities for scoring arrays of toots.
+ *
+ * @abstract
+ * @property {string} description - Description of the scoring algorithm.
+ * @property {boolean} isReady - True if the scorer is ready to score toots.
+ * @property {Logger} logger - Logger instance for this scorer.
+ * @property {ScoreName} name - The name/key of this scorer.
+ * @property {StringNumberDict} scoreData - Background data used to score a toot.
+ */
 class Scorer {
     isReady = false; // Set to true when the scorer is ready to score
     logger;
     name;
     scoreData = {}; // Background data used to score a toot
+    /**
+     * @param {ScoreName} name - The name/key of this scorer.
+     */
     constructor(name) {
         this.name = name;
         this.logger = new logger_1.Logger(LOG_PREFIX, name);
     }
-    // Return a ScorerInfo object with the description and the scorer itself
+    /**
+     * Returns a WeightInfo object with the description of the scorer.
+     * @returns {WeightInfo} The weight info for this scorer.
+     */
     getInfo() {
         return { description: this.description };
     }
+    /** Resets the scorer's state and score data. */
     reset() {
         this.isReady = false;
         this.scoreData = {};
         this.logger.debug(`Reset scorer`);
     }
-    // This is the public API for scoring a toot
+    /**
+     * Public API for scoring a toot. Returns the score, or 0 if not ready.
+     * @param {Toot} toot - The toot to score.
+     * @returns {Promise<number>} The computed score for the toot.
+     */
     async score(toot) {
         if (this.isReady) {
             return await this._score(toot);
@@ -61,9 +85,14 @@ class Scorer {
     //////////////////////////////
     //   Static class methods   //
     //////////////////////////////
-    // Score and return an array of toots sorted by score. This DOES NOT mutate the order of
-    // 'toots' array in place - if you need the sorted array you need to use the returned array.
-    // If 'isScoringFeed' is false the scores will be "best effort" using whatever data is available.
+    /**
+     * Scores and returns an array of toots sorted by score (descending). Does NOT mutate the input array!
+     * If you need the sorted array you need to use the return value.
+     * @static
+     * @param {Toot[]} toots - Array of toots to score.
+     * @param {boolean} [isScoringFeed] - If true, refreshes feed scorer data and locks scoring.
+     * @returns {Promise<Toot[]>} Array of scored and sorted toots.
+     */
     static async scoreToots(toots, isScoringFeed) {
         const scorers = scorer_cache_1.default.weightedScorers;
         const startedAt = new Date();
@@ -99,8 +128,11 @@ class Scorer {
         return toots;
     }
     /**
-     * Check that the weights object contains valid weight names and values.
-     * @param weights - Weights object to validate.
+     * Validates that the weights object contains valid weight names and values.
+     * Throws an error if any weight is invalid or missing.
+     *
+     * @static
+     * @param {Weights} weights - Weights object to validate.
      * @throws {Error} If any weight is invalid or missing.
      */
     static validateWeights(weights) {
@@ -117,7 +149,14 @@ class Scorer {
     ////////////////////////////////
     //   Private static methods   //
     ////////////////////////////////
-    // Add all the score info to a Toot's scoreInfo property
+    /**
+     * Adds all score info to a Toot's scoreInfo property.
+     * @private
+     * @static
+     * @param {Toot} toot - The toot to decorate.
+     * @param {Scorer[]} scorers - Array of scorer instances.
+     * @returns {Promise<void>}
+     */
     static async decorateWithScoreInfo(toot, scorers) {
         const rawestScores = await Promise.all(scorers.map((s) => s.score(toot)));
         // Find non scorer weights
@@ -170,7 +209,15 @@ class Scorer {
         // TODO: duping the score to realToot is a hack that sucks
         toot.realToot.scoreInfo = toot.scoreInfo = scoreInfo;
     }
-    // Add 1 so that time decay multiplier works even with scorers giving 0s
+    /**
+     * Sums the scores of all scorers for a given score type, +1 so that time decay multiplier
+     * works even with scorers giving 0s.
+     * @private
+     * @static
+     * @param {TootScores} scores - The scores object.
+     * @param {ScoreType} scoreType - The type of score to sum ("raw" or "weighted").
+     * @returns {number} The sum of the scores plus 1.
+     */
     static sumScores(scores, scoreType) {
         return 1 + (0, collection_helpers_1.sumArray)(Object.values(scores).map((s) => s[scoreType]));
     }
