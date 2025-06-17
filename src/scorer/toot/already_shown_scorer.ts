@@ -1,5 +1,5 @@
 /*
- * Score based on the numTimesShown, which is managed by the client app.
+ * @module scorers
  */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
@@ -7,6 +7,9 @@ import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
+/**
+ * Score based on the numTimesShown, which is managed by the client app.
+ */
 export default class AlreadyShownScorer extends TootScorer {
     description = 'Favour toots marked as already seen';
 

@@ -5,6 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
+/**
+ * Random number generator to mix up the feed.
+ */
 class ChaosScorer extends toot_scorer_1.default {
     description = "Insert Chaos into the scoring (social media ist krieg)";
     constructor() {

@@ -7,6 +7,9 @@ import TootScorer from '../toot_scorer';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
+/**
+ * @private
+ */
 export default abstract class AccountScorer extends TootScorer {
     async _score(toot: Toot) {
         return sumArray(toot.withRetoot.map(t => this.scoreData[t.account.webfingerURI]));
