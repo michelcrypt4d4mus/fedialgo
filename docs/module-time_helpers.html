@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FediAlgo Class: BooleanFilterOptionList</title>
+    <title>FediAlgo Module: time_helpers</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: BooleanFilterOptionList</h1>
+    <h1 class="page-title">Module: time_helpers</h1>
 
     
 
@@ -28,9 +28,8 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>BooleanFilterOptionList<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Subclass of CountedList for lists of BooleanFilterObject objects.</div>
+            
         
     
 </header>
@@ -39,16 +38,11 @@
     <div class="container-overview">
     
         
+            <div class="description">Helpers for time-related operations</div>
+        
 
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="BooleanFilterOptionList"><span class="type-signature"></span>new BooleanFilterOptionList<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
+        
+            
 
 
 
@@ -120,21 +114,11 @@
 
 <hr align="left" class="methodSeparator" />
 
+        
     
     </div>
 
     
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="CountedList.html">CountedList</a></li>
-    
-        <li>module:api/counted_list~CountedList</li>
-    </ul>
-
 
     
 
@@ -146,74 +130,6 @@
 
     
 
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="objs"><span class="type-signature"></span>objs<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Has side effect of mutating the 'nameDict' property.
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#objs">CountedList#objs</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
     
 
     
@@ -225,7 +141,7 @@
     
 
     
-    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(predicate)</span><span class="type-signature"> &rarr; {module:api/counted_list~CountedList.&lt;T>}</span></h4>
+    <h4 class="name" id="~ageString"><span class="type-signature">(inner) </span>ageString<span class="signature">(date)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -233,7 +149,7 @@
 
 
 <div class="description">
-    Like the standard Array.filter().
+    Make a nice string like "in 2.5 minutes"
 </div>
 
 
@@ -269,13 +185,13 @@
 
         <tr>
             
-                <td class="name"><code>predicate</code></td>
+                <td class="name"><code>date</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type">DateArg</span>
 
 
             
@@ -285,7 +201,7 @@
 
             
 
-            <td class="description last">Function to test each object in the list.</td>
+            <td class="description last">The date to calculate the age from.</td>
         </tr>
 
     
@@ -305,11 +221,6 @@
 
     
 
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#filter">CountedList#filter</a>
-    </li></ul></dd>
     
 
     
@@ -355,7 +266,7 @@
 
         
 <div class="param-desc">
-    A new CountedList containing only the objects that match the predicate.
+    A string representing the age in seconds, formatted to 1 decimal place.
 </div>
 
 
@@ -366,79 +277,79 @@
     </dt>
     <dd>
         
-<span class="param-type">module:api/counted_list~CountedList.&lt;T></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getObj"><span class="type-signature"></span>getObj<span class="signature">(name)</span><span class="type-signature"> &rarr; {T|undefined}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Returns the object in the list with the given name (case-insensitive) if it exists.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
 <span class="param-type">string</span>
 
 
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~coerceDate"><span class="type-signature">(inner) </span>coerceDate<span class="signature">(date)</span><span class="type-signature"> &rarr; {Date|null}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Coerce a string or number into a Date object.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DateArg</span>
+
+
             
             </td>
 
@@ -446,7 +357,7 @@
 
             
 
-            <td class="description last">The name of the object to retrieve.</td>
+            <td class="description last">The date to coerce.</td>
         </tr>
 
     
@@ -466,11 +377,6 @@
 
     
 
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#getObj">CountedList#getObj</a>
-    </li></ul></dd>
     
 
     
@@ -516,7 +422,7 @@
 
         
 <div class="param-desc">
-    The object with the specified name, or undefined if not found.
+    A Date object if coercion is successful, or null if the input is invalid.
 </div>
 
 
@@ -527,10 +433,10 @@
     </dt>
     <dd>
         
-<span class="param-type">T</span>
+<span class="param-type">Date</span>
 |
 
-<span class="param-type">undefined</span>
+<span class="param-type">null</span>
 
 
     </dd>
@@ -550,7 +456,7 @@
     
 
     
-    <h4 class="name" id="incrementCount"><span class="type-signature"></span>incrementCount<span class="signature">(name, newObjDecorator<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {T}</span></h4>
+    <h4 class="name" id="~mostRecent"><span class="type-signature">(inner) </span>mostRecent<span class="signature">(&hellip;args)</span><span class="type-signature"> &rarr; {Date|null}</span></h4>
     
 
     
@@ -558,8 +464,7 @@
 
 
 <div class="description">
-    Increment numToots for the given 'name'. If no obj with 'name' exists create a new one
-and call newObjDecorator() to get its properties.
+    Returns the most recent (latest) date from a list of Date or null values.
 </div>
 
 
@@ -597,147 +502,224 @@ and call newObjDecorator() to get its properties.
 
         <tr>
             
-                <td class="name"><code>name</code></td>
+                <td class="name"><code>args</code></td>
             
 
             <td class="type">
             
                 
+<span class="param-type">Date</span>
+|
+
+<span class="param-type">null</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Dates to compare.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The most recent date, or null if none are valid.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Date</span>
+|
+
+<span class="param-type">null</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~nowString"><span class="type-signature">(inner) </span>nowString<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns a timestamp string for the current time in local date and time format.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The current date and time as a string.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
 <span class="param-type">string</span>
 
 
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The name of the object to increment.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>newObjDecorator</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Optional function to decorate the new object with additional properties.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#incrementCount">CountedList#incrementCount</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    The object with the incremented numToots.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">T</span>
-
-
     </dd>
 </dl>
 
@@ -755,7 +737,7 @@ and call newObjDecorator() to get its properties.
     
 
     
-    <h4 class="name" id="map"><span class="type-signature"></span>map<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="~quotedISOFmt"><span class="type-signature">(inner) </span>quotedISOFmt<span class="signature">(date, withMilliseconds<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
     
@@ -763,671 +745,7 @@ and call newObjDecorator() to get its properties.
 
 
 <div class="description">
-    Standard map function that applies a callback to each object in the objs array.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#map">CountedList#map</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="maxValue"><span class="type-signature"></span>maxValue<span class="signature">(propertyName)</span><span class="type-signature"> &rarr; {number|undefined}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Get the maximum value for a given key across the objs array
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>propertyName</code></td>
-            
-
-            <td class="type">
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#maxValue">CountedList#maxValue</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    The maximum value for the specified property, or undefined if none exist.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">number</span>
-|
-
-<span class="param-type">undefined</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="nameToNumTootsDict"><span class="type-signature"></span>nameToNumTootsDict<span class="signature">()</span><span class="type-signature"> &rarr; {StringNumberDict}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Returns a dict of 'obj.name' to 'obj.numToots'.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#nameToNumTootsDict">CountedList#nameToNumTootsDict</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Dictionary mapping object names to their numToots counts.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">StringNumberDict</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="populateByCountingProps"><span class="type-signature"></span>populateByCountingProps<span class="signature">(objs, propExtractor)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
-Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>objs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;U></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Array of objects to count properties from.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>propExtractor</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Function to extract the decorator properties for the counted objects.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#populateByCountingProps">CountedList#populateByCountingProps</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="removeKeywords"><span class="type-signature"></span>removeKeywords<span class="signature">(keywords)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Remove any obj whose 'name' is watches any of 'keywords'.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>keywords</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Array of keywords to match against the object's name.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#removeKeywords">CountedList#removeKeywords</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<hr align="left" class="methodSeparator" />
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="topObjs"><span class="type-signature"></span>topObjs<span class="signature">(maxObjs<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Array.&lt;T>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,
-and then by name. If maxObjs is provided, returns only the top maxObjs objects.
+    Returns the ISO format of a date, wrapped in quotes.
 </div>
 
 
@@ -1465,13 +783,44 @@ and then by name. If maxObjs is provided, returns only the top maxObjs objects.
 
         <tr>
             
-                <td class="name"><code>maxObjs</code></td>
+                <td class="name"><code>date</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">DateArg</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The date to format.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>withMilliseconds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
 
 
             
@@ -1491,7 +840,7 @@ and then by name. If maxObjs is provided, returns only the top maxObjs objects.
 
             
 
-            <td class="description last">Optional maximum number of objects to return.</td>
+            <td class="description last">Whether to include milliseconds in the output.</td>
         </tr>
 
     
@@ -1511,11 +860,6 @@ and then by name. If maxObjs is provided, returns only the top maxObjs objects.
 
     
 
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="CountedList.html#topObjs">CountedList#topObjs</a>
-    </li></ul></dd>
     
 
     
@@ -1561,7 +905,7 @@ and then by name. If maxObjs is provided, returns only the top maxObjs objects.
 
         
 <div class="param-desc">
-    Objects sorted by numAccounts if it exists, otherwise numToots, then by name
+    The quoted ISO format string, or NULL if date is null.
 </div>
 
 
@@ -1572,13 +916,952 @@ and then by name. If maxObjs is provided, returns only the top maxObjs objects.
     </dt>
     <dd>
         
-<span class="param-type">Array.&lt;T></span>
+<span class="param-type">string</span>
 
 
     </dd>
 </dl>
 
     
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~sleep"><span class="type-signature">(async, inner) </span>sleep<span class="signature">(milliseconds)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Asynchronous sleep helper that pauses execution for the specified number of milliseconds.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>milliseconds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The number of milliseconds to sleep.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A promise that resolves after the specified time.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~subtractSeconds"><span class="type-signature">(inner) </span>subtractSeconds<span class="signature">(date, seconds)</span><span class="type-signature"> &rarr; {Date}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Subtracts a number of seconds from a date and returns the new Date.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Date</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The original date.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>seconds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The number of seconds to subtract.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The new date with seconds subtracted.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Date</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~timeString"><span class="type-signature">(inner) </span>timeString<span class="signature">(_timestamp, locale<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Generate a string representing a timestamp.
+(new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
+    => 'Thursday, Sep 1, 2022'
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>_timestamp</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DateArg</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The timestamp to convert to a string.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>locale</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional locale string for formatting the date.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A formatted string representing the timestamp, or NULL if the timestamp is invalid.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~timelineCutoffAt"><span class="type-signature">(inner) </span>timelineCutoffAt<span class="signature">()</span><span class="type-signature"> &rarr; {Date}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The cutoff date for timeline toots.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Date</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~toISOFormat"><span class="type-signature">(inner) </span>toISOFormat<span class="signature">(date, withMilliseconds<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Date to the format YYYY-MM-DDTHH:MM:SSZ
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>date</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DateArg</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The date to convert to ISO format.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>withMilliseconds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">If true, includes milliseconds in the output.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The date in ISO format, or NULL if the date is invalid.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~toISOFormatIfExists"><span class="type-signature">(inner) </span>toISOFormatIfExists<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Like toISOFormat() but returns null if the date is undefined or null.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
