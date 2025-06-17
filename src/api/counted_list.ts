@@ -37,11 +37,10 @@ export default class CountedList<T extends NamedTootCount> {
 
     get length(): number { return this._objs.length; }
     get maxNumToots(): number | undefined { return this.maxValue("numToots" as keyof T) };
-
     get objs(): T[] { return this._objs };
     private _objs: T[] = [];
 
-    // Has side effect of mutating the 'tagNames' dict property
+    /** Has side effect of mutating the 'nameDict' property. */
     public set objs(objs: T[]) {
         this._objs = objs.map(this.completeObjProperties);
 
@@ -51,6 +50,10 @@ export default class CountedList<T extends NamedTootCount> {
         }, {} as Record<string, T>);
     }
 
+    /**
+     * @param objs - Array of objects to initialize the list with.
+     * @param {CountedListSource} source - Source of the list (for logging/context).
+     */
     constructor(objs: T[], source: CountedListSource) {
         this.objs = objs;
         this.source = source;

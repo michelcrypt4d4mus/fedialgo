@@ -35,7 +35,7 @@ class CountedList {
     get objs() { return this._objs; }
     ;
     _objs = [];
-    // Has side effect of mutating the 'tagNames' dict property
+    /** Has side effect of mutating the 'nameDict' property. */
     set objs(objs) {
         this._objs = objs.map(this.completeObjProperties);
         this.nameDict = this.objs.reduce((objNames, obj) => {
@@ -43,6 +43,10 @@ class CountedList {
             return objNames;
         }, {});
     }
+    /**
+     * @param objs - Array of objects to initialize the list with.
+     * @param {CountedListSource} source - Source of the list (for logging/context).
+     */
     constructor(objs, source) {
         this.objs = objs;
         this.source = source;
