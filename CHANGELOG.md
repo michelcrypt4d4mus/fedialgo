@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add isTagTootsCacheKey(), isCacheKey() methods, use to reduce logging of TagTootsCacheKey fetches
 
 ### v0.73.3
 * Fix bug with checking whether API objects can be uniquified
