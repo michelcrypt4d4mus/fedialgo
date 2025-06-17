@@ -5,11 +5,11 @@ import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { config, TagTootsConfig } from "../config";
+import { config, type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
+import { resolvePromiseDict, truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { tagInfoStr } from "./objects/tag";
 import { TagTootsCacheKey } from "../enums";
-import { resolvePromiseDict, truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { type TagWithUsageCounts } from "../types";
 
 type TagTootsBuildConfig = {
