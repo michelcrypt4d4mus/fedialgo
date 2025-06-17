@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.73.4
 * Add isTagTootsCacheKey(), isCacheKey() methods, use to reduce logging of TagTootsCacheKey fetches
 
 ### v0.73.3
