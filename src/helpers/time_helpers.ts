@@ -1,5 +1,6 @@
-/*
+/**
  * Helpers for time-related operations
+ * @module time_helpers
  */
 import { config, SECONDS_IN_DAY } from "../config";
 import { NULL, quoted} from "./string_helpers";
@@ -52,7 +53,11 @@ export function coerceDate(date: DateArg): Date | null {
 };
 
 
-// Recent the most recent of a list of dates
+/**
+ * Returns the most recent (latest) date from a list of Date or null values.
+ * @param {...(Date | null)} args - Dates to compare.
+ * @returns {Date | null} The most recent date, or null if none are valid.
+ */
 export function mostRecent(...args: (Date | null)[]): Date | null {
     let mostRecentDate: Date | null = null;
 
@@ -68,42 +73,67 @@ export function mostRecent(...args: (Date | null)[]): Date | null {
 };
 
 
-// Timestamp string for the current time
+/**
+ * Returns a timestamp string for the current time in local date and time format.
+ * @returns {string} The current date and time as a string.
+ */
 export function nowString(): string {
     const now = new Date();
     return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;
 };
 
 
-// toISOFormat() but with quotes around it.
+/**
+ * Returns the ISO format of a date, wrapped in quotes.
+ * @param {DateArg} date - The date to format.
+ * @param {boolean} [withMilliseconds] - Whether to include milliseconds in the output.
+ * @returns {string} The quoted ISO format string, or NULL if date is null.
+ */
 export function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string {
     if (date == null) return NULL;
     return quoted(toISOFormat(date, withMilliseconds));
 };
 
 
-// Sleep helper
+/**
+ * Asynchronous sleep helper that pauses execution for the specified number of milliseconds.
+ * @param {number} milliseconds - The number of milliseconds to sleep.
+ * @returns {Promise<void>} A promise that resolves after the specified time.
+ */
 export async function sleep(milliseconds: number): Promise<void> {
     await new Promise(r => setTimeout(r, milliseconds));
 };
 
 
-// Subtract 'seconds' from 'date' and return the new Date
+/**
+ * Subtracts a number of seconds from a date and returns the new Date.
+ * @param {Date} date - The original date.
+ * @param {number} seconds - The number of seconds to subtract.
+ * @returns {Date} The new date with seconds subtracted.
+ */
 export function subtractSeconds(date: Date, seconds: number): Date {
     return new Date(date.getTime() - (seconds * 1000));
 };
 
 
-// Return the oldest timestamp we should feed timeline toots until
+/**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
 export function timelineCutoffAt(): Date {
     const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
 };
 
 
-// Generate a string representing a timestamp.
-// (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
-//    => 'Thursday, Sep 1, 2022'
+/**
+ * Generate a string representing a timestamp.
+ * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
+ *     => 'Thursday, Sep 1, 2022'
+ * @param {DateArg} _timestamp - The timestamp to convert to a string.
+ * @param {string} [locale] - Optional locale string for formatting the date.
+ * @returns {string} A formatted string representing the timestamp, or NULL if the timestamp is invalid.
+ */
 export const timeString = (_timestamp: DateArg, locale?: string): string => {
     if (!_timestamp) return NULL;
     locale ||= config.locale.locale;;
@@ -128,7 +158,12 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
 };
 
 
-// To the format YYYY-MM-DDTHH:MM:SSZ
+/**
+ * Date to the format YYYY-MM-DDTHH:MM:SSZ
+ * @param {DateArg} date - The date to convert to ISO format.
+ * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
+ * @returns {string} The date in ISO format, or NULL if the date is invalid.
+ */
 export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
     if (!date) return NULL;
     const isoString = coerceDate(date)!.toISOString();
@@ -136,6 +171,7 @@ export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
 };
 
 
+/** Like toISOFormat() but returns null if the date is undefined or null. */
 export function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null {
     return date ? toISOFormat(date, withMilliseconds) : null;
 };

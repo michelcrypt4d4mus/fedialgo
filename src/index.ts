@@ -43,14 +43,13 @@ import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
-import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormat, toISOFormatIfExists } from './helpers/time_helpers';
+import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
-import { ConcurrencyLockRelease, FILTER_OPTION_DATA_SOURCES } from './types';
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
+import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { lockExecution } from './helpers/log_helpers';
 import { Logger } from './helpers/logger';
 import { ObjList } from "./api/counted_list";
@@ -77,7 +76,9 @@ import {
     truncateToConfiguredLength,
 } from "./helpers/collection_helpers";
 import {
+    FILTER_OPTION_DATA_SOURCES,
     type BooleanFilterOption,
+    type ConcurrencyLockRelease,
     type FeedFilterSettings,
     type FilterOptionDataSource,
     type KeysOfValueType,

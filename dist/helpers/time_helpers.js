@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
-/*
+/**
  * Helpers for time-related operations
+ * @module time_helpers
  */
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
@@ -52,7 +53,11 @@ function coerceDate(date) {
 }
 exports.coerceDate = coerceDate;
 ;
-// Recent the most recent of a list of dates
+/**
+ * Returns the most recent (latest) date from a list of Date or null values.
+ * @param {...(Date | null)} args - Dates to compare.
+ * @returns {Date | null} The most recent date, or null if none are valid.
+ */
 function mostRecent(...args) {
     let mostRecentDate = null;
     for (const arg of args) {
@@ -66,14 +71,22 @@ function mostRecent(...args) {
 }
 exports.mostRecent = mostRecent;
 ;
-// Timestamp string for the current time
+/**
+ * Returns a timestamp string for the current time in local date and time format.
+ * @returns {string} The current date and time as a string.
+ */
 function nowString() {
     const now = new Date();
     return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;
 }
 exports.nowString = nowString;
 ;
-// toISOFormat() but with quotes around it.
+/**
+ * Returns the ISO format of a date, wrapped in quotes.
+ * @param {DateArg} date - The date to format.
+ * @param {boolean} [withMilliseconds] - Whether to include milliseconds in the output.
+ * @returns {string} The quoted ISO format string, or NULL if date is null.
+ */
 function quotedISOFmt(date, withMilliseconds) {
     if (date == null)
         return string_helpers_1.NULL;
@@ -81,28 +94,45 @@ function quotedISOFmt(date, withMilliseconds) {
 }
 exports.quotedISOFmt = quotedISOFmt;
 ;
-// Sleep helper
+/**
+ * Asynchronous sleep helper that pauses execution for the specified number of milliseconds.
+ * @param {number} milliseconds - The number of milliseconds to sleep.
+ * @returns {Promise<void>} A promise that resolves after the specified time.
+ */
 async function sleep(milliseconds) {
     await new Promise(r => setTimeout(r, milliseconds));
 }
 exports.sleep = sleep;
 ;
-// Subtract 'seconds' from 'date' and return the new Date
+/**
+ * Subtracts a number of seconds from a date and returns the new Date.
+ * @param {Date} date - The original date.
+ * @param {number} seconds - The number of seconds to subtract.
+ * @returns {Date} The new date with seconds subtracted.
+ */
 function subtractSeconds(date, seconds) {
     return new Date(date.getTime() - (seconds * 1000));
 }
 exports.subtractSeconds = subtractSeconds;
 ;
-// Return the oldest timestamp we should feed timeline toots until
+/**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
 function timelineCutoffAt() {
     const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
     return subtractSeconds(new Date(), timelineLookBackMS);
 }
 exports.timelineCutoffAt = timelineCutoffAt;
 ;
-// Generate a string representing a timestamp.
-// (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
-//    => 'Thursday, Sep 1, 2022'
+/**
+ * Generate a string representing a timestamp.
+ * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
+ *     => 'Thursday, Sep 1, 2022'
+ * @param {DateArg} _timestamp - The timestamp to convert to a string.
+ * @param {string} [locale] - Optional locale string for formatting the date.
+ * @returns {string} A formatted string representing the timestamp, or NULL if the timestamp is invalid.
+ */
 const timeString = (_timestamp, locale) => {
     if (!_timestamp)
         return string_helpers_1.NULL;
@@ -129,7 +159,12 @@ const timeString = (_timestamp, locale) => {
     return str;
 };
 exports.timeString = timeString;
-// To the format YYYY-MM-DDTHH:MM:SSZ
+/**
+ * Date to the format YYYY-MM-DDTHH:MM:SSZ
+ * @param {DateArg} date - The date to convert to ISO format.
+ * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
+ * @returns {string} The date in ISO format, or NULL if the date is invalid.
+ */
 function toISOFormat(date, withMilliseconds) {
     if (!date)
         return string_helpers_1.NULL;
@@ -138,6 +173,7 @@ function toISOFormat(date, withMilliseconds) {
 }
 exports.toISOFormat = toISOFormat;
 ;
+/** Like toISOFormat() but returns null if the date is undefined or null. */
 function toISOFormatIfExists(date, withMilliseconds) {
     return date ? toISOFormat(date, withMilliseconds) : null;
 }
