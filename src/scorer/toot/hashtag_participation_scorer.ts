@@ -8,7 +8,7 @@ import { type StringNumberDict } from "../../types";
 
 /**
  * Score toots containing hashtags the user posts about a lot.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class HashtagParticipationScorer extends TootScorer {

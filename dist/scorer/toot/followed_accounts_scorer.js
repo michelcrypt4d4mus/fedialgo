@@ -9,7 +9,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
  * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class FollowedAccountsScorer extends toot_scorer_1.default {

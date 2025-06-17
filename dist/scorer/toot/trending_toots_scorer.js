@@ -7,7 +7,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
  * Scores with the trendingRank set by getTrendingToots().
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class TrendingTootScorer extends toot_scorer_1.default {

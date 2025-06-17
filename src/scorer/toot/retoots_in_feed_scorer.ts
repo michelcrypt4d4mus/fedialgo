@@ -5,7 +5,7 @@ import { ScoreName } from '../../enums';
 
 /**
  * Score how many times a toot has been retooted by other accounts in the feed.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class RetootsInFeedScorer extends TootScorer {

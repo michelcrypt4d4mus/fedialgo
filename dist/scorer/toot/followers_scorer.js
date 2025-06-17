@@ -9,7 +9,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const enums_1 = require("../../enums");
 /**
  * One point for accounts that follow the Fedialgo user.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class FollowersScorer extends acccount_scorer_1.default {

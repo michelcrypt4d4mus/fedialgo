@@ -10,7 +10,7 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
  * Scores with the number of accounts that have posted a toot with the trending tag
  * across the Fediverse.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class TrendingTagsScorer extends toot_scorer_1.default {

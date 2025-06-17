@@ -10,7 +10,7 @@ const toot_1 = __importDefault(require("../../api/objects/toot"));
 const enums_1 = require("../../enums");
 /**
  * Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot).
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {

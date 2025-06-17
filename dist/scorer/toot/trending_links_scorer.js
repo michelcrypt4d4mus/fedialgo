@@ -9,7 +9,7 @@ const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
  * Score toots based on the numAccounts of any trending links they contain.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class TrendingLinksScorer extends toot_scorer_1.default {

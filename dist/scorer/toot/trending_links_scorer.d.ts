@@ -3,7 +3,7 @@ import Toot from '../../api/objects/toot';
 import { type StringNumberDict } from "../../types";
 /**
  * Score toots based on the numAccounts of any trending links they contain.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class TrendingLinksScorer extends TootScorer {

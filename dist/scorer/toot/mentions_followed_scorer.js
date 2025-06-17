@@ -9,7 +9,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const enums_1 = require("../../enums");
 /**
  * Score how many accounts that the user follows are mentioned in the toot.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class MentionsFollowedScorer extends toot_scorer_1.default {

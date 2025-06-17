@@ -3,7 +3,7 @@ import TootScorer from '../toot_scorer';
 import { type StringNumberDict } from '../../types';
 /**
  * Score how many times the user has replied to the creator of the toot.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class MostRepliedAccountsScorer extends TootScorer {

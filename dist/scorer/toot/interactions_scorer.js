@@ -9,7 +9,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const enums_1 = require("../../enums");
 /**
  * Gives higher weight to posts from users that have often interacted with your posts.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class InteractionsScorer extends acccount_scorer_1.default {

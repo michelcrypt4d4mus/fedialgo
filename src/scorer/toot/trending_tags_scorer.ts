@@ -8,7 +8,7 @@ import { sumArray } from '../../helpers/collection_helpers';
 /**
  * Scores with the number of accounts that have posted a toot with the trending tag
  * across the Fediverse.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class TrendingTagsScorer extends TootScorer {

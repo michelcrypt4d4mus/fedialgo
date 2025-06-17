@@ -9,7 +9,7 @@ const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
  * Score toots containing hashtags the user posts about a lot.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class HashtagParticipationScorer extends toot_scorer_1.default {

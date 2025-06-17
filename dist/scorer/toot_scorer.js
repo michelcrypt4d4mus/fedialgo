@@ -8,14 +8,14 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const environment_helpers_1 = require("../helpers/environment_helpers");
 /**
  * Namespace for Scorers that operate on a Toot independent of the rest of the feed.
- * @namespace toot_scorers
+ * @module toot_scorers
  */
 /**
  * Base class for a Scorer that can score a toot based solely on the properties of that
  * toot, optionally coupled with the fedialgo user's account data. Most importantly a
  * TootScorer does *not* require information about any other Toots in the feed (unlike a FeedScorer,
  * which requires knowledge of the entire timeline to render a score).
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class TootScorer extends scorer_1.default {

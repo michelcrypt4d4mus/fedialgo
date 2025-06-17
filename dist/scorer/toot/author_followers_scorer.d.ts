@@ -2,7 +2,7 @@ import Toot from "../../api/objects/toot";
 import TootScorer from "../toot_scorer";
 /**
  * Score a toot based on how many followers the author has.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class AuthorFollowersScorer extends TootScorer {

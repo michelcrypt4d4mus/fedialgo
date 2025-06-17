@@ -8,7 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Populate the 'followedTags' property on Toot object and return the number of tags
  * on the Toot that the user is following.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class FollowedTagsScorer extends toot_scorer_1.default {
