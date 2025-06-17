@@ -8,7 +8,10 @@ const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const toot_1 = __importDefault(require("../../api/objects/toot"));
 const enums_1 = require("../../enums");
-/** Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot). */
+/**
+ * Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot).
+ * @memberof toot_scorers
+ */
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often retoot";
     constructor() {

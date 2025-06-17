@@ -5,6 +5,7 @@ import { ScoreName } from '../../enums';
 
 /**
  * Score the number of image attachments in the toot.
+ * @memberof toot_scorers
  */
 export default class ImageAttachmentScorer extends TootScorer {
     description = "Favour toots with images";

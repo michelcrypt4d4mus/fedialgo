@@ -6,7 +6,10 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-/** Score how many times the current user has favourited the tooter in the past. */
+/**
+ * Score how many times the current user has favourited the tooter in the past.
+ * @memberof toot_scorers
+ */
 export default class MostFavouritedAccountsScorer extends AccountScorer {
     description = "Favour accounts you often favourite";
 

@@ -3,7 +3,10 @@ import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 
 
-/** Scores with the trendingRank set by getTrendingToots(). */
+/**
+ * Scores with the trendingRank set by getTrendingToots().
+ * @memberof toot_scorers
+ */
 export default class TrendingTootScorer extends TootScorer {
     description = "Favour toots that are trending in the Fediverse";
 

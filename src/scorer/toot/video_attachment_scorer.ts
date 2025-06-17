@@ -3,7 +3,10 @@ import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 
 
-/** Score the number of video attachments in the toot. */
+/**
+ * Score the number of video attachments in the toot.
+ * @memberof toot_scorers
+ */
 export default class VideoAttachmentScorer extends TootScorer {
     description = "Favour video attachments";
 

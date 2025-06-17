@@ -6,7 +6,10 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-/** Score how many accounts that the user follows are mentioned in the toot. */
+/**
+ * Score how many accounts that the user follows are mentioned in the toot.
+ * @memberof toot_scorers
+ */
 export default class MentionsFollowedScorer extends TootScorer {
     description = "Favour toots that mention accounts you follow";
 

@@ -8,7 +8,6 @@ const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
  * Score based on the numTimesShown, which is managed by the client app.
- * @class
  * @memberof toot_scorers
  */
 class AlreadyShownScorer extends toot_scorer_1.default {

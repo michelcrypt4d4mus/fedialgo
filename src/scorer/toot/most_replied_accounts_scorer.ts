@@ -6,7 +6,10 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-/** Score how many times the user has replied to the creator of the toot. */
+/**
+ * Score how many times the user has replied to the creator of the toot.
+ * @memberof toot_scorers
+ */
 export default class MostRepliedAccountsScorer extends TootScorer {
     description = "Favour accounts you often reply to";
 

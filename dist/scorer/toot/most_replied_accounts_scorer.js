@@ -7,7 +7,10 @@ const api_1 = __importDefault(require("../../api/api"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const enums_1 = require("../../enums");
-/** Score how many times the user has replied to the creator of the toot. */
+/**
+ * Score how many times the user has replied to the creator of the toot.
+ * @memberof toot_scorers
+ */
 class MostRepliedAccountsScorer extends toot_scorer_1.default {
     description = "Favour accounts you often reply to";
     constructor() {

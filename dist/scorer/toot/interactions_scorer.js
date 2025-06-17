@@ -7,7 +7,10 @@ const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const enums_1 = require("../../enums");
-/** Gives higher weight to posts from users that have often interacted with your posts. */
+/**
+ * Gives higher weight to posts from users that have often interacted with your posts.
+ * @memberof toot_scorers
+ */
 class InteractionsScorer extends acccount_scorer_1.default {
     description = "Favour accounts that interact with your toots";
     constructor() {

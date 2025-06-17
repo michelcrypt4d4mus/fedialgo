@@ -9,6 +9,7 @@ const enums_1 = require("../../enums");
  * Score how many times the toot has been favourited by other users.
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
+ * @memberof toot_scorers
  */
 class NumFavouritesScorer extends toot_scorer_1.default {
     description = "Favour toots favourited by your server's users";
