@@ -1,7 +1,6 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { min } from "lodash";
 import { CacheKey, NonScoreWeightName, TagTootsCacheKey, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { type NonScoreWeightInfoDict } from "./types";
@@ -265,10 +264,10 @@ class Config implements ConfigType {
     }
 
     favouritedTags = {
+        maxParticipations: 3,                   // Remove tags that have been used in more than this many toots by the user
         maxToots: 100,                          // How many toots to pull for each tag
         numTags: 15,                            // How many tags to pull toots for
         numTootsPerTag: 5,                      // How many toots to pull for each tag
-        maxParticipations: 3,                   // Remove tags that have been used in more than this many toots by the user
     }
 
     fediverse = {
