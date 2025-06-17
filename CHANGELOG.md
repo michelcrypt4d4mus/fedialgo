@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* `@types/blueimp-md5` is dev dependency, not an actual dependency
+* `@types/blueimp-md5` is a dev dependency, not an actual dependency
 
 ### v0.73.5
 * `@react-native-async-storage/async-storage` is a dev dependency, not an actual dependency

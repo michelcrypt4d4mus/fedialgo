@@ -1,11 +1,17 @@
-import { type OptionalString } from "../types";
+import { type Optional, type OptionalString } from "../types";
 type DateArg = Date | OptionalString | number;
 export declare const ageInHours: (date: DateArg, endTime?: DateArg) => number;
 export declare const ageInMinutes: (date: DateArg, endTime?: DateArg) => number;
 export declare const ageInSeconds: (date: DateArg, endTime?: DateArg) => number;
-export declare function ageInMS(date: DateArg, endTime?: DateArg): number;
 /**
- * Make a nice string like "in 2.5 minutes"
+ * Compute the age in milliseconds from a date to now or an optional end time.
+ * @param {DateArg} startTime - The time to calculate the age from.
+ * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+ * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
+ */
+export declare function ageInMS(startTime: DateArg, endTime?: DateArg): number;
+/**
+ * Make a nice string like "in 2.5 minutes" representing time from a date to now.
  * @param {DateArg} date - The date to calculate the age from.
  * @returns {string} A string representing the age in seconds, formatted to 1 decimal place.
  */
@@ -13,18 +19,18 @@ export declare function ageString(date: DateArg): string;
 /**
  * Coerce a string or number into a Date object.
  * @param {DateArg} date - The date to coerce.
- * @returns {Date|null} A Date object if coercion is successful, or null if the input is invalid.
+ * @returns {Optional<Date>} A Date object if coercion is successful, or null if the input is invalid.
  */
-export declare function coerceDate(date: DateArg): Date | null;
+export declare function coerceDate(date: DateArg): Optional<Date>;
 /**
  * Returns the most recent (latest) date from a list of Date or null values.
- * @param {...(Date | null)} args - Dates to compare.
- * @returns {Date | null} The most recent date, or null if none are valid.
+ * @param {...DateArg[]} args - Dates to compare.
+ * @returns {Optional<Date>} The most recent date, or null if none are valid.
  */
-export declare function mostRecent(...args: (Date | null)[]): Date | null;
+export declare function mostRecent(...args: DateArg[]): Optional<Date>;
 /**
- * Returns a timestamp string for the current time in local date and time format.
- * @returns {string} The current date and time as a string.
+ * String for the current time in local datetime format, e.g. ""17/06/2025 17:59:58""
+ * @returns {string} Localized current date and time string
  */
 export declare function nowString(): string;
 /**

@@ -21,8 +21,9 @@ export type ConcurrencyLockRelease = MutexInterface.Releaser | SemaphoreInterfac
 export type CountKey = FilterProperty | string;
 export type FeedFetcher = (api: mastodon.rest.Client) => Promise<Toot[]>;
 export type FilterProperty = BooleanFilterName | TootNumberProp;
-export type OptionalNumber = number | null | undefined;
-export type OptionalString = string | null | undefined;
+export type Optional<T> = T | null | undefined;
+export type OptionalNumber = Optional<number>;
+export type OptionalString = Optional<string>;
 export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
