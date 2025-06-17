@@ -1,10 +1,8 @@
-/**
- * @module toot_scorers
- */
 import AccountScorer from './acccount_scorer';
 import { type StringNumberDict } from '../../types';
 /**
  * One point for accounts that follow the Fedialgo user.
+ * @memberof toot_scorers
  */
 export default class FollowersScorer extends AccountScorer {
     description: string;
