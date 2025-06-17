@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.73.1
 * Merge `TagList`'s `removeMutedTags()` into `removeInvalidTrendingTags()`
 
 ## v0.73.0
