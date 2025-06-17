@@ -631,7 +631,7 @@ exports.publish = (taffyData, opts, tutorials) => {
     interfaces = taffy(members.interfaces);
 
     Object.keys(helper.longnameToUrl).forEach(longname => {
-        const myClasses = helper.find(classes, {longname: longname});
+        const myClasses = helper.find(classes, {longname: longname}).filter(cls => !cls.memberof);
         const myExternals = helper.find(externals, {longname: longname});
         const myInterfaces = helper.find(interfaces, {longname: longname});
         const myMixins = helper.find(mixins, {longname: longname});
