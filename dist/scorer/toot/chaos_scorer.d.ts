@@ -3,7 +3,9 @@
  */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
-/** Random number generator to mix up the feed. */
+/**
+ * Random number generator to mix up the feed.
+ */
 export default class ChaosScorer extends TootScorer {
     description: string;
     constructor();

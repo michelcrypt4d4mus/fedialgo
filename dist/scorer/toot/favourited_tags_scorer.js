@@ -10,7 +10,9 @@ const tag_list_1 = __importDefault(require("../../api/tag_list"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-/** Score how many times the current user has favourited the toot's hashtags in the past. */
+/**
+ * Score how many times the current user has favourited the toot's hashtags in the past.
+ */
 class FavouritedTagsScorer extends toot_scorer_1.default {
     description = "Favour toots containing hashtags you favourite";
     constructor() {
