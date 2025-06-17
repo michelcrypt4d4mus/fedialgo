@@ -3,14 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Score toots that contain currently trending links.
- * https://docs.joinmastodon.org/methods/trends/#links
+/**
+ * @module scorers
  */
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const mastodon_server_1 = __importDefault(require("../../api/mastodon_server"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
+/** Score toots based on the numAccounts of any trending links they contain. */
 class TrendingLinksScorer extends toot_scorer_1.default {
     description = "Favour links that are trending in the Fediverse";
     constructor() {

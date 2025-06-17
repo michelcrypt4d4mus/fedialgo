@@ -1,11 +1,12 @@
-/*
- * Score how many times a toot has been retooted by other accounts in the feed.
+/**
+ * @module scorers
  */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 
 
+/** Score how many times a toot has been retooted by other accounts in the feed. */
 export default class RetootsInFeedScorer extends TootScorer {
     description = "Favour toots retooted by accounts you follow";
 

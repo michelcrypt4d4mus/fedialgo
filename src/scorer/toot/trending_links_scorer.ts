@@ -1,6 +1,5 @@
-/*
- * Score toots that contain currently trending links.
- * https://docs.joinmastodon.org/methods/trends/#links
+/**
+ * @module scorers
  */
 import TootScorer from '../toot_scorer';
 import MastodonServer from '../../api/mastodon_server';
@@ -10,6 +9,7 @@ import { sumArray } from '../../helpers/collection_helpers';
 import { type StringNumberDict } from "../../types";
 
 
+/** Score toots based on the numAccounts of any trending links they contain. */
 export default class TrendingLinksScorer extends TootScorer {
     description = "Favour links that are trending in the Fediverse";
 
