@@ -1204,7 +1204,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
     private validateFetchParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): void {
-        const { cacheKey, fetchGenerator, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        const { cacheKey, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
         const logger = params.logger.tempLogger('validateFetchParams');
 
         if (moar && (skipCache || maxId)) {

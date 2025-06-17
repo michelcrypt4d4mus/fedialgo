@@ -991,7 +991,7 @@ class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
     validateFetchParams(params) {
-        const { cacheKey, fetchGenerator, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
+        const { cacheKey, maxId, maxIdForFetch, minIdForFetch, moar, skipCache } = params;
         const logger = params.logger.tempLogger('validateFetchParams');
         if (moar && (skipCache || maxId)) {
             logger.warn(`skipCache=true AND moar or maxId set!`);

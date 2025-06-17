@@ -113,7 +113,7 @@ class Account {
      */
     static build(account) {
         if (account instanceof Account)
-            return account; // Already an Account instance, return it directly
+            return account; // Already an Account instance so return it
         const accountObj = new Account();
         accountObj.id = account.id;
         accountObj.username = account.username;

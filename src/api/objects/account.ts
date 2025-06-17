@@ -27,9 +27,9 @@ const logger = new Logger("Account");
 
  */
 interface AccountObj extends mastodon.v1.Account {
-    displayNameFullHTML?: () => string;
-    displayNameWithEmojis?: () => string;
-    homeInstanceInfo?: () => Promise<InstanceResponse>;
+    displayNameFullHTML: (fontSize?: number) => string;
+    displayNameWithEmojis: (fontSize?: number) => string;
+    homeInstanceInfo: () => Promise<InstanceResponse>;
     asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
@@ -127,7 +127,7 @@ export default class Account implements AccountObj {
      * @returns {Account} The constructed Account instance.
      */
     static build(account: AccountLike): Account {
-        if (account instanceof Account) return account;  // Already an Account instance, return it directly
+        if (account instanceof Account) return account;  // Already an Account instance so return it
 
         const accountObj = new Account();
         accountObj.id = account.id;

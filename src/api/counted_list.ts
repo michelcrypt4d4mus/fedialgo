@@ -4,7 +4,6 @@
  */
 import { isFinite } from "lodash";
 
-import UserData from "./user_data";
 import { Logger } from '../helpers/logger';
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";

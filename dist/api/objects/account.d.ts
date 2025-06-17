@@ -10,9 +10,9 @@ type AccountCount = Record<string, {
 
  */
 interface AccountObj extends mastodon.v1.Account {
-    displayNameFullHTML?: () => string;
-    displayNameWithEmojis?: () => string;
-    homeInstanceInfo?: () => Promise<InstanceResponse>;
+    displayNameFullHTML: (fontSize?: number) => string;
+    displayNameWithEmojis: (fontSize?: number) => string;
+    homeInstanceInfo: () => Promise<InstanceResponse>;
     asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
