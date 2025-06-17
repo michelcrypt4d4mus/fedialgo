@@ -7,6 +7,7 @@ import { ScoreName } from '../../enums';
  * Score how many times the toot has been favourited by other users.
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
+ * @memberof toot_scorers
  */
 export default class NumFavouritesScorer extends TootScorer {
     description = "Favour toots favourited by your server's users";

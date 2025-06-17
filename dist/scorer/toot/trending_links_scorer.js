@@ -7,7 +7,10 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const mastodon_server_1 = __importDefault(require("../../api/mastodon_server"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-/** Score toots based on the numAccounts of any trending links they contain. */
+/**
+ * Score toots based on the numAccounts of any trending links they contain.
+ * @memberof toot_scorers
+ */
 class TrendingLinksScorer extends toot_scorer_1.default {
     description = "Favour links that are trending in the Fediverse";
     constructor() {

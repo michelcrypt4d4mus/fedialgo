@@ -5,7 +5,10 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from "../../types";
 
 
-/** Gives higher weight to posts from users that have often interacted with your posts. */
+/**
+ * Gives higher weight to posts from users that have often interacted with your posts.
+ * @memberof toot_scorers
+ */
 export default class InteractionsScorer extends AccountScorer {
     description = "Favour accounts that interact with your toots";
 
