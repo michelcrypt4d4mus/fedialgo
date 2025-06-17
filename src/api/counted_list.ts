@@ -164,15 +164,6 @@ export default class CountedList<T extends NamedTootCount> {
     };
 
     /**
-     * Remove any obj whose 'name' is muted by the user's server side filters.
-     * TODO: use UserData's cached muted keywords regex?
-     * @returns {Promise<void>}
-     */
-    async removeMutedTags(): Promise<void> {
-        this.removeKeywords(await UserData.getMutedKeywords());
-    };
-
-    /**
      * Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,
      * and then by name. If maxObjs is provided, returns only the top maxObjs objects.
      * @param {number} [maxObjs] - Optional maximum number of objects to return.

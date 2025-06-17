@@ -89,9 +89,8 @@ export default class TagsForFetchingToots {
 
     /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     private async removeUnwantedTags(): Promise<void> {
-        await this.tagList.removeMutedTags();
         await this.tagList.removeFollowedTags();
-        this.tagList.removeInvalidTrendingTags();
+        await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
 
         if (this.cacheKey != TagTootsCacheKey.TRENDING_TAG_TOOTS) {

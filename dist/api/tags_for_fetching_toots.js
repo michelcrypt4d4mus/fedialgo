@@ -67,9 +67,8 @@ class TagsForFetchingToots {
     ;
     /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     async removeUnwantedTags() {
-        await this.tagList.removeMutedTags();
         await this.tagList.removeFollowedTags();
-        this.tagList.removeInvalidTrendingTags();
+        await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
         if (this.cacheKey != enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS) {
             const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();

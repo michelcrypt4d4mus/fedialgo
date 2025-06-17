@@ -1,7 +1,4 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BooleanFilterOptionList = void 0;
 /*
@@ -9,7 +6,6 @@ exports.BooleanFilterOptionList = void 0;
  * somewhat interchangeably as a dictionary or a sorted list.
  */
 const lodash_1 = require("lodash");
-const user_data_1 = __importDefault(require("./user_data"));
 const logger_1 = require("../helpers/logger");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const string_helpers_1 = require("../helpers/string_helpers");
@@ -138,15 +134,6 @@ class CountedList {
         const validObjs = this.objs.filter(tag => !keywords.includes(tag.name));
         this.logger.logArrayReduction(this.objs, validObjs, "Tag", `matching keywords`); //  "${keywords}"`);
         this.objs = validObjs;
-    }
-    ;
-    /**
-     * Remove any obj whose 'name' is muted by the user's server side filters.
-     * TODO: use UserData's cached muted keywords regex?
-     * @returns {Promise<void>}
-     */
-    async removeMutedTags() {
-        this.removeKeywords(await user_data_1.default.getMutedKeywords());
     }
     ;
     /**

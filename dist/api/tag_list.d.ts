@@ -37,5 +37,5 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     /** Remove any hashtags that are followed by the FediAlgo user. */
     removeFollowedTags(): Promise<void>;
     /** Remove the configured list of invalid trending tags as well as japanese/korean etc. tags. */
-    removeInvalidTrendingTags(): void;
+    removeInvalidTrendingTags(): Promise<void>;
 }
