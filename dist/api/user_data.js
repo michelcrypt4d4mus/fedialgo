@@ -76,7 +76,11 @@ class UserData {
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = [];
     lastUpdatedAt;
-    // Alternate constructor for the UserData object to build itself from the API (or cache)
+    /**
+     * Alternate constructor for the UserData object to build itself from the API (or cache).
+     * @static
+     * @returns {Promise<UserData>} UserData instance populated with the user's data.
+     */
     static async build() {
         const responses = await (0, collection_helpers_1.resolvePromiseDict)({
             blockedDomains: api_1.default.instance.getBlockedDomains(),
@@ -89,7 +93,19 @@ class UserData {
         }, logger, []);
         return this.buildFromData(responses);
     }
-    // Alternate constructor to build UserData from raw API data
+    /**
+     * Alternate constructor to build UserData from API data.
+     * @static
+     * @param {UserApiData} data - The raw API data to build the UserData from.
+     * @param {string[]} data.blockedDomains - Domains the user has blocked.
+     * @param {Toot[]} data.favouritedToots - Toots the user has favourited.
+     * @param {Account[]} data.followedAccounts - Accounts the user follows.
+     * @param {TagWithUsageCounts[]} data.followedTags - Tags the user follows, with usage counts.
+     * @param {Account[]} data.mutedAccounts - Accounts the user has muted.
+     * @param {Toot[]} data.recentToots - Recent toots by the user.*
+     * @param {mastodon.v2.Filter[]} data.serverSideFilters - Server-side filters set by the user.
+     * @returns {UserData} A new UserData instance populated with the provided data.
+     */
     static buildFromData(data) {
         const userData = new UserData();
         if (data.recentToots.length) {
@@ -112,11 +128,18 @@ class UserData {
         logger.trace("Built from data:", userData);
         return userData;
     }
-    // If there's newer data in the cache the data is not fresh
+    /**
+     * If there's newer data in the cache the data is not fresh.
+     * @returns {Promise<boolean>} True if UserData object was created after the last updatedAt in Storage.
+     */
     async hasNewestApiData() {
         return !!(Storage_1.default.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage_1.default.lastUpdatedAt));
     }
-    // Add up the favourites, retoots, and replies for each account
+    /**
+     * Add up the favourites, retoots, and replies for each account
+     * @private
+     * @param {UserApiData} data - The raw API data containing recent toots and favourited toots.
+     */
     populateFavouriteAccounts(data) {
         const retootsAndFaves = [...toot_1.default.onlyRetoots(data.recentToots), ...data.favouritedToots];
         const retootAndFaveAccounts = retootsAndFaves.map(t => t.author);
