@@ -1,8 +1,8 @@
 /**
  * @module feed_scorers
  */
-import FeedScorer from "../feed_scorer";
 import CountedList from "../../api/counted_list";
+import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
 import { incrementCount } from "../../helpers/collection_helpers";
@@ -16,7 +16,10 @@ interface PenalizedObj extends NamedTootCount {
 };
 
 
-/** Score based on how many times each author or trending tag appears in the feed. */
+/**
+ * Scores based on how many times each author or trending tag appears in the feed.
+ * @class
+ */
 export default class DiversityFeedScorer extends FeedScorer {
     description = "Favour accounts that are tooting a lot right now";
 

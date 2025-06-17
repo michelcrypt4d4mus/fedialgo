@@ -1,10 +1,10 @@
-/**
- * @module feed_scorers
- */
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
 import { type StringNumberDict } from "../../types";
-/** Score based on how many times each author or trending tag appears in the feed. */
+/**
+ * Scores based on how many times each author or trending tag appears in the feed.
+ * @class
+ */
 export default class DiversityFeedScorer extends FeedScorer {
     description: string;
     constructor();

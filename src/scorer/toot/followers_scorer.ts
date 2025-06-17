@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import AccountScorer from './acccount_scorer';
 import Account from '../../api/objects/account';
 import MastoApi from '../../api/api';
@@ -10,6 +7,7 @@ import { type StringNumberDict } from '../../types';
 
 /**
  * One point for accounts that follow the Fedialgo user.
+ * @memberof toot_scorers
  */
 export default class FollowersScorer extends AccountScorer {
     description = "Favour accounts who follow you";

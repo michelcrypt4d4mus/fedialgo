@@ -3,15 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @module toot_scorers
- */
 const account_1 = __importDefault(require("../../api/objects/account"));
 const api_1 = __importDefault(require("../../api/api"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
  * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
+ * @memberof toot_scorers
  */
 class FollowedAccountsScorer extends toot_scorer_1.default {
     description = "Favour accounts you follow";

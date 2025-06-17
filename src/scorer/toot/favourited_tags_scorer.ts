@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
@@ -11,6 +8,7 @@ import { type StringNumberDict } from '../../types';
 
 /**
  * Score how many times the current user has favourited the toot's hashtags in the past.
+ * @memberof toot_scorers
  */
 export default class FavouritedTagsScorer extends TootScorer {
     description = "Favour toots containing hashtags you favourite";
