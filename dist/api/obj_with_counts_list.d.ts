@@ -22,8 +22,8 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     nameDict: Record<string, T>;
     source: ListSource;
     get maxNumToots(): number | undefined;
-    get objs(): T[];
     private _maxNumToots?;
+    get objs(): T[];
     private _objs;
     set objs(objs: T[]);
     constructor(objs: T[], source: ListSource);
@@ -75,7 +75,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
      * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
     topObjs(maxObjs?: number): T[];
-    private completeObjWithTootCounts;
+    private completeObjProperties;
     private objNameDict;
 }
 /**

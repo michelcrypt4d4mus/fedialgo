@@ -34,29 +34,27 @@ export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this
  * @property {T[]} objs - The array of objects in the list.
  */
 export default class ObjWithCountList<T extends NamedTootCount> {
-    length: number;
+    length: number = 0;
     logger: Logger;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: ListSource;
 
     get maxNumToots(): number | undefined { return this._maxNumToots };
-    get objs(): T[] { return this._objs };
     private _maxNumToots?: number; // Cached max numToots value, if it exists
-    private _objs: T[];
+
+    get objs(): T[] { return this._objs };
+    private _objs: T[] = [];
 
     // Has side effect of mutating the 'tagNames' dict property
     public set objs(objs: T[]) {
-        this._objs = objs;
+        this._objs = objs.map(this.completeObjProperties);
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this._maxNumToots = this.maxValue("numToots" as keyof T);
     }
 
     constructor(objs: T[], source: ListSource) {
-        objs.forEach(obj => this.completeObjWithTootCounts(obj));
-        this._objs = objs;
-        this.length = this._objs.length;
-        this.nameDict = this.objNameDict();
+        this.objs = objs;
         this.source = source;
         this.logger = new Logger("ObjWithCountList", source);
     }
@@ -133,12 +131,15 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void {
         this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
 
-        const options = objs.reduce((optionDict, obj) => {
-            const extractedProps = propExtractor(obj);
-            optionDict[extractedProps.name] ??= extractedProps;
-            optionDict[extractedProps.name].numToots = (optionDict[extractedProps.name].numToots || 0) + 1;
-            return optionDict;
-        }, {} as Record<string, T>);
+        const options = objs.reduce(
+            (objsWithCounts, obj) => {
+                const extractedProps = propExtractor(obj);
+                objsWithCounts[extractedProps.name] ??= extractedProps;
+                objsWithCounts[extractedProps.name].numToots = (objsWithCounts[extractedProps.name].numToots || 0) + 1;
+                return objsWithCounts;
+            },
+            {} as Record<string, T>
+        );
 
         this.objs = Object.values(options);
     }
@@ -177,9 +178,10 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     }
 
     // Lowercase the name and set the regex property if it doesn't exist.
-    private completeObjWithTootCounts(obj: T): void {
-        obj.name = obj.name.toLowerCase();
+    private completeObjProperties(obj: T): T {
+        obj.name = obj.name.trim().toLowerCase();
         obj.regex ??= wordRegex(obj.name);
+        return obj;
     };
 
     // Return a dictionary of tag names to tags

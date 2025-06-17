@@ -27,28 +27,25 @@ const string_helpers_1 = require("../helpers/string_helpers");
  * @property {T[]} objs - The array of objects in the list.
  */
 class ObjWithCountList {
-    length;
+    length = 0;
     logger;
     nameDict = {}; // Dict of obj.names to objs
     source;
     get maxNumToots() { return this._maxNumToots; }
     ;
+    _maxNumToots; // Cached max numToots value, if it exists
     get objs() { return this._objs; }
     ;
-    _maxNumToots; // Cached max numToots value, if it exists
-    _objs;
+    _objs = [];
     // Has side effect of mutating the 'tagNames' dict property
     set objs(objs) {
-        this._objs = objs;
+        this._objs = objs.map(this.completeObjProperties);
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
         this._maxNumToots = this.maxValue("numToots");
     }
     constructor(objs, source) {
-        objs.forEach(obj => this.completeObjWithTootCounts(obj));
-        this._objs = objs;
-        this.length = this._objs.length;
-        this.nameDict = this.objNameDict();
+        this.objs = objs;
         this.source = source;
         this.logger = new logger_1.Logger("ObjWithCountList", source);
     }
@@ -114,11 +111,11 @@ class ObjWithCountList {
      */
     populateByCountingProps(objs, propExtractor) {
         this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
-        const options = objs.reduce((optionDict, obj) => {
+        const options = objs.reduce((objsWithCounts, obj) => {
             const extractedProps = propExtractor(obj);
-            optionDict[extractedProps.name] ??= extractedProps;
-            optionDict[extractedProps.name].numToots = (optionDict[extractedProps.name].numToots || 0) + 1;
-            return optionDict;
+            objsWithCounts[extractedProps.name] ??= extractedProps;
+            objsWithCounts[extractedProps.name].numToots = (objsWithCounts[extractedProps.name].numToots || 0) + 1;
+            return objsWithCounts;
         }, {});
         this.objs = Object.values(options);
     }
@@ -155,9 +152,10 @@ class ObjWithCountList {
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
     }
     // Lowercase the name and set the regex property if it doesn't exist.
-    completeObjWithTootCounts(obj) {
-        obj.name = obj.name.toLowerCase();
+    completeObjProperties(obj) {
+        obj.name = obj.name.trim().toLowerCase();
         obj.regex ??= (0, string_helpers_1.wordRegex)(obj.name);
+        return obj;
     }
     ;
     // Return a dictionary of tag names to tags
