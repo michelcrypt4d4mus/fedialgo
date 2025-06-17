@@ -5,7 +5,7 @@ import { ScoreName } from '../../enums';
 
 /**
  * Scores with the trendingRank set by getTrendingToots().
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class TrendingTootScorer extends TootScorer {

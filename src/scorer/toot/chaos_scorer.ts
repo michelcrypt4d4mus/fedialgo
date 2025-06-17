@@ -5,7 +5,7 @@ import { ScoreName } from '../../enums';
 
 /**
  * Random number generator to mix up the feed.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class ChaosScorer extends TootScorer {

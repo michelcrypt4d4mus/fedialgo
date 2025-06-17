@@ -9,7 +9,7 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 const enums_1 = require("../../enums");
 /**
  * Score how many times the user has replied to the creator of the toot.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 class MostRepliedAccountsScorer extends toot_scorer_1.default {

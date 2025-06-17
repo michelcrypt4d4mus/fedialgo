@@ -2,7 +2,7 @@ import TootScorer from '../toot_scorer';
 import Toot from '../../api/objects/toot';
 /**
  * Score the number of image attachments in the toot.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class ImageAttachmentScorer extends TootScorer {

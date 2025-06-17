@@ -5,7 +5,7 @@ import { ScoreName } from '../../enums';
 
 /**
  * Score a toot based on how many followers the author has.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class AuthorFollowersScorer extends TootScorer {

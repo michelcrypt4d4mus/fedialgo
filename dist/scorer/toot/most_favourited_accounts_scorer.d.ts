@@ -3,7 +3,7 @@ import Toot from '../../api/objects/toot';
 import { type StringNumberDict } from '../../types';
 /**
  * Score how many times the current user has favourited the tooter in the past.
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class MostFavouritedAccountsScorer extends AccountScorer {

@@ -3,7 +3,7 @@ import TootScorer from '../toot_scorer';
 import { type StringNumberDict } from '../../types';
 /**
  * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
- * @memberof toot_scorers
+ * @memberof module:toot_scorers
  * @augments Scorer
  */
 export default class FollowedAccountsScorer extends TootScorer {
