@@ -31,22 +31,19 @@ export type ObjList = CountedList<NamedTootCount>;
  * @property {T[]} objs - The array of objects in the list.
  */
 export default class CountedList<T extends NamedTootCount> {
-    length: number = 0;
     logger: Logger;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: CountedListSource;
 
-    get maxNumToots(): number | undefined { return this._maxNumToots };
-    private _maxNumToots?: number; // Cached max numToots value, if it exists
+    get length(): number { return this._objs.length; }
+    get maxNumToots(): number | undefined { return this.maxValue("numToots" as keyof T) };
 
     get objs(): T[] { return this._objs };
     private _objs: T[] = [];
 
     // Has side effect of mutating the 'tagNames' dict property
     public set objs(objs: T[]) {
-        this.length = objs.length;
         this._objs = objs.map(this.completeObjProperties);
-        this._maxNumToots = this.maxValue("numToots" as keyof T);
 
         this.nameDict = this.objs.reduce((objNames, obj) => {
             objNames[obj.name] = obj;
@@ -84,23 +81,28 @@ export default class CountedList<T extends NamedTootCount> {
         return this.nameDict[name.toLowerCase()];
     }
 
-    // Increment numToots for the given name. If no obj with 'name' exists create a new one
-    // and call the decorator function on the new function if provided.
+    /**
+     * Increment numToots for the given 'name'. If no obj with 'name' exists create a new one
+     * and call newObjDecorator() to get its properties.
+     * @param {string} name - The name of the object to increment.
+     * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
+     * @returns {T} The object with the incremented numToots.
+     */
     incrementCount(name: string, newObjDecorator?: (obj: T) => void): T {
-        let option = this.nameDict[name];
+        let obj = this.nameDict[name];
 
-        if (!option) {
-            option = { name, numToots: 0 } as T;
-            this.nameDict[name] = option;
-            this.objs.push(option);
-            newObjDecorator?.(option);
+        if (!obj) {
+            obj = { name, numToots: 0 } as T;
+            this.nameDict[name] = obj;
+            this.objs.push(obj);
+            newObjDecorator?.(obj);
         }
 
-        option.numToots = (option.numToots || 0) + 1;
-        return option;
+        obj.numToots = (obj.numToots || 0) + 1;
+        return obj;
     }
 
-    // Standard map function that applies a callback to each object in the objs array
+    /* Standard map function that applies a callback to each object in the objs array. */
     map<U>(callback: (obj: T, i?: number) => U): U[] {
         return this.objs.map((obj, i) => callback(obj, i));
     }
@@ -126,7 +128,7 @@ export default class CountedList<T extends NamedTootCount> {
     }
 
     /**
-     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
@@ -186,7 +188,7 @@ export default class CountedList<T extends NamedTootCount> {
         obj.name = obj.name.trim().toLowerCase();
         obj.regex ??= wordRegex(obj.name);
         return obj;
-    };
+    }
 };
 
 

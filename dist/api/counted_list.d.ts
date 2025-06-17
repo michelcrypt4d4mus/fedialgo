@@ -14,12 +14,11 @@ export type ObjList = CountedList<NamedTootCount>;
  * @property {T[]} objs - The array of objects in the list.
  */
 export default class CountedList<T extends NamedTootCount> {
-    length: number;
     logger: Logger;
     nameDict: Record<string, T>;
     source: CountedListSource;
+    get length(): number;
     get maxNumToots(): number | undefined;
-    private _maxNumToots?;
     get objs(): T[];
     private _objs;
     set objs(objs: T[]);
@@ -38,6 +37,13 @@ export default class CountedList<T extends NamedTootCount> {
      * @returns {T | undefined} The object with the specified name, or undefined if not found.
      */
     getObj(name: string): T | undefined;
+    /**
+     * Increment numToots for the given 'name'. If no obj with 'name' exists create a new one
+     * and call newObjDecorator() to get its properties.
+     * @param {string} name - The name of the object to increment.
+     * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
+     * @returns {T} The object with the incremented numToots.
+     */
     incrementCount(name: string, newObjDecorator?: (obj: T) => void): T;
     map<U>(callback: (obj: T, i?: number) => U): U[];
     /**
@@ -51,7 +57,7 @@ export default class CountedList<T extends NamedTootCount> {
      */
     nameToNumTootsDict(): StringNumberDict;
     /**
-     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.

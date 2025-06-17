@@ -26,21 +26,18 @@ const string_helpers_1 = require("../helpers/string_helpers");
  * @property {T[]} objs - The array of objects in the list.
  */
 class CountedList {
-    length = 0;
     logger;
     nameDict = {}; // Dict of obj.names to objs
     source;
-    get maxNumToots() { return this._maxNumToots; }
+    get length() { return this._objs.length; }
+    get maxNumToots() { return this.maxValue("numToots"); }
     ;
-    _maxNumToots; // Cached max numToots value, if it exists
     get objs() { return this._objs; }
     ;
     _objs = [];
     // Has side effect of mutating the 'tagNames' dict property
     set objs(objs) {
-        this.length = objs.length;
         this._objs = objs.map(this.completeObjProperties);
-        this._maxNumToots = this.maxValue("numToots");
         this.nameDict = this.objs.reduce((objNames, obj) => {
             objNames[obj.name] = obj;
             return objNames;
@@ -72,20 +69,25 @@ class CountedList {
     getObj(name) {
         return this.nameDict[name.toLowerCase()];
     }
-    // Increment numToots for the given name. If no obj with 'name' exists create a new one
-    // and call the decorator function on the new function if provided.
+    /**
+     * Increment numToots for the given 'name'. If no obj with 'name' exists create a new one
+     * and call newObjDecorator() to get its properties.
+     * @param {string} name - The name of the object to increment.
+     * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
+     * @returns {T} The object with the incremented numToots.
+     */
     incrementCount(name, newObjDecorator) {
-        let option = this.nameDict[name];
-        if (!option) {
-            option = { name, numToots: 0 };
-            this.nameDict[name] = option;
-            this.objs.push(option);
-            newObjDecorator?.(option);
+        let obj = this.nameDict[name];
+        if (!obj) {
+            obj = { name, numToots: 0 };
+            this.nameDict[name] = obj;
+            this.objs.push(obj);
+            newObjDecorator?.(obj);
         }
-        option.numToots = (option.numToots || 0) + 1;
-        return option;
+        obj.numToots = (obj.numToots || 0) + 1;
+        return obj;
     }
-    // Standard map function that applies a callback to each object in the objs array
+    /* Standard map function that applies a callback to each object in the objs array. */
     map(callback) {
         return this.objs.map((obj, i) => callback(obj, i));
     }
@@ -108,7 +110,7 @@ class CountedList {
         }, {});
     }
     /**
-     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
@@ -162,7 +164,6 @@ class CountedList {
         obj.regex ??= (0, string_helpers_1.wordRegex)(obj.name);
         return obj;
     }
-    ;
 }
 exports.default = CountedList;
 ;
