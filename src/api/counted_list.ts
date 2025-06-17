@@ -57,7 +57,7 @@ export default class CountedList<T extends NamedTootCount> {
     constructor(objs: T[], source: CountedListSource) {
         this.objs = objs;
         this.source = source;
-        this.logger = new Logger("ObjWithCountList", source);
+        this.logger = new Logger("CountedList", source);
     }
 
     // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
@@ -68,7 +68,7 @@ export default class CountedList<T extends NamedTootCount> {
     /**
      * Like the standard Array.filter().
      * @param {function} predicate - Function to test each object in the list.
-     * @returns {this<T>} A new CountedList containing only the objects that match the predicate.
+     * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
      */
     filter(predicate: (obj: T) => boolean): CountedList<T> {
         return new CountedList<T>(this.objs.filter(predicate), this.source);
@@ -188,7 +188,7 @@ export default class CountedList<T extends NamedTootCount> {
 
 // TODO: This has to be here for circular dependency reasons
 /**
- * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
+ * Subclass of CountedList for lists of BooleanFilterObject objects.
  * @augments CountedList
  */
 export class BooleanFilterOptionList extends CountedList<BooleanFilterOption> {};
