@@ -313,7 +313,7 @@ class TheAlgorithm {
             loggers[LogPrefix.TRIGGER_FEED_UPDATE].deep(`FINISHED promises, allResults:`, allResults);
             await this.finishFeedUpdate();
         } finally {
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_FEED_UPDATE);
         }
     }
 
@@ -328,7 +328,7 @@ class TheAlgorithm {
             this.homeFeed = await this.getHomeTimeline(true);
             await this.finishFeedUpdate();
         } finally {
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_TIMELINE_BACKFILL);
         }
     }
 
@@ -350,11 +350,12 @@ class TheAlgorithm {
             }
 
             await getMoarData();
+            await this.recomputeScorers();
         } catch (error) {
             MastoApi.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         } finally {
             if (shouldReenablePoller) this.enableMoarDataBackgroundPoller();  // Reenable poller when finished
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_MOAR_DATA);
         }
     }
 
@@ -378,11 +379,10 @@ class TheAlgorithm {
             ]);
 
             await this.recomputeScorers();
-            hereLogger.log(`Finished!`);
         } catch (error) {
             MastoApi.throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
         } finally {
-            this.releaseLoadingMutex();  // TODO: should we restart the data poller?
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_PULL_ALL_USER_DATA);  // TODO: should we restart data poller?
         }
     }
 
@@ -492,7 +492,7 @@ class TheAlgorithm {
                 await this.loadCachedData();
             }
         } finally {
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.RESET);
         }
     }
 
@@ -501,9 +501,8 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async saveTimelineToCache(): Promise<void> {
-        if (this.isLoading) return;
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
-        if (this.totalNumTimesShown == newTotalNumTimesShown) return;
+        if (this.isLoading || (this.totalNumTimesShown == newTotalNumTimesShown)) return;
 
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
@@ -767,14 +766,14 @@ class TheAlgorithm {
         await this.scoreAndFilterFeed();
     }
 
-    private releaseLoadingMutex(): void {
+    private releaseLoadingMutex(logPrefix: LogPrefix): void {
         this.loadingStatus = null;
 
         if (this._releaseLoadingMutex) {
-            logger.info(`releaseLoadingMutex() called, releasing mutex...`);
+            loggers[logPrefix].info(`Finished, releasing mutex...`);
             this._releaseLoadingMutex();
         } else {
-            logger.warn(`releaseLoadingMutex() called but no mutex to release!`);
+            loggers[logPrefix].warn(`releaseLoadingMutex() called but no mutex to release!`);
         }
     }
 

@@ -304,7 +304,7 @@ class TheAlgorithm {
             await this.finishFeedUpdate();
         }
         finally {
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_FEED_UPDATE);
         }
     }
     /**
@@ -318,7 +318,7 @@ class TheAlgorithm {
             await this.finishFeedUpdate();
         }
         finally {
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_TIMELINE_BACKFILL);
         }
     }
     /**
@@ -337,6 +337,7 @@ class TheAlgorithm {
                 shouldReenablePoller = true;
             }
             await (0, moar_data_poller_1.getMoarData)();
+            await this.recomputeScorers();
         }
         catch (error) {
             api_1.default.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
@@ -344,7 +345,7 @@ class TheAlgorithm {
         finally {
             if (shouldReenablePoller)
                 this.enableMoarDataBackgroundPoller(); // Reenable poller when finished
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_MOAR_DATA);
         }
     }
     /**
@@ -364,13 +365,12 @@ class TheAlgorithm {
                 api_1.default.instance.getRecentUserToots(api_1.FULL_HISTORY_PARAMS),
             ]);
             await this.recomputeScorers();
-            hereLogger.log(`Finished!`);
         }
         catch (error) {
             api_1.default.throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
         }
         finally {
-            this.releaseLoadingMutex(); // TODO: should we restart the data poller?
+            this.releaseLoadingMutex(LogPrefix.TRIGGER_PULL_ALL_USER_DATA); // TODO: should we restart data poller?
         }
     }
     /**
@@ -472,7 +472,7 @@ class TheAlgorithm {
             }
         }
         finally {
-            this.releaseLoadingMutex();
+            this.releaseLoadingMutex(LogPrefix.RESET);
         }
     }
     /**
@@ -480,10 +480,8 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async saveTimelineToCache() {
-        if (this.isLoading)
-            return;
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
-        if (this.totalNumTimesShown == newTotalNumTimesShown)
+        if (this.isLoading || (this.totalNumTimesShown == newTotalNumTimesShown))
             return;
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
@@ -717,14 +715,14 @@ class TheAlgorithm {
         await scorer_cache_1.default.prepareScorers(true); // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }
-    releaseLoadingMutex() {
+    releaseLoadingMutex(logPrefix) {
         this.loadingStatus = null;
         if (this._releaseLoadingMutex) {
-            logger.info(`releaseLoadingMutex() called, releasing mutex...`);
+            loggers[logPrefix].info(`Finished, releasing mutex...`);
             this._releaseLoadingMutex();
         }
         else {
-            logger.warn(`releaseLoadingMutex() called but no mutex to release!`);
+            loggers[logPrefix].warn(`releaseLoadingMutex() called but no mutex to release!`);
         }
     }
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
