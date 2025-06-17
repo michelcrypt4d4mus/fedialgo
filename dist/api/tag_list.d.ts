@@ -1,12 +1,12 @@
-import CountedList, { ListSource } from "./counted_list";
+import CountedList from "./counted_list";
 import Toot from "./objects/toot";
-import { type MastodonTag, type NamedTootCount, type ObjListDataSource, type TagWithUsageCounts } from "../types";
+import { type CountedListSource, type MastodonTag, type NamedTootCount, type TagWithUsageCounts } from "../types";
 /**
  * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
  * @augments CountedList
  */
 export default class TagList extends CountedList<TagWithUsageCounts> {
-    constructor(tags: TagWithUsageCounts[], label: ListSource);
+    constructor(tags: TagWithUsageCounts[], label: CountedListSource);
     /** Alternate constructor to build tags where numToots is set to the # of times user favourited that tag. */
     static buildFavouritedTags(): Promise<TagList>;
     /** Alternate constructor to build a list of tags the user has posted about recently. **/
@@ -23,10 +23,10 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
      * numToots set to the # of times the tag appears in the 'toots' array.
      * Note the special handling of retooters.
      * @param {Toot[]} toots - Array of Toot objects to count tags from.
-     * @param {ObjListDataSource} source - Source of the list (for logging/context).
+     * @param {CountedListSource} source - Source of the list (for logging/context).
      * @returns {TagList} A new TagList instance with tags counted from the toots.
      */
-    static fromUsageCounts(toots: Toot[], source: ObjListDataSource, includeRetoots?: boolean): TagList;
+    static fromUsageCounts(toots: Toot[], source: CountedListSource, includeRetoots?: boolean): TagList;
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     /**
      * Like getObj() but takes a MastodonTag argument.

@@ -6,18 +6,16 @@ import { isFinite } from "lodash";
 
 import UserData from "./user_data";
 import { Logger } from '../helpers/logger';
-import { ScoreName } from "../enums";
 import { sortObjsByProps } from "../helpers/collection_helpers";
 import { wordRegex } from "../helpers/string_helpers";
 import {
     type BooleanFilterOption,
+    type CountedListSource,
     type NamedTootCount,
-    type ObjListDataSource,
     type StringNumberDict,
 } from "../types";
 
 export type ObjList = CountedList<NamedTootCount>;
-export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this sucks
 
 
 /**
@@ -37,7 +35,7 @@ export default class CountedList<T extends NamedTootCount> {
     length: number = 0;
     logger: Logger;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
-    source: ListSource;
+    source: CountedListSource;
 
     get maxNumToots(): number | undefined { return this._maxNumToots };
     private _maxNumToots?: number; // Cached max numToots value, if it exists
@@ -53,7 +51,7 @@ export default class CountedList<T extends NamedTootCount> {
         this._maxNumToots = this.maxValue("numToots" as keyof T);
     }
 
-    constructor(objs: T[], source: ListSource) {
+    constructor(objs: T[], source: CountedListSource) {
         this.objs = objs;
         this.source = source;
         this.logger = new Logger("ObjWithCountList", source);

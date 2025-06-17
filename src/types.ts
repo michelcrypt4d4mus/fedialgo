@@ -125,6 +125,15 @@ export type CacheableApiObj = (
   | mastodon.v2.Instance
 );
 
+/** Possible data sources for CountedList objects. */
+export type CountedListSource = (
+    FilterOptionDataSource
+  | FilterProperty
+  | CacheKey.FEDIVERSE_TRENDING_TAGS
+  | ScoreName.DIVERSITY
+  | ScoreName.FOLLOWED_TAGS
+);
+
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
@@ -158,13 +167,6 @@ export interface NamedTootCount extends TootCount {
     displayNameWithEmoji?: string; // TODO: just testing this
     name: string;
 };
-
-export type ObjListDataSource = (
-    FilterOptionDataSource
-  | FilterProperty
-  | CacheKey.FEDIVERSE_TRENDING_TAGS
-  | ScoreName.FOLLOWED_TAGS
-);
 
 export type ScoreStats = {
     raw: MinMaxAvgScore[];

@@ -2,16 +2,16 @@
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 import MastoApi from "./api";
-import CountedList, { ListSource } from "./counted_list";
+import CountedList from "./counted_list";
 import Toot from "./objects/toot";
 import { config } from "../config";
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
-import { ScoreName, TagTootsCacheKey } from "../enums";
+import { TagTootsCacheKey } from "../enums";
 import {
+    type CountedListSource,
     type MastodonTag,
     type NamedTootCount,
-    type ObjListDataSource,
     type TagWithUsageCounts,
 } from "../types";
 
@@ -23,7 +23,7 @@ const logger = new Logger("TagList");
  * @augments CountedList
  */
 export default class TagList extends CountedList<TagWithUsageCounts> {
-    constructor(tags: TagWithUsageCounts[], label: ListSource) {
+    constructor(tags: TagWithUsageCounts[], label: CountedListSource) {
         super(tags.map(repairTag), label);
     }
 
@@ -60,10 +60,10 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
      * numToots set to the # of times the tag appears in the 'toots' array.
      * Note the special handling of retooters.
      * @param {Toot[]} toots - Array of Toot objects to count tags from.
-     * @param {ObjListDataSource} source - Source of the list (for logging/context).
+     * @param {CountedListSource} source - Source of the list (for logging/context).
      * @returns {TagList} A new TagList instance with tags counted from the toots.
      */
-    static fromUsageCounts(toots: Toot[], source: ObjListDataSource, includeRetoots?: boolean): TagList {
+    static fromUsageCounts(toots: Toot[], source: CountedListSource, includeRetoots?: boolean): TagList {
         toots = includeRetoots ? toots.map(toot => toot.realToot) : toots;
         const tagList = new TagList([], source);
         const tags = toots.flatMap(toot => toot.tags);

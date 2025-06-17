@@ -45,7 +45,7 @@ class TagList extends counted_list_1.default {
      * numToots set to the # of times the tag appears in the 'toots' array.
      * Note the special handling of retooters.
      * @param {Toot[]} toots - Array of Toot objects to count tags from.
-     * @param {ObjListDataSource} source - Source of the list (for logging/context).
+     * @param {CountedListSource} source - Source of the list (for logging/context).
      * @returns {TagList} A new TagList instance with tags counted from the toots.
      */
     static fromUsageCounts(toots, source, includeRetoots) {

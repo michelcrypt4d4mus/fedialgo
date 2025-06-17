@@ -1,8 +1,6 @@
 import { Logger } from '../helpers/logger';
-import { ScoreName } from "../enums";
-import { type BooleanFilterOption, type NamedTootCount, type ObjListDataSource, type StringNumberDict } from "../types";
+import { type BooleanFilterOption, type CountedListSource, type NamedTootCount, type StringNumberDict } from "../types";
 export type ObjList = CountedList<NamedTootCount>;
-export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;
 /**
  * A generic list class for objects with a name and a 'numToots' property.
  * Supports both dictionary and sorted list operations, and provides utility methods
@@ -20,13 +18,13 @@ export default class CountedList<T extends NamedTootCount> {
     length: number;
     logger: Logger;
     nameDict: Record<string, T>;
-    source: ListSource;
+    source: CountedListSource;
     get maxNumToots(): number | undefined;
     private _maxNumToots?;
     get objs(): T[];
     private _objs;
     set objs(objs: T[]);
-    constructor(objs: T[], source: ListSource);
+    constructor(objs: T[], source: CountedListSource);
     addObjs(objs: T[]): void;
     filter(predicate: (obj: T) => boolean): CountedList<T>;
     /**
