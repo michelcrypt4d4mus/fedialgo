@@ -57,7 +57,7 @@ localforage_1.default.config({
 const logger = new logger_1.Logger('STORAGE');
 class Storage {
     static lastUpdatedAt = null; // Last time the storage was updated
-    // Clear everything but preserve the user's identity and weightings
+    /** Clear everything but preserve the user's identity and weightings. */
     static async clearAll() {
         logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
@@ -80,7 +80,7 @@ class Storage {
             logger.log(`Cleared all storage items, released mutexes`);
         }
     }
-    // Get the value at the given key (with the user ID as a prefix)
+    /** Get the value at the given key (with the user ID as a prefix). */
     static async get(key) {
         const withTimestamp = await this.getStorableWithTimestamp(key);
         if (!withTimestamp) {
@@ -95,7 +95,7 @@ class Storage {
         }
         return this.deserialize(key, withTimestamp.value);
     }
-    // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
+    /** Get the value at the given key but coerced to an empty array if there's nothing there. */
     static async getCoerced(key) {
         let value = await this.get(key);
         if (!value) {
@@ -106,7 +106,7 @@ class Storage {
         }
         return value;
     }
-    // Get the user's saved timeline filter settings
+    /** Get the user's saved timeline filter settings. */
     static async getFilters() {
         const filters = await this.get(enums_1.AlgorithmStorageKey.FILTERS);
         if (!filters)
@@ -126,7 +126,7 @@ class Storage {
         // Filters are saved in a serialized format that requires deserialization
         return (0, feed_filters_1.buildFiltersFromArgs)(filters);
     }
-    // Return null if the data is in storage is stale or doesn't exist
+    /** Return null if the data in storage is stale or doesn't exist. */
     static async getIfNotStale(key) {
         const withStaleness = await this.getWithStaleness(key);
         if (!withStaleness || withStaleness.isStale) {
@@ -136,7 +136,7 @@ class Storage {
             return withStaleness.obj;
         }
     }
-    // Get trending tags, toots, and links as a single TrendingData object
+    /** Get trending tags, toots, and links as a single TrendingData object. */
     static async getTrendingData() {
         const servers = (await this.get(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
         const trendingTags = await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
@@ -147,7 +147,7 @@ class Storage {
             toots: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
-    // Return the user's stored timeline weightings or the default weightings if none are found
+    /** Return the user's stored timeline weightings or the default weightings if none are found. */
     static async getWeights() {
         const weights = await this.get(enums_1.AlgorithmStorageKey.WEIGHTS);
         if (!weights)
@@ -169,7 +169,7 @@ class Storage {
         }
         return weights;
     }
-    // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
+    /** Get the value at the given key (with the user ID as a prefix) and return it with its staleness. */
     static async getWithStaleness(key) {
         const hereLogger = logger.tempLogger(key, `getWithStaleness`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -202,11 +202,11 @@ class Storage {
             updatedAt: new Date(withTimestamp.updatedAt),
         };
     }
-    // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
+    /** Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched. */
     static async isDataStale(key) {
         return !(await this.getIfNotStale(key));
     }
-    // Get a collection of information about the user's followed accounts, tags, blocks, etc.
+    /** Build a UserData object from the user's cached followed accounts, tags, blocks, etc. */
     static async loadUserData() {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced(enums_1.CacheKey.BLOCKED_ACCOUNTS);
@@ -221,41 +221,43 @@ class Storage {
             serverSideFilters: await this.getCoerced(enums_1.CacheKey.SERVER_SIDE_FILTERS),
         });
     }
+    /** Record a new instantiation of TheAlgorithm. Currently more or less unused. */
     static async logAppOpen(user) {
         await Storage.setIdentity(user);
         const numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(enums_1.AlgorithmStorageKey.APP_OPENS, numAppOpens);
     }
-    // Delete the value at the given key (with the user ID as a prefix)
+    /** Delete the value at the given key (with the user ID as a prefix). */
     static async remove(key) {
         const storageKey = key == enums_1.AlgorithmStorageKey.USER ? key : await this.buildKey(key);
         logger.log(`Removing value at key: ${storageKey}`);
         await localforage_1.default.removeItem(storageKey);
     }
-    // Set the value at the given key (with the user ID as a prefix)
+    /** Set the value at the given key (with the user ID as a prefix). */
     static async set(key, value) {
-        const hereLogger = logger.tempLogger(key, `set`, `Updating cache`);
+        const hereLogger = logger.tempLogger(key, `set()`);
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date();
         const storableValue = this.serialize(key, value);
         const withTimestamp = { updatedAt: updatedAt.toISOString(), value: storableValue };
-        const msg = `with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
+        const msg = `Updating cache with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
         environment_helpers_1.isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localforage_1.default.setItem(storageKey, withTimestamp);
         this.lastUpdatedAt = updatedAt;
     }
-    // Serialize the FeedFilterSettings object
+    /** Serialize and save the FeedFilterSettings object. */
     static async setFilters(filters) {
         const filterSettings = {
-            booleanFilterArgs: Object.values(filters.booleanFilters).map(section => section.toArgs()),
+            booleanFilterArgs: Object.values(filters.booleanFilters).map(filter => filter.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
         };
         await this.set(enums_1.AlgorithmStorageKey.FILTERS, filterSettings);
     }
+    /** Save user's weights. */
     static async setWeightings(userWeightings) {
         await this.set(enums_1.AlgorithmStorageKey.WEIGHTS, userWeightings);
     }
-    // Dump information about the size of the data stored in localForage
+    /** Returns metadata about whatever is stored in localForage. */
     static async storedObjsInfo() {
         const keyStrings = Object.values(enums_1.CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
