@@ -1,6 +1,6 @@
 {
     "name": "fedialgo",
-    "version": "0.73.4",
+    "version": "0.73.5",
     "description": "Fedialgo is a package for sorting Mastodon Posts in your timeline according to a user controlled algorithm",
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -12,7 +12,6 @@
         "lint": "eslint ./src"
     },
     "dependencies": {
-        "@react-native-async-storage/async-storage": "^1.18.1",
         "@types/blueimp-md5": "^2.18.2",
         "async-mutex": "^0.5.0",
         "axios": "^1.7.2",
@@ -33,6 +32,7 @@
         "@babel/preset-typescript": "^7.27.1",
         "@eslint/compat": "^1.1.0",
         "@eslint/js": "^9.6.0",
+        "@react-native-async-storage/async-storage": "^2.2.0",
         "@types/jest": "^29.5.14",
         "@types/lodash": "^4.17.17",
         "@types/node": "^20.1.0",
