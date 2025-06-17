@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Remove the actual Scorer object from TheAlgorithm.weightsInfo
 
 ### v0.73.1
 * Merge `TagList`'s `removeMutedTags()` into `removeInvalidTrendingTags()`
