@@ -218,7 +218,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 "id": "113482690234776099",
 "acct": "youranoncentral.bsky.social@bsky.brid.gy",
 "url" (1): "https://bsky.brid.gy/r/https://bsky.app/profile/youranoncentral.bsky.social",
-"url" (1): "https://bsky.brid.gy/ap/did:plc:mxc7liuon6iq5gzapmmwkq22",
+"url" (2): "https://bsky.brid.gy/ap/did:plc:mxc7liuon6iq5gzapmmwkq22",
 ```
 
 ### What's slow:
