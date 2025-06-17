@@ -1,5 +1,5 @@
-/*
- * Score how many accounts that the user follows are mentioned in the toot.
+/**
+ * @module scorers
  */
 import Account from '../../api/objects/account';
 import TootScorer from '../toot_scorer';
@@ -9,6 +9,7 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
+/** Score how many accounts that the user follows are mentioned in the toot. */
 export default class MentionsFollowedScorer extends TootScorer {
     description = "Favour toots that mention accounts you follow";
 

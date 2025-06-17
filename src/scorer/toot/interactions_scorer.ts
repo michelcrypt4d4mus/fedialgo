@@ -1,13 +1,14 @@
-/*
- * Gives higher weight to posts from users that have often interacted with your posts.
+/**
+ * @module scorers
  */
 import Account from "../../api/objects/account";
 import AccountScorer from "./acccount_scorer";
 import MastoApi from "../../api/api";
-import { type StringNumberDict } from "../../types";
 import { ScoreName } from '../../enums';
+import { type StringNumberDict } from "../../types";
 
 
+/** Gives higher weight to posts from users that have often interacted with your posts. */
 export default class InteractionsScorer extends AccountScorer {
     description = "Favour accounts that interact with your toots";
 
