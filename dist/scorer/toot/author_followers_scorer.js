@@ -7,6 +7,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
  * Score a toot based on how many followers the author has.
+ * @class AuthorFollowersScorer
  * @memberof module:toot_scorers
  * @augments Scorer
  */

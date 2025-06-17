@@ -1,13 +1,13 @@
+/**
+ * Namespace for Scorers that operate on a Toot independent of the rest of the feed.
+ * @module toot_scorers
+ */
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
 import { isDebugMode } from "../helpers/environment_helpers";
 import { ScoreName } from '../enums';
 import { type StringNumberDict } from "../types";
 
-/**
- * Namespace for Scorers that operate on a Toot independent of the rest of the feed.
- * @module toot_scorers
- */
 
 /**
  * Base class for a Scorer that can score a toot based solely on the properties of that
