@@ -1,6 +1,6 @@
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
-import { TagTootsConfig } from "../config";
+import { type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { TagTootsCacheKey } from "../enums";
 import { type TagWithUsageCounts } from "../types";

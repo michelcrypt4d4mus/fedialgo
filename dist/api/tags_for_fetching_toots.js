@@ -11,9 +11,9 @@ const mastodon_server_1 = __importDefault(require("./mastodon_server"));
 const tag_list_1 = __importDefault(require("./tag_list"));
 const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const HASHTAG_TOOTS_CONFIG = {
     [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
         buildTagList: async () => {
