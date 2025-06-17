@@ -11,13 +11,12 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { CacheKey, TagTootsCacheKey } from "../enums";
+import { CacheKey, TagTootsCacheKey, TrendingType, buildCacheKeyDict } from '../enums';
 import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
 import { FEDIVERSE_CACHE_KEYS, config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { optionalSuffix } from "../helpers/string_helpers";
-import { TrendingType, buildCacheKeyDict } from '../enums';
 import {
     decorateLinkHistory,
     decorateTagHistory,
@@ -28,9 +27,9 @@ import {
     type MastodonInstance,
     type MastodonInstances,
     type TagWithUsageCounts,
+    type TrendingData,
     type TrendingLink,
     type TrendingObj,
-    type TrendingData,
 } from "../types";
 
 export type InstanceResponse = MastodonInstance | null;

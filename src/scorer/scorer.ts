@@ -157,7 +157,6 @@ export default abstract class Scorer {
     /**
      * Validates that the weights object contains valid weight names and values.
      * Throws an error if any weight is invalid or missing.
-     *
      * @static
      * @param {Weights} weights - Weights object to validate.
      * @throws {Error} If any weight is invalid or missing.
