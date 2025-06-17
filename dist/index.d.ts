@@ -9,13 +9,12 @@ import Toot from './api/objects/toot';
 import UserData from "./api/user_data";
 import { timeString } from './helpers/time_helpers';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
-import { FILTER_OPTION_DATA_SOURCES } from './types';
-import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
+import { WeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { Logger } from './helpers/logger';
 import { ObjList } from "./api/counted_list";
 import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCacheKey, isValueInStringEnum } from "./enums";
 import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
-import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
+import { FILTER_OPTION_DATA_SOURCES, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
 declare const GET_FEED_BUSY_MSG = "Load in progress (consider using the setTimelineInApp() callback instead)";
 declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
@@ -71,7 +70,7 @@ declare class TheAlgorithm {
     private feed;
     private homeFeed;
     private hasProvidedAnyTootsToClient;
-    private loadStartedAt;
+    private loadStartedAt?;
     private totalNumTimesShown;
     private loadingMutex;
     private mergeMutex;
@@ -202,7 +201,6 @@ declare class TheAlgorithm {
     private loadCachedData;
     private lockedMergeToFeed;
     private lockLoadingMutex;
-    private logTelemetry;
     private mergeTootsToFeed;
     private recomputeScorers;
     private releaseLoadingMutex;

@@ -798,12 +798,15 @@ export default class Toot implements TootObj {
         return this.accounts.some((account) => account.webfingerURI == MastoApi.instance.user.webfingerURI)
     }
 
-    // Repair toot properties:
-    //   - Set toot.application.name to UNKNOWN if missing
-    //   - Call determineLanguage() to set the language
-    //   - Lowercase all tags
-    //   - Repair mediaAttachment types if reparable based on URL file extension
-    //   - Repair StatusMention objects for users on home server
+    /**
+     * Repair toot properties:
+     *   - Set toot.application.name to UNKNOWN if missing
+     *   - Call determineLanguage() to set the language
+     *   - Lowercase all tags
+     *   - Repair mediaAttachment types if reparable based on URL file extension
+     *   - Repair StatusMention objects for users on home server
+     * @private
+     */
     private repair(): void {
         this.application ??= {name: UNKNOWN};
         this.application.name ??= UNKNOWN;

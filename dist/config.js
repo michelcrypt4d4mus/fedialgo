@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_CACHE_KEYS = void 0;
+/*
+ * Centralized location for non-user configurable settings.
+ */
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 // Cachey keys for the fediverse wide trending data
@@ -153,10 +156,10 @@ class Config {
         },
     };
     favouritedTags = {
+        maxParticipations: 3,
         maxToots: 100,
         numTags: 15,
-        numTootsPerTag: 5,
-        maxParticipations: 3, // Remove tags that have been used in more than this many toots by the user
+        numTootsPerTag: 5, // How many toots to pull for each tag
     };
     fediverse = {
         minServerMAU: 100,

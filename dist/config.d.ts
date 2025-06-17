@@ -133,10 +133,10 @@ declare class Config implements ConfigType {
         data: ApiDataConfig;
     };
     favouritedTags: {
+        maxParticipations: number;
         maxToots: number;
         numTags: number;
         numTootsPerTag: number;
-        maxParticipations: number;
     };
     fediverse: {
         minServerMAU: number;
