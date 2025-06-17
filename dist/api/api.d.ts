@@ -5,7 +5,7 @@ import UserData from "./user_data";
 import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { type ApiCacheKey } from "../enums";
-import { type ConcurrencyLockRelease, type MastodonTag, type TootLike } from "../types";
+import { type ConcurrencyLockRelease, type MastodonTag, type Optional, type TootLike } from "../types";
 /**
  * Generic parameters for MastoApi methods that support backfilling via the "moar" flag.
  * @property {boolean} [bustCache] - If true, don't use cached data and update the cache with new data.
@@ -22,15 +22,16 @@ export interface ApiParams {
     skipCache?: boolean;
 }
 /**
- * Parameters for endpoints that support a max_id parameter, extending ApiParams.
+ * Extending ApiParams for endpoints that support a max_id parameter, extending ApiParams.
  * @augments ApiParams
  * @property {string | number | null} [maxId] - Optional maxId to use for pagination.
  */
 interface ApiParamsWithMaxID extends ApiParams {
-    maxId?: string | number | null;
+    maxId?: Optional<string> | Optional<number>;
 }
 /**
- * Parameters for fetching the home timeline, extending ApiParamsWithMaxID.
+ * Extends ApiParamsWithMaxID with a mergeTootsToFeed function that merges fetched Toots into the main feed
+ * as they are retrieved.
  * @augments ApiParamsWithMaxID
  * @property {(toots: Toot[], logger: Logger) => Promise<void>} mergeTootsToFeed - Function to merge fetched Toots into the main feed.
  */
@@ -313,7 +314,7 @@ export default class MastoApi {
      * Loads rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
      * @private
      * @template T
-     * @param {FetchParamsWithDefaults<T>} params - Fetch parameters with defaults.
+     * @param {FetchParamsComplete<T>} params - Fetch parameters with defaults.
      * @returns {Promise<CacheResult<T> | null>} Cached rows or null.
      */
     private getCacheResult;
@@ -342,7 +343,7 @@ export default class MastoApi {
      * Populates fetch options with basic defaults for API requests.
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
-     * @returns {FetchParamsWithDefaults<T>} Fetch parameters with defaults filled in.
+     * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
      */
     private fillInDefaultParams;
     /**

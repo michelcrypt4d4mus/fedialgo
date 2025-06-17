@@ -23,8 +23,8 @@ export type PromiseDict = Record<string, Promise<unknown>>;
 export type StringDict = Record<string, string>;
 export type StringNumberDict = Record<string, number>;
 export type TagNames = Record<string, TagWithUsageCounts>;
-export type Weights = Record<WeightName, number>;
 export type WeightInfoDict = Record<WeightName, WeightInfo>;
+export type Weights = Record<WeightName, number>;
 
 // Misc
 export type AccountLike = Account | mastodon.v1.Account;

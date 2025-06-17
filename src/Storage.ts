@@ -27,8 +27,8 @@ import {
     TagTootsCacheKey,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
+    type ApiCacheKey,
     type StorageKey,
-    type ApiCacheKey
 } from "./enums";
 import {
     type ApiObj,
@@ -63,7 +63,7 @@ const logger = new Logger('STORAGE');
 export default class Storage {
     static lastUpdatedAt: Date | null = null;  // Last time the storage was updated
 
-    // Clear everything but preserve the user's identity and weightings
+    /** Clear everything but preserve the user's identity and weightings. */
     static async clearAll(): Promise<void> {
         logger.log(`Clearing all storage...`);
         const user = await this.getIdentity();
@@ -86,7 +86,7 @@ export default class Storage {
         }
     }
 
-    // Get the value at the given key (with the user ID as a prefix)
+    /** Get the value at the given key (with the user ID as a prefix). */
     static async get(key: StorageKey): Promise<StorableObj | null> {
         const withTimestamp = await this.getStorableWithTimestamp(key);
 
@@ -103,7 +103,7 @@ export default class Storage {
         return this.deserialize(key, withTimestamp.value);
     }
 
-    // Get the value at the given key (with the user ID as a prefix) but coerce it to an array if there's nothing there
+    /** Get the value at the given key but coerced to an empty array if there's nothing there. */
     static async getCoerced<T>(key: CacheKey): Promise<T[]> {
         let value = await this.get(key);
 
@@ -116,7 +116,7 @@ export default class Storage {
         return value as T[];
     }
 
-    // Get the user's saved timeline filter settings
+    /** Get the user's saved timeline filter settings. */
     static async getFilters(): Promise<FeedFilterSettings | null> {
         const filters = await this.get(AlgorithmStorageKey.FILTERS) as FeedFilterSettings;
         if (!filters) return null;
@@ -137,7 +137,7 @@ export default class Storage {
         return buildFiltersFromArgs(filters);
     }
 
-    // Return null if the data is in storage is stale or doesn't exist
+    /** Return null if the data in storage is stale or doesn't exist. */
     static async getIfNotStale<T extends CacheableApiObj>(key: ApiCacheKey): Promise<T | null> {
         const withStaleness = await this.getWithStaleness(key);
 
@@ -148,7 +148,7 @@ export default class Storage {
         }
     }
 
-    // Get trending tags, toots, and links as a single TrendingData object
+    /** Get trending tags, toots, and links as a single TrendingData object. */
     static async getTrendingData(): Promise<TrendingData> {
         const servers = (await this.get(CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
         const trendingTags = await this.getCoerced<TagWithUsageCounts>(CacheKey.FEDIVERSE_TRENDING_TAGS)
@@ -161,7 +161,7 @@ export default class Storage {
         };
     }
 
-    // Return the user's stored timeline weightings or the default weightings if none are found
+    /** Return the user's stored timeline weightings or the default weightings if none are found. */
     static async getWeights(): Promise<Weights> {
         const weights = await this.get(AlgorithmStorageKey.WEIGHTS) as Weights;
         if (!weights) return JSON.parse(JSON.stringify(DEFAULT_WEIGHTS)) as Weights;
@@ -187,7 +187,7 @@ export default class Storage {
         return weights;
     }
 
-    // Get the value at the given key (with the user ID as a prefix) and return it with its staleness
+    /** Get the value at the given key (with the user ID as a prefix) and return it with its staleness. */
     static async getWithStaleness(key: ApiCacheKey): Promise<StorableObjWithStaleness | null> {
         const hereLogger = logger.tempLogger(key, `getWithStaleness`);
         const withTimestamp = await this.getStorableWithTimestamp(key);
@@ -208,7 +208,7 @@ export default class Storage {
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
-            if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
+            msg += Array.isArray(withTimestamp.value) ? ` (${withTimestamp.value.length} records)` : '';
             hereLogger.trace(msg);
         }
 
@@ -224,12 +224,12 @@ export default class Storage {
         }
     }
 
-    // Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched
+    /** Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched. */
     static async isDataStale(key: CacheKey): Promise<boolean> {
         return !(await this.getIfNotStale(key));
     }
 
-    // Get a collection of information about the user's followed accounts, tags, blocks, etc.
+    /** Build a UserData object from the user's cached followed accounts, tags, blocks, etc. */
     static async loadUserData(): Promise<UserData> {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced<mastodon.v1.Account>(CacheKey.BLOCKED_ACCOUNTS);
@@ -246,48 +246,50 @@ export default class Storage {
         });
     }
 
+    /** Record a new instantiation of TheAlgorithm. Currently more or less unused. */
     static async logAppOpen(user: Account): Promise<void> {
         await Storage.setIdentity(user);
         const numAppOpens = (await this.getNumAppOpens()) + 1;
         await this.set(AlgorithmStorageKey.APP_OPENS, numAppOpens);
     }
 
-    // Delete the value at the given key (with the user ID as a prefix)
+    /** Delete the value at the given key (with the user ID as a prefix). */
     static async remove(key: StorageKey): Promise<void> {
         const storageKey = key == AlgorithmStorageKey.USER ? key : await this.buildKey(key);
         logger.log(`Removing value at key: ${storageKey}`);
         await localForage.removeItem(storageKey);
     }
 
-    // Set the value at the given key (with the user ID as a prefix)
+    /** Set the value at the given key (with the user ID as a prefix). */
     static async set(key: StorageKey, value: StorableObj): Promise<void> {
-        const hereLogger = logger.tempLogger(key, `set`, `Updating cache`);
+        const hereLogger = logger.tempLogger(key, `set()`);
         const storageKey = await this.buildKey(key);
         const updatedAt = new Date();
 
         const storableValue = this.serialize(key, value);
-        const withTimestamp = {updatedAt: updatedAt.toISOString(), value: storableValue} as StorableWithTimestamp;
-        const msg = `with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
+        const withTimestamp: StorableWithTimestamp = {updatedAt: updatedAt.toISOString(), value: storableValue};
+        const msg = `Updating cache with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
         isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localForage.setItem(storageKey, withTimestamp);
         this.lastUpdatedAt = updatedAt;
     }
 
-    // Serialize the FeedFilterSettings object
+    /** Serialize and save the FeedFilterSettings object. */
     static async setFilters(filters: FeedFilterSettings): Promise<void> {
-        const filterSettings = {
-            booleanFilterArgs: Object.values(filters.booleanFilters).map(section => section.toArgs()),
+        const filterSettings: FeedFilterSettingsSerialized = {
+            booleanFilterArgs: Object.values(filters.booleanFilters).map(filter => filter.toArgs()),
             numericFilterArgs: Object.values(filters.numericFilters).map(filter => filter.toArgs()),
-        } as FeedFilterSettingsSerialized;
+        };
 
         await this.set(AlgorithmStorageKey.FILTERS, filterSettings);
     }
 
+    /** Save user's weights. */
     static async setWeightings(userWeightings: Weights): Promise<void> {
         await this.set(AlgorithmStorageKey.WEIGHTS, userWeightings);
     }
 
-    // Dump information about the size of the data stored in localForage
+    /** Returns metadata about whatever is stored in localForage. */
     static async storedObjsInfo(): Promise<Record<string, unknown>> {
         const keyStrings = Object.values(CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as CacheKey)));

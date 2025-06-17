@@ -44,6 +44,7 @@ export default abstract class TootFilter {
 
     /**
      * Determines if the given toot should appear in the timeline feed.
+     * @abstract
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot is allowed, false otherwise.
      */
