@@ -1,5 +1,5 @@
 /**
- * @module scorers
+ * @module toot_scorers
  */
 import AccountScorer from './acccount_scorer';
 import { type StringNumberDict } from '../../types';

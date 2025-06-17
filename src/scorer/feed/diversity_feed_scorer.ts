@@ -1,6 +1,5 @@
-/*
- * Generates a NEGATIVE score based on how many times the tooter has tooted recently to help
- * prevent prolific tooters from clogging up the feed.
+/**
+ * @module feed_scorers
  */
 import FeedScorer from "../feed_scorer";
 import CountedList from "../../api/counted_list";
@@ -17,6 +16,7 @@ interface PenalizedObj extends NamedTootCount {
 };
 
 
+/** Score based on how many times each author or trending tag appears in the feed. */
 export default class DiversityFeedScorer extends FeedScorer {
     description = "Favour accounts that are tooting a lot right now";
 

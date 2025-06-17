@@ -3,9 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Generates a NEGATIVE score based on how many times the tooter has tooted recently to help
- * prevent prolific tooters from clogging up the feed.
+/**
+ * @module feed_scorers
  */
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 const counted_list_1 = __importDefault(require("../../api/counted_list"));
@@ -14,6 +13,7 @@ const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const enums_1 = require("../../enums");
 ;
+/** Score based on how many times each author or trending tag appears in the feed. */
 class DiversityFeedScorer extends feed_scorer_1.default {
     description = "Favour accounts that are tooting a lot right now";
     constructor() {

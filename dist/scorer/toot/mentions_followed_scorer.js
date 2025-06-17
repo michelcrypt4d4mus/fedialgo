@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * @module scorers
+ * @module toot_scorers
  */
 const account_1 = __importDefault(require("../../api/objects/account"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));

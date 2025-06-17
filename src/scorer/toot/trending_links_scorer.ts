@@ -1,5 +1,5 @@
 /**
- * @module scorers
+ * @module toot_scorers
  */
 import TootScorer from '../toot_scorer';
 import MastodonServer from '../../api/mastodon_server';
