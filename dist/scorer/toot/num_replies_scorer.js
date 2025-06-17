@@ -8,9 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
-/**
- * Score how many times the toot has been replied to by other users.
- */
+/** Score how many times the toot has been replied to by other users. */
 class NumRepliesScorer extends toot_scorer_1.default {
     description = "Favour toots with lots of replies";
     constructor() {

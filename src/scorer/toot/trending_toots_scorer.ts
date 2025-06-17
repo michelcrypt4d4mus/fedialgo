@@ -1,12 +1,12 @@
-/*
- * Just pulls the trendingRank, which is set by getTrendingToots(), from the toot and uses
- * that as the score.
+/**
+ * @module scorers
  */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
 import { ScoreName } from '../../enums';
 
 
+/** Scores with the trendingRank set by getTrendingToots(). */
 export default class TrendingTootScorer extends TootScorer {
     description = "Favour toots that are trending in the Fediverse";
 

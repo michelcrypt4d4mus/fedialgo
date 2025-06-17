@@ -6,9 +6,7 @@ import Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 
 
-/**
- * Score how many times the toot has been replied to by other users.
- */
+/** Score how many times the toot has been replied to by other users. */
 export default class NumRepliesScorer extends TootScorer {
     description = "Favour toots with lots of replies";
 
