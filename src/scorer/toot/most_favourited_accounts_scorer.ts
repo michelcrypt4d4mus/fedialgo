@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import Account from '../../api/objects/account';
 import AccountScorer from "./acccount_scorer";
 import MastoApi from '../../api/api';

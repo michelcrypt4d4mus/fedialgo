@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import TootScorer from '../toot_scorer';
 import Toot from '../../api/objects/toot';
 /**

@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
 /** Score the number of video attachments in the toot. */

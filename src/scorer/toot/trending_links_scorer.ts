@@ -1,6 +1,3 @@
-/**
- * @module toot_scorers
- */
 import TootScorer from '../toot_scorer';
 import MastodonServer from '../../api/mastodon_server';
 import Toot from '../../api/objects/toot';

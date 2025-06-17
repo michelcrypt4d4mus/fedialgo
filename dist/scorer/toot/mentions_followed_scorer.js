@@ -3,9 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @module toot_scorers
- */
 const account_1 = __importDefault(require("../../api/objects/account"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
