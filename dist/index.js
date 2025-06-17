@@ -194,7 +194,7 @@ class TheAlgorithm {
     feed = [];
     homeFeed = []; // Just the toots pulled from the home timeline
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
-    loadStartedAt = null; // Timestamp of when the feed started loading
+    loadStartedAt; // Timestamp of when the feed started loading
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     // Utility
     loadingMutex = new async_mutex_1.Mutex();
@@ -455,7 +455,7 @@ class TheAlgorithm {
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
             this.loadingStatus = READY_TO_LOAD_MSG;
-            this.loadStartedAt = null;
+            this.loadStartedAt = undefined;
             this.numTriggers = 0;
             this.feed = [];
             this.setTimelineInApp([]);
@@ -569,7 +569,7 @@ class TheAlgorithm {
         let newToots = [];
         try {
             newToots = await tootFetcher;
-            this.logTelemetry(`Got ${newToots.length} toots for ${enums_1.CacheKey.HOME_TIMELINE_TOOTS}`, startedAt, logger);
+            logger.logTelemetry(`Got ${newToots.length} toots for ${enums_1.CacheKey.HOME_TIMELINE_TOOTS}`, startedAt);
         }
         catch (e) {
             api_1.default.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
@@ -585,12 +585,11 @@ class TheAlgorithm {
         this.setTimelineInApp(filteredFeed);
         if (!this.hasProvidedAnyTootsToClient && this.feed.length > 0) {
             this.hasProvidedAnyTootsToClient = true;
-            const msg = `First ${filteredFeed.length} toots sent to client`;
-            this.logTelemetry(msg, this.loadStartedAt || new Date());
+            logger.logTelemetry(`First ${filteredFeed.length} toots sent to client`, this.loadStartedAt);
         }
         return filteredFeed;
     }
-    // The "load is finished" version of setLoadingStateVariables().
+    // Do some final cleanup and scoring operations on the feed.
     async finishFeedUpdate() {
         const hereLogger = loggers[LogPrefix.FINISH_FEED_UPDATE];
         this.loadingStatus = FINALIZING_SCORES_MSG;
@@ -602,13 +601,13 @@ class TheAlgorithm {
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
-            this.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
+            hereLogger.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
             this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
         }
         else {
             hereLogger.warn(`finished but loadStartedAt is null!`);
         }
-        this.loadStartedAt = null;
+        this.loadStartedAt = undefined;
         this.loadingStatus = null;
         this.launchBackgroundPollers();
     }
@@ -669,8 +668,8 @@ class TheAlgorithm {
             loggers[logPrefix].warn(`Load in progress already!`, this.statusDict());
             throw new Error(GET_FEED_BUSY_MSG);
         }
-        this._releaseLoadingMutex = await (0, log_helpers_1.lockExecution)(this.loadingMutex, logger);
         this.loadStartedAt = new Date();
+        this._releaseLoadingMutex = await (0, log_helpers_1.lockExecution)(this.loadingMutex, logger);
         if (logPrefix in LOADING_STATUS_MSGS) {
             this.loadingStatus = LOADING_STATUS_MSGS[logPrefix];
         }
@@ -684,10 +683,6 @@ class TheAlgorithm {
         else {
             this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
         }
-    }
-    // Log timing info
-    logTelemetry(msg, startedAt, inLogger) {
-        (inLogger || logger).logTelemetry(msg, startedAt, 'current state', this.statusDict());
     }
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
@@ -712,6 +707,7 @@ class TheAlgorithm {
         await scorer_cache_1.default.prepareScorers(true); // The "true" arg is the key here
         await this.scoreAndFilterFeed();
     }
+    // Release the loading mutex and reset the loading state variables.
     releaseLoadingMutex(logPrefix) {
         this.loadingStatus = null;
         if (this._releaseLoadingMutex) {

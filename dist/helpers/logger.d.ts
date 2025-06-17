@@ -30,14 +30,14 @@ export declare class Logger {
      * Logs an error message or Error object to the console with the logger's prefix.
      * Checks whether any element of 'args' is an instance of Error for special handling.
      * @param {string|Error} msg - The error message or Error object.
-     * @param {...any} args - Additional arguments to log.
+     * @param {...unknown} args - Additional arguments to log.
      * @returns {string} The error message string.
      */
     error(msg: string | Error, ...args: unknown[]): string;
     /**
      * Call console.warn() with the logger's prefix. Checks for Error objs in args in the same way as `error()`.
      * @param {string} msg - The warning message.
-     * @param {...any} args - Additional arguments to log.
+     * @param {...unknown} args - Additional arguments to log.
      */
     warn: (msg: string, ...args: unknown[]) => void;
     /** console.log() with the logger's prefix. */
@@ -61,7 +61,7 @@ export declare class Logger {
     /**
      * Logs an error message and throws an Error with the stringified arguments and message.
      * @param {string} msg - The error message.
-     * @param {...any} args - Additional arguments to include in the error.
+     * @param {...unknown} args - Additional arguments to include in the error.
      * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
      */
     logAndThrowError(msg: string, ...args: unknown[]): never;
@@ -82,10 +82,10 @@ export declare class Logger {
     /**
      * Logs a message with the elapsed time since startedAt, optionally with additional labels/args.
      * @param {string} msg - The message to log.
-     * @param {Date} startedAt - The start time to compute elapsed time.
-     * @param {...any} args - Additional arguments or labels.
+     * @param {Date} [startedAt] - The start time to compute elapsed time.
+     * @param {...unknown} args - Additional arguments or labels.
      */
-    logTelemetry(msg: string, startedAt: Date, ...args: unknown[]): void;
+    logTelemetry(msg: string, startedAt?: Date, ...args: unknown[]): void;
     /**
      * Adds a random string to the logger's prefix (useful for distinguishing logs in concurrent contexts).
      */
@@ -100,15 +100,14 @@ export declare class Logger {
     /**
      * Mutates args array to pop the first Error if it exists.
      * @private
-     * @param {string} msg - The error message.
-     * @param {...any} args - Additional arguments.
+     * @param {...unknown} args - Additional arguments.
      * @returns {string} The formatted error message.
      */
     private errorStr;
     /**
      * Separate the Error type args from the rest of the args.
      * @private
-     * @param {...any} args - Additional arguments.
+     * @param {...unknown} args - Additional arguments.
      * @returns {ErrorArgs} Object with `args` containing non-Error args and `error` if an Error was found.
      */
     private findErrorArg;

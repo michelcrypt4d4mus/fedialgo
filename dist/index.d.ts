@@ -71,7 +71,7 @@ declare class TheAlgorithm {
     private feed;
     private homeFeed;
     private hasProvidedAnyTootsToClient;
-    private loadStartedAt;
+    private loadStartedAt?;
     private totalNumTimesShown;
     private loadingMutex;
     private mergeMutex;
@@ -202,7 +202,6 @@ declare class TheAlgorithm {
     private loadCachedData;
     private lockedMergeToFeed;
     private lockLoadingMutex;
-    private logTelemetry;
     private mergeTootsToFeed;
     private recomputeScorers;
     private releaseLoadingMutex;
