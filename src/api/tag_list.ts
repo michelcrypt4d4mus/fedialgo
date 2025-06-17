@@ -4,6 +4,7 @@
 import MastoApi from "./api";
 import CountedList from "./counted_list";
 import Toot from "./objects/toot";
+import UserData from "./user_data";
 import { config } from "../config";
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
@@ -94,7 +95,8 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     }
 
     /** Remove the configured list of invalid trending tags as well as japanese/korean etc. tags. */
-    removeInvalidTrendingTags(): void {
+    async removeInvalidTrendingTags(): Promise<void> {
+        this.removeKeywords(await UserData.getMutedKeywords());
         this.removeKeywords(config.trending.tags.invalidTags);
         this.objs = this.objs.filter(tag => !tag.language || (tag.language == config.locale.language));
     }

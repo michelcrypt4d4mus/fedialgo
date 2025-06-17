@@ -68,7 +68,7 @@ export default class CountedList<T extends NamedTootCount> {
     /**
      * Like the standard Array.filter().
      * @param {function} predicate - Function to test each object in the list.
-     * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
+     * @returns {this<T>} A new CountedList containing only the objects that match the predicate.
      */
     filter(predicate: (obj: T) => boolean): CountedList<T> {
         return new CountedList<T>(this.objs.filter(predicate), this.source);
@@ -161,15 +161,6 @@ export default class CountedList<T extends NamedTootCount> {
         const validObjs = this.objs.filter(tag => !keywords.includes(tag.name));
         this.logger.logArrayReduction(this.objs, validObjs, "Tag", `matching keywords`);//  "${keywords}"`);
         this.objs = validObjs;
-    };
-
-    /**
-     * Remove any obj whose 'name' is muted by the user's server side filters.
-     * TODO: use UserData's cached muted keywords regex?
-     * @returns {Promise<void>}
-     */
-    async removeMutedTags(): Promise<void> {
-        this.removeKeywords(await UserData.getMutedKeywords());
     };
 
     /**

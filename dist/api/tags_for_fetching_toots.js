@@ -43,15 +43,15 @@ class TagsForFetchingToots {
     static async create(cacheKey) {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
-        const tagsForTootsList = new TagsForFetchingToots(cacheKey, tagList, tootsConfig.config);
+        const tagsForTootsList = new TagsForFetchingToots(cacheKey, tootsConfig.config, tagList);
         await tagsForTootsList.removeUnwantedTags();
         return tagsForTootsList;
     }
-    constructor(cacheKey, tagList, tagsConfig) {
+    constructor(cacheKey, tagsConfig, tagList) {
         this.cacheKey = cacheKey;
         this.config = tagsConfig;
-        this.logger = new logger_1.Logger(cacheKey);
         this.tagList = tagList;
+        this.logger = new logger_1.Logger(cacheKey);
     }
     /** Get toots for the list of tags, caching the results. */
     async getToots() {
@@ -67,9 +67,8 @@ class TagsForFetchingToots {
     ;
     /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     async removeUnwantedTags() {
-        await this.tagList.removeMutedTags();
         await this.tagList.removeFollowedTags();
-        this.tagList.removeInvalidTrendingTags();
+        await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
         if (this.cacheKey != enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS) {
             const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();

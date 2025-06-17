@@ -49,16 +49,16 @@ export default class TagsForFetchingToots {
     static async create(cacheKey: TagTootsCacheKey): Promise<TagsForFetchingToots> {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
-        const tagsForTootsList = new TagsForFetchingToots(cacheKey, tagList, tootsConfig.config);
+        const tagsForTootsList = new TagsForFetchingToots(cacheKey, tootsConfig.config, tagList);
         await tagsForTootsList.removeUnwantedTags();
         return tagsForTootsList;
     }
 
-    private constructor(cacheKey: TagTootsCacheKey, tagList: TagList, tagsConfig: TagTootsConfig) {
+    private constructor(cacheKey: TagTootsCacheKey, tagsConfig: TagTootsConfig, tagList: TagList) {
         this.cacheKey = cacheKey;
         this.config = tagsConfig;
-        this.logger = new Logger(cacheKey);
         this.tagList = tagList;
+        this.logger = new Logger(cacheKey);
     }
 
     /** Get toots for the list of tags, caching the results. */
@@ -89,9 +89,8 @@ export default class TagsForFetchingToots {
 
     /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     private async removeUnwantedTags(): Promise<void> {
-        await this.tagList.removeMutedTags();
         await this.tagList.removeFollowedTags();
-        this.tagList.removeInvalidTrendingTags();
+        await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
 
         if (this.cacheKey != TagTootsCacheKey.TRENDING_TAG_TOOTS) {

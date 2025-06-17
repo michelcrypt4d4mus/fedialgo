@@ -32,7 +32,7 @@ export default class CountedList<T extends NamedTootCount> {
     /**
      * Like the standard Array.filter().
      * @param {function} predicate - Function to test each object in the list.
-     * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
+     * @returns {this<T>} A new CountedList containing only the objects that match the predicate.
      */
     filter(predicate: (obj: T) => boolean): CountedList<T>;
     /**
@@ -73,12 +73,6 @@ export default class CountedList<T extends NamedTootCount> {
      * @param {string[]} keywords - Array of keywords to match against the object's name.
      */
     removeKeywords(keywords: string[]): void;
-    /**
-     * Remove any obj whose 'name' is muted by the user's server side filters.
-     * TODO: use UserData's cached muted keywords regex?
-     * @returns {Promise<void>}
-     */
-    removeMutedTags(): Promise<void>;
     /**
      * Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,
      * and then by name. If maxObjs is provided, returns only the top maxObjs objects.

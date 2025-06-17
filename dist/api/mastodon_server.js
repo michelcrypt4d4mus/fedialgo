@@ -184,8 +184,7 @@ class MastodonServer {
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const trendingTagList = new tag_list_1.default(tags, enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS);
-                trendingTagList.removeInvalidTrendingTags();
-                await trendingTagList.removeMutedTags();
+                await trendingTagList.removeInvalidTrendingTags();
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(trendingTagList.objs, t => t.name);
             }
         });
