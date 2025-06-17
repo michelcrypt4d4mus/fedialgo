@@ -3,15 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Score a toot based on how many times the user has retooted the author (or
- * the original author if it's a retoot).
+/**
+ * @module scorers
  */
 const account_1 = __importDefault(require("../../api/objects/account"));
 const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const api_1 = __importDefault(require("../../api/api"));
 const toot_1 = __importDefault(require("../../api/objects/toot"));
 const enums_1 = require("../../enums");
+/**
+ * Score a toot based on how many times the user has retooted the author (or
+ * the original author if it's a retoot).
+ */
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often retoot";
     constructor() {

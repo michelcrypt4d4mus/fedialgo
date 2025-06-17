@@ -1,5 +1,5 @@
-/*
- * Score how many times the current user has favourited the tooter in the past.
+/**
+ * @module scorers
  */
 import Account from '../../api/objects/account';
 import AccountScorer from "./acccount_scorer";
@@ -9,6 +9,7 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
+/** Score how many times the current user has favourited the tooter in the past. */
 export default class MostFavouritedAccountsScorer extends AccountScorer {
     description = "Favour accounts you often favourite";
 

@@ -1,5 +1,5 @@
-/*
- * Score how many times the user has replied to the creator of the toot.
+/**
+ * @module scorers
  */
 import MastoApi from '../../api/api';
 import Toot from '../../api/objects/toot';
@@ -9,6 +9,7 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
+/** Score how many times the user has replied to the creator of the toot. */
 export default class MostRepliedAccountsScorer extends TootScorer {
     description = "Favour accounts you often reply to";
 

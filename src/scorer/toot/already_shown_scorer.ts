@@ -7,9 +7,7 @@ import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
-/**
- * Score based on the numTimesShown, which is managed by the client app.
- */
+/** Score based on the numTimesShown, which is managed by the client app. */
 export default class AlreadyShownScorer extends TootScorer {
     description = 'Favour toots marked as already seen';
 

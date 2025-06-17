@@ -1,5 +1,5 @@
-/*
- * Score toots containing hashtags the user posts about a lot
+/**
+ * @module scorers
  */
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
@@ -9,6 +9,9 @@ import { sumArray } from '../../helpers/collection_helpers';
 import { type StringNumberDict } from "../../types";
 
 
+/**
+ * Score toots containing hashtags the user posts about a lot.
+ */
 export default class HashtagParticipationScorer extends TootScorer {
     description = "Favour hastags you've tooted about";
 
