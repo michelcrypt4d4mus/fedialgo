@@ -3,7 +3,7 @@
  * prevent prolific tooters from clogging up the feed.
  */
 import FeedScorer from "../feed_scorer";
-import ObjWithCountList from "../../api/obj_with_counts_list";
+import CountedList from "../../api/counted_list";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';
 import { config } from "../../config";
 import { incrementCount } from "../../helpers/collection_helpers";
@@ -28,8 +28,8 @@ export default class DiversityFeedScorer extends FeedScorer {
     // and which trending tags it contains.
     extractScoringData(feed: Toot[]): StringNumberDict {
         const sortedToots = sortByCreatedAt(feed) as Toot[];
-        const accountsInFeed = new ObjWithCountList<PenalizedObj>([], ScoreName.DIVERSITY);
-        const trendingTagsInFeed = new ObjWithCountList<PenalizedObj>([], ScoreName.DIVERSITY);
+        const accountsInFeed = new CountedList<PenalizedObj>([], ScoreName.DIVERSITY);
+        const trendingTagsInFeed = new CountedList<PenalizedObj>([], ScoreName.DIVERSITY);
 
         // Count how many times each account and each trending tag are seen in the feed
         sortedToots.forEach((toot) => {
@@ -90,7 +90,7 @@ export default class DiversityFeedScorer extends FeedScorer {
     }
 
     // The more often we see an object, the less we want to penalize it
-    private computePenalty(penalizedObjs: ObjWithCountList<PenalizedObj>, name: string): number {
+    private computePenalty(penalizedObjs: CountedList<PenalizedObj>, name: string): number {
         const obj = penalizedObjs.getObj(name)!;
         obj.numSeen = (obj.numSeen || 0) + 1;
 

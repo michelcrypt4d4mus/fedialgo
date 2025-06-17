@@ -8,7 +8,7 @@ import { isNil } from 'lodash';
 import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
 import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums';
-import { BooleanFilterOptionList } from '../api/obj_with_counts_list';
+import { BooleanFilterOptionList } from '../api/counted_list';
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { type BooleanFilterOption } from "../types";

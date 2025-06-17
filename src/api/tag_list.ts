@@ -2,7 +2,7 @@
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 import MastoApi from "./api";
-import ObjWithCountList, { ListSource } from "./obj_with_counts_list";
+import CountedList, { ListSource } from "./counted_list";
 import Toot from "./objects/toot";
 import { config } from "../config";
 import { Logger } from '../helpers/logger';
@@ -20,73 +20,80 @@ const logger = new Logger("TagList");
 
 /**
  * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
- * @augments ObjWithCountList
+ * @augments CountedList
  */
-export default class TagList extends ObjWithCountList<TagWithUsageCounts> {
+export default class TagList extends CountedList<TagWithUsageCounts> {
     constructor(tags: TagWithUsageCounts[], label: ListSource) {
         super(tags.map(repairTag), label);
     }
 
-    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
-    static async fromFavourites(): Promise<TagList> {
+    /** Alternate constructor to build tags where numToots is set to the # of times user favourited that tag. */
+    static async buildFavouritedTags(): Promise<TagList> {
         return TagList.fromUsageCounts(
             await MastoApi.instance.getFavouritedToots(),
             TagTootsCacheKey.FAVOURITED_TAG_TOOTS
         );
     }
 
-    // Alternate constructor for tags the user follows
-    static async fromFollowedTags(tags?: TagWithUsageCounts[]): Promise<TagList> {
-        tags ||= await MastoApi.instance.getFollowedTags();
-        return new TagList(tags, ScoreName.FOLLOWED_TAGS);
-    }
-
-    // Alternate constructor for tags the user has posted in
-    static async fromParticipated(): Promise<TagList> {
-        return TagList.fromUsageCounts(
+    /** Alternate constructor to build a list of tags the user has posted about recently. **/
+    static async buildParticipatedTags(): Promise<TagList> {
+        return this.fromParticipations(
             await MastoApi.instance.getRecentUserToots(),
-            TagTootsCacheKey.PARTICIPATED_TAG_TOOTS
+            (await MastoApi.instance.getUserData()).isRetooter
         );
     }
 
-    // Remove elements that don't match the predicate(). Returns a new TagList object.
-    // Really only exists because typescript is weird about alternate constructors with generics.
-    filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
-        return new TagList(this.objs.filter(predicate), this.source);
+    /**
+     * Alternate constructor that builds a list of Tags the user has posted about based on their toot history.
+     * @param {Toot[]} recentToots - Array of Toot objects to count tags from.
+     * @param {boolean} [includeRetoots] - If true, includes retoots when counting tag usages.
+     * @returns {TagList} A new TagList instance with tags counted from the recent user toots.
+     * */
+    static fromParticipations(recentToots: Toot[], includeRetoots?: boolean): TagList {
+        const tagList = TagList.fromUsageCounts(recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS, includeRetoots);
+        logger.trace(`fromParticipations() found ${tagList.length} tags in ${recentToots.length} recent user toots`);
+        return tagList;
     }
 
-    // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
-    // # of times the tag appears in the 'toots' array of Toot objects.
-    static fromUsageCounts(toots: Toot[], source: ObjListDataSource): TagList {
-        // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
-        const retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
-        const isRetooter = (retootsPct > config.participatedTags.minPctToCountRetoots);
-        toots = isRetooter ? toots.map(toot => toot.realToot) : toots;
-
+    /**
+     * Alternate constructor that populates this.objs with TagWithUsageCounts objects with
+     * numToots set to the # of times the tag appears in the 'toots' array.
+     * Note the special handling of retooters.
+     * @param {Toot[]} toots - Array of Toot objects to count tags from.
+     * @param {ObjListDataSource} source - Source of the list (for logging/context).
+     * @returns {TagList} A new TagList instance with tags counted from the toots.
+     */
+    static fromUsageCounts(toots: Toot[], source: ObjListDataSource, includeRetoots?: boolean): TagList {
+        toots = includeRetoots ? toots.map(toot => toot.realToot) : toots;
         const tagList = new TagList([], source);
         const tags = toots.flatMap(toot => toot.tags);
         tagList.populateByCountingProps(tags, (tag) => tag);
         return tagList;
     }
 
-    // Return the tag if it exists in 'tags' array, otherwise undefined.
-    getTag(tag: string | MastodonTag): NamedTootCount | undefined {
-        return this.getObj(typeof tag == "string" ? tag : tag.name);
+    // Same as the superclass method. Only exists because typescript is missing a few features
+    // when it comes to alternate constructors in generic classes (can't call "new TagList()" and retain
+    // this subclass's methods w/out this override)
+    filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList {
+        return new TagList(this.objs.filter(predicate), this.source);
     }
 
-    // Filter out any tags that are muted or followed
-    async removeFollowedAndMutedTags(): Promise<void> {
-        await this.removeFollowedTags();
-        await this.removeMutedTags();
+    /**
+     * Like getObj() but takes a MastodonTag argument.
+     * @param {MastodonTag} tag - Tag whose name to find an obj for.
+     * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
+     */
+    getTag(tag: MastodonTag): NamedTootCount | undefined {
+        return this.getObj(tag.name);
     }
 
-    // Screen a list of hashtags against the user's followed tags, removing any that are followed.
+    /** Remove any hashtags that are followed by the FediAlgo user. */
     async removeFollowedTags(): Promise<void> {
         const followedKeywords = (await MastoApi.instance.getFollowedTags()).map(t => t.name);
         this.removeKeywords(followedKeywords);
     }
 
-    // Remove the configured list of invalid trending tags as well as japanese/korean etc. tags
+    /** Remove the configured list of invalid trending tags as well as japanese/korean etc. tags. */
     removeInvalidTrendingTags(): void {
         this.removeKeywords(config.trending.tags.invalidTags);
         this.objs = this.objs.filter(tag => !tag.language || (tag.language == config.locale.language));

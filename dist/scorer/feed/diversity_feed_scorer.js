@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * prevent prolific tooters from clogging up the feed.
  */
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
-const obj_with_counts_list_1 = __importDefault(require("../../api/obj_with_counts_list"));
+const counted_list_1 = __importDefault(require("../../api/counted_list"));
 const toot_1 = require("../../api/objects/toot");
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
@@ -23,8 +23,8 @@ class DiversityFeedScorer extends feed_scorer_1.default {
     // and which trending tags it contains.
     extractScoringData(feed) {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed);
-        const accountsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
-        const trendingTagsInFeed = new obj_with_counts_list_1.default([], enums_1.ScoreName.DIVERSITY);
+        const accountsInFeed = new counted_list_1.default([], enums_1.ScoreName.DIVERSITY);
+        const trendingTagsInFeed = new counted_list_1.default([], enums_1.ScoreName.DIVERSITY);
         // Count how many times each account and each trending tag are seen in the feed
         sortedToots.forEach((toot) => {
             toot.withRetoot.forEach((t) => accountsInFeed.incrementCount(t.account.webfingerURI));

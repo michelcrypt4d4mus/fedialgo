@@ -1,25 +1,18 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BooleanFilterOptionList = void 0;
 /*
  * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
-import { isFinite } from "lodash";
-
-import UserData from "./user_data";
-import { Logger } from '../helpers/logger';
-import { ScoreName } from "../enums";
-import { sortObjsByProps } from "../helpers/collection_helpers";
-import { wordRegex } from "../helpers/string_helpers";
-import {
-    type BooleanFilterOption,
-    type NamedTootCount,
-    type ObjListDataSource,
-    type StringNumberDict,
-} from "../types";
-
-export type ObjList = ObjWithCountList<NamedTootCount>;
-export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this sucks
-
-
+const lodash_1 = require("lodash");
+const user_data_1 = __importDefault(require("./user_data"));
+const logger_1 = require("../helpers/logger");
+const collection_helpers_1 = require("../helpers/collection_helpers");
+const string_helpers_1 = require("../helpers/string_helpers");
 /**
  * A generic list class for objects with a name and a 'numToots' property.
  * Supports both dictionary and sorted list operations, and provides utility methods
@@ -33,93 +26,81 @@ export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;  // TODO: this
  * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
  */
-export default class ObjWithCountList<T extends NamedTootCount> {
-    length: number = 0;
-    logger: Logger;
-    nameDict: Record<string, T> = {};  // Dict of obj.names to objs
-    source: ListSource;
-
-    get maxNumToots(): number | undefined { return this._maxNumToots };
-    private _maxNumToots?: number; // Cached max numToots value, if it exists
-
-    get objs(): T[] { return this._objs };
-    private _objs: T[] = [];
-
+class CountedList {
+    length = 0;
+    logger;
+    nameDict = {}; // Dict of obj.names to objs
+    source;
+    get maxNumToots() { return this._maxNumToots; }
+    ;
+    _maxNumToots; // Cached max numToots value, if it exists
+    get objs() { return this._objs; }
+    ;
+    _objs = [];
     // Has side effect of mutating the 'tagNames' dict property
-    public set objs(objs: T[]) {
+    set objs(objs) {
         this._objs = objs.map(this.completeObjProperties);
         this.length = this._objs.length;
         this.nameDict = this.objNameDict();
-        this._maxNumToots = this.maxValue("numToots" as keyof T);
+        this._maxNumToots = this.maxValue("numToots");
     }
-
-    constructor(objs: T[], source: ListSource) {
+    constructor(objs, source) {
         this.objs = objs;
         this.source = source;
-        this.logger = new Logger("ObjWithCountList", source);
+        this.logger = new logger_1.Logger("ObjWithCountList", source);
     }
-
     // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
-    addObjs(objs: T[]): void {
+    addObjs(objs) {
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
     }
-
     // Remove elements that don't match the predicate(). Returns a new ObjWithCountList object
-    filter(predicate: (obj: T) => boolean): ObjWithCountList<T> {
-        return new ObjWithCountList<T>(this.objs.filter(predicate), this.source);
+    filter(predicate) {
+        return new CountedList(this.objs.filter(predicate), this.source);
     }
-
     /**
      * Returns the object in the list with the given name, or undefined if not found.
      * Name matching is case-insensitive.
      * @param {string} name - The name of the object to retrieve.
      * @returns {T | undefined} The object with the specified name, or undefined if not found.
      */
-    getObj(name: string): T | undefined {
+    getObj(name) {
         return this.nameDict[name.toLowerCase()];
     }
-
     // Increment numToots for the given name. If no obj with 'name' exists create a new one
     // and call the decorator function on the new function if provided.
-    incrementCount(name: string, newObjDecorator?: (obj: T) => void): T {
+    incrementCount(name, newObjDecorator) {
         let option = this.nameDict[name];
-
         if (!option) {
-            option = { name, numToots: 0 } as T;
+            option = { name, numToots: 0 };
             this.nameDict[name] = option;
             this.objs.push(option);
             newObjDecorator?.(option);
         }
-
         option.numToots = (option.numToots || 0) + 1;
         return option;
     }
-
     // Standard map function that applies a callback to each object in the objs array
-    map<U>(callback: (obj: T, i?: number) => U): U[] {
+    map(callback) {
         return this.objs.map((obj, i) => callback(obj, i));
     }
-
     /**
      * Get the maximum value for a given key across the objs array
      * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
      */
-    maxValue(propertyName: keyof T): number | undefined {
-        const values = this.objs.map(obj => obj[propertyName]).filter(n => isFinite(n));
-        return values.length ? Math.max(...values as number[]) : undefined;
+    maxValue(propertyName) {
+        const values = this.objs.map(obj => obj[propertyName]).filter(n => (0, lodash_1.isFinite)(n));
+        return values.length ? Math.max(...values) : undefined;
     }
-
     /**
      * Returns a dict of 'obj.name' to 'obj.numToots'.
      * @returns {StringNumberDict} Dictionary mapping object names to their numToots counts.
      */
-    nameToNumTootsDict(): StringNumberDict {
+    nameToNumTootsDict() {
         return this.objs.reduce((dict, tag) => {
             dict[tag.name] = tag.numToots || 0;
             return dict;
-        }, {} as StringNumberDict);
+        }, {});
     }
-
     /**
      * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
@@ -128,75 +109,72 @@ export default class ObjWithCountList<T extends NamedTootCount> {
      * @param {(obj: U) => T} propExtractor - Function to extract the properties to count from each object.
      * @returns {void}
      */
-    populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void {
+    populateByCountingProps(objs, propExtractor) {
         this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
-
-        const options = objs.reduce(
-            (objsWithCounts, obj) => {
-                const extractedProps = propExtractor(obj);
-                objsWithCounts[extractedProps.name] ??= extractedProps;
-                objsWithCounts[extractedProps.name].numToots = (objsWithCounts[extractedProps.name].numToots || 0) + 1;
-                return objsWithCounts;
-            },
-            {} as Record<string, T>
-        );
-
+        const options = objs.reduce((objsWithCounts, obj) => {
+            const extractedProps = propExtractor(obj);
+            objsWithCounts[extractedProps.name] ??= extractedProps;
+            objsWithCounts[extractedProps.name].numToots = (objsWithCounts[extractedProps.name].numToots || 0) + 1;
+            return objsWithCounts;
+        }, {});
         this.objs = Object.values(options);
     }
-
     /**
      * Remove any obj whose 'name' is watches any of 'keywords'.
      * @returns {Promise<void>}
      */
-    removeKeywords(keywords: string[]): void {
+    removeKeywords(keywords) {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
         const validObjs = this.objs.filter(tag => !keywords.includes(tag.name));
-        this.logger.logArrayReduction(this.objs, validObjs, "Tag", `matching keywords`);//  "${keywords}"`);
+        this.logger.logArrayReduction(this.objs, validObjs, "Tag", `matching keywords`); //  "${keywords}"`);
         this.objs = validObjs;
-    };
-
+    }
+    ;
     /**
      * Remove any obj whose 'name' is muted by the user's server side filters.
      * TODO: use UserData's cached muted keywords regex?
      * @returns {Promise<void>}
      */
-    async removeMutedTags(): Promise<void> {
-        this.removeKeywords(await UserData.getMutedKeywords());
-    };
-
+    async removeMutedTags() {
+        this.removeKeywords(await user_data_1.default.getMutedKeywords());
+    }
+    ;
     /**
      * Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,
      * and then by name. If maxObjs is provided, returns only the top maxObjs objects.
      * @param {number} [maxObjs] - Optional maximum number of objects to return.
      * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
-    topObjs(maxObjs?: number): T[] {
+    topObjs(maxObjs) {
         const sortBy = (this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots");
-        const sortByAndName = [sortBy, "name"] as (keyof T)[]
-        this.objs = sortObjsByProps(Object.values(this.objs), sortByAndName, [false, true]);
+        const sortByAndName = [sortBy, "name"];
+        this.objs = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.objs), sortByAndName, [false, true]);
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
     }
-
     // Lowercase the name and set the regex property if it doesn't exist.
-    private completeObjProperties(obj: T): T {
+    completeObjProperties(obj) {
         obj.name = obj.name.trim().toLowerCase();
-        obj.regex ??= wordRegex(obj.name);
+        obj.regex ??= (0, string_helpers_1.wordRegex)(obj.name);
         return obj;
-    };
-
+    }
+    ;
     // Return a dictionary of tag names to tags
-    private objNameDict(): Record<string, T> {
+    objNameDict() {
         return this.objs.reduce((objNames, obj) => {
             objNames[obj.name] = obj;
             return objNames;
-        }, {} as Record<string, T>);
+        }, {});
     }
-};
-
-
+}
+exports.default = CountedList;
+;
 // TODO: This has to be here for circular dependency reasons
 /**
  * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
- * @augments ObjWithCountList
+ * @augments CountedList
  */
-export class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {};
+class BooleanFilterOptionList extends CountedList {
+}
+exports.BooleanFilterOptionList = BooleanFilterOptionList;
+;
+//# sourceMappingURL=counted_list.js.map

@@ -17,7 +17,7 @@ export default class FavouritedTagsScorer extends TootScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return (await TagList.fromFavourites()).nameToNumTootsDict();
+        return (await TagList.buildFavouritedTags()).nameToNumTootsDict();
     };
 
     async _score(toot: Toot) {

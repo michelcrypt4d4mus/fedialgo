@@ -65,15 +65,15 @@ export default abstract class Scorer {
 
     // This is the public API for scoring a toot
     async score(toot: Toot): Promise<number> {
-        if (this.isReady) return await this._score(toot);
-
-        if (!toot.scoreInfo) {
-            this.logger.trace(`Not ready, scoring 0...`);
-            return 0;
-        } else {
+        if (this.isReady) {
+            return await this._score(toot);
+        } else if (toot.scoreInfo) {
             const existingScore = toot.getIndividualScore("raw", this.name);
-            this.logger.trace(`Not ready but toot already scored (existing score: ${existingScore})`);
+            this.logger.deep(`Not ready but toot already scored ${existingScore}`);
             return existingScore;
+        } else {
+            this.logger.deep(`Not ready and no existing scoreInfo, scoring 0...`);
+            return 0;
         }
     }
 

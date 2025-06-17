@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Special case of ObjWithCountList for lists of Tag objects.
  */
 const api_1 = __importDefault(require("./api"));
-const obj_with_counts_list_1 = __importDefault(require("./obj_with_counts_list"));
+const counted_list_1 = __importDefault(require("./counted_list"));
 const config_1 = require("../config");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
@@ -15,57 +15,66 @@ const enums_1 = require("../enums");
 const logger = new logger_1.Logger("TagList");
 /**
  * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
- * @augments ObjWithCountList
+ * @augments CountedList
  */
-class TagList extends obj_with_counts_list_1.default {
+class TagList extends counted_list_1.default {
     constructor(tags, label) {
         super(tags.map(tag_1.repairTag), label);
     }
-    // Alternate constructor to build tags where numToots is set to the # of times user favourited that tag
-    static async fromFavourites() {
+    /** Alternate constructor to build tags where numToots is set to the # of times user favourited that tag. */
+    static async buildFavouritedTags() {
         return TagList.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     }
-    // Alternate constructor for tags the user follows
-    static async fromFollowedTags(tags) {
-        tags ||= await api_1.default.instance.getFollowedTags();
-        return new TagList(tags, enums_1.ScoreName.FOLLOWED_TAGS);
+    /** Alternate constructor to build a list of tags the user has posted about recently. **/
+    static async buildParticipatedTags() {
+        return this.fromParticipations(await api_1.default.instance.getRecentUserToots(), (await api_1.default.instance.getUserData()).isRetooter);
     }
-    // Alternate constructor for tags the user has posted in
-    static async fromParticipated() {
-        return TagList.fromUsageCounts(await api_1.default.instance.getRecentUserToots(), enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    /**
+     * Alternate constructor that builds a list of Tags the user has posted about based on their toot history.
+     * @param {Toot[]} recentToots - Array of Toot objects to count tags from.
+     * @param {boolean} [includeRetoots] - If true, includes retoots when counting tag usages.
+     * @returns {TagList} A new TagList instance with tags counted from the recent user toots.
+     * */
+    static fromParticipations(recentToots, includeRetoots) {
+        const tagList = TagList.fromUsageCounts(recentToots, enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS, includeRetoots);
+        logger.trace(`fromParticipations() found ${tagList.length} tags in ${recentToots.length} recent user toots`);
+        return tagList;
     }
-    // Remove elements that don't match the predicate(). Returns a new TagList object.
-    // Really only exists because typescript is weird about alternate constructors with generics.
-    filter(predicate) {
-        return new TagList(this.objs.filter(predicate), this.source);
-    }
-    // Alternate constructor, builds TagWithUsageCounts objects with numToots set to the
-    // # of times the tag appears in the 'toots' array of Toot objects.
-    static fromUsageCounts(toots, source) {
-        // If the user is mostly a retooter count retweets as toots for the purposes of counting tags
-        const retootsPct = toots.length ? (toots.filter(toot => !!toot.reblog).length / toots.length) : 0;
-        const isRetooter = (retootsPct > config_1.config.participatedTags.minPctToCountRetoots);
-        toots = isRetooter ? toots.map(toot => toot.realToot) : toots;
+    /**
+     * Alternate constructor that populates this.objs with TagWithUsageCounts objects with
+     * numToots set to the # of times the tag appears in the 'toots' array.
+     * Note the special handling of retooters.
+     * @param {Toot[]} toots - Array of Toot objects to count tags from.
+     * @param {ObjListDataSource} source - Source of the list (for logging/context).
+     * @returns {TagList} A new TagList instance with tags counted from the toots.
+     */
+    static fromUsageCounts(toots, source, includeRetoots) {
+        toots = includeRetoots ? toots.map(toot => toot.realToot) : toots;
         const tagList = new TagList([], source);
         const tags = toots.flatMap(toot => toot.tags);
         tagList.populateByCountingProps(tags, (tag) => tag);
         return tagList;
     }
-    // Return the tag if it exists in 'tags' array, otherwise undefined.
+    // Same as the superclass method. Only exists because typescript is missing a few features
+    // when it comes to alternate constructors in generic classes (can't call "new TagList()" and retain
+    // this subclass's methods w/out this override)
+    filter(predicate) {
+        return new TagList(this.objs.filter(predicate), this.source);
+    }
+    /**
+     * Like getObj() but takes a MastodonTag argument.
+     * @param {MastodonTag} tag - Tag whose name to find an obj for.
+     * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
+     */
     getTag(tag) {
-        return this.getObj(typeof tag == "string" ? tag : tag.name);
+        return this.getObj(tag.name);
     }
-    // Filter out any tags that are muted or followed
-    async removeFollowedAndMutedTags() {
-        await this.removeFollowedTags();
-        await this.removeMutedTags();
-    }
-    // Screen a list of hashtags against the user's followed tags, removing any that are followed.
+    /** Remove any hashtags that are followed by the FediAlgo user. */
     async removeFollowedTags() {
         const followedKeywords = (await api_1.default.instance.getFollowedTags()).map(t => t.name);
         this.removeKeywords(followedKeywords);
     }
-    // Remove the configured list of invalid trending tags as well as japanese/korean etc. tags
+    /** Remove the configured list of invalid trending tags as well as japanese/korean etc. tags. */
     removeInvalidTrendingTags() {
         this.removeKeywords(config_1.config.trending.tags.invalidTags);
         this.objs = this.objs.filter(tag => !tag.language || (tag.language == config_1.config.locale.language));

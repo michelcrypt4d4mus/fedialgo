@@ -17,7 +17,7 @@ export default class HashtagParticipationScorer extends TootScorer {
     }
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        return (await TagList.fromParticipated()).nameToNumTootsDict();
+        return (await TagList.buildParticipatedTags()).nameToNumTootsDict();
     };
 
     // Use the square root of the number of toots with the hashtag to prevent runaway scores

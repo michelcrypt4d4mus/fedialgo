@@ -30,7 +30,6 @@ import NumericFilter from './filters/numeric_filter';
 import NumFavouritesScorer from "./scorer/toot/num_favourites_scorer";
 import NumRepliesScorer from "./scorer/toot/num_replies_scorer";
 import NumRetootsScorer from "./scorer/toot/num_retoots_scorer";
-import ObjWithCountList, { ObjList } from "./api/obj_with_counts_list";
 import RetootsInFeedScorer from "./scorer/toot/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
@@ -54,6 +53,7 @@ import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { isWeightPresetLabel, WEIGHT_PRESETS, WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { lockExecution } from './helpers/log_helpers';
 import { Logger } from './helpers/logger';
+import { ObjList } from "./api/counted_list";
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import {
     AlgorithmStorageKey,
@@ -293,6 +293,7 @@ class TheAlgorithm {
 
         try {
             const tootsForHashtags = async (key: TagTootsCacheKey): Promise<Toot[]> => {
+                loggers[LogPrefix.TRIGGER_FEED_UPDATE].trace(`Fetching toots for hashtags with key: ${key}`);
                 const tagList = await TagsForFetchingToots.create(key);
                 return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
             };
@@ -302,7 +303,7 @@ class TheAlgorithm {
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(MastoApi.instance.getHomeserverToots(), loggers[CacheKey.HOMESERVER_TOOTS]),
                 this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[CacheKey.FEDIVERSE_TRENDING_TOOTS]),
-                ...Object.values(TagTootsCacheKey).map(tootsForHashtags),
+                ...Object.values(TagTootsCacheKey).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
                 MastoApi.instance.getUserData(),
@@ -853,7 +854,6 @@ export {
     BooleanFilter,
     Logger,
     NumericFilter,
-    ObjWithCountList,
     TagList,
     Toot,
     // Enums

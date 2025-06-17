@@ -17,16 +17,16 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const HASHTAG_TOOTS_CONFIG = {
     [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
         buildTagList: async () => {
-            const tagList = await tag_list_1.default.fromFavourites();
+            const tagList = await tag_list_1.default.buildFavouritedTags();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
-            const participatedTags = await tag_list_1.default.fromParticipated();
+            const participatedTags = await tag_list_1.default.buildParticipatedTags();
             const maxParticipations = config_1.config.favouritedTags.maxParticipations; // TODO: use heuristic to pick this number?
             return tagList.filter(tag => (participatedTags.getTag(tag)?.numToots || 0) <= maxParticipations);
         },
         config: config_1.config.favouritedTags,
     },
     [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-        buildTagList: tag_list_1.default.fromParticipated,
+        buildTagList: async () => await tag_list_1.default.buildParticipatedTags(),
         config: config_1.config.participatedTags,
     },
     [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
@@ -39,7 +39,7 @@ class TagsForFetchingToots {
     config;
     logger;
     tagList;
-    // Alternate constructor
+    /** Alternate async constructor. */
     static async create(cacheKey) {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
@@ -53,7 +53,7 @@ class TagsForFetchingToots {
         this.logger = new logger_1.Logger(cacheKey);
         this.tagList = tagList;
     }
-    // Get toots for the list of tags, caching the results
+    /** Get toots for the list of tags, caching the results. */
     async getToots() {
         return await api_1.default.instance.getCacheableToots(async () => {
             const tags = this.topTags();
@@ -65,7 +65,7 @@ class TagsForFetchingToots {
         }, this.cacheKey, this.config.maxToots);
     }
     ;
-    // Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags
+    /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     async removeUnwantedTags() {
         await this.tagList.removeMutedTags();
         await this.tagList.removeFollowedTags();
@@ -76,18 +76,18 @@ class TagsForFetchingToots {
             this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
     }
-    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
+    /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
     topTags(numTags) {
         numTags ||= this.config.numTags;
         const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topObjs(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagInfoStr)(t)}`).join("\n"));
         return tags;
     }
-    // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
+    /** Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form. */
     static async rawTagLists() {
         return await (0, collection_helpers_1.resolvePromiseDict)({
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tag_list_1.default.fromFavourites(),
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tag_list_1.default.fromParticipated(),
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tag_list_1.default.buildFavouritedTags(),
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tag_list_1.default.buildParticipatedTags(),
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: mastodon_server_1.default.fediverseTrendingTags(),
         }, new logger_1.Logger("TagsForFetchingToots.rawTagLists()"), (failedKey) => new tag_list_1.default([], failedKey));
     }

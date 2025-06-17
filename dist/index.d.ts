@@ -4,7 +4,6 @@ import Account from './api/objects/account';
 import BooleanFilter from "./filters/boolean_filter";
 import { isAccessTokenRevokedError } from "./api/api";
 import NumericFilter from './filters/numeric_filter';
-import ObjWithCountList, { ObjList } from "./api/obj_with_counts_list";
 import TagList from './api/tag_list';
 import Toot from './api/objects/toot';
 import UserData from "./api/user_data";
@@ -13,6 +12,7 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './he
 import { FILTER_OPTION_DATA_SOURCES } from './types';
 import { WeightPresetLabel, WeightPresets } from './scorer/weight_presets';
 import { Logger } from './helpers/logger';
+import { ObjList } from "./api/counted_list";
 import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCacheKey, isValueInStringEnum } from "./enums";
 import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
 import { type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
@@ -211,5 +211,5 @@ declare class TheAlgorithm {
     private enableMoarDataBackgroundPoller;
 }
 export default TheAlgorithm;
-export { FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, ObjWithCountList, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
+export { FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCacheKey, TrendingType, TypeFilterName, WeightName, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
 optionalSuffix, sortKeysByValue, timeString, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, };

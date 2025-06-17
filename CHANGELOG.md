@@ -1,6 +1,9 @@
 # NEXT RELEASE
+* Add `isRetooter` property to `UserData`
 * Use a real mutex to lock `TheAlgorithm`'s toot fetch methods; rework logging situation
-* Cache user's mastodon server instance info in browser storage for 30 days
+* Cache user's Mastodon server instance info in browser storage for 30 days
+* Fix issue where `isRetooter` was incorrectly applied to `FAVOURITED_TAG_TOOTS`
+* Rename `ObjWithCountList` to `CountedList` and stop exporting it
 
 ### v0.72.8
 * Rename `FeatureScorer` to `TootScorer`

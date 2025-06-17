@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 
 import Account from "./objects/account";
 import MastoApi from "./api";
-import ObjWithCountList, { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
+import CountedList, { BooleanFilterOptionList, ObjList } from "./counted_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
@@ -50,6 +50,7 @@ interface UserApiData {
  * @property {TagList} favouritedTags - List of tags the user has favourited.
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
  * @property {TagList} followedTags - List of tags the user follows.
+ * @property {boolean} isRetooter - True if the user is primarily a retooter (retootPct above configured threshold).
  * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
  * @property {Record<string, Account>} mutedAccounts - Dictionary of accounts the user has muted or blocked, keyed by Account["webfingerURI"].
  * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
@@ -63,7 +64,8 @@ export default class UserData {
     favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
     followedAccounts: StringNumberDict = {};
     followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
-    languagesPostedIn: ObjList = new ObjWithCountList([], BooleanFilterName.LANGUAGE);
+    isRetooter: boolean = false;
+    languagesPostedIn: ObjList = new CountedList([], BooleanFilterName.LANGUAGE);
     mutedAccounts: AccountNames = {};
     mutedKeywordsRegex!: RegExp;  // Cached regex for muted keywords, built from server-side filters
     participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
@@ -90,13 +92,19 @@ export default class UserData {
     // Alternate constructor to build UserData from raw API data
     static buildFromData(data: UserApiData): UserData {
         const userData = new UserData();
+
+        if (data.recentToots.length) {
+            const retootsPct = Toot.onlyRetoots(data.recentToots).length / data.recentToots.length;
+            userData.isRetooter = (retootsPct > config.participatedTags.minPctToCountRetoots);
+        }
+
         userData.blockedDomains = new Set(data.blockedDomains);
         userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);
         userData.mutedKeywordsRegex = buildMutedRegex(data.serverSideFilters);
-        userData.participatedTags = TagList.fromUsageCounts(data.recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+        userData.participatedTags = TagList.fromParticipations(data.recentToots, userData.isRetooter);
         userData.serverSideFilters = data.serverSideFilters;
         userData.languagesPostedIn.populateByCountingProps(data.recentToots, tootLanguageOption);
         userData.populateFavouriteAccounts(data);

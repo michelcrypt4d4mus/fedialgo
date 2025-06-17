@@ -1,7 +1,7 @@
 import { Logger } from '../helpers/logger';
 import { ScoreName } from "../enums";
 import { type BooleanFilterOption, type NamedTootCount, type ObjListDataSource, type StringNumberDict } from "../types";
-export type ObjList = ObjWithCountList<NamedTootCount>;
+export type ObjList = CountedList<NamedTootCount>;
 export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;
 /**
  * A generic list class for objects with a name and a 'numToots' property.
@@ -16,7 +16,7 @@ export type ListSource = ObjListDataSource | ScoreName.DIVERSITY;
  * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
  */
-export default class ObjWithCountList<T extends NamedTootCount> {
+export default class CountedList<T extends NamedTootCount> {
     length: number;
     logger: Logger;
     nameDict: Record<string, T>;
@@ -28,7 +28,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
     set objs(objs: T[]);
     constructor(objs: T[], source: ListSource);
     addObjs(objs: T[]): void;
-    filter(predicate: (obj: T) => boolean): ObjWithCountList<T>;
+    filter(predicate: (obj: T) => boolean): CountedList<T>;
     /**
      * Returns the object in the list with the given name, or undefined if not found.
      * Name matching is case-insensitive.
@@ -80,7 +80,7 @@ export default class ObjWithCountList<T extends NamedTootCount> {
 }
 /**
  * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
- * @augments ObjWithCountList
+ * @augments CountedList
  */
-export declare class BooleanFilterOptionList extends ObjWithCountList<BooleanFilterOption> {
+export declare class BooleanFilterOptionList extends CountedList<BooleanFilterOption> {
 }
