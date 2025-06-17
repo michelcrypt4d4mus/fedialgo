@@ -44,10 +44,14 @@ export default class CountedList<T extends NamedTootCount> {
 
     // Has side effect of mutating the 'tagNames' dict property
     public set objs(objs: T[]) {
+        this.length = objs.length;
         this._objs = objs.map(this.completeObjProperties);
-        this.length = this._objs.length;
-        this.nameDict = this.objNameDict();
         this._maxNumToots = this.maxValue("numToots" as keyof T);
+
+        this.nameDict = this.objs.reduce((objNames, obj) => {
+            objNames[obj.name] = obj;
+            return objNames;
+        }, {} as Record<string, T>);
     }
 
     constructor(objs: T[], source: CountedListSource) {
@@ -126,8 +130,7 @@ export default class CountedList<T extends NamedTootCount> {
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
-     * @param {(obj: U) => T} propExtractor - Function to extract the properties to count from each object.
-     * @returns {void}
+     * @param {(obj: U) => T} propExtractor - Function to extract the decorator properties for the counted objects.
      */
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void {
         this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
@@ -147,7 +150,7 @@ export default class CountedList<T extends NamedTootCount> {
 
     /**
      * Remove any obj whose 'name' is watches any of 'keywords'.
-     * @returns {Promise<void>}
+     * @param {string[]} keywords - Array of keywords to match against the object's name.
      */
     removeKeywords(keywords: string[]): void {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
@@ -184,14 +187,6 @@ export default class CountedList<T extends NamedTootCount> {
         obj.regex ??= wordRegex(obj.name);
         return obj;
     };
-
-    // Return a dictionary of tag names to tags
-    private objNameDict(): Record<string, T> {
-        return this.objs.reduce((objNames, obj) => {
-            objNames[obj.name] = obj;
-            return objNames;
-        }, {} as Record<string, T>);
-    }
 };
 
 

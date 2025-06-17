@@ -38,10 +38,13 @@ class CountedList {
     _objs = [];
     // Has side effect of mutating the 'tagNames' dict property
     set objs(objs) {
+        this.length = objs.length;
         this._objs = objs.map(this.completeObjProperties);
-        this.length = this._objs.length;
-        this.nameDict = this.objNameDict();
         this._maxNumToots = this.maxValue("numToots");
+        this.nameDict = this.objs.reduce((objNames, obj) => {
+            objNames[obj.name] = obj;
+            return objNames;
+        }, {});
     }
     constructor(objs, source) {
         this.objs = objs;
@@ -109,8 +112,7 @@ class CountedList {
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
-     * @param {(obj: U) => T} propExtractor - Function to extract the properties to count from each object.
-     * @returns {void}
+     * @param {(obj: U) => T} propExtractor - Function to extract the decorator properties for the counted objects.
      */
     populateByCountingProps(objs, propExtractor) {
         this.logger.deep(`populateByCountingProps() - Counting properties in ${objs.length} objects...`);
@@ -124,7 +126,7 @@ class CountedList {
     }
     /**
      * Remove any obj whose 'name' is watches any of 'keywords'.
-     * @returns {Promise<void>}
+     * @param {string[]} keywords - Array of keywords to match against the object's name.
      */
     removeKeywords(keywords) {
         keywords = keywords.map(k => (k.startsWith('#') ? k.slice(1) : k).toLowerCase().trim());
@@ -161,13 +163,6 @@ class CountedList {
         return obj;
     }
     ;
-    // Return a dictionary of tag names to tags
-    objNameDict() {
-        return this.objs.reduce((objNames, obj) => {
-            objNames[obj.name] = obj;
-            return objNames;
-        }, {});
-    }
 }
 exports.default = CountedList;
 ;

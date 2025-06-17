@@ -55,13 +55,12 @@ export default class CountedList<T extends NamedTootCount> {
      * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
-     * @param {(obj: U) => T} propExtractor - Function to extract the properties to count from each object.
-     * @returns {void}
+     * @param {(obj: U) => T} propExtractor - Function to extract the decorator properties for the counted objects.
      */
     populateByCountingProps<U>(objs: U[], propExtractor: (obj: U) => T): void;
     /**
      * Remove any obj whose 'name' is watches any of 'keywords'.
-     * @returns {Promise<void>}
+     * @param {string[]} keywords - Array of keywords to match against the object's name.
      */
     removeKeywords(keywords: string[]): void;
     /**
@@ -78,7 +77,6 @@ export default class CountedList<T extends NamedTootCount> {
      */
     topObjs(maxObjs?: number): T[];
     private completeObjProperties;
-    private objNameDict;
 }
 /**
  * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
