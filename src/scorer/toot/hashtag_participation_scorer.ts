@@ -1,5 +1,5 @@
 /**
- * @module scorers
+ * @module toot_scorers
  */
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
