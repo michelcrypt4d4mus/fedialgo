@@ -36,10 +36,7 @@ class Scorer {
     }
     // Return a ScorerInfo object with the description and the scorer itself
     getInfo() {
-        return {
-            description: this.description,
-            scorer: this,
-        };
+        return { description: this.description };
     }
     reset() {
         this.isReady = false;

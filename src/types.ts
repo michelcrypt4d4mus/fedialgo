@@ -228,7 +228,6 @@ export type WeightedScore = {
 export type WeightInfo = {
     description: string;
     minValue?: number;
-    scorer?: Scorer;
 };
 
 // Names of all the user adjustable score weightings, both those with a Scorer and those without

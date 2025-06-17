@@ -51,10 +51,7 @@ export default abstract class Scorer {
 
     // Return a ScorerInfo object with the description and the scorer itself
     getInfo(): WeightInfo {
-        return {
-            description: this.description,
-            scorer: this,
-        };
+        return {description: this.description};
     }
 
     reset(): void {

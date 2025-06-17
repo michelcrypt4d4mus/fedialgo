@@ -3,7 +3,6 @@ import { MutexInterface, SemaphoreInterface } from 'async-mutex';
 import Account from './api/objects/account';
 import BooleanFilter, { BooleanFilterArgs } from './filters/boolean_filter';
 import NumericFilter, { NumericFilterArgs } from './filters/numeric_filter';
-import Scorer from './scorer/scorer';
 import TagList from './api/tag_list';
 import Toot, { SerializableToot } from './api/objects/toot';
 import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey, TOOT_SOURCES } from './enums';
@@ -147,7 +146,6 @@ export type WeightedScore = {
 export type WeightInfo = {
     description: string;
     minValue?: number;
-    scorer?: Scorer;
 };
 export type WeightName = ScoreName | NonScoreWeightName;
 export interface WithCreatedAt {
