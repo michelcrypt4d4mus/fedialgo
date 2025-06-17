@@ -7,6 +7,7 @@ import { ScoreName } from '../../enums';
  * Populate the 'followedTags' property on Toot object and return the number of tags
  * on the Toot that the user is following.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class FollowedTagsScorer extends TootScorer {
     description = "Favour toots containing hashtags you follow";

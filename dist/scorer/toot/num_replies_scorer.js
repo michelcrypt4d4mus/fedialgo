@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Score how many times the toot has been replied to by other users.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class NumRepliesScorer extends toot_scorer_1.default {
     description = "Favour toots with lots of replies";

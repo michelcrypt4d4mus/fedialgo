@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Random number generator to mix up the feed.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class ChaosScorer extends toot_scorer_1.default {
     description = "Insert Chaos into the scoring (social media ist krieg)";

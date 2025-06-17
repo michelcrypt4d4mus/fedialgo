@@ -10,6 +10,7 @@ const enums_1 = require("../../enums");
 /**
  * Score how many times the user has replied to the creator of the toot.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class MostRepliedAccountsScorer extends toot_scorer_1.default {
     description = "Favour accounts you often reply to";

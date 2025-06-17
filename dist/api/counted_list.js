@@ -92,6 +92,7 @@ class CountedList {
     }
     /**
      * Get the maximum value for a given key across the objs array
+     * @template T
      * @param {keyof T} propertyName - The property to find the maximum value for.
      * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
      */

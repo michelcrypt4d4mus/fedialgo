@@ -10,6 +10,7 @@ const enums_1 = require("../../enums");
 /**
  * Gives higher weight to posts from users that have often interacted with your posts.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class InteractionsScorer extends acccount_scorer_1.default {
     description = "Favour accounts that interact with your toots";

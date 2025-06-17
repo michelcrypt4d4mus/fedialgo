@@ -10,6 +10,7 @@ const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
  * Score toots containing hashtags the user posts about a lot.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class HashtagParticipationScorer extends toot_scorer_1.default {
     description = "Favour hastags you've tooted about";

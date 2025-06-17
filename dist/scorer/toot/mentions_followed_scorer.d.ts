@@ -4,6 +4,7 @@ import { type StringNumberDict } from '../../types';
 /**
  * Score how many accounts that the user follows are mentioned in the toot.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class MentionsFollowedScorer extends TootScorer {
     description: string;

@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Score a toot based on how many followers the author has.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class AuthorFollowersScorer extends toot_scorer_1.default {
     description = "Favour accounts with a lot of followers";

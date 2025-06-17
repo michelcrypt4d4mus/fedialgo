@@ -3,6 +3,7 @@ import TootScorer from '../toot_scorer';
 /**
  * Score how many times the toot has been retooted.
  * @memberof toot_scorers
+ * @augments Scorer
  */
 export default class NumRetootsScorer extends TootScorer {
     description: string;

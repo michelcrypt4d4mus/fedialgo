@@ -11,6 +11,7 @@ const enums_1 = require("../../enums");
 /**
  * Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot).
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class MostRetootedAccountsScorer extends acccount_scorer_1.default {
     description = "Favour accounts you often retoot";

@@ -8,6 +8,7 @@ const enums_1 = require("../../enums");
 /**
  * Scores with the trendingRank set by getTrendingToots().
  * @memberof toot_scorers
+ * @augments Scorer
  */
 class TrendingTootScorer extends toot_scorer_1.default {
     description = "Favour toots that are trending in the Fediverse";
