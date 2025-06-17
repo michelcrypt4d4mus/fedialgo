@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug with checking whether API objects can be uniquified
 
 ### v0.73.2
 * Remove the actual `Scorer` object from `TheAlgorithm.weightsInfo` value properties
