@@ -36,8 +36,7 @@ export default class CountedList<T extends NamedTootCount> {
      */
     filter(predicate: (obj: T) => boolean): CountedList<T>;
     /**
-     * Returns the object in the list with the given name, or undefined if not found.
-     * Name matching is case-insensitive.
+     * Returns the object in the list with the given name (case-insensitive) if it exists.
      * @param {string} name - The name of the object to retrieve.
      * @returns {T | undefined} The object with the specified name, or undefined if not found.
      */
