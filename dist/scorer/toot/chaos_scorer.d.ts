@@ -2,6 +2,7 @@ import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
 /**
  * Random number generator to mix up the feed.
+ * @class ChaosScorer
  * @memberof module:toot_scorers
  * @augments Scorer
  */

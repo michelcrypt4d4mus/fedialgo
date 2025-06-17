@@ -2,6 +2,7 @@ import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
 /**
  * Score based on the numTimesShown, which is managed by the client app.
+ * @class AlreadyShownScorer
  * @memberof module:toot_scorers
  * @augments Scorer
  */

@@ -6,6 +6,7 @@ import { sumArray } from '../../helpers/collection_helpers';
 
 /**
  * Score based on the numTimesShown, which is managed by the client app.
+ * @class AlreadyShownScorer
  * @memberof module:toot_scorers
  * @augments Scorer
  */

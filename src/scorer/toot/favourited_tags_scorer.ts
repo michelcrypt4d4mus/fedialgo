@@ -8,6 +8,7 @@ import { type StringNumberDict } from '../../types';
 
 /**
  * Score how many times the current user has favourited the toot's hashtags in the past.
+ * @class FavouritedTagsScorer
  * @memberof module:toot_scorers
  * @augments Scorer
  */
