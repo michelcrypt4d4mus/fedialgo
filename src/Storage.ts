@@ -27,8 +27,8 @@ import {
     TagTootsCacheKey,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
+    type ApiCacheKey,
     type StorageKey,
-    type ApiCacheKey
 } from "./enums";
 import {
     type ApiObj,
@@ -208,7 +208,7 @@ export default class Storage {
             isStale = true;
         } else {
             let msg = `Cached data is still fresh ${minutesMsg}`;
-            if (Array.isArray(withTimestamp.value)) msg += ` (${withTimestamp.value.length} records)`;
+            msg += Array.isArray(withTimestamp.value) ? ` (${withTimestamp.value.length} records)` : '';
             hereLogger.trace(msg);
         }
 
