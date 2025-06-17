@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FediAlgo Class: TootFilter</title>
+    <title>FediAlgo Class: MostRetootedAccountsScorer</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: TootFilter</h1>
+    <h1 class="page-title">Class: MostRetootedAccountsScorer</h1>
 
     
 
@@ -28,10 +28,10 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>TootFilter<span class="signature">(params)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-toot_scorers.html">toot_scorers</a>.</span>MostRetootedAccountsScorer<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Abstract base class representing a filter that can be applied to a Toot to determine
-if it should be included in the timeline feed. Subclasses must implement the isAllowed method.</div>
+            <div class="class-description">Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot).</div>
         
     
 </header>
@@ -46,7 +46,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
     
 
     
-    <h4 class="name" id="TootFilter"><span class="type-signature"></span>new TootFilter<span class="signature">(params)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="MostRetootedAccountsScorer"><span class="type-signature"></span>new MostRetootedAccountsScorer<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -61,301 +61,6 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
 
 
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>params</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">FilterArgs</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The arguments for configuring the filter.
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>description</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Optional description of the filter for display or documentation purposes.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>invertSelection</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">If true, the filter logic is inverted (e.g., exclude instead of include).</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>propertyName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">FilterProperty</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Key identifying what this filter is filtering on.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>description</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Description of the filter for display or documentation purposes.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>invertSelection</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">If true, the filter logic is inverted (e.g., exclude instead of include).</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>logger</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Logger.html">Logger</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Logger instance for this filter.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>propertyName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">FilterProperty</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The property this filter works on</td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -420,6 +125,19 @@ if it should be included in the timeline feed. Subclasses must implement the isA
     </div>
 
     
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="Scorer.html">Scorer</a></li>
+    
+        <li>undefined</li>
+    </ul>
+
+
+    
 
     
 
@@ -442,7 +160,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
     
 
     
-    <h4 class="name" id="toArgs"><span class="type-signature"></span>toArgs<span class="signature">()</span><span class="type-signature"> &rarr; {FilterArgs}</span></h4>
+    <h4 class="name" id="getInfo"><span class="type-signature"></span>getInfo<span class="signature">()</span><span class="type-signature"> &rarr; {WeightInfo}</span></h4>
     
 
     
@@ -450,7 +168,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
 
 <div class="description">
-    Returns the arguments needed to reconstruct this filter. Extend in subclasses for serialization.
+    Returns a WeightInfo object with the description of the scorer.
 </div>
 
 
@@ -473,6 +191,11 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Scorer.html#getInfo">Scorer#getInfo</a>
+    </li></ul></dd>
     
 
     
@@ -518,7 +241,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
         
 <div class="param-desc">
-    The arguments representing this filter's configuration.
+    The weight info for this scorer.
 </div>
 
 
@@ -529,7 +252,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
     </dt>
     <dd>
         
-<span class="param-type">FilterArgs</span>
+<span class="param-type">WeightInfo</span>
 
 
     </dd>
@@ -549,7 +272,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
     
 
     
-    <h4 class="name" id=".isValidFilterProperty"><span class="type-signature">(static) </span>isValidFilterProperty<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="reset"><span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -557,7 +280,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
 
 <div class="description">
-    Must be overridden in subclasses.
+    Resets the scorer's state and score data.
 </div>
 
 
@@ -580,6 +303,11 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Scorer.html#reset">Scorer#reset</a>
+    </li></ul></dd>
     
 
     
@@ -634,7 +362,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
     
 
     
-    <h4 class="name" id=".removeInvalidFilterArgs"><span class="type-signature">(static) </span>removeInvalidFilterArgs<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="score"><span class="type-signature">(async) </span>score<span class="signature">(toot)</span><span class="type-signature"> &rarr; {Promise.&lt;number>}</span></h4>
     
 
     
@@ -642,7 +370,7 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
 
 <div class="description">
-    Remove any filter args from the list whose propertyName is invalid
+    Public API for scoring a toot. Returns the score, or 0 if not ready.
 </div>
 
 
@@ -651,6 +379,55 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>toot</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Toot.html">Toot</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The toot to score.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -665,6 +442,11 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
     
 
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="Scorer.html#score">Scorer#score</a>
+    </li></ul></dd>
     
 
     
@@ -706,6 +488,28 @@ if it should be included in the timeline feed. Subclasses must implement the isA
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The computed score for the toot.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;number></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
