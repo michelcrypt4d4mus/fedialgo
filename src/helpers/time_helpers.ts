@@ -28,7 +28,11 @@ export function ageInMS(date: DateArg, endTime?: DateArg): number {
 };
 
 
-// Make a nice string like "in 2.5 minutes"
+/**
+ * Make a nice string like "in 2.5 minutes"
+ * @param {DateArg} date - The date to calculate the age from.
+ * @returns {string} A string representing the age in seconds, formatted to 1 decimal place.
+ */
 export function ageString(date: DateArg): string {
     if (!date) return NULL;
     const seconds = ageInSeconds(date);
@@ -37,7 +41,11 @@ export function ageString(date: DateArg): string {
 };
 
 
-// Coerce a string or number into a Date object.
+/**
+ * Coerce a string or number into a Date object.
+ * @param {DateArg} date - The date to coerce.
+ * @returns {Date|null} A Date object if coercion is successful, or null if the input is invalid.
+ */
 export function coerceDate(date: DateArg): Date | null {
     if (!date) return null;
     return (PARSEABLE_DATE_TYPES.has(typeof date) ? new Date(date) : date) as Date;
@@ -123,7 +131,11 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
 // To the format YYYY-MM-DDTHH:MM:SSZ
 export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
     if (!date) return NULL;
-
     const isoString = coerceDate(date)!.toISOString();
     return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
+};
+
+
+export function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null {
+    return date ? toISOFormat(date, withMilliseconds) : null;
 };

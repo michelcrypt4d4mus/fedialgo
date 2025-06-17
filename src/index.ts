@@ -43,7 +43,7 @@ import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
-import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormat } from './helpers/time_helpers';
+import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormat, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
@@ -798,13 +798,14 @@ class TheAlgorithm {
         }
 
         return {
-            feedNumToots: this.feed?.length,
-            homeFeedNumToots: this.homeFeed?.length,
-            homeFeedMostRecentAt: mostRecentTootAt ? toISOFormat(mostRecentTootAt) : null,
-            homeFeedOldestAt: oldestTootAt ? toISOFormat(oldestTootAt) : null,
+            feedNumToots: this.feed.length,
+            homeFeedNumToots: this.homeFeed.length,
+            homeFeedMostRecentAt: toISOFormatIfExists(mostRecentTootAt),
+            homeFeedOldestAt: toISOFormatIfExists(oldestTootAt),
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
             isLoading: this.isLoading,
             loadingStatus: this.loadingStatus,
+            loadStartedAt: toISOFormatIfExists(this.loadStartedAt),
             minMaxScores: computeMinMax(this.feed, (toot) => toot.scoreInfo?.score),
         };
     }

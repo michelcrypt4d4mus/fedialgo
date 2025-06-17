@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 /*
  * Helpers for time-related operations
  */
@@ -26,7 +26,11 @@ function ageInMS(date, endTime) {
 }
 exports.ageInMS = ageInMS;
 ;
-// Make a nice string like "in 2.5 minutes"
+/**
+ * Make a nice string like "in 2.5 minutes"
+ * @param {DateArg} date - The date to calculate the age from.
+ * @returns {string} A string representing the age in seconds, formatted to 1 decimal place.
+ */
 function ageString(date) {
     if (!date)
         return string_helpers_1.NULL;
@@ -36,7 +40,11 @@ function ageString(date) {
 }
 exports.ageString = ageString;
 ;
-// Coerce a string or number into a Date object.
+/**
+ * Coerce a string or number into a Date object.
+ * @param {DateArg} date - The date to coerce.
+ * @returns {Date|null} A Date object if coercion is successful, or null if the input is invalid.
+ */
 function coerceDate(date) {
     if (!date)
         return null;
@@ -129,5 +137,10 @@ function toISOFormat(date, withMilliseconds) {
     return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
 }
 exports.toISOFormat = toISOFormat;
+;
+function toISOFormatIfExists(date, withMilliseconds) {
+    return date ? toISOFormat(date, withMilliseconds) : null;
+}
+exports.toISOFormatIfExists = toISOFormatIfExists;
 ;
 //# sourceMappingURL=time_helpers.js.map

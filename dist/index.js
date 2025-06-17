@@ -736,13 +736,14 @@ class TheAlgorithm {
             numHoursInHomeFeed = (0, time_helpers_1.ageInHours)(oldestTootAt, mostRecentTootAt);
         }
         return {
-            feedNumToots: this.feed?.length,
-            homeFeedNumToots: this.homeFeed?.length,
-            homeFeedMostRecentAt: mostRecentTootAt ? (0, time_helpers_1.toISOFormat)(mostRecentTootAt) : null,
-            homeFeedOldestAt: oldestTootAt ? (0, time_helpers_1.toISOFormat)(oldestTootAt) : null,
+            feedNumToots: this.feed.length,
+            homeFeedNumToots: this.homeFeed.length,
+            homeFeedMostRecentAt: (0, time_helpers_1.toISOFormatIfExists)(mostRecentTootAt),
+            homeFeedOldestAt: (0, time_helpers_1.toISOFormatIfExists)(oldestTootAt),
             homeFeedTimespanHours: numHoursInHomeFeed ? Number(numHoursInHomeFeed.toPrecision(2)) : null,
             isLoading: this.isLoading,
             loadingStatus: this.loadingStatus,
+            loadStartedAt: (0, time_helpers_1.toISOFormatIfExists)(this.loadStartedAt),
             minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
         };
     }
