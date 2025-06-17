@@ -1,6 +1,5 @@
-/*
- * One point if you follow the account (retoots by followed accounts are picked up by the
- * RetootsInFeedScorer).
+/**
+ * @module scorers
  */
 import Account from '../../api/objects/account';
 import MastoApi from '../../api/api';
@@ -10,6 +9,10 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
+/**
+ * One point if you follow the account (retoots by followed accounts are picked up by the
+ * RetootsInFeedScorer).
+ */
 export default class FollowedAccountsScorer extends TootScorer {
     description = "Favour accounts you follow";
 

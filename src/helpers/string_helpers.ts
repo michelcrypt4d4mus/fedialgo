@@ -1,5 +1,5 @@
 /**
- * @fileovervier Helpers for dealing with strings.
+ * @fileoverview Helpers for dealing with strings.
  * @module string_helpers
  */
 import escape from 'regexp.escape';

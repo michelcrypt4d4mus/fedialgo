@@ -1,3 +1,6 @@
+/**
+ * @module scorers
+ */
 import Toot from "../../api/objects/toot";
 import TootScorer from "../toot_scorer";
 export default class AuthorFollowersScorer extends TootScorer {
