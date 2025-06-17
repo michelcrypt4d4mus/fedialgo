@@ -8,10 +8,7 @@ import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 
 
-/**
- * Scores with the number of accounts that have posted a toot with the trending tag
- * across the Fediverse.
- */
+/** Scores with the numAccounts from the history of any included trending hashtags. */
 export default class TrendingTagsScorer extends TootScorer {
     description = "Favour hashtags that are trending in the Fediverse";
 

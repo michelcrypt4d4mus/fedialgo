@@ -7,10 +7,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const config_1 = require("../../config");
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
-/**
- * Scores with the number of accounts that have posted a toot with the trending tag
- * across the Fediverse.
- */
+/** Scores with the numAccounts from the history of any included trending hashtags. */
 class TrendingTagsScorer extends toot_scorer_1.default {
     description = "Favour hashtags that are trending in the Fediverse";
     constructor() {

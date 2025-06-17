@@ -3,10 +3,7 @@
  */
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
-/**
- * Scores with the number of accounts that have posted a toot with the trending tag
- * across the Fediverse.
- */
+/** Scores with the numAccounts from the history of any included trending hashtags. */
 export default class TrendingTagsScorer extends TootScorer {
     description: string;
     constructor();
