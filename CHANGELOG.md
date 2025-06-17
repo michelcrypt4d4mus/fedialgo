@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.73.5
+* `@react-native-async-storage/async-storage` is a dev dependency, not an actual dependency
+
 ### v0.73.4
 * Add `isTagTootsCacheKey()`, `isCacheKey()` methods, use to reduce logging of `TagTootsCacheKey` fetches
 
