@@ -104,13 +104,14 @@ export default class CountedList<T extends NamedTootCount> {
         return obj;
     }
 
-    /* Standard map function that applies a callback to each object in the objs array. */
+    /** Standard map function that applies a callback to each object in the objs array. */
     map<U>(callback: (obj: T, i?: number) => U): U[] {
         return this.objs.map((obj, i) => callback(obj, i));
     }
 
     /**
      * Get the maximum value for a given key across the objs array
+     * @param {keyof T} propertyName - The property to find the maximum value for.
      * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
      */
     maxValue(propertyName: keyof T): number | undefined {
