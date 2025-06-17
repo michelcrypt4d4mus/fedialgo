@@ -1,4 +1,4 @@
-/*
+/**
  * @module scorers
  */
 import Toot from '../../api/objects/toot';

@@ -1,4 +1,4 @@
-/*
+/**
  * @module scorers
  */
 import TagList from '../../api/tag_list';
