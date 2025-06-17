@@ -10,7 +10,9 @@ const account_1 = __importDefault(require("../../api/objects/account"));
 const api_1 = __importDefault(require("../../api/api"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
-/** One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer). */
+/**
+ * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
+ */
 class FollowedAccountsScorer extends toot_scorer_1.default {
     description = "Favour accounts you follow";
     constructor() {

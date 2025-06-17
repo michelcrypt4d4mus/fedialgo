@@ -9,7 +9,9 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-/** One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer). */
+/**
+ * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
+ */
 export default class FollowedAccountsScorer extends TootScorer {
     description = "Favour accounts you follow";
 

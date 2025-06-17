@@ -1,3 +1,6 @@
+/**
+ * @module toot_scorers
+ */
 import TagList from '../../api/tag_list';
 import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
@@ -8,7 +11,6 @@ import { type StringNumberDict } from "../../types";
 
 /**
  * Score toots containing hashtags the user posts about a lot.
- * @module toot_scorers
  */
 export default class HashtagParticipationScorer extends TootScorer {
     description = "Favour hastags you've tooted about";

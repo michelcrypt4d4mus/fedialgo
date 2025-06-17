@@ -10,7 +10,9 @@ const acccount_scorer_1 = __importDefault(require("./acccount_scorer"));
 const account_1 = __importDefault(require("../../api/objects/account"));
 const api_1 = __importDefault(require("../../api/api"));
 const enums_1 = require("../../enums");
-/** One point for accounts that follow the Fedialgo user. */
+/**
+ * One point for accounts that follow the Fedialgo user.
+ */
 class FollowersScorer extends acccount_scorer_1.default {
     description = "Favour accounts who follow you";
     constructor() {

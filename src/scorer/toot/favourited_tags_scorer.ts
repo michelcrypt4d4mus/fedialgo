@@ -9,7 +9,9 @@ import { sumArray } from '../../helpers/collection_helpers';
 import { type StringNumberDict } from '../../types';
 
 
-/** Score how many times the current user has favourited the toot's hashtags in the past. */
+/**
+ * Score how many times the current user has favourited the toot's hashtags in the past.
+ */
 export default class FavouritedTagsScorer extends TootScorer {
     description = "Favour toots containing hashtags you favourite";
 

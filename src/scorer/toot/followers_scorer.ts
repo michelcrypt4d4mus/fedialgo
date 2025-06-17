@@ -8,7 +8,9 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 
 
-/** One point for accounts that follow the Fedialgo user. */
+/**
+ * One point for accounts that follow the Fedialgo user.
+ */
 export default class FollowersScorer extends AccountScorer {
     description = "Favour accounts who follow you";
 
