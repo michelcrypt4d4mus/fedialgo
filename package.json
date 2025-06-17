@@ -12,7 +12,6 @@
         "lint": "eslint ./src"
     },
     "dependencies": {
-        "@types/blueimp-md5": "^2.18.2",
         "async-mutex": "^0.5.0",
         "axios": "^1.7.2",
         "blueimp-md5": "^2.19.0",
@@ -33,6 +32,7 @@
         "@eslint/compat": "^1.1.0",
         "@eslint/js": "^9.6.0",
         "@react-native-async-storage/async-storage": "^2.2.0",
+        "@types/blueimp-md5": "^2.18.2",
         "@types/jest": "^29.5.14",
         "@types/lodash": "^4.17.17",
         "@types/node": "^20.1.0",
