@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.73.6
+* `@types/blueimp-md5` is a dev dependency, not an actual dependency
+* Upgrade `axios` package to 1.10.0
+
 ### v0.73.5
 * `@react-native-async-storage/async-storage` is a dev dependency, not an actual dependency
 

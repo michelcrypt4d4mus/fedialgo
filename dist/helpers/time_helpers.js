@@ -5,6 +5,7 @@ exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports
  * Helpers for time-related operations
  * @module time_helpers
  */
+const lodash_1 = require("lodash");
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
 // TODO: use the formatting functions, don't do date lookup manually
@@ -17,18 +18,24 @@ const ageInMinutes = (date, endTime) => (0, exports.ageInSeconds)(date, endTime)
 exports.ageInMinutes = ageInMinutes;
 const ageInSeconds = (date, endTime) => ageInMS(date, endTime) / 1000.0;
 exports.ageInSeconds = ageInSeconds;
-function ageInMS(date, endTime) {
-    if (!date) {
-        console.warn("Invalid date passed to ageInSeconds():", date);
+/**
+ * Compute the age in milliseconds from a date to now or an optional end time.
+ * @param {DateArg} startTime - The time to calculate the age from.
+ * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+ * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
+ */
+function ageInMS(startTime, endTime) {
+    if (!startTime) {
+        console.warn("Invalid date passed to ageInSeconds():", startTime);
         return -1;
     }
     endTime = coerceDate(endTime || new Date());
-    return endTime.getTime() - coerceDate(date).getTime();
+    return endTime.getTime() - coerceDate(startTime).getTime();
 }
 exports.ageInMS = ageInMS;
 ;
 /**
- * Make a nice string like "in 2.5 minutes"
+ * Make a nice string like "in 2.5 minutes" representing time from a date to now.
  * @param {DateArg} date - The date to calculate the age from.
  * @returns {string} A string representing the age in seconds, formatted to 1 decimal place.
  */
@@ -44,7 +51,7 @@ exports.ageString = ageString;
 /**
  * Coerce a string or number into a Date object.
  * @param {DateArg} date - The date to coerce.
- * @returns {Date|null} A Date object if coercion is successful, or null if the input is invalid.
+ * @returns {Optional<Date>} A Date object if coercion is successful, or null if the input is invalid.
  */
 function coerceDate(date) {
     if (!date)
@@ -55,15 +62,14 @@ exports.coerceDate = coerceDate;
 ;
 /**
  * Returns the most recent (latest) date from a list of Date or null values.
- * @param {...(Date | null)} args - Dates to compare.
- * @returns {Date | null} The most recent date, or null if none are valid.
+ * @param {...DateArg[]} args - Dates to compare.
+ * @returns {Optional<Date>} The most recent date, or null if none are valid.
  */
 function mostRecent(...args) {
     let mostRecentDate = null;
-    for (const arg of args) {
-        if (arg == null)
-            continue;
-        if (mostRecentDate == null || arg > mostRecentDate) {
+    const coercedArgs = args.filter(a => !(0, lodash_1.isNil)(a)).map(arg => coerceDate(arg));
+    for (const arg of coercedArgs) {
+        if ((0, lodash_1.isNil)(mostRecentDate) || arg > mostRecentDate) {
             mostRecentDate = arg;
         }
     }
@@ -72,8 +78,8 @@ function mostRecent(...args) {
 exports.mostRecent = mostRecent;
 ;
 /**
- * Returns a timestamp string for the current time in local date and time format.
- * @returns {string} The current date and time as a string.
+ * String for the current time in local datetime format, e.g. ""17/06/2025 17:59:58""
+ * @returns {string} Localized current date and time string
  */
 function nowString() {
     const now = new Date();
@@ -88,9 +94,7 @@ exports.nowString = nowString;
  * @returns {string} The quoted ISO format string, or NULL if date is null.
  */
 function quotedISOFmt(date, withMilliseconds) {
-    if (date == null)
-        return string_helpers_1.NULL;
-    return (0, string_helpers_1.quoted)(toISOFormat(date, withMilliseconds));
+    return date ? (0, string_helpers_1.quoted)(toISOFormat(date, withMilliseconds)) : string_helpers_1.NULL;
 }
 exports.quotedISOFmt = quotedISOFmt;
 ;

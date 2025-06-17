@@ -20,7 +20,6 @@ const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 const string_helpers_1 = require("../helpers/string_helpers");
-const enums_2 = require("../enums");
 const trending_with_history_1 = require("./objects/trending_with_history");
 const API_URI = "api";
 const API_V1 = `${API_URI}/v1`;
@@ -44,7 +43,7 @@ class MastodonServer {
     static v1Url = (path) => `${API_V1}/${path}`;
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);
-    static trendingMutexes = (0, enums_2.buildCacheKeyDict)(() => new async_mutex_1.Mutex(), config_1.FEDIVERSE_CACHE_KEYS);
+    static trendingMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex(), config_1.FEDIVERSE_CACHE_KEYS);
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.
@@ -80,7 +79,7 @@ class MastodonServer {
      * @returns {Promise<Toot[]>} Array of trending Toot objects.
      */
     async fetchTrendingStatuses() {
-        const toots = await this.fetchTrending(enums_2.TrendingType.STATUSES);
+        const toots = await this.fetchTrending(enums_1.TrendingType.STATUSES);
         const trendingToots = toots.map(t => toot_1.default.build(t));
         // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
         // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
@@ -100,7 +99,7 @@ class MastodonServer {
             return [];
         }
         const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchTrending(enums_2.TrendingType.LINKS, numLinks);
+        const trendingLinks = await this.fetchTrending(enums_1.TrendingType.LINKS, numLinks);
         trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
         return trendingLinks;
     }
@@ -110,7 +109,7 @@ class MastodonServer {
      */
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
-        const trendingTags = await this.fetchTrending(enums_2.TrendingType.TAGS, numTags);
+        const trendingTags = await this.fetchTrending(enums_1.TrendingType.TAGS, numTags);
         trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)(tag));
         return trendingTags;
     }
