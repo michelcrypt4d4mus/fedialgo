@@ -9,10 +9,7 @@ import { ScoreName } from '../../enums';
 import { type StringNumberDict } from "../../types";
 
 
-/**
- * Score a toot based on how many times the user has retooted the author (or
- * the original author if it's a retoot).
- */
+/** Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot). */
 export default class MostRetootedAccountsScorer extends AccountScorer {
     description = "Favour accounts you often retoot";
 
