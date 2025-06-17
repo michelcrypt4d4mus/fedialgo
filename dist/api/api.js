@@ -33,15 +33,13 @@ const Storage_1 = __importDefault(require("../Storage"));
 const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const enums_1 = require("../enums");
 const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
 const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const time_helpers_2 = require("../helpers/time_helpers");
-const enums_2 = require("../enums");
-const enums_3 = require("../enums");
+const enums_1 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
 ;
@@ -553,7 +551,7 @@ class MastoApi {
     async searchForToots(searchStr, logger, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
         const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
-        const query = { limit: maxRecords, q: searchStr, type: enums_3.TrendingType.STATUSES };
+        const query = { limit: maxRecords, q: searchStr, type: enums_1.TrendingType.STATUSES };
         const startedAt = new Date();
         try {
             const searchResult = await this.api.v2.search.list(query);
@@ -608,7 +606,7 @@ class MastoApi {
      * @returns {string} The tag URL.
      */
     tagUrl(tag) {
-        return `${this.endpointURL(enums_3.TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
+        return `${this.endpointURL(enums_1.TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
     }
     /////////////////////////////
     //     Private Methods     //
@@ -647,10 +645,11 @@ class MastoApi {
                 newRows = newRows.concat(page);
                 // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
-                let resultsMsg = `fetched ${page.length} ${waitTime.ageString()} in page ${++pageNumber}`;
-                resultsMsg += `, ${newRows.length} records so far`;
+                let resultsMsg = `got page ${++pageNumber} with ${page.length} objs ${waitTime.ageString()}`;
+                resultsMsg += `, ${newRows.length} objs so far`;
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
-                    logger.debug(`Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`);
+                    const msg = `Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`;
+                    (0, enums_1.isTagTootsCacheKey)(cacheKey) ? logger.trace(msg) : logger.debug(msg);
                     break;
                 }
                 else if (waitTime.ageInSeconds() > config_1.config.api.maxSecondsPerPage) {
@@ -743,7 +742,7 @@ class MastoApi {
             let newRows = await this.fetchApiObjs(params);
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            newRows = enums_2.UNIQUE_ID_PROPERTIES[cacheKey] ? [...newRows, ...cachedRows] : newRows;
+            newRows = enums_1.UNIQUE_ID_PROPERTIES[cacheKey] ? [...newRows, ...cachedRows] : newRows;
             const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
             // If we have a maxCacheRecords limit, truncate the new rows to that limit
             if (maxCacheRecords && objs.length > maxCacheRecords) {
@@ -901,8 +900,8 @@ class MastoApi {
         MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
-        if (enums_2.UNIQUE_ID_PROPERTIES[cacheKey]) {
-            logger.warn(`${msg} Merging cached + new rows on uniq property: "${enums_2.UNIQUE_ID_PROPERTIES[cacheKey]}"`);
+        if (enums_1.UNIQUE_ID_PROPERTIES[cacheKey]) {
+            logger.warn(`${msg} Merging cached + new rows on uniq property: "${enums_1.UNIQUE_ID_PROPERTIES[cacheKey]}"`);
             return [...cachedRows, ...rows];
         }
         else if (!cacheResult?.minMaxId) {
@@ -933,11 +932,11 @@ class MastoApi {
     buildFromApiObjects(key, objects, logger) {
         let newObjects;
         // Toots get special handling for deduplication
-        if (enums_2.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
+        if (enums_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));
             return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
-        else if (enums_2.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
+        else if (enums_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             newObjects = objects.map(obj => account_1.default.build(obj));
         }
         else {

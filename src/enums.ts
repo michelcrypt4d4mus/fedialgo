@@ -253,6 +253,11 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 
+/** True if argument is a member of CacheKey. */
+export const isCacheKey = isValueInStringEnum(CacheKey);
+/** True if argument is a member of TagTootsCacheKey. */
+export const isTagTootsCacheKey = isValueInStringEnum(TagTootsCacheKey);
+
 /** True if argument is a member of NonScoreWeightName enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
 /** True if argument is a member of ScoreName enum. */

@@ -3,7 +3,7 @@
  * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
 /**
  * Enum of storage keys for user data and app state (not API cache).
  * @enum {string}
@@ -223,6 +223,10 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
+/** True if argument is a member of CacheKey. */
+exports.isCacheKey = isValueInStringEnum(CacheKey);
+/** True if argument is a member of TagTootsCacheKey. */
+exports.isTagTootsCacheKey = isValueInStringEnum(TagTootsCacheKey);
 /** True if argument is a member of NonScoreWeightName enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
 /** True if argument is a member of ScoreName enum. */

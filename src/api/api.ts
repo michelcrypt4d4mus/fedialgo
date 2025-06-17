@@ -12,15 +12,22 @@ import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
 import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
-import { CacheKey, buildCacheKeyDict, type ApiCacheKey } from "../enums";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
 import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
-import { STORAGE_KEYS_WITH_ACCOUNTS, STORAGE_KEYS_WITH_TOOTS, UNIQUE_ID_PROPERTIES } from "../enums";
-import { TrendingType } from '../enums';
+import {
+    CacheKey,
+    TrendingType,
+    STORAGE_KEYS_WITH_ACCOUNTS,
+    STORAGE_KEYS_WITH_TOOTS,
+    UNIQUE_ID_PROPERTIES,
+    buildCacheKeyDict,
+    isTagTootsCacheKey,
+    type ApiCacheKey,
+} from "../enums";
 import {
     findMinMaxId,
     getPromiseResults,
@@ -819,11 +826,12 @@ export default class MastoApi {
 
                 // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
-                let resultsMsg = `fetched ${page.length} ${waitTime.ageString()} in page ${++pageNumber}`;
-                resultsMsg += `, ${newRows.length} records so far`;
+                let resultsMsg = `got page ${++pageNumber} with ${page.length} objs ${waitTime.ageString()}`;
+                resultsMsg += `, ${newRows.length} objs so far`;
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
-                    logger.debug(`Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`);
+                    const msg = `Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`;
+                    isTagTootsCacheKey(cacheKey) ? logger.trace(msg) : logger.debug(msg);
                     break;
                 } else if (waitTime.ageInSeconds() > config.api.maxSecondsPerPage) {
                     logger.logAndThrowError(`Request took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`)
