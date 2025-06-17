@@ -743,9 +743,7 @@ class MastoApi {
             let newRows = await this.fetchApiObjs(params);
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
-            if (cacheKey) {
-                newRows = [...newRows, ...cachedRows];
-            }
+            newRows = enums_2.UNIQUE_ID_PROPERTIES[cacheKey] ? [...newRows, ...cachedRows] : newRows;
             const objs = this.buildFromApiObjects(cacheKey, newRows, logger);
             // If we have a maxCacheRecords limit, truncate the new rows to that limit
             if (maxCacheRecords && objs.length > maxCacheRecords) {
