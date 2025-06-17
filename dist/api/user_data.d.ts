@@ -1,6 +1,6 @@
 import { mastodon } from "masto";
 import Account from "./objects/account";
-import { BooleanFilterOptionList, ObjList } from "./obj_with_counts_list";
+import { BooleanFilterOptionList, ObjList } from "./counted_list";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { type AccountNames, type StringNumberDict, type TagWithUsageCounts } from "../types";
@@ -27,6 +27,7 @@ interface UserApiData {
  * @property {TagList} favouritedTags - List of tags the user has favourited.
  * @property {StringNumberDict} followedAccounts - Dictionary of accounts the user follows, keyed by account name.
  * @property {TagList} followedTags - List of tags the user follows.
+ * @property {boolean} isRetooter - True if the user is primarily a retooter (retootPct above configured threshold).
  * @property {ObjList} languagesPostedIn - List of languages the user has posted in, with usage counts.
  * @property {Record<string, Account>} mutedAccounts - Dictionary of accounts the user has muted or blocked, keyed by Account["webfingerURI"].
  * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
@@ -40,6 +41,7 @@ export default class UserData {
     favouritedTags: TagList;
     followedAccounts: StringNumberDict;
     followedTags: TagList;
+    isRetooter: boolean;
     languagesPostedIn: ObjList;
     mutedAccounts: AccountNames;
     mutedKeywordsRegex: RegExp;

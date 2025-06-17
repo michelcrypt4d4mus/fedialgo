@@ -9,7 +9,7 @@ import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
-import { BooleanFilterOptionList } from "../api/obj_with_counts_list";
+import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
 import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";

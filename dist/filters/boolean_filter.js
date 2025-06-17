@@ -12,7 +12,7 @@ exports.TYPE_FILTERS = void 0;
 const lodash_1 = require("lodash");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
-const obj_with_counts_list_1 = require("../api/obj_with_counts_list");
+const counted_list_1 = require("../api/counted_list");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
@@ -92,7 +92,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     constructor(params) {
         const { invertSelection, propertyName, selectedOptions } = params;
-        const optionInfo = new obj_with_counts_list_1.BooleanFilterOptionList([], propertyName);
+        const optionInfo = new counted_list_1.BooleanFilterOptionList([], propertyName);
         let description;
         if (propertyName == enums_1.BooleanFilterName.TYPE) {
             description = SOURCE_FILTER_DESCRIPTION;
@@ -180,7 +180,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0) {
         options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new obj_with_counts_list_1.BooleanFilterOptionList(options, this.propertyName);
+        return new counted_list_1.BooleanFilterOptionList(options, this.propertyName);
     }
     /**
      * Checks if a given property name is a valid numeric filter name.

@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_CACHE_KEYS = void 0;
-/*
- * Centralized location for non-user configurable settings.
- */
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 // Cachey keys for the fediverse wide trending data
@@ -120,6 +117,9 @@ class Config {
             [enums_1.CacheKey.HOMESERVER_TOOTS]: {
                 initialMaxRecords: 20,
                 minutesUntilStale: 10,
+            },
+            [enums_1.CacheKey.INSTANCE_INFO]: {
+                minutesUntilStale: 30 * exports.MINUTES_IN_DAY,
             },
             [enums_1.CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,

@@ -146,7 +146,7 @@ export default class MastoApi {
      * @param {ApiParams} params
      * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
-    getHomeserverTimelineToots(params?: ApiParams): Promise<Toot[]>;
+    getHomeserverToots(params?: ApiParams): Promise<Toot[]>;
     /**
      * Gets all muted accounts (including fully blocked accounts).
      * @param {ApiParams} [params] - Optional parameters.
@@ -196,7 +196,7 @@ export default class MastoApi {
      */
     hashtagTimelineToots(tagName: string, logger: Logger, maxRecords?: number): Promise<Toot[]>;
     /**
-     * Retrieves the user's home instance (mastodon server) configuration from the API.
+     * Retrieve the user's home instance (mastodon server) configuration from the API.
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */
     instanceInfo(): Promise<mastodon.v2.Instance>;

@@ -1,12 +1,19 @@
 # NEXT RELEASE
 
+# v0.73.0
+* Use a real mutex to lock `TheAlgorithm`'s toot fetch methods; rework logging situation
+* Cache user's Mastodon server instance info in browser storage for 30 days
+* Add `isRetooter` property to `UserData`
+* Fix issue where `isRetooter` was incorrectly applied to `FAVOURITED_TAG_TOOTS`
+* Rename `ObjWithCountList` to `CountedList` and stop exporting it
+
 ### v0.72.8
 * Rename `FeatureScorer` to `TootScorer`
 * Rename `HOMESERVER_TIMELINE_TOOTS` to just `HOMESERVER_TOOTS`
-* Remove moreOldToots argument from triggerFeedUpate() (client app should call triggerHomeTimelineBackFill())
+* Remove `moreOldToots` argument from `triggerFeedUpate()` (client app should call `triggerHomeTimelineBackFill()`)
 * Remove config `hashtagTootRetrievalDelaySeconds`; don't sleep before launching hashtag `Toot` retrieval
 * Use `fetchGenerator() for all API calls instead of either `fetch()` or `fetchGenerator()`
-* Lower config.api.backgroundLoadSleepBetweenRequestsMS to 1000
+* Lower `config.api.backgroundLoadSleepBetweenRequestsMS` to 1000
 
 ### v0.72.7
 * Mark `Toot` objects that are missing a `trendingLinks` property as needing to be recompleted

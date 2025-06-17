@@ -20,16 +20,16 @@ type TagTootsBuildConfig = {
 const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
     [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
         buildTagList: async () => {
-            const tagList = await TagList.fromFavourites();
+            const tagList = await TagList.buildFavouritedTags();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
-            const participatedTags = await TagList.fromParticipated();
+            const participatedTags = await TagList.buildParticipatedTags();
             const maxParticipations = config.favouritedTags.maxParticipations;  // TODO: use heuristic to pick this number?
             return tagList.filter(tag => (participatedTags.getTag(tag)?.numToots || 0) <= maxParticipations);
         },
         config: config.favouritedTags,
     },
     [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-        buildTagList: TagList.fromParticipated,
+        buildTagList: async () => await TagList.buildParticipatedTags(),  // TODO: why do I have to define an anonymous fxn for this to work?
         config: config.participatedTags,
     },
     [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
@@ -45,7 +45,7 @@ export default class TagsForFetchingToots {
     logger: Logger;
     tagList: TagList;
 
-    // Alternate constructor
+    /** Alternate async constructor. */
     static async create(cacheKey: TagTootsCacheKey): Promise<TagsForFetchingToots> {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
@@ -61,7 +61,7 @@ export default class TagsForFetchingToots {
         this.tagList = tagList;
     }
 
-    // Get toots for the list of tags, caching the results
+    /** Get toots for the list of tags, caching the results. */
     async getToots(): Promise<Toot[]> {
         return await MastoApi.instance.getCacheableToots(
             async () => {
@@ -87,7 +87,7 @@ export default class TagsForFetchingToots {
         );
     };
 
-    // Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags
+    /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     private async removeUnwantedTags(): Promise<void> {
         await this.tagList.removeMutedTags();
         await this.tagList.removeFollowedTags();
@@ -100,7 +100,7 @@ export default class TagsForFetchingToots {
         }
     }
 
-    // Return numTags tags sorted by numToots then by name (return all if numTags is not set)
+    /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.config.numTags;
         const tags = truncateToConfiguredLength(this.tagList.topObjs(), numTags, this.logger);
@@ -108,12 +108,12 @@ export default class TagsForFetchingToots {
         return tags;
     }
 
-    // Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form
+    /** Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form. */
     static async rawTagLists(): Promise<Record<TagTootsCacheKey, TagList>> {
         return await resolvePromiseDict(
             {
-                [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: TagList.fromFavourites(),
-                [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: TagList.fromParticipated(),
+                [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: TagList.buildFavouritedTags(),
+                [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: TagList.buildParticipatedTags(),
                 [TagTootsCacheKey.TRENDING_TAG_TOOTS]: MastodonServer.fediverseTrendingTags(),
             },
             new Logger("TagsForFetchingToots.rawTagLists()"),

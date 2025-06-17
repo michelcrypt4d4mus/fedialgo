@@ -1,6 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
+import { min } from "lodash";
 import { CacheKey, NonScoreWeightName, TagTootsCacheKey, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { type NonScoreWeightInfoDict } from "./types";
@@ -227,6 +228,9 @@ class Config implements ConfigType {
             [CacheKey.HOMESERVER_TOOTS]: {
                 initialMaxRecords: 20,
                 minutesUntilStale: 10,
+            },
+            [CacheKey.INSTANCE_INFO]: {
+                minutesUntilStale: 30 * MINUTES_IN_DAY,
             },
             [CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,

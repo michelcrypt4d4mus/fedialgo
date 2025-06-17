@@ -30,6 +30,7 @@ export declare enum CacheKey {
     HASHTAG_TOOTS = "HashtagToots",
     HOME_TIMELINE_TOOTS = "HomeTimelineToots",
     HOMESERVER_TOOTS = "HomeserverToots",
+    INSTANCE_INFO = "InstanceInfo",
     MUTED_ACCOUNTS = "MutedAccounts",
     NOTIFICATIONS = "Notifications",
     RECENT_USER_TOOTS = "RecentUserToots",

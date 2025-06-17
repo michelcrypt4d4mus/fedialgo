@@ -321,7 +321,7 @@ class MastoApi {
      * @param {ApiParams} params
      * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
-    async getHomeserverTimelineToots(params) {
+    async getHomeserverToots(params) {
         return await this.getApiObjsAndUpdate({
             cacheKey: enums_1.CacheKey.HOMESERVER_TOOTS,
             fetchGenerator: () => this.api.v1.timelines.public.list,
@@ -488,24 +488,29 @@ class MastoApi {
         }
     }
     /**
-     * Retrieves the user's home instance (mastodon server) configuration from the API.
+     * Retrieve the user's home instance (mastodon server) configuration from the API.
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */
     async instanceInfo() {
-        try {
-            return await this.api.v2.instance.fetch();
-        }
-        catch (err) {
-            this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
-            const v1Instance = await this.api.v1.instance.fetch();
-            if (v1Instance) {
-                const msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
-                this.logger.logAndThrowError(msg, v1Instance);
+        let instanceInfo = await Storage_1.default.getIfNotStale(enums_1.CacheKey.INSTANCE_INFO);
+        if (!instanceInfo) {
+            try {
+                instanceInfo = await this.api.v2.instance.fetch();
+                await Storage_1.default.set(enums_1.CacheKey.INSTANCE_INFO, instanceInfo);
             }
-            else {
-                this.logger.logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+            catch (err) {
+                this.logger.error(`<instanceInfo()> Failed to fetch user's instance info, trying V1 API:`, err);
+                const v1Instance = await this.api.v1.instance.fetch();
+                if (v1Instance) {
+                    const msg = `V2 instanceInfo() not available but v1 instance info exists. Unfortunately I will now discard it.`;
+                    this.logger.logAndThrowError(msg, v1Instance);
+                }
+                else {
+                    this.logger.logAndThrowError(`Failed to fetch Mastodon instance info from both V1 and V2 APIs`, err);
+                }
             }
         }
+        return instanceInfo;
     }
     /**
      * Locks all API and cache mutexes for cache state operations.
