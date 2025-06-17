@@ -149,9 +149,236 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="objs"><span class="type-signature"></span>objs<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Has side effect of mutating the 'nameDict' property.
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="CountedList.html#objs">CountedList#objs</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="filter"><span class="type-signature"></span>filter<span class="signature">(predicate)</span><span class="type-signature"> &rarr; {module:api/counted_list~CountedList.&lt;T>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Like the standard Array.filter().
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>predicate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Function to test each object in the list.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="CountedList.html#filter">CountedList#filter</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    A new CountedList containing only the objects that match the predicate.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">module:api/counted_list~CountedList.&lt;T></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
 
         
             
@@ -167,8 +394,7 @@
 
 
 <div class="description">
-    Returns the object in the list with the given name, or undefined if not found.
-Name matching is case-insensitive.
+    Returns the object in the list with the given name (case-insensitive) if it exists.
 </div>
 
 
@@ -483,6 +709,211 @@ Name matching is case-insensitive.
     
 
     
+    <h4 class="name" id="incrementCount"><span class="type-signature"></span>incrementCount<span class="signature">(name, newObjDecorator<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {T}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Increment numToots for the given 'name'. If no obj with 'name' exists create a new one
+and call newObjDecorator() to get its properties.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">The name of the object to increment.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>newObjDecorator</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional function to decorate the new object with additional properties.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="CountedList.html#incrementCount">CountedList#incrementCount</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The object with the incremented numToots.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">T</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="maxValue"><span class="type-signature"></span>maxValue<span class="signature">()</span><span class="type-signature"> &rarr; {number|undefined}</span></h4>
     
 
@@ -710,7 +1141,7 @@ Name matching is case-insensitive.
     
 
     
-    <h4 class="name" id="populateByCountingProps"><span class="type-signature"></span>populateByCountingProps<span class="signature">(objs, propExtractor)</span><span class="type-signature"> &rarr; {void}</span></h4>
+    <h4 class="name" id="populateByCountingProps"><span class="type-signature"></span>populateByCountingProps<span class="signature">(objs, propExtractor)</span><span class="type-signature"></span></h4>
     
 
     
@@ -718,7 +1149,7 @@ Name matching is case-insensitive.
 
 
 <div class="description">
-    Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears
+    Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
 Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
 </div>
 
@@ -794,7 +1225,7 @@ Resulting BooleanFilterOptions will be decorated with properties returned by pro
 
             
 
-            <td class="description last">Function to extract the properties to count from each object.</td>
+            <td class="description last">Function to extract the decorator properties for the counted objects.</td>
         </tr>
 
     
@@ -860,24 +1291,6 @@ Resulting BooleanFilterOptions will be decorated with properties returned by pro
 
 
 
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">void</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -1061,7 +1474,7 @@ Resulting BooleanFilterOptions will be decorated with properties returned by pro
     
 
     
-    <h4 class="name" id="removeKeywords"><span class="type-signature"></span>removeKeywords<span class="signature">()</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
+    <h4 class="name" id="removeKeywords"><span class="type-signature"></span>removeKeywords<span class="signature">(keywords)</span><span class="type-signature"></span></h4>
     
 
     
@@ -1078,6 +1491,55 @@ Resulting BooleanFilterOptions will be decorated with properties returned by pro
 
 
 
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>keywords</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array.&lt;string></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Array of keywords to match against the object's name.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -1138,24 +1600,6 @@ Resulting BooleanFilterOptions will be decorated with properties returned by pro
 
 
 
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;void></span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
@@ -1896,7 +2340,7 @@ Note the special handling of retooters.
             <td class="type">
             
                 
-<span class="param-type">ObjListDataSource</span>
+<span class="param-type">CountedListSource</span>
 
 
             
@@ -2018,7 +2462,7 @@ Note the special handling of retooters.
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Jun 17 2025 00:12:52 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Jun 17 2025 00:48:20 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
