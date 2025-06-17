@@ -19,10 +19,9 @@ export type ObjList = CountedList<NamedTootCount>;
 
 
 /**
- * A generic list class for objects with a name and a 'numToots' property.
+ * Generic list-ish class for NamedTootCount objects with 'name' and 'numToots' properties.
  * Supports both dictionary and sorted list operations, and provides utility methods
  * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
- *
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
@@ -62,7 +61,11 @@ export default class CountedList<T extends NamedTootCount> {
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
     }
 
-    // Remove elements that don't match the predicate(). Returns a new ObjWithCountList object
+    /**
+     * Like the standard Array.filter().
+     * @param {function} predicate - Function to test each object in the list.
+     * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
+     */
     filter(predicate: (obj: T) => boolean): CountedList<T> {
         return new CountedList<T>(this.objs.filter(predicate), this.source);
     }

@@ -2,10 +2,9 @@ import { Logger } from '../helpers/logger';
 import { type BooleanFilterOption, type CountedListSource, type NamedTootCount, type StringNumberDict } from "../types";
 export type ObjList = CountedList<NamedTootCount>;
 /**
- * A generic list class for objects with a name and a 'numToots' property.
+ * Generic list-ish class for NamedTootCount objects with 'name' and 'numToots' properties.
  * Supports both dictionary and sorted list operations, and provides utility methods
  * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
- *
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
@@ -26,6 +25,11 @@ export default class CountedList<T extends NamedTootCount> {
     set objs(objs: T[]);
     constructor(objs: T[], source: CountedListSource);
     addObjs(objs: T[]): void;
+    /**
+     * Like the standard Array.filter().
+     * @param {function} predicate - Function to test each object in the list.
+     * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
+     */
     filter(predicate: (obj: T) => boolean): CountedList<T>;
     /**
      * Returns the object in the list with the given name, or undefined if not found.
