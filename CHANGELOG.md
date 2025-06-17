@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Use a real mutex to lock Toot fetching invocations; rework logging situation in `TheAlgorithm`
+* Use a real mutex to lock `TheAlgorithm`'s toot fetch methods; rework logging situation
 * Cache user's mastodon server instance info in browser storage for 30 days
 
 ### v0.72.8
