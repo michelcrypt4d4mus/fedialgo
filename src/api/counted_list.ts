@@ -57,7 +57,7 @@ export default class CountedList<T extends NamedTootCount> {
     constructor(objs: T[], source: CountedListSource) {
         this.objs = objs;
         this.source = source;
-        this.logger = new Logger("ObjWithCountList", source);
+        this.logger = new Logger("CountedList", source);
     }
 
     // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
@@ -188,7 +188,7 @@ export default class CountedList<T extends NamedTootCount> {
 
 // TODO: This has to be here for circular dependency reasons
 /**
- * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
+ * Subclass of CountedList for lists of BooleanFilterObject objects.
  * @augments CountedList
  */
 export class BooleanFilterOptionList extends CountedList<BooleanFilterOption> {};

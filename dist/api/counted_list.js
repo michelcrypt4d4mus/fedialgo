@@ -46,7 +46,7 @@ class CountedList {
     constructor(objs, source) {
         this.objs = objs;
         this.source = source;
-        this.logger = new logger_1.Logger("ObjWithCountList", source);
+        this.logger = new logger_1.Logger("CountedList", source);
     }
     // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
     addObjs(objs) {
@@ -160,7 +160,7 @@ exports.default = CountedList;
 ;
 // TODO: This has to be here for circular dependency reasons
 /**
- * Subclass of ObjWithCountList for lists of BooleanFilterObject objects.
+ * Subclass of CountedList for lists of BooleanFilterObject objects.
  * @augments CountedList
  */
 class BooleanFilterOptionList extends CountedList {

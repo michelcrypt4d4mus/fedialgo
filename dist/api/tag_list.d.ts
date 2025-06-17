@@ -2,7 +2,7 @@ import CountedList from "./counted_list";
 import Toot from "./objects/toot";
 import { type CountedListSource, type MastodonTag, type NamedTootCount, type TagWithUsageCounts } from "../types";
 /**
- * Subclass of ObjWithCountList for lists of TagWithUsageCounts objects.
+ * Subclass of CountedList for lists of TagWithUsageCounts objects.
  * @augments CountedList
  */
 export default class TagList extends CountedList<TagWithUsageCounts> {
