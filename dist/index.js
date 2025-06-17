@@ -598,8 +598,6 @@ class TheAlgorithm {
         hereLogger.debug(`${this.loadingStatus}...`);
         await toot_1.default.completeToots(this.feed, hereLogger);
         this.feed = await toot_1.default.removeInvalidToots(this.feed, hereLogger);
-        // TODO: removeUsersOwnToots() shouldn't be necessary but bc of a bug user toots ending up in the feed. Remove in a week or so.
-        this.feed = toot_1.default.removeUsersOwnToots(this.feed, hereLogger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();

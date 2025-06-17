@@ -282,6 +282,15 @@ export default class Toot implements TootObj {
     private determineLanguage;
     private isComplete;
     private isUsersOwnToot;
+    /**
+     * Repair toot properties:
+     *   - Set toot.application.name to UNKNOWN if missing
+     *   - Call determineLanguage() to set the language
+     *   - Lowercase all tags
+     *   - Repair mediaAttachment types if reparable based on URL file extension
+     *   - Repair StatusMention objects for users on home server
+     * @private
+     */
     private repair;
     /**
      * Build array of new Toot objects from an array of Status objects (or Toots).
