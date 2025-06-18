@@ -483,16 +483,17 @@ class TheAlgorithm {
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.isLoading || (this.totalNumTimesShown == newTotalNumTimesShown))
             return;
+        const hereLogger = logger.tempLogger(`saveTimelineToCache`);
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown` +
                 `on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
-            loggers[enums_1.AlgorithmStorageKey.TIMELINE_TOOTS].debug(msg);
+            hereLogger.debug(msg);
             await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {
-            loggers[enums_1.AlgorithmStorageKey.TIMELINE_TOOTS].error(`Error saving toots:`, error);
+            hereLogger.error(`Error saving toots:`, error);
         }
     }
     /**
