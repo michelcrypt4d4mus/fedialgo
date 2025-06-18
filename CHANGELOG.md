@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Fix bug in saveTimelineToCache()
+
+### v0.73.10
+* Fix bug in `saveTimelineToCache()`
 
 ### v0.73.9
 * Make a last ditch effort at `Toot` language detection with `detectForeignScriptLanguage()`
