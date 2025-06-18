@@ -80,6 +80,12 @@ export declare class Logger {
      */
     logSortedDict(msg: string, dict: StringNumberDict): void;
     /**
+     * Log a message with stringified properties ('propX="somestring", propY=5', etc.) from an object.
+     * @param {string} msg
+     * @param {Record<string, Date | OptionalString | boolean | number>} obj
+     */
+    logStringifiedProps(msg: string, obj: Record<string, Date | OptionalString | boolean | number>): void;
+    /**
      * Logs a message with the elapsed time since startedAt, optionally with additional labels/args.
      * @param {string} msg - The message to log.
      * @param {Date} [startedAt] - The start time to compute elapsed time.

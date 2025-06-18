@@ -13,8 +13,8 @@ import { type ApiObj } from '../types';
 
 type Poller = (params?: ApiParams) => Promise<ApiObj[]>;
 
-export const GET_MOAR_DATA = "getMoarData()";
-export const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
+const GET_MOAR_DATA = "getMoarData()";
+const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new Mutex();
 
 export const moarDataLogger = new Logger(GET_MOAR_DATA);
@@ -50,9 +50,8 @@ export async function getMoarData(): Promise<boolean> {
                 const newRecords = await pollers[i]({moar: true});  // Launch the puller with moar=true
                 const newCount = (newRecords?.length || 0);
                 const extraCount = newCount - cacheSizes[i];
-                let msg = `${MOAR_DATA_PREFIX} ${pollers[i].name} oldCount=${cacheSizes[i]}`;
-                msg += `, newCount=${newCount}, extraCount=${extraCount}`;
-                extraCount < 0 ? console.warn(msg) : console.log(msg);
+                const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
+                moarDataLogger.logStringifiedProps(pollers[i].name, logObj);
                 return extraCount || 0;
             })
         );

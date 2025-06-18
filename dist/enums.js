@@ -13,6 +13,7 @@ var AlgorithmStorageKey;
 (function (AlgorithmStorageKey) {
     AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
     AlgorithmStorageKey["FILTERS"] = "Filters";
+    AlgorithmStorageKey["TIMELINE_TOOTS"] = "TimelineToots";
     AlgorithmStorageKey["USER"] = "FedialgoUser";
     AlgorithmStorageKey["WEIGHTS"] = "Weights";
 })(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
@@ -44,7 +45,6 @@ var CacheKey;
     CacheKey["NOTIFICATIONS"] = "Notifications";
     CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
     CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
-    CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;
 /**
@@ -171,7 +171,7 @@ var TypeFilterName;
 //      Constants        //
 ///////////////////////////
 // Objects fetched with these keys need to be built into proper Toot objects.
-exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []).concat(Object.values(TagTootsCacheKey));
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS]).concat(Object.values(TagTootsCacheKey));
 // Objects fetched with these keys need to be built into proper Account objects.
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.

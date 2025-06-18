@@ -104,7 +104,7 @@ export default class Storage {
     }
 
     /** Get the value at the given key but coerced to an empty array if there's nothing there. */
-    static async getCoerced<T>(key: CacheKey): Promise<T[]> {
+    static async getCoerced<T>(key: CacheKey | AlgorithmStorageKey.TIMELINE_TOOTS): Promise<T[]> {
         let value = await this.get(key);
 
         if (!value) {
@@ -406,7 +406,7 @@ export default class Storage {
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     private static async secondsSinceMostRecentToot(): Promise<number | null> {
-        const timelineToots = await this.get(CacheKey.TIMELINE_TOOTS);
+        const timelineToots = await this.get(AlgorithmStorageKey.TIMELINE_TOOTS);
         if (!timelineToots) return null;
         const mostRecent = mostRecentTootedAt(timelineToots as Toot[]);
 

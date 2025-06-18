@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.73.7
+* Refactor API errors handling methods to `api/errors.ts` file
+* Add `logStringifiedProps()` to `Logger` class
+
 ### v0.73.6
 * `@types/blueimp-md5` is a dev dependency, not an actual dependency
 * Upgrade `axios` package to 1.10.0

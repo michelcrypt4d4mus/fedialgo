@@ -10,6 +10,7 @@
 export enum AlgorithmStorageKey {
     APP_OPENS = 'AppOpens',
     FILTERS = 'Filters',
+    TIMELINE_TOOTS = 'TimelineToots',  // The entire timeline (home timeline + trending toots etc.)
     USER = 'FedialgoUser',
     WEIGHTS = 'Weights'
 };
@@ -40,7 +41,6 @@ export enum CacheKey {
     NOTIFICATIONS = 'Notifications',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE_TOOTS = 'TimelineToots',  // The entire timeline (home timeline + trending toots etc.)
 };
 
 /**
@@ -182,7 +182,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 // Objects fetched with these keys need to be built into proper Toot objects.
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
-    [] as StorageKey[]
+    [AlgorithmStorageKey.TIMELINE_TOOTS] as StorageKey[]
 ).concat(Object.values(TagTootsCacheKey));
 
 // Objects fetched with these keys need to be built into proper Account objects.

@@ -485,13 +485,14 @@ class TheAlgorithm {
             return;
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
-            const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-            loggers[enums_1.CacheKey.TIMELINE_TOOTS].debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
+            const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown` +
+                `on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
+            loggers[enums_1.AlgorithmStorageKey.TIMELINE_TOOTS].debug(msg);
+            await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {
-            loggers[enums_1.CacheKey.TIMELINE_TOOTS].error(`Error saving toots:`, error);
+            loggers[enums_1.AlgorithmStorageKey.TIMELINE_TOOTS].error(`Error saving toots:`, error);
         }
     }
     /**
@@ -634,12 +635,12 @@ class TheAlgorithm {
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     async loadCachedData() {
         this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);
-        this.feed = await Storage_1.default.getCoerced(enums_1.CacheKey.TIMELINE_TOOTS);
+        this.feed = await Storage_1.default.getCoerced(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS);
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
             const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
             logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
             this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, logger);
-            await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
+            await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         }
         this.trendingData = await Storage_1.default.getTrendingData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
@@ -725,7 +726,7 @@ class TheAlgorithm {
         // await ScorerCache.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
         this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, logger.tempLogger('scoreAndFilterFeed()'));
-        await Storage_1.default.set(enums_1.CacheKey.TIMELINE_TOOTS, this.feed);
+        await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
     // Info about the state of this TheAlgorithm instance

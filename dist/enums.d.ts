@@ -6,6 +6,7 @@
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",
     FILTERS = "Filters",
+    TIMELINE_TOOTS = "TimelineToots",
     USER = "FedialgoUser",
     WEIGHTS = "Weights"
 }
@@ -34,8 +35,7 @@ export declare enum CacheKey {
     MUTED_ACCOUNTS = "MutedAccounts",
     NOTIFICATIONS = "Notifications",
     RECENT_USER_TOOTS = "RecentUserToots",
-    SERVER_SIDE_FILTERS = "ServerFilters",
-    TIMELINE_TOOTS = "TimelineToots"
+    SERVER_SIDE_FILTERS = "ServerFilters"
 }
 /**
  * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.

@@ -180,9 +180,6 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: MINUTES_IN_DAY,
             },
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
-                minutesUntilStale: 60,
-            },
             [CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: Math.floor(MIN_RECORDS_FOR_FEATURE_SCORING / 2),  // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
@@ -242,9 +239,6 @@ class Config implements ConfigType {
                 minutesUntilStale: 6 * MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 20,
-            },
             [CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 2 * MINUTES_IN_HOUR,
@@ -254,8 +248,11 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
-            [CacheKey.TIMELINE_TOOTS]: {
-                // TODO: TIMELINE_TOOTS are assembled from all the other feeds, not API requests directly. This is here for type safety.
+            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+                minutesUntilStale: 60,
+            },
+            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 20,
             },
             [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,

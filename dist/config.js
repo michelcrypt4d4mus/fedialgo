@@ -73,9 +73,6 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: exports.MINUTES_IN_DAY,
             },
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
-                minutesUntilStale: 60,
-            },
             [enums_1.CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
@@ -135,9 +132,6 @@ class Config {
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
-                minutesUntilStale: 20,
-            },
             [enums_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
@@ -147,8 +141,11 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.CacheKey.TIMELINE_TOOTS]: {
-            // TODO: TIMELINE_TOOTS are assembled from all the other feeds, not API requests directly. This is here for type safety.
+            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+                minutesUntilStale: 60,
+            },
+            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+                minutesUntilStale: 20,
             },
             [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
                 minutesUntilStale: 15,
