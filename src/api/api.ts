@@ -18,6 +18,7 @@ import { lockExecution, WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
+import { isAccessTokenRevokedError, throwIfAccessTokenRevoked } from "./errors";
 import {
     CacheKey,
     TrendingType,
@@ -179,9 +180,8 @@ type FetchParamName = keyof FetchParamsWithCacheData<ApiObj>;
 export const BIG_NUMBER = 10_000_000_000;
 export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
 // Error messages for MastoHttpError
-const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
-const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+export const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging
@@ -190,7 +190,7 @@ const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", 
 
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
-const apiLogger = getLogger();
+export const apiLogger = getLogger();
 
 
 /**
@@ -646,7 +646,7 @@ export default class MastoApi {
             logger.deep(`Retrieved ${toots.length} toots ${ageString(startedAt)}`);
             return toots as Toot[];
         } catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
+            throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
             throw (e);
         } finally {
             releaseSemaphore();
@@ -732,7 +732,7 @@ export default class MastoApi {
             logger.deep(`Retrieved ${statuses.length} toots ${ageString(startedAt)}`);
             return statuses;
         } catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
+            throwIfAccessTokenRevoked(logger, e, `Failed ${ageString(startedAt)}`);
             throw (e);
         } finally {
             releaseSemaphore();
@@ -1102,7 +1102,7 @@ export default class MastoApi {
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
-        MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
+        throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
         const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
@@ -1230,65 +1230,4 @@ export default class MastoApi {
             }
         }
     }
-
-    ////////////////////////////
-    //     Static Methods     //
-    ////////////////////////////
-
-    /**
-     * Throws if the error is an access token revoked error, otherwise logs and moves on.
-     * @param {Logger} logger - Logger instance.
-     * @param {unknown} error - The error to check.
-     * @param {string} msg - Message to log.
-     * @throws {unknown} If the error is an access token revoked error.
-     */
-    static throwIfAccessTokenRevoked(logger: Logger, error: unknown, msg: string): void {
-        logger.error(`${msg}. Error:`, error);
-        if (isAccessTokenRevokedError(error)) throw error;
-    }
-
-    /**
-     * Throws a sanitized rate limit error if detected, otherwise logs and throws the original error.
-     * @param {unknown} error - The error to check.
-     * @param {string} msg - Message to log.
-     * @throws {string|unknown} Throws a user-friendly rate limit warning or the original error.
-     */
-    static throwSanitizedRateLimitError(error: unknown, msg: string): void {
-        if (isRateLimitError(error)) {
-            apiLogger.error(`Rate limit error:`, error);
-            throw RATE_LIMIT_USER_WARNING;
-        } else {
-            apiLogger.logAndThrowError(msg, error);
-        }
-    }
-};
-
-
-/**
- * Returns true if the error is an access token revoked error.
- * @param {Error | unknown} e - The error to check.
- * @returns {boolean} True if the error is an access token revoked error.
- */
-export function isAccessTokenRevokedError(e: Error | unknown): boolean {
-    if (!(e instanceof Error)) {
-        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
-        return false;
-    }
-
-    return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
-};
-
-
-/**
- * Returns true if the error is a rate limit error.
- * @param {Error | unknown} e - The error to check.
- * @returns {boolean} True if the error is a rate limit error.
- */
-export function isRateLimitError(e: Error | unknown): boolean {
-    if (!(e instanceof Error)) {
-        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
-        return false;
-    }
-
-    return e.message.includes(RATE_LIMIT_ERROR_MSG);
 };

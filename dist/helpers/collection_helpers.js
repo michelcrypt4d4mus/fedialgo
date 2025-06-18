@@ -8,7 +8,7 @@ exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.u
 const lodash_1 = require("lodash");
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
-const api_1 = require("../api/api");
+const errors_1 = require("../api/errors");
 const math_helper_1 = require("./math_helper");
 const logger_1 = require("./logger");
 const time_helpers_1 = require("./time_helpers");
@@ -680,7 +680,7 @@ async function zipPromiseCalls(args, promiser, logger) {
             results[arg] = result.value;
         }
         else {
-            if ((0, api_1.isAccessTokenRevokedError)(result.reason)) {
+            if ((0, errors_1.isAccessTokenRevokedError)(result.reason)) {
                 throw result.reason;
             }
             else {

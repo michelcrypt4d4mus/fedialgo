@@ -20,7 +20,7 @@ import FollowersScorer from './scorer/toot/followers_scorer';
 import HashtagParticipationScorer from "./scorer/toot/hashtag_participation_scorer";
 import ImageAttachmentScorer from "./scorer/toot/image_attachment_scorer";
 import InteractionsScorer from "./scorer/toot/interactions_scorer";
-import MastoApi, { FULL_HISTORY_PARAMS, isAccessTokenRevokedError } from "./api/api";
+import MastoApi, { FULL_HISTORY_PARAMS } from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/toot/mentions_followed_scorer';
 import MostFavouritedAccountsScorer from "./scorer/toot/most_favourited_accounts_scorer";
@@ -48,12 +48,13 @@ import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/fe
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
+import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRateLimitError } from './api/errors';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { lockExecution } from './helpers/log_helpers';
 import { Logger } from './helpers/logger';
 import { ObjList } from "./api/counted_list";
 import { rechartsDataPoints } from "./helpers/stats_helper";
+import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import {
     AlgorithmStorageKey,
     BooleanFilterName,
@@ -354,7 +355,7 @@ class TheAlgorithm {
             await getMoarData();
             await this.recomputeScorers();
         } catch (error) {
-            MastoApi.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
+            throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         } finally {
             if (shouldReenablePoller) this.enableMoarDataBackgroundPoller();  // Reenable poller when finished
             this.releaseLoadingMutex(LogPrefix.TRIGGER_MOAR_DATA);
@@ -382,7 +383,7 @@ class TheAlgorithm {
 
             await this.recomputeScorers();
         } catch (error) {
-            MastoApi.throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
+            throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
         } finally {
             this.releaseLoadingMutex(LogPrefix.TRIGGER_PULL_ALL_USER_DATA);  // TODO: should we restart data poller?
         }
@@ -604,7 +605,7 @@ class TheAlgorithm {
             newToots = await tootFetcher;
             logger.logTelemetry(`Got ${newToots.length} toots for ${CacheKey.HOME_TIMELINE_TOOTS}`, startedAt);
         } catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${ageString(startedAt)}`);
+            throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${ageString(startedAt)}`);
         }
 
         await this.lockedMergeToFeed(newToots, logger);

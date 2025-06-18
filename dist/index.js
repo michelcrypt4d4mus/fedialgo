@@ -48,7 +48,6 @@ const hashtag_participation_scorer_1 = __importDefault(require("./scorer/toot/ha
 const image_attachment_scorer_1 = __importDefault(require("./scorer/toot/image_attachment_scorer"));
 const interactions_scorer_1 = __importDefault(require("./scorer/toot/interactions_scorer"));
 const api_1 = __importStar(require("./api/api"));
-Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return api_1.isAccessTokenRevokedError; } });
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/toot/mentions_followed_scorer"));
 const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_favourited_accounts_scorer"));
@@ -84,12 +83,14 @@ Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function 
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 Object.defineProperty(exports, "optionalSuffix", { enumerable: true, get: function () { return string_helpers_1.optionalSuffix; } });
 const moar_data_poller_1 = require("./api/moar_data_poller");
+const errors_1 = require("./api/errors");
+Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return errors_1.isAccessTokenRevokedError; } });
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const weight_presets_1 = require("./scorer/weight_presets");
 const log_helpers_1 = require("./helpers/log_helpers");
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const stats_helper_1 = require("./helpers/stats_helper");
+const weight_presets_1 = require("./scorer/weight_presets");
 const enums_1 = require("./enums");
 Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return enums_1.BooleanFilterName; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_1.MediaCategory; } });
@@ -339,7 +340,7 @@ class TheAlgorithm {
             await this.recomputeScorers();
         }
         catch (error) {
-            api_1.default.throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
+            (0, errors_1.throwSanitizedRateLimitError)(error, `triggerMoarData() Error pulling user data:`);
         }
         finally {
             if (shouldReenablePoller)
@@ -366,7 +367,7 @@ class TheAlgorithm {
             await this.recomputeScorers();
         }
         catch (error) {
-            api_1.default.throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
+            (0, errors_1.throwSanitizedRateLimitError)(error, hereLogger.line(`Error pulling user data:`));
         }
         finally {
             this.releaseLoadingMutex(LogPrefix.TRIGGER_PULL_ALL_USER_DATA); // TODO: should we restart data poller?
@@ -572,7 +573,7 @@ class TheAlgorithm {
             logger.logTelemetry(`Got ${newToots.length} toots for ${enums_1.CacheKey.HOME_TIMELINE_TOOTS}`, startedAt);
         }
         catch (e) {
-            api_1.default.throwIfAccessTokenRevoked(logger, e, `Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, errors_1.throwIfAccessTokenRevoked)(logger, e, `Error fetching toots ${(0, time_helpers_1.ageString)(startedAt)}`);
         }
         await this.lockedMergeToFeed(newToots, logger);
         return newToots;

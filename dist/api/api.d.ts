@@ -43,6 +43,9 @@ export declare const FULL_HISTORY_PARAMS: {
     maxRecords: number;
     moar: boolean;
 };
+export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+export declare const RATE_LIMIT_ERROR_MSG = "Too many requests";
+export declare const apiLogger: Logger;
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
@@ -368,32 +371,5 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      */
     private validateFetchParams;
-    /**
-     * Throws if the error is an access token revoked error, otherwise logs and moves on.
-     * @param {Logger} logger - Logger instance.
-     * @param {unknown} error - The error to check.
-     * @param {string} msg - Message to log.
-     * @throws {unknown} If the error is an access token revoked error.
-     */
-    static throwIfAccessTokenRevoked(logger: Logger, error: unknown, msg: string): void;
-    /**
-     * Throws a sanitized rate limit error if detected, otherwise logs and throws the original error.
-     * @param {unknown} error - The error to check.
-     * @param {string} msg - Message to log.
-     * @throws {string|unknown} Throws a user-friendly rate limit warning or the original error.
-     */
-    static throwSanitizedRateLimitError(error: unknown, msg: string): void;
 }
-/**
- * Returns true if the error is an access token revoked error.
- * @param {Error | unknown} e - The error to check.
- * @returns {boolean} True if the error is an access token revoked error.
- */
-export declare function isAccessTokenRevokedError(e: Error | unknown): boolean;
-/**
- * Returns true if the error is a rate limit error.
- * @param {Error | unknown} e - The error to check.
- * @returns {boolean} True if the error is a rate limit error.
- */
-export declare function isRateLimitError(e: Error | unknown): boolean;
 export {};
