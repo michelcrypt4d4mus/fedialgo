@@ -182,7 +182,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 // Objects fetched with these keys need to be built into proper Toot objects.
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
-    [] as StorageKey[]
+    [AlgorithmStorageKey.TIMELINE_TOOTS] as StorageKey[]
 ).concat(Object.values(TagTootsCacheKey));
 
 // Objects fetched with these keys need to be built into proper Account objects.

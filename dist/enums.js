@@ -171,7 +171,7 @@ var TypeFilterName;
 //      Constants        //
 ///////////////////////////
 // Objects fetched with these keys need to be built into proper Toot objects.
-exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, []).concat(Object.values(TagTootsCacheKey));
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS]).concat(Object.values(TagTootsCacheKey));
 // Objects fetched with these keys need to be built into proper Account objects.
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
