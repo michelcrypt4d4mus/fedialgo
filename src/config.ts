@@ -1,7 +1,7 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { CacheKey, NonScoreWeightName, TagTootsCacheKey, type ApiCacheKey } from "./enums";
+import { CacheKey, NonScoreWeightName, TagTootsType, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { type NonScoreWeightInfoDict } from "./types";
 
@@ -248,13 +248,13 @@ class Config implements ConfigType {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
-            [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+            [TagTootsType.FAVOURITED]: {
                 minutesUntilStale: 60,
             },
-            [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+            [TagTootsType.PARTICIPATED]: {
                 minutesUntilStale: 20,
             },
-            [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
+            [TagTootsType.TRENDING]: {
                 minutesUntilStale: 15,
             },
         } as ApiDataConfig,

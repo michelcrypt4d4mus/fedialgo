@@ -143,7 +143,7 @@ class Storage {
         return {
             links: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers,
-            tags: new tag_list_1.default(trendingTags, enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS),
+            tags: new tag_list_1.default(trendingTags, enums_1.TagTootsType.TRENDING),
             toots: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }

@@ -8,7 +8,7 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
-import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
 import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
@@ -126,7 +126,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
             const propertyObj = tagList.getObj(tagOption.name);
 
             if (propertyObj) {
-                tagOption[key as TagTootsCacheKey] = propertyObj.numToots || 0;
+                tagOption[key as TagTootsType] = propertyObj.numToots || 0;
             }
         });
 

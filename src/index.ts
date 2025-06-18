@@ -64,7 +64,7 @@ import {
     ScoreName,
     TrendingType,
     TypeFilterName,
-    TagTootsCacheKey,
+    TagTootsType,
     JUST_MUTING,
     buildCacheKeyDict,
     isValueInStringEnum,
@@ -123,7 +123,7 @@ const DEFAULT_SET_TIMELINE_IN_APP = (_feed: Toot[]) => console.debug(`Default se
 
 const EMPTY_TRENDING_DATA: TrendingData = {
     links: [],
-    tags: new TagList([], TagTootsCacheKey.TRENDING_TAG_TOOTS),
+    tags: new TagList([], TagTootsType.TRENDING),
     servers: {},
     toots: []
 };
@@ -294,7 +294,7 @@ class TheAlgorithm {
         await this.lockLoadingMutex(LogPrefix.TRIGGER_FEED_UPDATE);
 
         try {
-            const tootsForHashtags = async (key: TagTootsCacheKey): Promise<Toot[]> => {
+            const tootsForHashtags = async (key: TagTootsType): Promise<Toot[]> => {
                 loggers[LogPrefix.TRIGGER_FEED_UPDATE].trace(`Fetching toots for hashtags with key: ${key}`);
                 const tagList = await TagsForFetchingToots.create(key);
                 return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
@@ -305,7 +305,7 @@ class TheAlgorithm {
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(MastoApi.instance.getHomeserverToots(), loggers[CacheKey.HOMESERVER_TOOTS]),
                 this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[CacheKey.FEDIVERSE_TRENDING_TOOTS]),
-                ...Object.values(TagTootsCacheKey).map(async (key) => await tootsForHashtags(key)),
+                ...Object.values(TagTootsType).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
                 MastoApi.instance.getUserData(),
@@ -859,7 +859,7 @@ export {
     MediaCategory,
     NonScoreWeightName,
     ScoreName,
-    TagTootsCacheKey,
+    TagTootsType,
     TrendingType,
     TypeFilterName,
     WeightName,

@@ -12,7 +12,7 @@ import type Toot from './api/objects/toot';
 import { type BooleanFilterArgs } from './filters/boolean_filter';
 import { type NumericFilterArgs } from './filters/numeric_filter';
 import { type SerializableToot } from './api/objects/toot';
-import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCacheKey, TOOT_SOURCES } from './enums';
+import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsType, TOOT_SOURCES } from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -46,7 +46,7 @@ export type TootSource = (typeof TOOT_SOURCES)[number];
 
 // These server as both Both filter option property names as well as demo app gradient config keys
 export const FILTER_OPTION_DATA_SOURCES = [
-    ...Object.values(TagTootsCacheKey), // TODO: these are really the wrong cache keys for the use case but it's consistent w/demo app for now
+    ...Object.values(TagTootsType), // TODO: these are really the wrong cache keys for the use case but it's consistent w/demo app for now
     BooleanFilterName.LANGUAGE,
     ScoreName.FAVOURITED_ACCOUNTS,
 ] as const;

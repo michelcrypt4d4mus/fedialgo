@@ -9,7 +9,7 @@ import { config, type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { resolvePromiseDict, truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { tagInfoStr } from "./objects/tag";
-import { TagTootsCacheKey } from "../enums";
+import { TagTootsType } from "../enums";
 import { type TagWithUsageCounts } from "../types";
 
 type TagTootsBuildConfig = {
@@ -17,8 +17,8 @@ type TagTootsBuildConfig = {
     config: TagTootsConfig;
 };
 
-const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
-    [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+const HASHTAG_TOOTS_CONFIG: Record<TagTootsType, TagTootsBuildConfig> = {
+    [TagTootsType.FAVOURITED]: {
         buildTagList: async () => {
             const tagList = await TagList.buildFavouritedTags();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
@@ -28,11 +28,11 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
         },
         config: config.favouritedTags,
     },
-    [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+    [TagTootsType.PARTICIPATED]: {
         buildTagList: async () => await TagList.buildParticipatedTags(),  // TODO: why do I have to define an anonymous fxn for this to work?
         config: config.participatedTags,
     },
-    [TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
+    [TagTootsType.TRENDING]: {
         buildTagList: async () => await MastodonServer.fediverseTrendingTags(),
         config: config.trending.tags,
     }
@@ -40,13 +40,13 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsCacheKey, TagTootsBuildConfig> = {
 
 
 export default class TagsForFetchingToots {
-    cacheKey: TagTootsCacheKey;
+    cacheKey: TagTootsType;
     config: TagTootsConfig;
     logger: Logger;
     tagList: TagList;
 
     /** Alternate async constructor. */
-    static async create(cacheKey: TagTootsCacheKey): Promise<TagsForFetchingToots> {
+    static async create(cacheKey: TagTootsType): Promise<TagsForFetchingToots> {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
         const tagsForTootsList = new TagsForFetchingToots(cacheKey, tootsConfig.config, tagList);
@@ -54,7 +54,7 @@ export default class TagsForFetchingToots {
         return tagsForTootsList;
     }
 
-    private constructor(cacheKey: TagTootsCacheKey, tagsConfig: TagTootsConfig, tagList: TagList) {
+    private constructor(cacheKey: TagTootsType, tagsConfig: TagTootsConfig, tagList: TagList) {
         this.cacheKey = cacheKey;
         this.config = tagsConfig;
         this.tagList = tagList;
@@ -93,7 +93,7 @@ export default class TagsForFetchingToots {
         await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
 
-        if (this.cacheKey != TagTootsCacheKey.TRENDING_TAG_TOOTS) {
+        if (this.cacheKey != TagTootsType.TRENDING) {
             const trendingTags = await MastodonServer.fediverseTrendingTags();
             this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
@@ -108,15 +108,15 @@ export default class TagsForFetchingToots {
     }
 
     /** Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form. */
-    static async rawTagLists(): Promise<Record<TagTootsCacheKey, TagList>> {
+    static async rawTagLists(): Promise<Record<TagTootsType, TagList>> {
         return await resolvePromiseDict(
             {
-                [TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: TagList.buildFavouritedTags(),
-                [TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: TagList.buildParticipatedTags(),
-                [TagTootsCacheKey.TRENDING_TAG_TOOTS]: MastodonServer.fediverseTrendingTags(),
+                [TagTootsType.FAVOURITED]: TagList.buildFavouritedTags(),
+                [TagTootsType.PARTICIPATED]: TagList.buildParticipatedTags(),
+                [TagTootsType.TRENDING]: MastodonServer.fediverseTrendingTags(),
             },
             new Logger("TagsForFetchingToots.rawTagLists()"),
-            (failedKey: TagTootsCacheKey) => new TagList([], failedKey)
+            (failedKey: TagTootsType) => new TagList([], failedKey)
         );
     }
 };

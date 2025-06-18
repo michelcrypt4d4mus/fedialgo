@@ -1,11 +1,12 @@
-/*
+/**
  * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
+ * @module enums
  */
 
 /**
- * Enum of storage keys for user data and app state (not API cache).
- * @enum {string}
+ * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
+ * @enum {string}
  */
 export enum AlgorithmStorageKey {
     APP_OPENS = 'AppOpens',
@@ -19,8 +20,8 @@ export enum AlgorithmStorageKey {
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
- * @enum {string}
  * @private
+ * @enum {string}
  */
 export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
@@ -46,12 +47,11 @@ export enum CacheKey {
 /**
  * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
- * @private
  */
-export enum TagTootsCacheKey {
-    FAVOURITED_TAG_TOOTS = 'FavouritedHashtagToots',
-    PARTICIPATED_TAG_TOOTS = 'ParticipatedHashtagToots',
-    TRENDING_TAG_TOOTS = 'TrendingTagToots'
+export enum TagTootsType {
+    FAVOURITED = 'FavouritedHashtagToots',
+    PARTICIPATED = 'ParticipatedHashtagToots',
+    TRENDING = 'TrendingTagToots'
 };
 
 
@@ -166,9 +166,9 @@ export enum TypeFilterName {
 //////////////////
 
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+export type ApiCacheKey = CacheKey | TagTootsType;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
+export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsType;
 /** Possible uniqufiiers for a class of ApiObjs. */
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
@@ -183,7 +183,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
     [AlgorithmStorageKey.TIMELINE_TOOTS] as StorageKey[]
-).concat(Object.values(TagTootsCacheKey));
+).concat(Object.values(TagTootsType));
 
 // Objects fetched with these keys need to be built into proper Account objects.
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
@@ -212,7 +212,7 @@ export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 } as const;
 
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCacheKey)] as const;
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsType)] as const;
 export const CONVERSATION = 'conversation';
 export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
 export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
@@ -256,7 +256,7 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 /** True if argument is a member of CacheKey. */
 export const isCacheKey = isValueInStringEnum(CacheKey);
 /** True if argument is a member of TagTootsCacheKey. */
-export const isTagTootsCacheKey = isValueInStringEnum(TagTootsCacheKey);
+export const isTagTootsCacheKey = isValueInStringEnum(TagTootsType);
 
 /** True if argument is a member of NonScoreWeightName enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);

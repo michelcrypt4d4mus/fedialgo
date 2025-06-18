@@ -65,14 +65,14 @@ const logger = new logger_1.Logger("UserData");
 class UserData {
     blockedDomains = new Set();
     favouriteAccounts = new counted_list_1.BooleanFilterOptionList([], enums_1.ScoreName.FAVOURITED_ACCOUNTS);
-    favouritedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+    favouritedTags = new tag_list_1.default([], enums_1.TagTootsType.FAVOURITED);
     followedAccounts = {};
     followedTags = new tag_list_1.default([], enums_1.ScoreName.FOLLOWED_TAGS);
     isRetooter = false;
     languagesPostedIn = new counted_list_1.default([], enums_1.BooleanFilterName.LANGUAGE);
     mutedAccounts = {};
     mutedKeywordsRegex; // Cached regex for muted keywords, built from server-side filters
-    participatedTags = new tag_list_1.default([], enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    participatedTags = new tag_list_1.default([], enums_1.TagTootsType.PARTICIPATED);
     preferredLanguage = config_1.config.locale.defaultLanguage;
     serverSideFilters = [];
     lastUpdatedAt;
@@ -113,7 +113,7 @@ class UserData {
             userData.isRetooter = (retootsPct > config_1.config.participatedTags.minPctToCountRetoots);
         }
         userData.blockedDomains = new Set(data.blockedDomains);
-        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+        userData.favouritedTags = tag_list_1.default.fromUsageCounts(data.favouritedToots, enums_1.TagTootsType.FAVOURITED);
         userData.followedAccounts = account_1.default.countAccounts(data.followedAccounts);
         userData.followedTags = new tag_list_1.default(data.followedTags, enums_1.ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = account_1.default.buildAccountNames(data.mutedAccounts);

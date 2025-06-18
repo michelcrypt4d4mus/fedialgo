@@ -15,7 +15,7 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
 const HASHTAG_TOOTS_CONFIG = {
-    [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+    [enums_1.TagTootsType.FAVOURITED]: {
         buildTagList: async () => {
             const tagList = await tag_list_1.default.buildFavouritedTags();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
@@ -25,11 +25,11 @@ const HASHTAG_TOOTS_CONFIG = {
         },
         config: config_1.config.favouritedTags,
     },
-    [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+    [enums_1.TagTootsType.PARTICIPATED]: {
         buildTagList: async () => await tag_list_1.default.buildParticipatedTags(),
         config: config_1.config.participatedTags,
     },
-    [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
+    [enums_1.TagTootsType.TRENDING]: {
         buildTagList: async () => await mastodon_server_1.default.fediverseTrendingTags(),
         config: config_1.config.trending.tags,
     }
@@ -70,7 +70,7 @@ class TagsForFetchingToots {
         await this.tagList.removeFollowedTags();
         await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
-        if (this.cacheKey != enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS) {
+        if (this.cacheKey != enums_1.TagTootsType.TRENDING) {
             const trendingTags = await mastodon_server_1.default.fediverseTrendingTags();
             this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
@@ -85,9 +85,9 @@ class TagsForFetchingToots {
     /** Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form. */
     static async rawTagLists() {
         return await (0, collection_helpers_1.resolvePromiseDict)({
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: tag_list_1.default.buildFavouritedTags(),
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: tag_list_1.default.buildParticipatedTags(),
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: mastodon_server_1.default.fediverseTrendingTags(),
+            [enums_1.TagTootsType.FAVOURITED]: tag_list_1.default.buildFavouritedTags(),
+            [enums_1.TagTootsType.PARTICIPATED]: tag_list_1.default.buildParticipatedTags(),
+            [enums_1.TagTootsType.TRENDING]: mastodon_server_1.default.fediverseTrendingTags(),
         }, new logger_1.Logger("TagsForFetchingToots.rawTagLists()"), (failedKey) => new tag_list_1.default([], failedKey));
     }
 }

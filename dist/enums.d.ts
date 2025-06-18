@@ -1,7 +1,11 @@
 /**
- * Enum of storage keys for user data and app state (not API cache).
- * @enum {string}
+ * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
+ * @module enums
+ */
+/**
+ * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
+ * @enum {string}
  */
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",
@@ -14,8 +18,8 @@ export declare enum AlgorithmStorageKey {
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
  * Used for Storage and cache management.
- * @enum {string}
  * @private
+ * @enum {string}
  */
 export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
@@ -40,12 +44,11 @@ export declare enum CacheKey {
 /**
  * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
- * @private
  */
-export declare enum TagTootsCacheKey {
-    FAVOURITED_TAG_TOOTS = "FavouritedHashtagToots",
-    PARTICIPATED_TAG_TOOTS = "ParticipatedHashtagToots",
-    TRENDING_TAG_TOOTS = "TrendingTagToots"
+export declare enum TagTootsType {
+    FAVOURITED = "FavouritedHashtagToots",
+    PARTICIPATED = "ParticipatedHashtagToots",
+    TRENDING = "TrendingTagToots"
 }
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
@@ -144,9 +147,9 @@ export declare enum TypeFilterName {
     VIDEOS = "videos"
 }
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsCacheKey;
+export type ApiCacheKey = CacheKey | TagTootsType;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCacheKey;
+export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsType;
 /** Possible uniqufiiers for a class of ApiObjs. */
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
@@ -154,7 +157,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
-export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCacheKey)[];
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsType)[];
 export declare const CONVERSATION = "conversation";
 export declare const JUST_MUTING = "justMuting";
 export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
