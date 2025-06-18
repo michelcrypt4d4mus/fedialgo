@@ -4,7 +4,7 @@
  * @module collection_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquifyApiObjs = exports.uniquify = exports.truncateToConfiguredLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueRows = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
+exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquifyApiObjs = exports.uniquify = exports.truncateToLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueRows = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
 const lodash_1 = require("lodash");
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
@@ -584,28 +584,24 @@ exports.transformKeys = transformKeys;
  * @param {Logger} [logger] - Logger instance.
  * @returns {T[]} The truncated array.
  */
-function truncateToConfiguredLength(array, maxRecords, logger) {
+function truncateToLength(array, maxRecords, logger) {
     if (array.length <= maxRecords)
         return array;
-    logger ||= new logger_1.Logger("truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
-    logger.deep(`Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
+    (logger ?? new logger_1.Logger("truncateToConfiguredLength()")).deep(`Truncated array of ${startLen} to ${array.length}`);
     return array;
 }
-exports.truncateToConfiguredLength = truncateToConfiguredLength;
+exports.truncateToLength = truncateToLength;
 ;
 /**
  * Returns a new array with only unique, non-null string values.
- * @param {(string | undefined)[]} array - The array to uniquify.
+ * @param {OptionalString[]} array - The array to uniquify.
  * @returns {string[] | undefined} The unique array or undefined if empty.
  */
 const uniquify = (array) => {
-    if (array.length == 0)
-        return undefined;
-    let newArray = array.filter((e) => e != undefined);
-    newArray = [...new Set(newArray)];
-    return newArray;
+    const nonNullArray = [...new Set(array.filter((element) => !(0, lodash_1.isNil)(element)))];
+    return nonNullArray.length ? nonNullArray : undefined;
 };
 exports.uniquify = uniquify;
 /**

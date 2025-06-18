@@ -27,6 +27,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.apiLogger = exports.RATE_LIMIT_ERROR_MSG = exports.ACCESS_TOKEN_REVOKED_MSG = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
+/*
+ * Singleton class to wrap authenticated mastodon API calls to the user's home server
+ * (unauthenticated calls are handled by the MastodonServer class).
+ *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
+ *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
+ */
+const lodash_1 = require("lodash");
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importDefault(require("../Storage"));
@@ -200,7 +207,7 @@ class MastoApi {
         const msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots).reverse(); // TODO: should we sort by score?
-        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger);
+        homeTimelineToots = (0, collection_helpers_1.truncateToLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger);
         await Storage_1.default.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -246,7 +253,7 @@ class MastoApi {
                 const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
                 toots = await toot_1.default.buildToots(statuses, cacheKey);
-                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, logger);
+                toots = (0, collection_helpers_1.truncateToLength)(toots, maxRecords, logger);
                 await Storage_1.default.set(cacheKey, toots);
             }
             return toots;
@@ -749,10 +756,10 @@ class MastoApi {
                 logger.warn(`Truncating ${objs.length} rows to maxCacheRecords=${maxCacheRecords}`);
                 // TODO: there's a Mastodon object w/out created_at, so this would break but for now that object has no maxCacheRecords set for that endpoint
                 const sortedByCreatedAt = (0, collection_helpers_1.sortObjsByCreatedAt)(objs);
-                newRows = (0, collection_helpers_1.truncateToConfiguredLength)(sortedByCreatedAt, maxCacheRecords, logger);
+                newRows = (0, collection_helpers_1.truncateToLength)(sortedByCreatedAt, maxCacheRecords, logger);
             }
             if (processFxn)
-                objs.forEach(obj => obj && processFxn(obj));
+                objs.filter(Boolean).forEach(obj => processFxn(obj));
             if (!skipCache)
                 await Storage_1.default.set(cacheKey, objs);
             return objs;
@@ -889,15 +896,15 @@ class MastoApi {
      * @returns {T[]} Array of rows to use.
      */
     handleApiError(params, newRows, err) {
+        const { cacheResult } = params;
         let { cacheKey, logger } = params;
-        const cacheResult = params.cacheResult;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
+        const waitTime = this.waitTimes[cacheKey];
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
-        const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
-        (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
+        (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
         if (enums_1.UNIQUE_ID_PROPERTIES[cacheKey]) {
@@ -931,9 +938,13 @@ class MastoApi {
      */
     buildFromApiObjects(key, objects, logger) {
         let newObjects;
-        // Toots get special handling for deduplication
+        const nullObjs = objects.filter(lodash_1.isNil);
+        if (nullObjs.length) {
+            logger.warn(`buildFromApiObjects() found ${nullObjs.length} null objects`, nullObjs);
+        }
         if (enums_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));
+            // Toots get special handling for deduplication
             return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
         else if (enums_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {

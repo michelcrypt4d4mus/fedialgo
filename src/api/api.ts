@@ -4,6 +4,7 @@
  *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
  *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
+import { isNil } from "lodash";
 import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
@@ -34,7 +35,7 @@ import {
     getPromiseResults,
     removeKeys,
     sortObjsByCreatedAt,
-    truncateToConfiguredLength,
+    truncateToLength,
     uniquifyApiObjs,
 } from "../helpers/collection_helpers";
 import {
@@ -115,7 +116,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  * @property {CacheKey} cacheKey - Cache key for storage.
  * @property {() => ApiFetcher<T>} fetchGenerator - Function to create a new API paginator for fetching data.
  * @property {boolean} [isBackgroundFetch] - Logging flag to indicate if this is a background fetch.
- * @property {(obj: T) => void} [processFxn] - Optional function to process the object before storing and returning it.
+ * @property {(obj: ResponseRow<T>) => void} [processFxn] - Optional function to process the object before storing and returning it.
  * @property {boolean} [skipMutex] - If true, don't lock the endpoint mutex when making requests.
  */
 interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
@@ -124,7 +125,7 @@ interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
     fetchGenerator: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
     local?: boolean,
-    processFxn?: (obj: T) => void,
+    processFxn?: (obj: ResponseRow<T>) => void,
     skipMutex?: boolean,
 };
 
@@ -340,7 +341,7 @@ export default class MastoApi {
         const msg = `Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = sortByCreatedAt(homeTimelineToots).reverse(); // TODO: should we sort by score?
-        homeTimelineToots = truncateToConfiguredLength(homeTimelineToots, config.toots.maxTimelineLength, logger);
+        homeTimelineToots = truncateToLength(homeTimelineToots, config.toots.maxTimelineLength, logger);
         await Storage.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -397,7 +398,7 @@ export default class MastoApi {
                 const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
                 toots = await Toot.buildToots(statuses, cacheKey);
-                toots = truncateToConfiguredLength(toots, maxRecords, logger);
+                toots = truncateToLength(toots, maxRecords, logger);
                 await Storage.set(cacheKey, toots);
             }
 
@@ -435,7 +436,7 @@ export default class MastoApi {
             cacheKey: CacheKey.FOLLOWED_ACCOUNTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             minRecords: this.user.followingCount - 10, // We want to get at least this many followed accounts
-            processFxn: (account) => (account as Account).isFollowed = true,
+            processFxn: (account) => account.isFollowed = true,
             ...(params || {})
         }) as Account[];
     }
@@ -464,7 +465,7 @@ export default class MastoApi {
             cacheKey: CacheKey.FOLLOWERS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             minRecords: this.user.followersCount - 10, // We want to get at least this many followed accounts
-            processFxn: (account) => (account as Account).isFollower = true,
+            processFxn: (account) => account.isFollower = true,
             ...(params || {})
         }) as Account[];
     }
@@ -943,10 +944,10 @@ export default class MastoApi {
                 logger.warn(`Truncating ${objs.length} rows to maxCacheRecords=${maxCacheRecords}`);
                 // TODO: there's a Mastodon object w/out created_at, so this would break but for now that object has no maxCacheRecords set for that endpoint
                 const sortedByCreatedAt = sortObjsByCreatedAt(objs as WithCreatedAt[]) as T[];
-                newRows = truncateToConfiguredLength(sortedByCreatedAt, maxCacheRecords, logger);
+                newRows = truncateToLength(sortedByCreatedAt, maxCacheRecords, logger);
             }
 
-            if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
+            if (processFxn) objs.filter(Boolean).forEach(obj => processFxn(obj));
             if (!skipCache) await Storage.set(cacheKey, objs);
             return objs;
         } catch (err) {
@@ -1094,15 +1095,15 @@ export default class MastoApi {
         newRows: T[],
         err: Error | unknown,
     ): ResponseRow<T>[] {
+        const { cacheResult } = params;
         let { cacheKey, logger } = params;
-        const cacheResult = params.cacheResult;
         cacheKey ??= CacheKey.HOME_TIMELINE_TOOTS;  // TODO: this is a hack to avoid undefined cacheKey
+        const waitTime = this.waitTimes[cacheKey];
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
-        const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
-        throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
+        throwIfAccessTokenRevoked(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
@@ -1140,10 +1141,15 @@ export default class MastoApi {
         logger: Logger
     ): ResponseRow<T>[] {
         let newObjects: ResponseRow<T>[];
+        const nullObjs = objects.filter(isNil);
 
-        // Toots get special handling for deduplication
+        if (nullObjs.length) {
+            logger.warn(`buildFromApiObjects() found ${nullObjs.length} null objects`, nullObjs);
+        }
+
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => Toot.build(obj as TootLike));
+            // Toots get special handling for deduplication
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`)) as ResponseRow<T>[];
         } else if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             newObjects = objects.map(obj => Account.build(obj as AccountLike)) as ResponseRow<T>[];

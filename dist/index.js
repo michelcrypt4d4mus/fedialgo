@@ -640,7 +640,7 @@ class TheAlgorithm {
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
             const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
             logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
-            this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, logger);
+            this.feed = (0, collection_helpers_1.truncateToLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, logger);
             await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         }
         this.trendingData = await Storage_1.default.getTrendingData();
@@ -726,7 +726,7 @@ class TheAlgorithm {
     async scoreAndFilterFeed() {
         // await ScorerCache.prepareScorers();
         this.feed = await scorer_1.default.scoreToots(this.feed, true);
-        this.feed = (0, collection_helpers_1.truncateToConfiguredLength)(this.feed, config_1.config.toots.maxTimelineLength, logger.tempLogger('scoreAndFilterFeed()'));
+        this.feed = (0, collection_helpers_1.truncateToLength)(this.feed, config_1.config.toots.maxTimelineLength, logger.tempLogger('scoreAndFilterFeed()'));
         await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }

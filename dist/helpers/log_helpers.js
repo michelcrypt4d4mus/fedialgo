@@ -37,18 +37,13 @@ async function lockExecution(locker, logger) {
 }
 exports.lockExecution = lockExecution;
 ;
-// Helper class for telemetry
+/** Helper class for telemetry.  */
 class WaitTime {
     avgMsPerRequest = 0;
-    logger = new logger_1.Logger("WaitTime");
     milliseconds = 0;
     numRequests = 0;
     startedAt = new Date(); // TODO: this shouldn't really be set yet...
     ageInSeconds() {
-        if (!this.startedAt) {
-            this.logger.warn(`No startedAt set for WaitTime so can't compute ageInSeconds()`);
-            return 0;
-        }
         return (0, time_helpers_1.ageInSeconds)(this.startedAt);
     }
     ageString() {
@@ -58,16 +53,9 @@ class WaitTime {
         this.startedAt = new Date();
     }
     markEnd() {
-        this.milliseconds += (0, time_helpers_1.ageInMS)(this.startedAt);
         this.numRequests++;
+        this.milliseconds += (0, time_helpers_1.ageInMS)(this.startedAt);
         this.avgMsPerRequest = this.milliseconds / this.numRequests;
-    }
-    toDict() {
-        return {
-            avgMsPerRequest: this.avgMsPerRequest,
-            milliseconds: this.milliseconds,
-            numRequests: this.numRequests
-        };
     }
 }
 exports.WaitTime = WaitTime;

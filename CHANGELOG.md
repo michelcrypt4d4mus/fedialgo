@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.73.12
+* (Demo App) Disable Submit button while waiting for a new toot to be posted to the server
+* (Demo App) Place cursor at end of mentions when composing a reply
+
 ### v0.73.11
 * Rename `TagTootsCacheKey` enum to `TagTootsType`, move JSDoc for enums to its own module
 * (Demo App) Fix bug with disabled Submit button when composing new toots
