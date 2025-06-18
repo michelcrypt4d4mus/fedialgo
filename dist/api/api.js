@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isRateLimitError = exports.isAccessTokenRevokedError = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
+exports.apiLogger = exports.RATE_LIMIT_ERROR_MSG = exports.ACCESS_TOKEN_REVOKED_MSG = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importDefault(require("../Storage"));
@@ -39,6 +39,7 @@ const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const time_helpers_2 = require("../helpers/time_helpers");
+const errors_1 = require("./errors");
 const enums_1 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 ;
@@ -53,9 +54,8 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 exports.BIG_NUMBER = 10000000000;
 exports.FULL_HISTORY_PARAMS = { maxRecords: exports.BIG_NUMBER, moar: true };
 // Error messages for MastoHttpError
-const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-const RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
-const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
+exports.RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new async_mutex_1.Mutex(); // For locking user data fetching
 // Logging
@@ -63,7 +63,7 @@ const PARAMS_TO_NOT_LOG = ["breakIf", "fetchGenerator", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE = ["skipCache", "skipMutex", "moar"];
 // Loggers prefixed by [API]
 const getLogger = logger_1.Logger.logBuilder('API');
-const apiLogger = getLogger();
+exports.apiLogger = getLogger();
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
@@ -97,13 +97,13 @@ class MastoApi {
      */
     static async init(api, user) {
         if (!(user.webfingerURI?.includes('@'))) {
-            apiLogger.logAndThrowError(`MastoApi.init() 'user' argument isn't an Account!`, user);
+            exports.apiLogger.logAndThrowError(`MastoApi.init() 'user' argument isn't an Account!`, user);
         }
         else if (MastoApi.#instance) {
-            apiLogger.warn(`MastoApi instance already initialized...`);
+            exports.apiLogger.warn(`MastoApi instance already initialized...`);
             return;
         }
-        apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
+        exports.apiLogger.log(`Initializing MastoApi instance with user:`, user.acct);
         MastoApi.#instance = new MastoApi(api, user);
         MastoApi.#instance.userData = await Storage_1.default.loadUserData(); // Instantiate userData from the cache
     }
@@ -417,7 +417,7 @@ class MastoApi {
             this.hashtagTimelineToots(tagName, logger.tempLogger('timeline'), numToots),
         ]);
         if (results.rejectedReasons.length) {
-            const accessRevokedError = results.rejectedReasons.find(e => isAccessTokenRevokedError(e));
+            const accessRevokedError = results.rejectedReasons.find(e => (0, errors_1.isAccessTokenRevokedError)(e));
             if (accessRevokedError) {
                 throw accessRevokedError;
             }
@@ -478,7 +478,7 @@ class MastoApi {
             return toots;
         }
         catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, errors_1.throwIfAccessTokenRevoked)(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
             throw (e);
         }
         finally {
@@ -516,7 +516,7 @@ class MastoApi {
      */
     async lockAllMutexes() {
         const allMutexes = Object.values(this.apiMutexes).concat(Object.values(this.cacheMutexes));
-        const mutexLogger = apiLogger.tempLogger('lockAllMutexes');
+        const mutexLogger = exports.apiLogger.tempLogger('lockAllMutexes');
         mutexLogger.log(`Locking all mutexes...`);
         return await Promise.all(allMutexes.map(mutex => (0, log_helpers_1.lockExecution)(mutex, mutexLogger)));
     }
@@ -560,7 +560,7 @@ class MastoApi {
             return statuses;
         }
         catch (e) {
-            MastoApi.throwIfAccessTokenRevoked(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
+            (0, errors_1.throwIfAccessTokenRevoked)(logger, e, `Failed ${(0, time_helpers_1.ageString)(startedAt)}`);
             throw (e);
         }
         finally {
@@ -897,7 +897,7 @@ class MastoApi {
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
-        MastoApi.throwIfAccessTokenRevoked(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
+        (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
         if (enums_1.UNIQUE_ID_PROPERTIES[cacheKey]) {
@@ -1013,65 +1013,7 @@ class MastoApi {
             }
         }
     }
-    ////////////////////////////
-    //     Static Methods     //
-    ////////////////////////////
-    /**
-     * Throws if the error is an access token revoked error, otherwise logs and moves on.
-     * @param {Logger} logger - Logger instance.
-     * @param {unknown} error - The error to check.
-     * @param {string} msg - Message to log.
-     * @throws {unknown} If the error is an access token revoked error.
-     */
-    static throwIfAccessTokenRevoked(logger, error, msg) {
-        logger.error(`${msg}. Error:`, error);
-        if (isAccessTokenRevokedError(error))
-            throw error;
-    }
-    /**
-     * Throws a sanitized rate limit error if detected, otherwise logs and throws the original error.
-     * @param {unknown} error - The error to check.
-     * @param {string} msg - Message to log.
-     * @throws {string|unknown} Throws a user-friendly rate limit warning or the original error.
-     */
-    static throwSanitizedRateLimitError(error, msg) {
-        if (isRateLimitError(error)) {
-            apiLogger.error(`Rate limit error:`, error);
-            throw RATE_LIMIT_USER_WARNING;
-        }
-        else {
-            apiLogger.logAndThrowError(msg, error);
-        }
-    }
 }
 exports.default = MastoApi;
-;
-/**
- * Returns true if the error is an access token revoked error.
- * @param {Error | unknown} e - The error to check.
- * @returns {boolean} True if the error is an access token revoked error.
- */
-function isAccessTokenRevokedError(e) {
-    if (!(e instanceof Error)) {
-        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
-        return false;
-    }
-    return e.message.includes(ACCESS_TOKEN_REVOKED_MSG);
-}
-exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
-;
-/**
- * Returns true if the error is a rate limit error.
- * @param {Error | unknown} e - The error to check.
- * @returns {boolean} True if the error is a rate limit error.
- */
-function isRateLimitError(e) {
-    if (!(e instanceof Error)) {
-        apiLogger.warn(`error 'e' is not an instance of Error:`, e);
-        return false;
-    }
-    return e.message.includes(RATE_LIMIT_ERROR_MSG);
-}
-exports.isRateLimitError = isRateLimitError;
 ;
 //# sourceMappingURL=api.js.map
