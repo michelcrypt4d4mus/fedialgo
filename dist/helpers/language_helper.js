@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.languageName = exports.detectForeignScriptLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
+exports.detectForeignScriptLanguage = exports.detectLanguage = exports.languageName = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
 /*
  * Detecting language etc.
  */
@@ -257,6 +257,9 @@ const LANG_DETECTOR_OVERCONFIDENT_LANGS = new Set([
     "da",
     "fr",
 ]);
+/** Convert a language code like 'jp' into a language name like 'Japanese'. */
+const languageName = (code) => exports.LANGUAGE_CODES[code] ? (0, change_case_1.capitalCase)(exports.LANGUAGE_CODES[code]) : code;
+exports.languageName = languageName;
 // Use the two different language detectors to guess a language
 function detectLanguage(text) {
     const langInfoFromLangDetector = detectLangWithLangDetector(text);
@@ -322,9 +325,9 @@ exports.detectLanguage = detectLanguage;
 ;
 // Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
 // meant for non Latin scripts like japanese, korean, etc.
-function detectForeignScriptLanguage(tagName) {
+function detectForeignScriptLanguage(str) {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
-        if (regex.test(tagName) && !(0, math_helper_1.isNumberOrNumberString)(tagName)) {
+        if (regex.test(str) && !(0, math_helper_1.isNumberOrNumberString)(str)) {
             return language;
         }
     }
@@ -364,6 +367,4 @@ function detectLangWithTinyLD(text) {
     return buildLangDetectResult(MIN_TINYLD_ACCURACY, (0, tinyld_1.detectAll)(text));
 }
 ;
-const languageName = (code) => exports.LANGUAGE_CODES[code] ? (0, change_case_1.capitalCase)(exports.LANGUAGE_CODES[code]) : code;
-exports.languageName = languageName;
 //# sourceMappingURL=language_helper.js.map

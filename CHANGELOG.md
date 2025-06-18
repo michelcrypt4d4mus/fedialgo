@@ -1,8 +1,8 @@
 # NEXT RELEASE
 
 ### v0.73.11
-* Fix bug with disabled Submit button when composing new toots
 * Rename `TagTootsCacheKey` enum to `TagTootsType`, move JSDoc for enums to its own module
+* (Demo App) Fix bug with disabled Submit button when composing new toots
 
 ### v0.73.10
 * Fix bug in `saveTimelineToCache()`

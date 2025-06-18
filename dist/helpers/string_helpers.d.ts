@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Helpers for dealing with strings.
+ * @module string_helpers
+ */
 import { mastodon } from 'masto';
 import { MediaCategory } from '../enums';
 import { type OptionalString } from '../types';

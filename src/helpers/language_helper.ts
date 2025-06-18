@@ -280,6 +280,9 @@ type LanguageDetectInfo = {
     tinyLD: DetectLangLibraryResult;
 };
 
+/** Convert a language code like 'jp' into a language name like 'Japanese'. */
+export const languageName = (code: string) => LANGUAGE_CODES[code] ? capitalCase(LANGUAGE_CODES[code]) : code;
+
 
 // Use the two different language detectors to guess a language
 export function detectLanguage(text: string): LanguageDetectInfo {
@@ -357,9 +360,9 @@ export function detectLanguage(text: string): LanguageDetectInfo {
 
 // Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
 // meant for non Latin scripts like japanese, korean, etc.
-export function detectForeignScriptLanguage(tagName: string): string | undefined {
+export function detectForeignScriptLanguage(str: string): string | undefined {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
-        if (regex.test(tagName) && !isNumberOrNumberString(tagName)) {
+        if (regex.test(str) && !isNumberOrNumberString(str)) {
             return language;
         }
     };
@@ -402,6 +405,3 @@ function detectLangWithLangDetector(text: string): DetectLangLibraryResult {
 function detectLangWithTinyLD(text: string): DetectLangLibraryResult {
     return buildLangDetectResult(MIN_TINYLD_ACCURACY, detectAll(text));
 };
-
-
-export const languageName = (code: string) => LANGUAGE_CODES[code] ? capitalCase(LANGUAGE_CODES[code]) : code;

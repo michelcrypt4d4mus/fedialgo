@@ -1,6 +1,7 @@
 /**
  * @module feed_scorers
  */
+
 import CountedList from "../../api/counted_list";
 import FeedScorer from "../feed_scorer";
 import Toot, { sortByCreatedAt } from '../../api/objects/toot';

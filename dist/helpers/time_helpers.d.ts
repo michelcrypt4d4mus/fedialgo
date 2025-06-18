@@ -1,3 +1,7 @@
+/**
+ * Helpers for time-related operations
+ * @module time_helpers
+ */
 import { type Optional, type OptionalString } from "../types";
 type DateArg = Date | OptionalString | number;
 export declare const ageInHours: (date: DateArg, endTime?: DateArg) => number;

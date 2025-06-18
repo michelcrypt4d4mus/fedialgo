@@ -1,10 +1,10 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.throwSanitizedRateLimitError = exports.throwIfAccessTokenRevoked = exports.isRateLimitError = exports.isAccessTokenRevokedError = void 0;
 /**
  * Functions for handling Mastodon API errors.
  * @module api_errors
  */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.throwSanitizedRateLimitError = exports.throwIfAccessTokenRevoked = exports.isRateLimitError = exports.isAccessTokenRevokedError = void 0;
 const api_1 = require("./api");
 const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 /**

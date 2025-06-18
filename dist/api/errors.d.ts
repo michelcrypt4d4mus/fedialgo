@@ -1,3 +1,7 @@
+/**
+ * Functions for handling Mastodon API errors.
+ * @module api_errors
+ */
 import { Logger } from "../helpers/logger";
 /**
  * Returns true if the error is an access token revoked error.

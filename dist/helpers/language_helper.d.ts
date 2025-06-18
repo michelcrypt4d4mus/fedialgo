@@ -17,7 +17,8 @@ type LanguageDetectInfo = {
     langDetector: DetectLangLibraryResult;
     tinyLD: DetectLangLibraryResult;
 };
-export declare function detectLanguage(text: string): LanguageDetectInfo;
-export declare function detectForeignScriptLanguage(tagName: string): string | undefined;
+/** Convert a language code like 'jp' into a language name like 'Japanese'. */
 export declare const languageName: (code: string) => string;
+export declare function detectLanguage(text: string): LanguageDetectInfo;
+export declare function detectForeignScriptLanguage(str: string): string | undefined;
 export {};

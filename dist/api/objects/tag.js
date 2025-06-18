@@ -12,7 +12,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const language_helper_1 = require("../../helpers/language_helper");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
-// Lowercase the tag name, replace URL with one on homeserver
+/** Lowercase the tag name, replace URL with one on homeserver. */
 function repairTag(tag) {
     const language = (0, language_helper_1.detectForeignScriptLanguage)(tag.name);
     if (language)
@@ -36,7 +36,7 @@ function repairTag(tag) {
 }
 exports.repairTag = repairTag;
 ;
-// Create a string representation of the tag with its usage counts & language
+/** Create a string representation of the tag with its usage counts & language. */
 function tagInfoStr(tag) {
     const infoStr = `${tag.numToots} numToots${(0, string_helpers_1.optionalSuffix)(tag.language)}`;
     return `${tag.name} (${infoStr})`;

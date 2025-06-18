@@ -1,5 +1,5 @@
-/*
- * Filter toots based on numeric properties like replies, reblogs, and favourites.
+/**
+ * @fileoverview Filter toots based on numeric properties like replies, reblogs, and favourites.
  */
 import { isFinite, isNil } from 'lodash';
 

@@ -2,6 +2,7 @@
  * Functions for handling Mastodon API errors.
  * @module api_errors
  */
+
 import { apiLogger, ACCESS_TOKEN_REVOKED_MSG, RATE_LIMIT_ERROR_MSG } from "./api";
 import { Logger } from "../helpers/logger";
 

@@ -13,8 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
-/*
- * Toot class and helper methods for dealing with Mastodon Status objects.
+/**
+ * @fileoverview Toot class and helper methods for dealing with Mastodon Status objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
  */
 const change_case_1 = require("change-case");
