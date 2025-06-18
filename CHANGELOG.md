@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.73.7
 * Refactor API errors handling methods to `api/errors.ts` file
 * Add `logStringifiedProps()` to `Logger` class
 
