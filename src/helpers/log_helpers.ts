@@ -65,15 +65,8 @@ export class WaitTime {
     }
 
     markEnd(): void {
-        this.milliseconds += ageInMS(this.startedAt);
         this.numRequests++;
-    }
-
-    toDict(): Record<string, number> {
-        return {
-            avgMsPerRequest: this.milliseconds / this.numRequests,
-            milliseconds: this.milliseconds,
-            numRequests: this.numRequests
-        };
+        this.milliseconds += ageInMS(this.startedAt);
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
     }
 };

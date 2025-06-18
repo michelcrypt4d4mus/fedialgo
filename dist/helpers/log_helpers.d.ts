@@ -19,5 +19,4 @@ export declare class WaitTime {
     ageString(): string;
     markStart(): void;
     markEnd(): void;
-    toDict(): Record<string, number>;
 }

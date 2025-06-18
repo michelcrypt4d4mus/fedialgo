@@ -54,15 +54,9 @@ class WaitTime {
         this.startedAt = new Date();
     }
     markEnd() {
-        this.milliseconds += (0, time_helpers_1.ageInMS)(this.startedAt);
         this.numRequests++;
-    }
-    toDict() {
-        return {
-            avgMsPerRequest: this.milliseconds / this.numRequests,
-            milliseconds: this.milliseconds,
-            numRequests: this.numRequests
-        };
+        this.milliseconds += (0, time_helpers_1.ageInMS)(this.startedAt);
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
     }
 }
 exports.WaitTime = WaitTime;
