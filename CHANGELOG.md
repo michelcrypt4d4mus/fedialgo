@@ -1,5 +1,5 @@
 # NEXT RELEASE
-* Make a last ditch effort at language detection with detectForeignScriptLanguage()
+* Make a last ditch effort at `Toot` language detection with `detectForeignScriptLanguage()`
 
 ### v0.73.7
 * Refactor API errors handling methods to `api/errors.ts` file
