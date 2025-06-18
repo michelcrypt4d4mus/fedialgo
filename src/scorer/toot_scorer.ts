@@ -2,6 +2,7 @@
  * Namespace for Scorers that operate on a Toot independent of the rest of the feed.
  * @module toot_scorers
  */
+
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
 import { isDebugMode } from "../helpers/environment_helpers";

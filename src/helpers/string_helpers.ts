@@ -2,6 +2,7 @@
  * @fileoverview Helpers for dealing with strings.
  * @module string_helpers
  */
+
 import escape from 'regexp.escape';
 import md5 from "blueimp-md5";
 import { decode } from 'html-entities';

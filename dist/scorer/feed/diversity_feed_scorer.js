@@ -1,11 +1,11 @@
 "use strict";
+/**
+ * @module feed_scorers
+ */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @module feed_scorers
- */
 const counted_list_1 = __importDefault(require("../../api/counted_list"));
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
 const toot_1 = require("../../api/objects/toot");

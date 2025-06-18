@@ -10,7 +10,7 @@ import { type TagWithUsageCounts } from "../../types";
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
-// Lowercase the tag name, replace URL with one on homeserver
+/** Lowercase the tag name, replace URL with one on homeserver. */
 export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
     const language = detectForeignScriptLanguage(tag.name);
     if (language) tag.language = language;  // Don't set 'language' prop unnecessarily for space reasons
@@ -34,7 +34,7 @@ export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
 };
 
 
-// Create a string representation of the tag with its usage counts & language
+/** Create a string representation of the tag with its usage counts & language. */
 export function tagInfoStr(tag: TagWithUsageCounts) {
     const infoStr = `${tag.numToots} numToots${optionalSuffix(tag.language)}`;
     return `${tag.name} (${infoStr})`;

@@ -2,6 +2,7 @@
  * Various helper methods for dealing with collections (arrays, objects, etc.)
  * @module collection_helpers
  */
+
 import { chunk, isFinite, isNil } from 'lodash';
 
 import { compareStr, hashObject } from "./string_helpers";

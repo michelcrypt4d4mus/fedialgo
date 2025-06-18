@@ -1,3 +1,6 @@
+/**
+ * @module feed_scorers
+ */
 import FeedScorer from "../feed_scorer";
 import Toot from '../../api/objects/toot';
 import { type StringNumberDict } from "../../types";
