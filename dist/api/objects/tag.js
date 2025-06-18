@@ -14,7 +14,7 @@ const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Lowercase the tag name, replace URL with one on homeserver
 function repairTag(tag) {
-    const language = (0, language_helper_1.detectHashtagLanguage)(tag.name);
+    const language = (0, language_helper_1.detectForeignScriptLanguage)(tag.name);
     if (language)
         tag.language = language; // Don't set unnecessarily for storage space reasons
     if (!tag.name?.length) {

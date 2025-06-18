@@ -319,14 +319,14 @@ export function detectLanguage(text: string): LanguageDetectInfo {
     const accuracies = [langInfoFromTinyLD.accuracy, langInfoFromLangDetector.accuracy];
 
     // If both detectors agree on the language and one is MIN_LANG_ACCURACY or both are half MIN_LANG_ACCURACY use that
-    if (       langInfoFromTinyLD.chosenLang
-            && langInfoFromTinyLD.chosenLang == langInfoFromLangDetector.chosenLang
-            && (
-                accuracies.some((a) => a > MIN_LANG_DETECTOR_ACCURACY) // TODO: use isaccurate?
-                ||
-                accuracies.every((a) => a > (MIN_TINYLD_ACCURACY / 2))
-            ))
-    {
+    if (   langInfoFromTinyLD.chosenLang
+        && langInfoFromTinyLD.chosenLang == langInfoFromLangDetector.chosenLang
+        && (
+            accuracies.some((a) => a > MIN_LANG_DETECTOR_ACCURACY) // TODO: use isaccurate?
+            ||
+            accuracies.every((a) => a > (MIN_TINYLD_ACCURACY / 2))
+        )
+    ) {
         chosenLanguage = langInfoFromTinyLD.chosenLang;
     }
     else if (  langInfoFromTinyLD.chosenLang
@@ -357,7 +357,7 @@ export function detectLanguage(text: string): LanguageDetectInfo {
 
 // Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
 // meant for non Latin scripts like japanese, korean, etc.
-export function detectHashtagLanguage(tagName: string): string | undefined {
+export function detectForeignScriptLanguage(tagName: string): string | undefined {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
         if (regex.test(tagName) && !isNumberOrNumberString(tagName)) {
             return language;

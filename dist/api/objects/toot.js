@@ -610,7 +610,13 @@ class Toot {
         const logTrace = (msg) => repairLogger.trace(`${msg} for "${text}"`, langLogObj);
         // If there's nothing detected log a warning (if text is long enough) and set language to default
         if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
-            if (text.length > (config_1.config.toots.minCharsForLanguageDetect * 2)) {
+            // Last ditch effort with detectHashtagLanguage() for foreign scripts
+            const foreignScript = (0, language_helper_1.detectForeignScriptLanguage)(text);
+            if (foreignScript) {
+                logTrace(`Falling back to foreign script "${foreignScript}" as language`);
+                this.language = foreignScript;
+            }
+            else if (text.length > (config_1.config.toots.minCharsForLanguageDetect * 2)) {
                 repairLogger.warn(`no language detected`, langLogObj);
             }
             this.language ??= config_1.config.locale.defaultLanguage;
