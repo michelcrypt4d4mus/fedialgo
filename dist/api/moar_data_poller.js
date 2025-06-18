@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMoarData = exports.moarDataLogger = exports.MOAR_DATA_PREFIX = exports.GET_MOAR_DATA = void 0;
+exports.getMoarData = exports.moarDataLogger = void 0;
 /*
  * Background polling to try to get more user data for the scoring algorithm
  * after things have died down from the intitial load.
@@ -14,10 +14,10 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const log_helpers_1 = require("../helpers/log_helpers");
 const logger_1 = require("../helpers/logger");
-exports.GET_MOAR_DATA = "getMoarData()";
-exports.MOAR_DATA_PREFIX = `[${exports.GET_MOAR_DATA}]`;
+const GET_MOAR_DATA = "getMoarData()";
+const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new async_mutex_1.Mutex();
-exports.moarDataLogger = new logger_1.Logger(exports.GET_MOAR_DATA);
+exports.moarDataLogger = new logger_1.Logger(GET_MOAR_DATA);
 // Get morar historical data. Returns false if we have enough data and should
 // stop polling.
 async function getMoarData() {
@@ -44,9 +44,8 @@ async function getMoarData() {
             const newRecords = await pollers[i]({ moar: true }); // Launch the puller with moar=true
             const newCount = (newRecords?.length || 0);
             const extraCount = newCount - cacheSizes[i];
-            let msg = `${exports.MOAR_DATA_PREFIX} ${pollers[i].name} oldCount=${cacheSizes[i]}`;
-            msg += `, newCount=${newCount}, extraCount=${extraCount}`;
-            extraCount < 0 ? console.warn(msg) : console.log(msg);
+            const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
+            exports.moarDataLogger.logStringifiedProps(pollers[i].name, logObj);
             return extraCount || 0;
         }));
         exports.moarDataLogger.log(`Finished ${(0, time_helpers_1.ageString)(startedAt)}`);

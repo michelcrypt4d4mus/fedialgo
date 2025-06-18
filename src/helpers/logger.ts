@@ -1,10 +1,13 @@
 /*
  * Standardized logger.
  */
+import { isNil, isNull } from 'lodash';
+
 import { ageString } from './time_helpers';
 import { isDebugMode, isDeepDebug } from './environment_helpers';
 import { sortKeysByValue, split } from './collection_helpers';
-import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr, optionalSuffix } from './string_helpers';
+import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr, optionalSuffix, quoted } from './string_helpers';
+import { quotedISOFmt } from './time_helpers';
 import { type OptionalString, type StringNumberDict } from '../types';
 
 type ErrorArgs = {args: unknown[], error?: Error};
@@ -142,6 +145,31 @@ export class Logger {
     logSortedDict(msg: string, dict: StringNumberDict): void {
         const sortedKeys = sortKeysByValue(dict);
         this.debug(`${msg}:\n${sortedKeys.map((k, i) => `  ${i + 1}: ${k} (${dict[k]})`).join('\n')}`);
+    }
+
+    /**
+     * Log a message with stringified properties ('propX="somestring", propY=5', etc.) from an object.
+     * @param {string} msg
+     * @param {Record<string, Date | OptionalString | boolean | number>} obj
+     */
+    logStringifiedProps(msg: string, obj: Record<string, Date | OptionalString | boolean | number>) {
+        const propStrings: string[] = Object.entries(obj).reduce(
+            (propStrs, [k, v]) => {
+                if (typeof v === 'string') {
+                    v = quoted(v);
+                } else if (isNil(v)) {
+                    v = isNull(v) ? 'null' : 'undefined';
+                } else if (v instanceof Date) {
+                    v = quotedISOFmt(v);
+                }
+
+                propStrs.push(`${k}=${v}`);
+                return propStrs;
+            },
+            [] as string[]
+        );
+
+        this.info(propStrings.length ? `${msg}: ${propStrings.join(', ')}` : msg);
     }
 
     /**

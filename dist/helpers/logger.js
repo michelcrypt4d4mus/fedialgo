@@ -4,10 +4,12 @@ exports.Logger = void 0;
 /*
  * Standardized logger.
  */
+const lodash_1 = require("lodash");
 const time_helpers_1 = require("./time_helpers");
 const environment_helpers_1 = require("./environment_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const string_helpers_1 = require("./string_helpers");
+const time_helpers_2 = require("./time_helpers");
 const PREFIXERS = [
     string_helpers_1.bracketed,
     string_helpers_1.arrowed,
@@ -129,6 +131,27 @@ class Logger {
     logSortedDict(msg, dict) {
         const sortedKeys = (0, collection_helpers_1.sortKeysByValue)(dict);
         this.debug(`${msg}:\n${sortedKeys.map((k, i) => `  ${i + 1}: ${k} (${dict[k]})`).join('\n')}`);
+    }
+    /**
+     * Log a message with stringified properties ('propX="somestring", propY=5', etc.) from an object.
+     * @param {string} msg
+     * @param {Record<string, Date | OptionalString | boolean | number>} obj
+     */
+    logStringifiedProps(msg, obj) {
+        const propStrings = Object.entries(obj).reduce((propStrs, [k, v]) => {
+            if (typeof v === 'string') {
+                v = (0, string_helpers_1.quoted)(v);
+            }
+            else if ((0, lodash_1.isNil)(v)) {
+                v = (0, lodash_1.isNull)(v) ? 'null' : 'undefined';
+            }
+            else if (v instanceof Date) {
+                v = (0, time_helpers_2.quotedISOFmt)(v);
+            }
+            propStrs.push(`${k}=${v}`);
+            return propStrs;
+        }, []);
+        this.info(propStrings.length ? `${msg}: ${propStrings.join(', ')}` : msg);
     }
     /**
      * Logs a message with the elapsed time since startedAt, optionally with additional labels/args.
