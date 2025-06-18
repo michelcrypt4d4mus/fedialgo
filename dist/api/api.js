@@ -27,6 +27,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.apiLogger = exports.RATE_LIMIT_ERROR_MSG = exports.ACCESS_TOKEN_REVOKED_MSG = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
+/*
+ * Singleton class to wrap authenticated mastodon API calls to the user's home server
+ * (unauthenticated calls are handled by the MastodonServer class).
+ *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
+ *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
+ */
+const lodash_1 = require("lodash");
 const async_mutex_1 = require("async-mutex");
 const account_1 = __importDefault(require("./objects/account"));
 const Storage_1 = __importDefault(require("../Storage"));
@@ -752,7 +759,7 @@ class MastoApi {
                 newRows = (0, collection_helpers_1.truncateToLength)(sortedByCreatedAt, maxCacheRecords, logger);
             }
             if (processFxn)
-                objs.forEach(obj => obj && processFxn(obj));
+                objs.filter(Boolean).forEach(obj => processFxn(obj));
             if (!skipCache)
                 await Storage_1.default.set(cacheKey, objs);
             return objs;
@@ -931,9 +938,13 @@ class MastoApi {
      */
     buildFromApiObjects(key, objects, logger) {
         let newObjects;
-        // Toots get special handling for deduplication
+        const nullObjs = objects.filter(lodash_1.isNil);
+        if (nullObjs.length) {
+            logger.warn(`buildFromApiObjects() found ${nullObjs.length} null objects`, nullObjs);
+        }
         if (enums_1.STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => toot_1.default.build(obj));
+            // Toots get special handling for deduplication
             return toot_1.default.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`));
         }
         else if (enums_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {

@@ -4,6 +4,7 @@
  *   - Methods that are prefixed with 'fetch' will always do a remote fetch.
  *   - Methods prefixed with 'get' will attempt to load from the Storage cache before fetching.
  */
+import { isNil } from "lodash";
 import { mastodon } from "masto";
 import { Mutex, Semaphore } from 'async-mutex';
 
@@ -115,7 +116,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  * @property {CacheKey} cacheKey - Cache key for storage.
  * @property {() => ApiFetcher<T>} fetchGenerator - Function to create a new API paginator for fetching data.
  * @property {boolean} [isBackgroundFetch] - Logging flag to indicate if this is a background fetch.
- * @property {(obj: T) => void} [processFxn] - Optional function to process the object before storing and returning it.
+ * @property {(obj: ResponseRow<T>) => void} [processFxn] - Optional function to process the object before storing and returning it.
  * @property {boolean} [skipMutex] - If true, don't lock the endpoint mutex when making requests.
  */
 interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
@@ -124,7 +125,7 @@ interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
     fetchGenerator: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
     local?: boolean,
-    processFxn?: (obj: T) => void,
+    processFxn?: (obj: ResponseRow<T>) => void,
     skipMutex?: boolean,
 };
 
@@ -435,7 +436,7 @@ export default class MastoApi {
             cacheKey: CacheKey.FOLLOWED_ACCOUNTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
             minRecords: this.user.followingCount - 10, // We want to get at least this many followed accounts
-            processFxn: (account) => (account as Account).isFollowed = true,
+            processFxn: (account) => account.isFollowed = true,
             ...(params || {})
         }) as Account[];
     }
@@ -464,7 +465,7 @@ export default class MastoApi {
             cacheKey: CacheKey.FOLLOWERS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
             minRecords: this.user.followersCount - 10, // We want to get at least this many followed accounts
-            processFxn: (account) => (account as Account).isFollower = true,
+            processFxn: (account) => account.isFollower = true,
             ...(params || {})
         }) as Account[];
     }
@@ -946,7 +947,7 @@ export default class MastoApi {
                 newRows = truncateToLength(sortedByCreatedAt, maxCacheRecords, logger);
             }
 
-            if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
+            if (processFxn) objs.filter(Boolean).forEach(obj => processFxn(obj));
             if (!skipCache) await Storage.set(cacheKey, objs);
             return objs;
         } catch (err) {
@@ -1140,10 +1141,15 @@ export default class MastoApi {
         logger: Logger
     ): ResponseRow<T>[] {
         let newObjects: ResponseRow<T>[];
+        const nullObjs = objects.filter(isNil);
 
-        // Toots get special handling for deduplication
+        if (nullObjs.length) {
+            logger.warn(`buildFromApiObjects() found ${nullObjs.length} null objects`, nullObjs);
+        }
+
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => Toot.build(obj as TootLike));
+            // Toots get special handling for deduplication
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`)) as ResponseRow<T>[];
         } else if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             newObjects = objects.map(obj => Account.build(obj as AccountLike)) as ResponseRow<T>[];
