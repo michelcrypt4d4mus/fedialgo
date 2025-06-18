@@ -78,7 +78,7 @@ class TagsForFetchingToots {
     /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
     topTags(numTags) {
         numTags ||= this.config.numTags;
-        const tags = (0, collection_helpers_1.truncateToConfiguredLength)(this.tagList.topObjs(), numTags, this.logger);
+        const tags = (0, collection_helpers_1.truncateToLength)(this.tagList.topObjs(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${(0, tag_1.tagInfoStr)(t)}`).join("\n"));
         return tags;
     }

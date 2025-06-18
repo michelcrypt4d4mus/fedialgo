@@ -200,7 +200,7 @@ class MastoApi {
         const msg = `Fetched ${allNewToots.length} new toots ${(0, time_helpers_1.ageString)(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = (0, toot_1.sortByCreatedAt)(homeTimelineToots).reverse(); // TODO: should we sort by score?
-        homeTimelineToots = (0, collection_helpers_1.truncateToConfiguredLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger);
+        homeTimelineToots = (0, collection_helpers_1.truncateToLength)(homeTimelineToots, config_1.config.toots.maxTimelineLength, logger);
         await Storage_1.default.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -246,7 +246,7 @@ class MastoApi {
                 const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
                 toots = await toot_1.default.buildToots(statuses, cacheKey);
-                toots = (0, collection_helpers_1.truncateToConfiguredLength)(toots, maxRecords, logger);
+                toots = (0, collection_helpers_1.truncateToLength)(toots, maxRecords, logger);
                 await Storage_1.default.set(cacheKey, toots);
             }
             return toots;
@@ -749,7 +749,7 @@ class MastoApi {
                 logger.warn(`Truncating ${objs.length} rows to maxCacheRecords=${maxCacheRecords}`);
                 // TODO: there's a Mastodon object w/out created_at, so this would break but for now that object has no maxCacheRecords set for that endpoint
                 const sortedByCreatedAt = (0, collection_helpers_1.sortObjsByCreatedAt)(objs);
-                newRows = (0, collection_helpers_1.truncateToConfiguredLength)(sortedByCreatedAt, maxCacheRecords, logger);
+                newRows = (0, collection_helpers_1.truncateToLength)(sortedByCreatedAt, maxCacheRecords, logger);
             }
             if (processFxn)
                 objs.forEach(obj => obj && processFxn(obj));

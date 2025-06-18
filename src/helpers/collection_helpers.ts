@@ -690,26 +690,23 @@ export function transformKeys<T>(data: T, transform: (key: string) => string): T
  * @param {Logger} [logger] - Logger instance.
  * @returns {T[]} The truncated array.
  */
-export function truncateToConfiguredLength<T>(array: T[], maxRecords: number, logger?: Logger): T[] {
+export function truncateToLength<T>(array: T[], maxRecords: number, logger?: Logger): T[] {
     if (array.length <= maxRecords) return array;
-    logger ||= new Logger("truncateToConfiguredLength()");
     const startLen = array.length;
     array = array.slice(0, maxRecords);
-    logger.deep(`Truncated array of ${startLen} to ${array.length} (maxRecords=${maxRecords})`);
+    (logger ?? new Logger("truncateToConfiguredLength()")).deep(`Truncated array of ${startLen} to ${array.length}`);
     return array;
 };
 
 
 /**
  * Returns a new array with only unique, non-null string values.
- * @param {(string | undefined)[]} array - The array to uniquify.
+ * @param {OptionalString[]} array - The array to uniquify.
  * @returns {string[] | undefined} The unique array or undefined if empty.
  */
-export const uniquify = (array: (string | undefined)[]): string[] | undefined => {
-    if (array.length == 0) return undefined;
-    let newArray = array.filter((e) => e != undefined) as string[];
-    newArray = [...new Set(newArray)];
-    return newArray;
+export const uniquify = (array: OptionalString[]): string[] | undefined => {
+    const nonNullArray = [...new Set(array.filter((element) => !isNil(element)))] as string[];
+    return nonNullArray.length ? nonNullArray : undefined;
 };
 
 

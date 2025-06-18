@@ -74,7 +74,7 @@ import {
     makeChunks,
     makePercentileChunks,
     sortKeysByValue,
-    truncateToConfiguredLength,
+    truncateToLength,
 } from "./helpers/collection_helpers";
 import {
     FILTER_OPTION_DATA_SOURCES,
@@ -688,7 +688,7 @@ class TheAlgorithm {
         if (this.feed.length == config.toots.maxTimelineLength) {
             const numToClear = config.toots.maxTimelineLength - config.toots.truncateFullTimelineToLength;
             logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
-            this.feed = truncateToConfiguredLength(this.feed, config.toots.truncateFullTimelineToLength, logger);
+            this.feed = truncateToLength(this.feed, config.toots.truncateFullTimelineToLength, logger);
             await Storage.set(AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         }
 
@@ -781,7 +781,7 @@ class TheAlgorithm {
         // await ScorerCache.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, true);
 
-        this.feed = truncateToConfiguredLength(
+        this.feed = truncateToLength(
             this.feed,
             config.toots.maxTimelineLength,
             logger.tempLogger('scoreAndFilterFeed()')

@@ -7,7 +7,7 @@ import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { config, type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
-import { resolvePromiseDict, truncateToConfiguredLength, zipPromiseCalls } from "../helpers/collection_helpers";
+import { resolvePromiseDict, truncateToLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { tagInfoStr } from "./objects/tag";
 import { TagTootsType } from "../enums";
 import { type TagWithUsageCounts } from "../types";
@@ -102,7 +102,7 @@ export default class TagsForFetchingToots {
     /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.config.numTags;
-        const tags = truncateToConfiguredLength(this.tagList.topObjs(), numTags, this.logger);
+        const tags = truncateToLength(this.tagList.topObjs(), numTags, this.logger);
         this.logger.debug(`topTags:\n`, tags.map((t, i) => `${i + 1}: ${tagInfoStr(t)}`).join("\n"));
         return tags;
     }

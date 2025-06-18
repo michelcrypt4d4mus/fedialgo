@@ -279,13 +279,13 @@ export declare function transformKeys<T>(data: T, transform: (key: string) => st
  * @param {Logger} [logger] - Logger instance.
  * @returns {T[]} The truncated array.
  */
-export declare function truncateToConfiguredLength<T>(array: T[], maxRecords: number, logger?: Logger): T[];
+export declare function truncateToLength<T>(array: T[], maxRecords: number, logger?: Logger): T[];
 /**
  * Returns a new array with only unique, non-null string values.
- * @param {(string | undefined)[]} array - The array to uniquify.
+ * @param {OptionalString[]} array - The array to uniquify.
  * @returns {string[] | undefined} The unique array or undefined if empty.
  */
-export declare const uniquify: (array: (string | undefined)[]) => string[] | undefined;
+export declare const uniquify: (array: OptionalString[]) => string[] | undefined;
 /**
  * Uniquify an array of API objects by the appropriate property. This is a no-op for API objects
  * that don't have a property that can be used to uniquely identify them.

@@ -34,7 +34,7 @@ import {
     getPromiseResults,
     removeKeys,
     sortObjsByCreatedAt,
-    truncateToConfiguredLength,
+    truncateToLength,
     uniquifyApiObjs,
 } from "../helpers/collection_helpers";
 import {
@@ -340,7 +340,7 @@ export default class MastoApi {
         const msg = `Fetched ${allNewToots.length} new toots ${ageString(startedAt)} (${oldestTootStr}`;
         logger.debug(`${msg}, home feed has ${homeTimelineToots.length} toots)`);
         homeTimelineToots = sortByCreatedAt(homeTimelineToots).reverse(); // TODO: should we sort by score?
-        homeTimelineToots = truncateToConfiguredLength(homeTimelineToots, config.toots.maxTimelineLength, logger);
+        homeTimelineToots = truncateToLength(homeTimelineToots, config.toots.maxTimelineLength, logger);
         await Storage.set(cacheKey, homeTimelineToots);
         return homeTimelineToots;
     }
@@ -397,7 +397,7 @@ export default class MastoApi {
                 const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
                 toots = await Toot.buildToots(statuses, cacheKey);
-                toots = truncateToConfiguredLength(toots, maxRecords, logger);
+                toots = truncateToLength(toots, maxRecords, logger);
                 await Storage.set(cacheKey, toots);
             }
 
@@ -943,7 +943,7 @@ export default class MastoApi {
                 logger.warn(`Truncating ${objs.length} rows to maxCacheRecords=${maxCacheRecords}`);
                 // TODO: there's a Mastodon object w/out created_at, so this would break but for now that object has no maxCacheRecords set for that endpoint
                 const sortedByCreatedAt = sortObjsByCreatedAt(objs as WithCreatedAt[]) as T[];
-                newRows = truncateToConfiguredLength(sortedByCreatedAt, maxCacheRecords, logger);
+                newRows = truncateToLength(sortedByCreatedAt, maxCacheRecords, logger);
             }
 
             if (processFxn) objs.forEach(obj => obj && processFxn!(obj as T));
