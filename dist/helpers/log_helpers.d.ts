@@ -11,7 +11,6 @@ export declare function lockExecution(locker: Mutex | Semaphore, logger?: Logger
 /** Helper class for telemetry.  */
 export declare class WaitTime {
     avgMsPerRequest: number;
-    logger: Logger;
     milliseconds: number;
     numRequests: number;
     startedAt: Date;

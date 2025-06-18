@@ -40,7 +40,6 @@ exports.lockExecution = lockExecution;
 /** Helper class for telemetry.  */
 class WaitTime {
     avgMsPerRequest = 0;
-    logger = new logger_1.Logger("WaitTime");
     milliseconds = 0;
     numRequests = 0;
     startedAt = new Date(); // TODO: this shouldn't really be set yet...

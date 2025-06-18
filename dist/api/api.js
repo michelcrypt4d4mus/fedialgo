@@ -896,15 +896,15 @@ class MastoApi {
      * @returns {T[]} Array of rows to use.
      */
     handleApiError(params, newRows, err) {
+        const { cacheResult } = params;
         let { cacheKey, logger } = params;
-        const cacheResult = params.cacheResult;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
+        const waitTime = this.waitTimes[cacheKey];
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
-        const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
-        (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${(0, time_helpers_1.ageString)(startedAt)}. ${msg}`);
+        (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
         if (enums_1.UNIQUE_ID_PROPERTIES[cacheKey]) {

@@ -1095,15 +1095,15 @@ export default class MastoApi {
         newRows: T[],
         err: Error | unknown,
     ): ResponseRow<T>[] {
+        const { cacheResult } = params;
         let { cacheKey, logger } = params;
-        const cacheResult = params.cacheResult;
         cacheKey ??= CacheKey.HOME_TIMELINE_TOOTS;  // TODO: this is a hack to avoid undefined cacheKey
+        const waitTime = this.waitTimes[cacheKey];
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
-        const startedAt = this.waitTimes[cacheKey].startedAt || Date.now();
         const cachedRows = cacheResult?.rows || [];
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
-        throwIfAccessTokenRevoked(logger, err, `Failed ${ageString(startedAt)}. ${msg}`);
+        throwIfAccessTokenRevoked(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
 
         // If endpoint doesn't support min/max ID and we have less rows than we started with use old rows
