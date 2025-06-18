@@ -509,12 +509,13 @@ class TheAlgorithm {
 
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
-            const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown`;
-            loggers[CacheKey.TIMELINE_TOOTS].debug(`${msg} on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`);
-            await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
+            const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown` +
+                `on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
+            loggers[AlgorithmStorageKey.TIMELINE_TOOTS].debug(msg);
+            await Storage.set(AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         } catch (error) {
-            loggers[CacheKey.TIMELINE_TOOTS].error(`Error saving toots:`, error);
+            loggers[AlgorithmStorageKey.TIMELINE_TOOTS].error(`Error saving toots:`, error);
         }
     }
 
@@ -681,13 +682,13 @@ class TheAlgorithm {
     // Load cached data from storage. This is called when the app is first opened and when reset() is called.
     private async loadCachedData(): Promise<void> {
         this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
-        this.feed = await Storage.getCoerced<Toot>(CacheKey.TIMELINE_TOOTS);
+        this.feed = await Storage.getCoerced<Toot>(AlgorithmStorageKey.TIMELINE_TOOTS);
 
         if (this.feed.length == config.toots.maxTimelineLength) {
             const numToClear = config.toots.maxTimelineLength - config.toots.truncateFullTimelineToLength;
             logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
             this.feed = truncateToConfiguredLength(this.feed, config.toots.truncateFullTimelineToLength, logger);
-            await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
+            await Storage.set(AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         }
 
         this.trendingData = await Storage.getTrendingData();
@@ -785,7 +786,7 @@ class TheAlgorithm {
             logger.tempLogger('scoreAndFilterFeed()')
         );
 
-        await Storage.set(CacheKey.TIMELINE_TOOTS, this.feed);
+        await Storage.set(AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
     }
 

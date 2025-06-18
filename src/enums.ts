@@ -10,6 +10,7 @@
 export enum AlgorithmStorageKey {
     APP_OPENS = 'AppOpens',
     FILTERS = 'Filters',
+    TIMELINE_TOOTS = 'TimelineToots',  // The entire timeline (home timeline + trending toots etc.)
     USER = 'FedialgoUser',
     WEIGHTS = 'Weights'
 };
@@ -40,7 +41,6 @@ export enum CacheKey {
     NOTIFICATIONS = 'Notifications',
     RECENT_USER_TOOTS = 'RecentUserToots',
     SERVER_SIDE_FILTERS = 'ServerFilters',
-    TIMELINE_TOOTS = 'TimelineToots',  // The entire timeline (home timeline + trending toots etc.)
 };
 
 /**

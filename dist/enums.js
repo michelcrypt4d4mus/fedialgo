@@ -13,6 +13,7 @@ var AlgorithmStorageKey;
 (function (AlgorithmStorageKey) {
     AlgorithmStorageKey["APP_OPENS"] = "AppOpens";
     AlgorithmStorageKey["FILTERS"] = "Filters";
+    AlgorithmStorageKey["TIMELINE_TOOTS"] = "TimelineToots";
     AlgorithmStorageKey["USER"] = "FedialgoUser";
     AlgorithmStorageKey["WEIGHTS"] = "Weights";
 })(AlgorithmStorageKey || (exports.AlgorithmStorageKey = AlgorithmStorageKey = {}));
@@ -44,7 +45,6 @@ var CacheKey;
     CacheKey["NOTIFICATIONS"] = "Notifications";
     CacheKey["RECENT_USER_TOOTS"] = "RecentUserToots";
     CacheKey["SERVER_SIDE_FILTERS"] = "ServerFilters";
-    CacheKey["TIMELINE_TOOTS"] = "TimelineToots";
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;
 /**

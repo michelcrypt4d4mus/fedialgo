@@ -355,7 +355,7 @@ class Storage {
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
-        const timelineToots = await this.get(enums_1.CacheKey.TIMELINE_TOOTS);
+        const timelineToots = await this.get(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS);
         if (!timelineToots)
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);
