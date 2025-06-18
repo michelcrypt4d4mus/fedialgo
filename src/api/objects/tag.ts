@@ -13,7 +13,7 @@ const BROKEN_TAG = "<<BROKEN_TAG>>";
 // Lowercase the tag name, replace URL with one on homeserver
 export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
     const language = detectForeignScriptLanguage(tag.name);
-    if (language) tag.language = language;  // Don't set unnecessarily for storage space reasons
+    if (language) tag.language = language;  // Don't set 'language' prop unnecessarily for space reasons
 
     if (!tag.name?.length) {
         console.warn(`Broken tag object:`, tag);
