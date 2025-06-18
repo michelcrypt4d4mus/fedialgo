@@ -3,7 +3,7 @@
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import MastoApi from "../../api/api";
-import { detectHashtagLanguage } from "../../helpers/language_helper";
+import { detectForeignScriptLanguage } from "../../helpers/language_helper";
 import { optionalSuffix, removeDiacritics } from "../../helpers/string_helpers";
 import { type TagWithUsageCounts } from "../../types";
 
@@ -12,8 +12,8 @@ const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 // Lowercase the tag name, replace URL with one on homeserver
 export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
-    const language = detectHashtagLanguage(tag.name);
-    if (language) tag.language = language;  // Don't set unnecessarily for storage space reasons
+    const language = detectForeignScriptLanguage(tag.name);
+    if (language) tag.language = language;  // Don't set 'language' prop unnecessarily for space reasons
 
     if (!tag.name?.length) {
         console.warn(`Broken tag object:`, tag);

@@ -15,7 +15,7 @@ import UserData from "../user_data";
 import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
-import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectLanguage } from "../../helpers/language_helper";
+import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectForeignScriptLanguage, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName, TypeFilterName, CONVERSATION, JUST_MUTING } from '../../enums';
@@ -724,7 +724,13 @@ export default class Toot implements TootObj {
 
         // If there's nothing detected log a warning (if text is long enough) and set language to default
         if ((tinyLD.languageAccuracies.length + langDetector.languageAccuracies.length) == 0) {
-            if (text.length > (config.toots.minCharsForLanguageDetect * 2)) {
+            // Last ditch effort with detectHashtagLanguage() for foreign scripts
+            const foreignScript = detectForeignScriptLanguage(text);
+
+            if (foreignScript) {
+                logTrace(`Falling back to foreign script "${foreignScript}" as language`);
+                this.language = foreignScript;
+            } else if (text.length > (config.toots.minCharsForLanguageDetect * 2)) {
                 repairLogger.warn(`no language detected`, langLogObj);
             }
 

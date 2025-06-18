@@ -18,6 +18,6 @@ type LanguageDetectInfo = {
     tinyLD: DetectLangLibraryResult;
 };
 export declare function detectLanguage(text: string): LanguageDetectInfo;
-export declare function detectHashtagLanguage(tagName: string): string | undefined;
+export declare function detectForeignScriptLanguage(tagName: string): string | undefined;
 export declare const languageName: (code: string) => string;
 export {};

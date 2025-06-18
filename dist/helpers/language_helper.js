@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.languageName = exports.detectHashtagLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
+exports.languageName = exports.detectForeignScriptLanguage = exports.detectLanguage = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
 /*
  * Detecting language etc.
  */
@@ -322,7 +322,7 @@ exports.detectLanguage = detectLanguage;
 ;
 // Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
 // meant for non Latin scripts like japanese, korean, etc.
-function detectHashtagLanguage(tagName) {
+function detectForeignScriptLanguage(tagName) {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
         if (regex.test(tagName) && !(0, math_helper_1.isNumberOrNumberString)(tagName)) {
             return language;
@@ -330,7 +330,7 @@ function detectHashtagLanguage(tagName) {
     }
     ;
 }
-exports.detectHashtagLanguage = detectHashtagLanguage;
+exports.detectForeignScriptLanguage = detectForeignScriptLanguage;
 ;
 function buildLangDetectResult(minAccuracy, langAccuracies) {
     langAccuracies ||= [];
