@@ -8,7 +8,7 @@ import UserData from "./user_data";
 import { config } from "../config";
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
-import { TagTootsCacheKey } from "../enums";
+import { TagTootsType } from "../enums";
 import {
     type CountedListSource,
     type MastodonTag,
@@ -32,7 +32,7 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     static async buildFavouritedTags(): Promise<TagList> {
         return TagList.fromUsageCounts(
             await MastoApi.instance.getFavouritedToots(),
-            TagTootsCacheKey.FAVOURITED_TAG_TOOTS
+            TagTootsType.FAVOURITED
         );
     }
 
@@ -51,7 +51,7 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
      * @returns {TagList} A new TagList instance with tags counted from the recent user toots.
      * */
     static fromParticipations(recentToots: Toot[], includeRetoots?: boolean): TagList {
-        const tagList = TagList.fromUsageCounts(recentToots, TagTootsCacheKey.PARTICIPATED_TAG_TOOTS, includeRetoots);
+        const tagList = TagList.fromUsageCounts(recentToots, TagTootsType.PARTICIPATED, includeRetoots);
         logger.trace(`fromParticipations() found ${tagList.length} tags in ${recentToots.length} recent user toots`);
         return tagList;
     }

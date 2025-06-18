@@ -10,7 +10,7 @@ import CountedList, { BooleanFilterOptionList, ObjList } from "./counted_list";
 import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot, { mostRecentTootedAt } from "./objects/toot";
-import { BooleanFilterName, ScoreName, TagTootsCacheKey } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
 import { buildMutedRegex, extractMutedKeywords } from "./objects/filter";
 import { config } from "../config";
 import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
@@ -61,14 +61,14 @@ interface UserApiData {
 export default class UserData {
     blockedDomains: Set<string> = new Set();
     favouriteAccounts = new BooleanFilterOptionList([], ScoreName.FAVOURITED_ACCOUNTS);
-    favouritedTags = new TagList([], TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+    favouritedTags = new TagList([], TagTootsType.FAVOURITED);
     followedAccounts: StringNumberDict = {};
     followedTags = new TagList([], ScoreName.FOLLOWED_TAGS);
     isRetooter: boolean = false;
     languagesPostedIn: ObjList = new CountedList([], BooleanFilterName.LANGUAGE);
     mutedAccounts: AccountNames = {};
     mutedKeywordsRegex!: RegExp;  // Cached regex for muted keywords, built from server-side filters
-    participatedTags = new TagList([], TagTootsCacheKey.PARTICIPATED_TAG_TOOTS);
+    participatedTags = new TagList([], TagTootsType.PARTICIPATED);
     preferredLanguage = config.locale.defaultLanguage;
     serverSideFilters: mastodon.v2.Filter[] = [];
 
@@ -115,7 +115,7 @@ export default class UserData {
         }
 
         userData.blockedDomains = new Set(data.blockedDomains);
-        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsCacheKey.FAVOURITED_TAG_TOOTS);
+        userData.favouritedTags = TagList.fromUsageCounts(data.favouritedToots, TagTootsType.FAVOURITED);
         userData.followedAccounts = Account.countAccounts(data.followedAccounts);
         userData.followedTags = new TagList(data.followedTags, ScoreName.FOLLOWED_TAGS);
         userData.mutedAccounts = Account.buildAccountNames(data.mutedAccounts);

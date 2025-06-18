@@ -141,13 +141,13 @@ class Config {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.TagTootsCacheKey.FAVOURITED_TAG_TOOTS]: {
+            [enums_1.TagTootsType.FAVOURITED]: {
                 minutesUntilStale: 60,
             },
-            [enums_1.TagTootsCacheKey.PARTICIPATED_TAG_TOOTS]: {
+            [enums_1.TagTootsType.PARTICIPATED]: {
                 minutesUntilStale: 20,
             },
-            [enums_1.TagTootsCacheKey.TRENDING_TAG_TOOTS]: {
+            [enums_1.TagTootsType.TRENDING]: {
                 minutesUntilStale: 15,
             },
         },

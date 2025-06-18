@@ -11,7 +11,7 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { CacheKey, TagTootsCacheKey, TrendingType, buildCacheKeyDict } from '../enums';
+import { CacheKey, TagTootsType, TrendingType, buildCacheKeyDict } from '../enums';
 import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
 import { FEDIVERSE_CACHE_KEYS, config } from "../config";
 import { lockExecution } from '../helpers/log_helpers';
@@ -221,13 +221,13 @@ export default class MastodonServer {
             key: CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                const trendingTagList = new TagList(tags, TagTootsCacheKey.TRENDING_TAG_TOOTS);
+                const trendingTagList = new TagList(tags, TagTootsType.TRENDING);
                 await trendingTagList.removeInvalidTrendingTags();
                 return uniquifyTrendingObjs(trendingTagList.objs, t => (t as TagWithUsageCounts).name);
             }
         });
 
-        return new TagList(tags, TagTootsCacheKey.TRENDING_TAG_TOOTS);
+        return new TagList(tags, TagTootsType.TRENDING);
     }
 
     /**

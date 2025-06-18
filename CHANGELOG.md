@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename TagTootsCacheKey enum to TagTootsType, move JSDoc for enums to its own module
 
 ### v0.73.10
 * Fix bug in `saveTimelineToCache()`
