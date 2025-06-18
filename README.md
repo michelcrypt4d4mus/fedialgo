@@ -197,7 +197,8 @@ console.log(`Servers used to determine trending data:`, algorithm.mastodonServer
 #### User Data
 The user's followed accounts, muted accounts, followed tags, and a few other bits and bobs used to compute the scoring of the timeline can be accessed at `algorithm.userData`. See [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/UserData.html) or [`user_data.ts`](src/api/user_data.ts) for info on the data type (and be aware this is probably the least stable / most subject to change part of the fedialgo API).
 
-There's also a unified method to collect a bunch of information (`fedialgo` configuration, server configuration, user data, filter settings, etc.) with a single call:
+#### Current State
+There's a unified method to collect a bunch of information (`fedialgo` configuration, server configuration, user data, filter settings, etc.) with a single call. Note that the returned data structure is not currently intended for anything other than debugging and is therefore subject to change / should not be relied upon.
 
 ```typescript
 const currentState = await algorithm.getCurrentState();
