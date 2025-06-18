@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-### v0.73.8
+### v0.73.9
 * Make a last ditch effort at `Toot` language detection with `detectForeignScriptLanguage()`
 
 ### v0.73.7
