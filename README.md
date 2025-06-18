@@ -188,7 +188,7 @@ algo.trendingData.tags.foreach((tag) => console.log(`'${tag.name}' tooted by ${t
 // Trending toots
 algo.trendingData.toots.foreach((toot) => console.log(`Trending toot w/rank ${toot.trendingRank}: '${toot.description}'`));
 // Popular servers
-console.log(`Servers used to determine trending data:`, algo.mastodonServers);
+console.log(`Servers used to determine trending data:`, algo.trendingData.servers);
 ```
 
 #### User Data
