@@ -164,17 +164,10 @@ await algo.reset();
 await algo.reset(true);
 ```
 
-## Documentation
+# Documentation
 There is [JSDoc generated documentation](https://michelcrypt4d4mus.github.io/fedialgo/) of most of `fedialgo`'s public API (classes and methods).
 
-#### `Toot` Object API
-The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/Toot.html) or [`toot.ts`](./src/api/objects/toot.ts) for details. In particular note that you can mark a `Toot` object's `numTimesShown` property, at which point the `AlreadyShownScorer` will return non-zero values for that Toot.
-
-```typescript
-timelineFeed[0].numTimesShown = 1;
-```
-
-#### Other Data Available From `TheAlgorithm`
+### Other Data Available From `TheAlgorithm`
 FediAlgo exports a number of types and enums; check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/) or look at the bottom of [`index.ts`](src/index.ts) for details on what is available. `TheAlgorithm` objects provide a bunch of data besides the timeline should you choose to access it.
 
 #### Fediverse Trending Data
@@ -201,8 +194,14 @@ There's a unified method to collect a bunch of information (`fedialgo` configura
 const currentState = await algo.getCurrentState();
 ```
 
+#### `Toot` Object API
+The timeline is returned as an array of `Toot` objects which are a minimal extension of the mastodon API's `Status` object with a few more properties and some helper methods. Check [the documentation](https://michelcrypt4d4mus.github.io/fedialgo/Toot.html) or [`toot.ts`](./src/api/objects/toot.ts) for details. In particular note that you can mark a `Toot` object's `numTimesShown` property, at which point the `AlreadyShownScorer` will return non-zero values for that Toot.
 
-## Package Configuration
+```typescript
+timelineFeed[0].numTimesShown = 1;
+```
+
+### Package Configuration
 Package configuration options can be found in [`src/config.ts`](src/config.ts). These can't currently be changed via the API though feel free to experiment with your local copy of the repo or ping me if you have a use case for updating some of the configuration variables.
 
 
