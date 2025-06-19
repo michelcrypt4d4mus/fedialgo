@@ -3,11 +3,18 @@
  * API docs: https://docs.joinmastodon.org/entities/Tag/
  */
 import MastoApi from "../../api/api";
+import { config } from "../../config";
 import { detectForeignScriptLanguage } from "../../helpers/language_helper";
 import { optionalSuffix, removeDiacritics } from "../../helpers/string_helpers";
 import { type TagWithUsageCounts } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
+
+
+/** Returns true for hashtags that can count as existing in a Toot even if the "#" character wasn't used. */
+export function isValidForSubstringSearch(tag: TagWithUsageCounts): boolean {
+    return (tag.name.length > 1 && !config.toots.tagOnlyStrings.has(tag.name))
+};
 
 
 /** Lowercase the tag name, replace URL with one on homeserver. */

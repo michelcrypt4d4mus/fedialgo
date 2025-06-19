@@ -1,4 +1,6 @@
 import Toot from "../api/objects/toot";
+import type TagList from "../api/tag_list";
+import { BooleanFilterOptionList } from "../api/counted_list";
 import { type FeedFilterSettings } from "../types";
 export declare function buildNewFilterSettings(): FeedFilterSettings;
 export declare function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings;
@@ -12,3 +14,4 @@ export declare function repairFilterSettings(filters: FeedFilterSettings): boole
  * @returns {Promise<void>} A promise that resolves when the filter options have been updated.
  */
 export declare function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[]): Promise<void>;
+export declare function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagList, toots: Toot[]): void;

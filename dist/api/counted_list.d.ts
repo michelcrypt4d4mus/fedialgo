@@ -35,6 +35,8 @@ export default class CountedList<T extends NamedTootCount> {
      * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
      */
     filter(predicate: (obj: T) => boolean): CountedList<T>;
+    /** Standard Array.forEach() approximation that invokes a callback for each object in the objs array. */
+    forEach(callback: (obj: T, i?: number) => void): void;
     /**
      * Returns the object in the list with the given name (case-insensitive) if it exists.
      * @param {string} name - The name of the object to retrieve.

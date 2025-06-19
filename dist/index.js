@@ -601,7 +601,6 @@ class TheAlgorithm {
         await toot_1.default.completeToots(this.feed, hereLogger);
         this.feed = await toot_1.default.removeInvalidToots(this.feed, hereLogger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
             hereLogger.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);

@@ -8,9 +8,12 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
+import type TagList from "../api/tag_list";
+import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
+import { isValidForSubstringSearch } from "../api/objects/tag";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
 import { suppressedHashtags } from "../helpers/suppressed_hashtags";
@@ -19,7 +22,7 @@ import {
     type BooleanFilters,
     type FeedFilterSettings,
     type NumericFilters,
-    type StringNumberDict,
+    type TagWithUsageCounts,
     type TootNumberProp,
 } from "../types";
 
@@ -33,6 +36,7 @@ const DEFAULT_FILTERS: FeedFilterSettings = {
 };
 
 const logger = new Logger('feed_filters.ts');
+const taggishLogger = logger.tempLogger("updateHashtagCounts");
 
 
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
@@ -169,6 +173,9 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         });
     });
 
+    // This takes 75 seconds for a feed with 1,500 toots so we only do it for followed tags.
+    updateHashtagCounts(optionLists[BooleanFilterName.HASHTAG], userData.followedTags, toots);
+
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
         const filterName = key as BooleanFilterName;
@@ -181,27 +188,29 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 }
 
 
-// We have to rescan the toots to get the tag counts because the tag counts are built with
-// containsTag() whereas the demo app uses containsString() to actually filter.
-// TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
-// export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
-//     const logPrefx = `<updateHashtagCounts()>`;
-//     const newTootTagCounts = {} as StringNumberDict;
-//     filterLogger.log(`${logPrefx} Launched...`);
-//     const startedAt = Date.now();
+// Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
+// Currently used to update followed hashtags only because otherwise it's too slow.
+export function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagList, toots: Toot[]): void {
+    const startedAt = Date.now();
 
-//     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].options).forEach((tagName) => {
-//         toots.forEach((toot) => {
-//             if (toot.realToot.containsString(tagName)) {
-//                 incrementCount(newTootTagCounts, tagName);
-//             }
-//         })
-//     });
+    tags.forEach((option) => {
+        const tag = option as TagWithUsageCounts;
 
-//     filterLogger.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
-//     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
-//     Storage.setFilters(filters);
-// };
+        // Skip invalid tags and those that don't already appear in the hashtagOptions.
+        if (!isValidForSubstringSearch(tag) || !hashtagOptions.getObj(tag.name)) {
+            return;
+        }
+
+        toots.forEach((toot) => {
+            if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
+                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
+                hashtagOptions.incrementCount(tag.name);
+            }
+        })
+    });
+
+    taggishLogger.log(`Update tag counts for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`);
+};
 
 
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed

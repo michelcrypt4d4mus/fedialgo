@@ -639,7 +639,6 @@ class TheAlgorithm {
         await Toot.completeToots(this.feed, hereLogger);
         this.feed = await Toot.removeInvalidToots(this.feed, hereLogger);
         await updateBooleanFilterOptions(this.filters, this.feed);
-        //updateHashtagCounts(this.filters, this.feed);  // TODO: this took too long (4 minutes for 3000 toots) but maybe is ok now?
         await this.scoreAndFilterFeed();
 
         if (this.loadStartedAt) {

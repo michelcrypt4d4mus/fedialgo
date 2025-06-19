@@ -107,6 +107,7 @@ type TootsConfig = {
     maxTimelineLength: number;
     minCharsForLanguageDetect: number;
     saveChangesIntervalSeconds: number;
+    tagOnlyStrings: Set<string>;
     truncateFullTimelineToLength: number;
 };
 
@@ -454,6 +455,19 @@ class Config implements ConfigType {
         minCharsForLanguageDetect: 8,           // Minimum number of characters in a toot before we try to detect its language
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
         truncateFullTimelineToLength: 2_000,    // If on startup the timeline is full, truncate it to this length
+        tagOnlyStrings: new Set<string>([      // These strings can only be matched as tags, not as content
+            "in",
+            "is",
+            "it",
+            "ja",
+            "la",
+            "mastodon",
+            "press",
+            "processing",
+            "tv",
+            "un",
+            "us",
+        ]),
     }
 
     trending = {

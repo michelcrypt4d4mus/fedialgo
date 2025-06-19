@@ -1,7 +1,12 @@
 # NEXT RELEASE
 
+# v0.74.0
+* Update filter option counts for followed hashtags with substring search even if there's no "#"
+* Turn `TAG_ONLY_STRINGS` into a `config.toots.tagOnlyStrings` parameter; add "is" to list
+* Add `forEach()` to `CountedList` class
+
 ### v0.73.14
-* Keep track of which Toots have had their tags suppressed
+* Keep track of which Toots have had their foreign script hashtags suppressed from the filter options
 
 ### v0.73.13
 * Refactor `SuppressedHashtags` to a singleton class

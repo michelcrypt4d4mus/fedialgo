@@ -26,15 +26,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
+exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tags_for_fetching_toots_1 = __importDefault(require("../api/tags_for_fetching_toots"));
+const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
+const tag_1 = require("../api/objects/tag");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
 const suppressed_hashtags_1 = require("../helpers/suppressed_hashtags");
@@ -45,6 +47,7 @@ const DEFAULT_FILTERS = {
     numericFilters: {},
 };
 const logger = new logger_1.Logger('feed_filters.ts');
+const taggishLogger = logger.tempLogger("updateHashtagCounts");
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 function buildNewFilterSettings() {
@@ -159,6 +162,8 @@ async function updateBooleanFilterOptions(filters, toots) {
             }
         });
     });
+    // This takes 75 seconds for a feed with 1,500 toots so we only do it for followed tags.
+    updateHashtagCounts(optionLists[enums_1.BooleanFilterName.HASHTAG], userData.followedTags, toots);
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
         const filterName = key;
@@ -169,25 +174,27 @@ async function updateBooleanFilterOptions(filters, toots) {
     logger.trace(`Updated filters:`, filters);
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
-// We have to rescan the toots to get the tag counts because the tag counts are built with
-// containsTag() whereas the demo app uses containsString() to actually filter.
-// TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
-// export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
-//     const logPrefx = `<updateHashtagCounts()>`;
-//     const newTootTagCounts = {} as StringNumberDict;
-//     filterLogger.log(`${logPrefx} Launched...`);
-//     const startedAt = Date.now();
-//     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].options).forEach((tagName) => {
-//         toots.forEach((toot) => {
-//             if (toot.realToot.containsString(tagName)) {
-//                 incrementCount(newTootTagCounts, tagName);
-//             }
-//         })
-//     });
-//     filterLogger.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
-//     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
-//     Storage.setFilters(filters);
-// };
+// Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
+// Currently used to update followed hashtags only because otherwise it's too slow.
+function updateHashtagCounts(hashtagOptions, tags, toots) {
+    const startedAt = Date.now();
+    tags.forEach((option) => {
+        const tag = option;
+        // Skip invalid tags and those that don't already appear in the hashtagOptions.
+        if (!(0, tag_1.isValidForSubstringSearch)(tag) || !hashtagOptions.getObj(tag.name)) {
+            return;
+        }
+        toots.forEach((toot) => {
+            if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
+                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
+                hashtagOptions.incrementCount(tag.name);
+            }
+        });
+    });
+    taggishLogger.log(`Update tag counts for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+}
+exports.updateHashtagCounts = updateHashtagCounts;
+;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {
