@@ -8,14 +8,3 @@ import { type ConcurrencyLockRelease } from '../types';
  * @returns {Promise<ConcurrencyLockRelease>} A promise that resolves to a function to release the lock
  */
 export declare function lockExecution(locker: Mutex | Semaphore, logger?: Logger): Promise<ConcurrencyLockRelease>;
-/** Helper class for telemetry.  */
-export declare class WaitTime {
-    avgMsPerRequest: number;
-    milliseconds: number;
-    numRequests: number;
-    startedAt: Date;
-    ageInSeconds(): number;
-    ageString(): string;
-    markStart(): void;
-    markEnd(): void;
-}

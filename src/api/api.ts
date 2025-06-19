@@ -12,14 +12,14 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { lockExecution, WaitTime } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked } from "./errors";
+import { WaitTime, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import {
     CacheKey,
     TrendingType,

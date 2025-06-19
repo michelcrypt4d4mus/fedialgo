@@ -80,4 +80,15 @@ export declare const timeString: (_timestamp: DateArg, locale?: string) => strin
 export declare function toISOFormat(date: DateArg, withMilliseconds?: boolean): string;
 /** Like toISOFormat() but returns null if the date is undefined or null. */
 export declare function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null;
+/** Helper class for telemetry.  */
+export declare class WaitTime {
+    avgMsPerRequest: number;
+    milliseconds: number;
+    numRequests: number;
+    startedAt: Date;
+    ageInSeconds(): number;
+    ageString(): string;
+    markStart(): void;
+    markEnd(): void;
+}
 export {};

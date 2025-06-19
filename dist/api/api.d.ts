@@ -2,8 +2,8 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
+import { WaitTime } from "../helpers/time_helpers";
 import { type ApiCacheKey } from "../enums";
 import { type ConcurrencyLockRelease, type MastodonTag, type Optional, type TootLike } from "../types";
 /**

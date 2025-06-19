@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.lockExecution = void 0;
+exports.lockExecution = void 0;
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const logger_1 = require("./logger");
@@ -36,28 +36,5 @@ async function lockExecution(locker, logger) {
     return releaseLock;
 }
 exports.lockExecution = lockExecution;
-;
-/** Helper class for telemetry.  */
-class WaitTime {
-    avgMsPerRequest = 0;
-    milliseconds = 0;
-    numRequests = 0;
-    startedAt = new Date(); // TODO: this shouldn't really be set yet...
-    ageInSeconds() {
-        return (0, time_helpers_1.ageInSeconds)(this.startedAt);
-    }
-    ageString() {
-        return (0, time_helpers_1.ageString)(this.startedAt);
-    }
-    markStart() {
-        this.startedAt = new Date();
-    }
-    markEnd() {
-        this.numRequests++;
-        this.milliseconds += (0, time_helpers_1.ageInMS)(this.startedAt);
-        this.avgMsPerRequest = this.milliseconds / this.numRequests;
-    }
-}
-exports.WaitTime = WaitTime;
 ;
 //# sourceMappingURL=log_helpers.js.map

@@ -4,7 +4,7 @@
  * @module time_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 const lodash_1 = require("lodash");
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
@@ -182,5 +182,28 @@ function toISOFormatIfExists(date, withMilliseconds) {
     return date ? toISOFormat(date, withMilliseconds) : null;
 }
 exports.toISOFormatIfExists = toISOFormatIfExists;
+;
+/** Helper class for telemetry.  */
+class WaitTime {
+    avgMsPerRequest = 0;
+    milliseconds = 0;
+    numRequests = 0;
+    startedAt = new Date(); // TODO: this shouldn't really be set yet...
+    ageInSeconds() {
+        return (0, exports.ageInSeconds)(this.startedAt);
+    }
+    ageString() {
+        return ageString(this.startedAt);
+    }
+    markStart() {
+        this.startedAt = new Date();
+    }
+    markEnd() {
+        this.numRequests++;
+        this.milliseconds += ageInMS(this.startedAt);
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
+    }
+}
+exports.WaitTime = WaitTime;
 ;
 //# sourceMappingURL=time_helpers.js.map
