@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.2
 * Rename TagTootsType enum to TagTootsCategory
 
 ### v0.74.1
