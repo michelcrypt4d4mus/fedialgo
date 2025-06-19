@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.74.0
 * Update filter option counts for followed hashtags with substring search even if there's no "#"
 * Turn `TAG_ONLY_STRINGS` into a `config.toots.tagOnlyStrings` parameter; add "is" to list
 * Add `forEach()` to `CountedList` class
