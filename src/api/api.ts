@@ -139,6 +139,10 @@ interface BackgroundFetchparams<T extends ApiObj> extends FetchParams<T> {
     minRecords: number,
 };
 
+/** Subset of params for logger construction. */
+type LogParams<T extends ApiObj> = Omit<FetchParams<T>, "fetchGenerator">;
+
+
 /**
  * Same as FetchParams but with default/configured values filled in for some parameters.
  * @template T
@@ -1175,10 +1179,10 @@ export default class MastoApi {
     /**
      * Returns a logger instance for the given fetch parameters.
      * @template T
-     * @param {Omit<FetchParams<T>, "fetchGenerator">} params - Fetch parameters (excluding fetch).
+     * @param {LogParams} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
-    private loggerForParams<T extends ApiObj>(params: Omit<FetchParams<T>, "fetchGenerator">): Logger {
+    private loggerForParams<T extends ApiObj>(params: LogParams<T>): Logger {
         const { cacheKey, isBackgroundFetch, moar } = params;
         return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
     }
