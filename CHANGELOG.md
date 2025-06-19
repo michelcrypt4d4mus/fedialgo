@@ -1,7 +1,8 @@
 # NEXT RELEASE
+* Keep track of which Toots have had their tags suppressed
 
 ### v0.73.13
-* Refactor SuppressedHashtags to a singleton class
+* Refactor `SuppressedHashtags` to a singleton class
 * Add `config.api.errorMsgs` for error messages
 
 ### v0.73.12

@@ -1,11 +1,21 @@
+import type Toot from "../api/objects/toot";
 import { type Logger } from "./logger";
-import { type StringNumberDict, type TagWithUsageCounts } from "../types";
-type DictOfDicts = Record<string, StringNumberDict>;
+import { type TagWithUsageCounts } from "../types";
+type TagTootUris = Record<string, Set<string>>;
+type TagLanguageToots = Record<string, TagTootUris>;
 declare class SuppressedHashtags {
-    hashtagCounts: DictOfDicts;
-    wasLogged: boolean;
-    increment(tag: TagWithUsageCounts): void;
+    languageTagURIs: TagLanguageToots;
+    lastLoggedCount: number;
+    increment(tag: TagWithUsageCounts, toot: Toot): void;
     log(logger: Logger): void;
+    /** Set of all toot URIs that had a suppressed tag. */
+    private allTootURIs;
+    /** Count of tag toots per language. */
+    private languageCounts;
+    /** Count of tag toots per language / tag. */
+    private tagLanguageCounts;
+    /** Convert a TagTootUris object to a StringNumberDict w/length of each URI string Set. */
+    private uriCounts;
 }
 export declare const suppressedHashtags: SuppressedHashtags;
 export {};
