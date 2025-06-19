@@ -152,7 +152,7 @@ async function updateBooleanFilterOptions(filters, toots) {
         toot.realToot.tags.forEach((tag) => {
             // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config_1.config.locale.language) {
-                suppressed_hashtags_1.suppressedHashtags.increment(tag);
+                suppressed_hashtags_1.suppressedHashtags.increment(tag, toot.realToot);
             }
             else {
                 optionLists[enums_1.BooleanFilterName.HASHTAG].incrementCount(tag.name, decorateHashtag);

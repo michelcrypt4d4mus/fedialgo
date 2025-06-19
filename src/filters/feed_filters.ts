@@ -162,7 +162,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         toot.realToot.tags.forEach((tag) => {
             // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config.locale.language) {
-                suppressedHashtags.increment(tag);
+                suppressedHashtags.increment(tag, toot.realToot);
             } else {
                 optionLists[BooleanFilterName.HASHTAG].incrementCount(tag.name, decorateHashtag);
             }
