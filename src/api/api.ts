@@ -14,7 +14,7 @@ import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './o
 import UserData from "./user_data";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { lockExecution } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/mutex_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";

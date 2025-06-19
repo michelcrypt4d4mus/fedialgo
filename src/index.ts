@@ -50,7 +50,7 @@ import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './he
 import { getMoarData, moarDataLogger } from "./api/moar_data_poller";
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRateLimitError } from './api/errors';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
-import { lockExecution } from './helpers/log_helpers';
+import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { ObjList } from "./api/counted_list";
 import { rechartsDataPoints } from "./helpers/stats_helper";

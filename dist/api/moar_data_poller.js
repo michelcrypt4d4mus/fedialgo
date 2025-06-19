@@ -12,7 +12,7 @@ const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
-const log_helpers_1 = require("../helpers/log_helpers");
+const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
 const GET_MOAR_DATA = "getMoarData()";
 const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
@@ -22,7 +22,7 @@ exports.moarDataLogger = new logger_1.Logger(GET_MOAR_DATA);
 // stop polling.
 async function getMoarData() {
     exports.moarDataLogger.log(`triggered by timer...`);
-    const releaseMutex = await (0, log_helpers_1.lockExecution)(MOAR_MUTEX, exports.moarDataLogger);
+    const releaseMutex = await (0, mutex_helpers_1.lockExecution)(MOAR_MUTEX, exports.moarDataLogger);
     const startedAt = new Date();
     // TODO: Add followed accounts?  for people who follow > 5,000 users?
     const pollers = [

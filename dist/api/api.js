@@ -41,7 +41,7 @@ const toot_1 = __importStar(require("./objects/toot"));
 const user_data_1 = __importDefault(require("./user_data"));
 const config_1 = require("../config");
 const string_helpers_1 = require("../helpers/string_helpers");
-const log_helpers_1 = require("../helpers/log_helpers");
+const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
 const tag_1 = require("./objects/tag");
 const time_helpers_1 = require("../helpers/time_helpers");
@@ -243,7 +243,7 @@ class MastoApi {
      */
     async getCacheableToots(fetchStatuses, cacheKey, maxRecords) {
         const logger = getLogger(cacheKey);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
         this.waitTimes[cacheKey].markStart(); // Telemetry stuff that should be removed eventually
         try {
             let toots = await Storage_1.default.getIfNotStale(cacheKey);
@@ -376,7 +376,7 @@ class MastoApi {
      */
     async getServerSideFilters() {
         const logger = getLogger(enums_1.CacheKey.SERVER_SIDE_FILTERS);
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.apiMutexes[enums_1.CacheKey.SERVER_SIDE_FILTERS], logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.apiMutexes[enums_1.CacheKey.SERVER_SIDE_FILTERS], logger);
         const startTime = new Date();
         try {
             let filters = await Storage_1.default.getIfNotStale(enums_1.CacheKey.SERVER_SIDE_FILTERS);
@@ -443,7 +443,7 @@ class MastoApi {
      * @returns {Promise<UserData>} The UserData object.
      */
     async getUserData(force) {
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(USER_DATA_MUTEX, this.logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(USER_DATA_MUTEX, this.logger);
         try {
             if (force || !this.userData?.hasNewestApiData()) {
                 this.userData = await user_data_1.default.build();
@@ -465,7 +465,7 @@ class MastoApi {
      */
     async hashtagTimelineToots(tagName, logger, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
+        const releaseSemaphore = await (0, mutex_helpers_1.lockExecution)(this.requestSemphore, logger);
         const startedAt = new Date();
         try {
             const toots = await this.getApiObjsAndUpdate({
@@ -523,7 +523,7 @@ class MastoApi {
         const allMutexes = Object.values(this.apiMutexes).concat(Object.values(this.cacheMutexes));
         const mutexLogger = exports.apiLogger.tempLogger('lockAllMutexes');
         mutexLogger.log(`Locking all mutexes...`);
-        return await Promise.all(allMutexes.map(mutex => (0, log_helpers_1.lockExecution)(mutex, mutexLogger)));
+        return await Promise.all(allMutexes.map(mutex => (0, mutex_helpers_1.lockExecution)(mutex, mutexLogger)));
     }
     ;
     /**
@@ -555,7 +555,7 @@ class MastoApi {
      */
     async searchForToots(searchStr, logger, maxRecords) {
         maxRecords = maxRecords || config_1.config.api.defaultRecordsPerPage;
-        const releaseSemaphore = await (0, log_helpers_1.lockExecution)(this.requestSemphore, logger);
+        const releaseSemaphore = await (0, mutex_helpers_1.lockExecution)(this.requestSemphore, logger);
         const query = { limit: maxRecords, q: searchStr, type: enums_1.TrendingType.STATUSES };
         const startedAt = new Date();
         try {
@@ -690,7 +690,7 @@ class MastoApi {
         const paramsWithCache = await this.addCacheDataToParams(inParams);
         const { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.cacheMutexes[cacheKey], hereLogger);
+        const releaseMutex = skipMutex ? null : await (0, mutex_helpers_1.lockExecution)(this.cacheMutexes[cacheKey], hereLogger);
         try {
             // TODO: maybe check that there's more than 0 rows in the cache before returning them?
             // "moar" data requests are aleady running in their own background job so can afford to wait
@@ -735,7 +735,7 @@ class MastoApi {
             }
             return [];
         }
-        const releaseMutex = skipMutex ? null : await (0, log_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
+        const releaseMutex = skipMutex ? null : await (0, mutex_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
         try {
             // Check the cache again, in case it was updated while we were waiting for the mutex
             params.cacheResult = await this.getCacheResult(params);

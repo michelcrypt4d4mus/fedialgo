@@ -14,7 +14,7 @@ import { ageString } from "../helpers/time_helpers";
 import { CacheKey, TagTootsType, TrendingType, buildCacheKeyDict } from '../enums';
 import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
 import { FEDIVERSE_CACHE_KEYS, config } from "../config";
-import { lockExecution } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/mutex_helpers';
 import { Logger } from '../helpers/logger';
 import { optionalSuffix } from "../helpers/string_helpers";
 import {

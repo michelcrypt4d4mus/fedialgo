@@ -86,7 +86,7 @@ const moar_data_poller_1 = require("./api/moar_data_poller");
 const errors_1 = require("./api/errors");
 Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return errors_1.isAccessTokenRevokedError; } });
 const environment_helpers_1 = require("./helpers/environment_helpers");
-const log_helpers_1 = require("./helpers/log_helpers");
+const mutex_helpers_1 = require("./helpers/mutex_helpers");
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const stats_helper_1 = require("./helpers/stats_helper");
@@ -654,7 +654,7 @@ class TheAlgorithm {
     // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
     async lockedMergeToFeed(newToots, logger) {
         const hereLogger = logger.tempLogger('lockedMergeToFeed');
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.mergeMutex, hereLogger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.mergeMutex, hereLogger);
         try {
             await this.mergeTootsToFeed(newToots, logger);
             hereLogger.trace(`Merged ${newToots.length} newToots, released mutex`);
@@ -672,7 +672,7 @@ class TheAlgorithm {
             throw new Error(GET_FEED_BUSY_MSG);
         }
         this.loadStartedAt = new Date();
-        this._releaseLoadingMutex = await (0, log_helpers_1.lockExecution)(this.loadingMutex, logger);
+        this._releaseLoadingMutex = await (0, mutex_helpers_1.lockExecution)(this.loadingMutex, logger);
         if (logPrefix in LOADING_STATUS_MSGS) {
             this.loadingStatus = LOADING_STATUS_MSGS[logPrefix];
         }

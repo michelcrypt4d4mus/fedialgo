@@ -17,7 +17,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const config_1 = require("../config");
-const log_helpers_1 = require("../helpers/log_helpers");
+const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
 const string_helpers_1 = require("../helpers/string_helpers");
 const trending_with_history_1 = require("./objects/trending_with_history");
@@ -212,7 +212,7 @@ class MastodonServer {
      */
     static async getMastodonInstancesInfo() {
         const logger = getLogger(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS, "getMastodonInstancesInfo");
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.trendingMutexes[enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.trendingMutexes[enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS], logger);
         try {
             let servers = await Storage_1.default.getIfNotStale(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS);
             if (!servers) {
@@ -296,7 +296,7 @@ class MastodonServer {
     static async getTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
-        const releaseMutex = await (0, log_helpers_1.lockExecution)(this.trendingMutexes[key], logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.trendingMutexes[key], logger);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);
