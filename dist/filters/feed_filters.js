@@ -26,12 +26,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
+exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
 const Storage_1 = __importDefault(require("../Storage"));
 const tags_for_fetching_toots_1 = __importDefault(require("../api/tags_for_fetching_toots"));
+const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
@@ -45,6 +46,7 @@ const DEFAULT_FILTERS = {
     numericFilters: {},
 };
 const logger = new logger_1.Logger('feed_filters.ts');
+const taggishLogger = logger.tempLogger("updateHashtagCounts");
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 function buildNewFilterSettings() {
@@ -159,6 +161,8 @@ async function updateBooleanFilterOptions(filters, toots) {
             }
         });
     });
+    // TODO: this takes 75 seconds for 1,500 toots. Maybe could just do it for trending and followed tags?
+    // updateHashtagCounts(optionLists[BooleanFilterName.HASHTAG], toots);
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
         const filterName = key;
@@ -171,23 +175,25 @@ async function updateBooleanFilterOptions(filters, toots) {
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 // We have to rescan the toots to get the tag counts because the tag counts are built with
 // containsTag() whereas the demo app uses containsString() to actually filter.
-// TODO: this takes 4 minutes for 3000 toots. Maybe could just do it for tags with more than some min number of toots?
-// export function updateHashtagCounts(filters: FeedFilterSettings, toots: Toot[],): void {
-//     const logPrefx = `<updateHashtagCounts()>`;
-//     const newTootTagCounts = {} as StringNumberDict;
-//     filterLogger.log(`${logPrefx} Launched...`);
-//     const startedAt = Date.now();
-//     Object.keys(filters.booleanFilters[BooleanFilterName.HASHTAG].options).forEach((tagName) => {
-//         toots.forEach((toot) => {
-//             if (toot.realToot.containsString(tagName)) {
-//                 incrementCount(newTootTagCounts, tagName);
-//             }
-//         })
-//     });
-//     filterLogger.log(`${logPrefx} Recomputed tag counts ${ageString(startedAt)}`);
-//     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
-//     Storage.setFilters(filters);
-// };
+function updateHashtagCounts(hashtagOptions, toots) {
+    const startedAt = Date.now();
+    taggishLogger.log(`Launched...`);
+    hashtagOptions.forEach((option) => {
+        const tag = option;
+        if (tag.name.length <= 1 || config_1.config.toots.tagOnlyStrings.has(tag.name)) {
+            return; // Skip short tags or those that are configured as tagOnlyStrings.
+        }
+        toots.forEach((toot) => {
+            if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
+                taggishLogger.trace(`Incrementing count for Tag-like string "${tag.name}" in toot ${toot.description}`);
+                hashtagOptions.incrementCount(tag.name);
+            }
+        });
+    });
+    taggishLogger.log(`Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
+}
+exports.updateHashtagCounts = updateHashtagCounts;
+;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {

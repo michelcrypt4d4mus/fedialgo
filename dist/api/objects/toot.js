@@ -59,6 +59,7 @@ const PROPS_THAT_CHANGE = numeric_filter_1.FILTERABLE_SCORES.concat("numTimesSho
 // We always use containsTag() instead of containsString() for these
 const TAG_ONLY_STRINGS = new Set([
     "in",
+    "is",
     "it",
     "ja",
     "la",
@@ -310,7 +311,7 @@ class Toot {
      * @returns {boolean}
      */
     containsTag(tag, fullScan) {
-        if (fullScan && (tag.name.length > 1) && !TAG_ONLY_STRINGS.has(tag.name)) {
+        if (fullScan && (tag.name.length > 1) && !config_1.config.toots.tagOnlyStrings.has(tag.name)) {
             if (!tag.regex) {
                 tootLogger.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = (0, string_helpers_1.wordRegex)(tag.name);

@@ -339,7 +339,19 @@ class Config {
         maxTimelineLength: 3000,
         minCharsForLanguageDetect: 8,
         saveChangesIntervalSeconds: 30,
-        truncateFullTimelineToLength: 2000, // If on startup the timeline is full, truncate it to this length
+        truncateFullTimelineToLength: 2000,
+        tagOnlyStrings: new Set([
+            "in",
+            "is",
+            "it",
+            "ja",
+            "la",
+            "mastodon",
+            "press",
+            "tv",
+            "un",
+            "us",
+        ]),
     };
     trending = {
         daysToCountTrendingData: 3,

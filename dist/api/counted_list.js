@@ -60,6 +60,10 @@ class CountedList {
     filter(predicate) {
         return new CountedList(this.objs.filter(predicate), this.source);
     }
+    /** Standard Array.forEach() approximation that invokes a callback for each object in the objs array. */
+    forEach(callback) {
+        this.objs.forEach((obj, i) => callback(obj, i));
+    }
     /**
      * Returns the object in the list with the given name (case-insensitive) if it exists.
      * @param {string} name - The name of the object to retrieve.

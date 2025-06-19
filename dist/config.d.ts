@@ -74,6 +74,7 @@ type TootsConfig = {
     maxTimelineLength: number;
     minCharsForLanguageDetect: number;
     saveChangesIntervalSeconds: number;
+    tagOnlyStrings: Set<string>;
     truncateFullTimelineToLength: number;
 };
 type TrendingLinksConfig = {
@@ -194,6 +195,7 @@ declare class Config implements ConfigType {
         minCharsForLanguageDetect: number;
         saveChangesIntervalSeconds: number;
         truncateFullTimelineToLength: number;
+        tagOnlyStrings: Set<string>;
     };
     trending: {
         daysToCountTrendingData: number;
