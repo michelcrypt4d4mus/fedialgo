@@ -1,6 +1,8 @@
 # NEXT RELEASE
+
+### v0.73.13
 * Refactor SuppressedHashtags to a singleton class
-* Add config.api.errorMsgs
+* Add `config.api.errorMsgs` for error messages
 
 ### v0.73.12
 * (Demo App) Disable Submit button while waiting for a new toot to be posted to the server
