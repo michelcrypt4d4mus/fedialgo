@@ -43,8 +43,6 @@ export declare const FULL_HISTORY_PARAMS: {
     maxRecords: number;
     moar: boolean;
 };
-export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-export declare const RATE_LIMIT_ERROR_MSG = "Too many requests";
 export declare const apiLogger: Logger;
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.

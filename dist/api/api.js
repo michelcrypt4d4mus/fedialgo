@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.apiLogger = exports.RATE_LIMIT_ERROR_MSG = exports.ACCESS_TOKEN_REVOKED_MSG = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
+exports.apiLogger = exports.FULL_HISTORY_PARAMS = exports.BIG_NUMBER = void 0;
 /*
  * Singleton class to wrap authenticated mastodon API calls to the user's home server
  * (unauthenticated calls are handled by the MastodonServer class).
@@ -61,9 +61,6 @@ const collection_helpers_1 = require("../helpers/collection_helpers");
 // Constants
 exports.BIG_NUMBER = 10000000000;
 exports.FULL_HISTORY_PARAMS = { maxRecords: exports.BIG_NUMBER, moar: true };
-// Error messages for MastoHttpError
-exports.ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-exports.RATE_LIMIT_ERROR_MSG = "Too many requests"; // MastoHttpError: Too many requests
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new async_mutex_1.Mutex(); // For locking user data fetching
 // Logging

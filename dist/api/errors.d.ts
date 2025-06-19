@@ -2,7 +2,7 @@
  * Functions for handling Mastodon API errors.
  * @module api_errors
  */
-import { Logger } from "../helpers/logger";
+import { type Logger } from "../helpers/logger";
 type UnknownError = Error | unknown;
 /**
  * Returns true if the error is an access token revoked error.

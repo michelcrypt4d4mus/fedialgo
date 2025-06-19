@@ -3,12 +3,11 @@
  * @module api_errors
  */
 
-import { apiLogger, ACCESS_TOKEN_REVOKED_MSG, RATE_LIMIT_ERROR_MSG } from "./api";
-import { Logger } from "../helpers/logger";
+import { apiLogger } from "./api";
+import { config } from "../config";
+import { type Logger } from "../helpers/logger";
 
 type UnknownError = Error | unknown;
-
-const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
 
 
 /**
@@ -22,7 +21,7 @@ export function isAccessTokenRevokedError(error: UnknownError): boolean {
         return false;
     }
 
-    return error.message.includes(ACCESS_TOKEN_REVOKED_MSG);
+    return error.message.includes(config.api.errorMsgs.accessTokenRevoked);
 };
 
 
@@ -37,7 +36,7 @@ export function isRateLimitError(error: UnknownError): boolean {
         return false;
     }
 
-    return error.message.includes(RATE_LIMIT_ERROR_MSG);
+    return error.message.includes(config.api.errorMsgs.rateLimitError);
 };
 
 
@@ -63,7 +62,7 @@ export function throwIfAccessTokenRevoked(logger: Logger, error: UnknownError, m
 export function throwSanitizedRateLimitError(error: UnknownError, msg: string): void {
     if (isRateLimitError(error)) {
         apiLogger.error(`Rate limit error:`, error);
-        throw RATE_LIMIT_USER_WARNING;
+        throw config.api.errorMsgs.rateLimitWarning;
     } else {
         apiLogger.logAndThrowError(msg, error);
     }

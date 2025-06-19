@@ -26,6 +26,7 @@ interface ApiConfig {
     data: Readonly<ApiDataConfig>;
     daysBeforeFullCacheRefresh: number;
     defaultRecordsPerPage: number;
+    errorMsgs: Readonly<Record<string, string>>;
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     maxSecondsPerPage: number;
@@ -124,6 +125,11 @@ declare class Config implements ConfigType {
         backgroundLoadIntervalMinutes: number;
         daysBeforeFullCacheRefresh: number;
         defaultRecordsPerPage: number;
+        errorMsgs: {
+            accessTokenRevoked: string;
+            rateLimitError: string;
+            rateLimitWarning: string;
+        };
         maxConcurrentHashtagRequests: number;
         maxRecordsForFeatureScoring: number;
         maxSecondsPerPage: number;

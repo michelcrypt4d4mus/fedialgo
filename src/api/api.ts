@@ -183,9 +183,6 @@ type PaginationParams = mastodon.DefaultPaginationParams | mastodon.rest.v1.List
 // Constants
 export const BIG_NUMBER = 10_000_000_000;
 export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
-// Error messages for MastoHttpError
-export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-export const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging

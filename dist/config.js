@@ -58,6 +58,11 @@ class Config {
         backgroundLoadIntervalMinutes: 10,
         daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,
+        errorMsgs: {
+            accessTokenRevoked: "The access token was revoked",
+            rateLimitError: "Too many requests",
+            rateLimitWarning: "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.",
+        },
         maxConcurrentHashtagRequests: 15,
         maxRecordsForFeatureScoring: 1500,
         maxSecondsPerPage: 30,
