@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateHashtagCounts = exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
+exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
 const boolean_filter_1 = __importStar(require("./boolean_filter"));
 const api_1 = __importDefault(require("../api/api"));
 const numeric_filter_1 = __importStar(require("./numeric_filter"));
@@ -101,9 +101,10 @@ exports.repairFilterSettings = repairFilterSettings;
  * will all have been stored and reloaded along with the feed that birthed those filter options.
  * @param {FeedFilterSettings} filters - The filter settings to update with new options.
  * @param {Toot[]} toots - The toots to analyze for filter options.
+ * @param {boolean} [scanFollowedTags=false] - Whether to scan followed tags for counts.
  * @returns {Promise<void>} A promise that resolves when the filter options have been updated.
  */
-async function updateBooleanFilterOptions(filters, toots) {
+async function updateBooleanFilterOptions(filters, toots, scanFollowedTags = false) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
     const userData = await api_1.default.instance.getUserData();
@@ -162,8 +163,10 @@ async function updateBooleanFilterOptions(filters, toots) {
             }
         });
     });
-    // This takes 75 seconds for a feed with 1,500 toots so we only do it for followed tags.
-    updateHashtagCounts(optionLists[enums_1.BooleanFilterName.HASHTAG], userData.followedTags, toots);
+    // Double check for any followed hashtags that are in the feed but without a formal "#" character.
+    if (scanFollowedTags) {
+        updateHashtagCounts(optionLists[enums_1.BooleanFilterName.HASHTAG], userData.followedTags, toots);
+    }
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
         const filterName = key;
@@ -174,27 +177,6 @@ async function updateBooleanFilterOptions(filters, toots) {
     logger.trace(`Updated filters:`, filters);
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
-// Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
-// Currently used to update followed hashtags only because otherwise it's too slow.
-function updateHashtagCounts(hashtagOptions, tags, toots) {
-    const startedAt = Date.now();
-    tags.forEach((option) => {
-        const tag = option;
-        // Skip invalid tags and those that don't already appear in the hashtagOptions.
-        if (!(0, tag_1.isValidForSubstringSearch)(tag) || !hashtagOptions.getObj(tag.name)) {
-            return;
-        }
-        toots.forEach((toot) => {
-            if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
-                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
-                hashtagOptions.incrementCount(tag.name);
-            }
-        });
-    });
-    taggishLogger.log(`Update tag counts for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
-}
-exports.updateHashtagCounts = updateHashtagCounts;
-;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {
@@ -211,5 +193,35 @@ function populateMissingFilters(filters) {
             filters.booleanFilters[booleanFilterName] = new boolean_filter_1.default({ propertyName: booleanFilterName });
         }
     });
+}
+/**
+ * Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
+ * Currently used to update followed hashtags only because otherwise it's too slow.
+ *
+ * NOTE: Scanning all elements of hashtagOptions against all Toots takes 75 seconds for a feed with 1,500 toots
+ * which is why we only currently do it for followed tags. Even scanning for just followed tags takes
+ * 3-4 seconds for a list of 138 followed tags against 3,000 toots.
+ *
+ * @private
+ * @param {BooleanFilterOptionList} hashtagOptions - Options list to update with additional hashtag matches.
+ * @param {TagList} tags - List of tags to check against the toots.
+ * @param {Toot[]} toots - List of toots to scan.
+ */
+function updateHashtagCounts(hashtagOptions, tags, toots) {
+    const startedAt = Date.now();
+    tags.forEach((option) => {
+        const tag = option;
+        // Skip invalid tags and those that don't already appear in the hashtagOptions.
+        if (!(0, tag_1.isValidForSubstringSearch)(tag) || !hashtagOptions.getObj(tag.name)) {
+            return;
+        }
+        toots.forEach((toot) => {
+            if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
+                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
+                hashtagOptions.incrementCount(tag.name);
+            }
+        });
+    });
+    taggishLogger.log(`Updated tag counts for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
 }
 //# sourceMappingURL=feed_filters.js.map

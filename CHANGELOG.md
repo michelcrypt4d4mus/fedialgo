@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.74.1
+* Only do the followed hashtag additional scan in finishFeedUpdate(), not for each fetch because it's slow
+
 # v0.74.0
 * Update filter option counts for followed hashtags with substring search even if there's no "#"
 * Turn `TAG_ONLY_STRINGS` into a `config.toots.tagOnlyStrings` parameter; add "is" to list

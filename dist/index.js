@@ -600,7 +600,7 @@ class TheAlgorithm {
         hereLogger.debug(`${this.loadingStatus}...`);
         await toot_1.default.completeToots(this.feed, hereLogger);
         this.feed = await toot_1.default.removeInvalidToots(this.feed, hereLogger);
-        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, true);
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
             hereLogger.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
@@ -644,7 +644,7 @@ class TheAlgorithm {
         }
         this.trendingData = await Storage_1.default.getTrendingData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, true);
         this.setTimelineInApp(this.feed);
         logger.log(`<loadCachedData()> loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
