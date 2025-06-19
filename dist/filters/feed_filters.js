@@ -209,6 +209,7 @@ function populateMissingFilters(filters) {
  */
 function updateHashtagCounts(hashtagOptions, tags, toots) {
     const startedAt = Date.now();
+    let numTagsFound = 0;
     tags.forEach((option) => {
         const tag = option;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
@@ -219,9 +220,10 @@ function updateHashtagCounts(hashtagOptions, tags, toots) {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
                 taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 hashtagOptions.incrementCount(tag.name);
+                numTagsFound++;
             }
         });
     });
-    taggishLogger.log(`Updated tag counts for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+    taggishLogger.log(`Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
 }
 //# sourceMappingURL=feed_filters.js.map

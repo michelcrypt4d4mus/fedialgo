@@ -231,6 +231,7 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  */
 function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagList, toots: Toot[]): void {
     const startedAt = Date.now();
+    let numTagsFound = 0;
 
     tags.forEach((option) => {
         const tag = option as TagWithUsageCounts;
@@ -244,9 +245,12 @@ function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagL
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
                 taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 hashtagOptions.incrementCount(tag.name);
+                numTagsFound++;
             }
         })
     });
 
-    taggishLogger.log(`Updated tag counts for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`);
+    taggishLogger.log(
+        `Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`
+    );
 }
