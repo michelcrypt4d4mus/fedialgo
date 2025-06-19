@@ -638,7 +638,7 @@ class TheAlgorithm {
         hereLogger.debug(`${this.loadingStatus}...`);
         await Toot.completeToots(this.feed, hereLogger);
         this.feed = await Toot.removeInvalidToots(this.feed, hereLogger);
-        await updateBooleanFilterOptions(this.filters, this.feed);
+        await updateBooleanFilterOptions(this.filters, this.feed, true);
         await this.scoreAndFilterFeed();
 
         if (this.loadStartedAt) {
@@ -693,7 +693,7 @@ class TheAlgorithm {
 
         this.trendingData = await Storage.getTrendingData();
         this.filters = await Storage.getFilters() ?? buildNewFilterSettings();
-        await updateBooleanFilterOptions(this.filters, this.feed);
+        await updateBooleanFilterOptions(this.filters, this.feed, true);
         this.setTimelineInApp(this.feed);
         logger.log(`<loadCachedData()> loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
