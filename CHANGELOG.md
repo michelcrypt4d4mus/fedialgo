@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Refactor SuppressedHashtags to a singleton class
 * Add config.api.errorMsgs
 
 ### v0.73.12
