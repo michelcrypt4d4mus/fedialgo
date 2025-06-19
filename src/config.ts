@@ -53,6 +53,7 @@ interface ApiConfig {
     data: Readonly<ApiDataConfig>;
     daysBeforeFullCacheRefresh: number; // How many days before the cache is considered stale and needs to be refreshed completely
     defaultRecordsPerPage: number;
+    errorMsgs: Readonly<Record<string, string>>;
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     maxSecondsPerPage: number;
@@ -165,6 +166,11 @@ class Config implements ConfigType {
         backgroundLoadIntervalMinutes: 10,      // Time between background polling for additional user data after initial load
         daysBeforeFullCacheRefresh: 21,         // Days before the cache is considered stale and needs to be refreshed completely  // TODO: currently unused
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
+        errorMsgs: {
+            accessTokenRevoked: "The access token was revoked",
+            rateLimitError: "Too many requests",  // MastoHttpError: Too many requests
+            rateLimitWarning: "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.",
+        },
         maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up

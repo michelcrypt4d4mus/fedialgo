@@ -11,9 +11,9 @@ import Toot from "../api/objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
-import { incrementCount, sumArray, sumValues } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
+import { suppressedHashtags } from "../helpers/suppressed_hashtags";
 import {
     type BooleanFilterOption,
     type BooleanFilters,
@@ -23,7 +23,6 @@ import {
     type TootNumberProp,
 } from "../types";
 
-type DictOfDicts = Record<string, StringNumberDict>;
 type FilterOptions = Record<BooleanFilterName, BooleanFilterOptionList>;
 
 const DEFAULT_FILTERS: FeedFilterSettings = {
@@ -104,7 +103,6 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
     populateMissingFilters(filters);  // Ensure all filters are instantiated
     const tagLists = await TagsForFetchingToots.rawTagLists();
     const userData = await MastoApi.instance.getUserData();
-    const suppressedNonLatinTags: DictOfDicts = {};
 
     const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new BooleanFilterOptionList([], filterName as BooleanFilterName);
@@ -164,8 +162,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         toot.realToot.tags.forEach((tag) => {
             // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config.locale.language) {
-                suppressedNonLatinTags[tag.language] ??= {};
-                incrementCount(suppressedNonLatinTags[tag.language], tag.name);
+                suppressedHashtags.increment(tag);
             } else {
                 optionLists[BooleanFilterName.HASHTAG].incrementCount(tag.name, decorateHashtag);
             }
@@ -178,7 +175,7 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         filters.booleanFilters[filterName].options = optionLists[filterName];
     });
 
-    logSuppressedHashtags(suppressedNonLatinTags);
+    suppressedHashtags.log(logger);
     await Storage.setFilters(filters);
     logger.trace(`Updated filters:`, filters);
 }
@@ -205,15 +202,6 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
-
-
-// Simple logging helper
-function logSuppressedHashtags(suppressedHashtags: DictOfDicts): void {
-    if (Object.keys(suppressedHashtags).length) {
-        const languageCounts = Object.values(suppressedHashtags).map(counts => sumValues(counts));
-        logger.debug(`Suppressed ${sumArray(languageCounts)} non-Latin hashtags:`, suppressedHashtags);
-    }
-}
 
 
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed

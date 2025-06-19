@@ -6,7 +6,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.throwSanitizedRateLimitError = exports.throwIfAccessTokenRevoked = exports.isRateLimitError = exports.isAccessTokenRevokedError = void 0;
 const api_1 = require("./api");
-const RATE_LIMIT_USER_WARNING = "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.";
+const config_1 = require("../config");
 /**
  * Returns true if the error is an access token revoked error.
  * @param {UnknownError} error - The error to check.
@@ -17,7 +17,7 @@ function isAccessTokenRevokedError(error) {
         api_1.apiLogger.warn(`error 'e' is not an instance of Error:`, error);
         return false;
     }
-    return error.message.includes(api_1.ACCESS_TOKEN_REVOKED_MSG);
+    return error.message.includes(config_1.config.api.errorMsgs.accessTokenRevoked);
 }
 exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
 ;
@@ -31,7 +31,7 @@ function isRateLimitError(error) {
         api_1.apiLogger.warn(`error 'e' is not an instance of Error:`, error);
         return false;
     }
-    return error.message.includes(api_1.RATE_LIMIT_ERROR_MSG);
+    return error.message.includes(config_1.config.api.errorMsgs.rateLimitError);
 }
 exports.isRateLimitError = isRateLimitError;
 ;
@@ -58,7 +58,7 @@ exports.throwIfAccessTokenRevoked = throwIfAccessTokenRevoked;
 function throwSanitizedRateLimitError(error, msg) {
     if (isRateLimitError(error)) {
         api_1.apiLogger.error(`Rate limit error:`, error);
-        throw RATE_LIMIT_USER_WARNING;
+        throw config_1.config.api.errorMsgs.rateLimitWarning;
     }
     else {
         api_1.apiLogger.logAndThrowError(msg, error);

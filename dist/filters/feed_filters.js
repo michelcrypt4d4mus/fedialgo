@@ -35,9 +35,9 @@ const tags_for_fetching_toots_1 = __importDefault(require("../api/tags_for_fetch
 const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
-const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
+const suppressed_hashtags_1 = require("../helpers/suppressed_hashtags");
 const DEFAULT_FILTERS = {
     booleanFilterArgs: [],
     booleanFilters: {},
@@ -104,7 +104,6 @@ async function updateBooleanFilterOptions(filters, toots) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
     const userData = await api_1.default.instance.getUserData();
-    const suppressedNonLatinTags = {};
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new counted_list_1.BooleanFilterOptionList([], filterName);
         return lists;
@@ -153,8 +152,7 @@ async function updateBooleanFilterOptions(filters, toots) {
         toot.realToot.tags.forEach((tag) => {
             // Suppress non-Latin script tags unless they match the user's language
             if (tag.language && tag.language != config_1.config.locale.language) {
-                suppressedNonLatinTags[tag.language] ??= {};
-                (0, collection_helpers_1.incrementCount)(suppressedNonLatinTags[tag.language], tag.name);
+                suppressed_hashtags_1.suppressedHashtags.increment(tag);
             }
             else {
                 optionLists[enums_1.BooleanFilterName.HASHTAG].incrementCount(tag.name, decorateHashtag);
@@ -166,7 +164,7 @@ async function updateBooleanFilterOptions(filters, toots) {
         const filterName = key;
         filters.booleanFilters[filterName].options = optionLists[filterName];
     });
-    logSuppressedHashtags(suppressedNonLatinTags);
+    suppressed_hashtags_1.suppressedHashtags.log(logger);
     await Storage_1.default.setFilters(filters);
     logger.trace(`Updated filters:`, filters);
 }
@@ -190,13 +188,6 @@ exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 //     filters.booleanFilters[BooleanFilterName.HASHTAG].setOptions(newTootTagCounts);
 //     Storage.setFilters(filters);
 // };
-// Simple logging helper
-function logSuppressedHashtags(suppressedHashtags) {
-    if (Object.keys(suppressedHashtags).length) {
-        const languageCounts = Object.values(suppressedHashtags).map(counts => (0, collection_helpers_1.sumValues)(counts));
-        logger.debug(`Suppressed ${(0, collection_helpers_1.sumArray)(languageCounts)} non-Latin hashtags:`, suppressedHashtags);
-    }
-}
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {

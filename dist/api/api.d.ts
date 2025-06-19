@@ -2,8 +2,8 @@ import { mastodon } from "masto";
 import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
-import { WaitTime } from '../helpers/log_helpers';
 import { Logger } from '../helpers/logger';
+import { WaitTime } from "../helpers/time_helpers";
 import { type ApiCacheKey } from "../enums";
 import { type ConcurrencyLockRelease, type MastodonTag, type Optional, type TootLike } from "../types";
 /**
@@ -43,8 +43,6 @@ export declare const FULL_HISTORY_PARAMS: {
     maxRecords: number;
     moar: boolean;
 };
-export declare const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-export declare const RATE_LIMIT_ERROR_MSG = "Too many requests";
 export declare const apiLogger: Logger;
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
@@ -118,7 +116,7 @@ export default class MastoApi {
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
      * @param {number} maxRecords - Maximum number of records to fetch.
-     * @returns {Promise<Toot[]>} Array of Toots.
+     * @returns {Promise<Toot[]>} Array of Toot objects.
      */
     getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
     /**
@@ -301,8 +299,8 @@ export default class MastoApi {
     /**
      * Builds API request parameters for pagination.
      * @private
-     * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {PaginationParams} API pagination parameters.
      */
     private buildParams;
     /**
@@ -336,6 +334,7 @@ export default class MastoApi {
      * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
      * are returned as-is, possibly uniquified by ID.
      * @private
+     * @template T
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
@@ -344,6 +343,7 @@ export default class MastoApi {
     private buildFromApiObjects;
     /**
      * Populates fetch options with basic defaults for API requests.
+     * @private
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
      * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
@@ -351,8 +351,9 @@ export default class MastoApi {
     private fillInDefaultParams;
     /**
      * Returns a logger instance for the given fetch parameters.
+     * @private
      * @template T
-     * @param {Omit<FetchParams<T>, "fetchGenerator">} params - Fetch parameters (excluding fetch).
+     * @param {LogParams} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
     private loggerForParams;

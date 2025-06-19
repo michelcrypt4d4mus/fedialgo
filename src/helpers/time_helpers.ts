@@ -6,7 +6,7 @@
 import { isNil } from "lodash";
 
 import { config, SECONDS_IN_DAY } from "../config";
-import { NULL, quoted} from "./string_helpers";
+import { NULL, quoted } from "./string_helpers";
 import { type Optional, type OptionalString } from "../types";
 
 type DateArg = Date | OptionalString | number;
@@ -16,7 +16,7 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 
 
-// Compute the difference from 'date' to now in minutes
+// Compute the difference from 'date' to now in hours
 export const ageInHours = (date: DateArg, endTime?: DateArg) => ageInMinutes(date, endTime) / 60.0;
 export const ageInMinutes = (date: DateArg, endTime?: DateArg) => ageInSeconds(date, endTime) / 60.0;
 export const ageInSeconds = (date: DateArg, endTime?: DateArg) => ageInMS(date, endTime) / 1000.0;
@@ -125,16 +125,6 @@ export function subtractSeconds(date: Date, seconds: number): Date {
 
 
 /**
- * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
- * @returns {Date} The cutoff date for timeline toots.
- */
-export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
-};
-
-
-/**
  * Generate a string representing a timestamp.
  * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
  *     => 'Thursday, Sep 1, 2022'
@@ -167,6 +157,16 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
 
 
 /**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
+export function timelineCutoffAt(): Date {
+    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
+    return subtractSeconds(new Date(), timelineLookBackMS);
+};
+
+
+/**
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.
  * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
@@ -182,4 +182,31 @@ export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
 /** Like toISOFormat() but returns null if the date is undefined or null. */
 export function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null {
     return date ? toISOFormat(date, withMilliseconds) : null;
+};
+
+
+/** Helper class for telemetry.  */
+export class WaitTime {
+    avgMsPerRequest: number = 0;
+    milliseconds: number = 0;
+    numRequests: number = 0;
+    startedAt: Date = new Date(); // TODO: this shouldn't really be set yet...
+
+    ageInSeconds(): number {
+        return ageInSeconds(this.startedAt);
+    }
+
+    ageString(): string {
+        return ageString(this.startedAt);
+    }
+
+    markStart(): void {
+        this.startedAt = new Date();
+    }
+
+    markEnd(): void {
+        this.numRequests++;
+        this.milliseconds += ageInMS(this.startedAt);
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
+    }
 };

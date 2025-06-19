@@ -6,7 +6,7 @@ import { mastodon } from "masto";
 import { Type } from "class-transformer";
 
 import MastoApi from "../api";
-import MastodonServer, { InstanceResponse } from '../mastodon_server';
+import MastodonServer, { type InstanceResponse } from '../mastodon_server';
 import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";

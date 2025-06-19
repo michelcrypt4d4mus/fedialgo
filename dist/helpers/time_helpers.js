@@ -4,14 +4,14 @@
  * @module time_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 const lodash_1 = require("lodash");
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
 // TODO: use the formatting functions, don't do date lookup manually
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
-// Compute the difference from 'date' to now in minutes
+// Compute the difference from 'date' to now in hours
 const ageInHours = (date, endTime) => (0, exports.ageInMinutes)(date, endTime) / 60.0;
 exports.ageInHours = ageInHours;
 const ageInMinutes = (date, endTime) => (0, exports.ageInSeconds)(date, endTime) / 60.0;
@@ -120,16 +120,6 @@ function subtractSeconds(date, seconds) {
 exports.subtractSeconds = subtractSeconds;
 ;
 /**
- * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
- * @returns {Date} The cutoff date for timeline toots.
- */
-function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
-}
-exports.timelineCutoffAt = timelineCutoffAt;
-;
-/**
  * Generate a string representing a timestamp.
  * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
  *     => 'Thursday, Sep 1, 2022'
@@ -164,6 +154,16 @@ const timeString = (_timestamp, locale) => {
 };
 exports.timeString = timeString;
 /**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
+function timelineCutoffAt() {
+    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
+    return subtractSeconds(new Date(), timelineLookBackMS);
+}
+exports.timelineCutoffAt = timelineCutoffAt;
+;
+/**
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.
  * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
@@ -182,5 +182,28 @@ function toISOFormatIfExists(date, withMilliseconds) {
     return date ? toISOFormat(date, withMilliseconds) : null;
 }
 exports.toISOFormatIfExists = toISOFormatIfExists;
+;
+/** Helper class for telemetry.  */
+class WaitTime {
+    avgMsPerRequest = 0;
+    milliseconds = 0;
+    numRequests = 0;
+    startedAt = new Date(); // TODO: this shouldn't really be set yet...
+    ageInSeconds() {
+        return (0, exports.ageInSeconds)(this.startedAt);
+    }
+    ageString() {
+        return ageString(this.startedAt);
+    }
+    markStart() {
+        this.startedAt = new Date();
+    }
+    markEnd() {
+        this.numRequests++;
+        this.milliseconds += ageInMS(this.startedAt);
+        this.avgMsPerRequest = this.milliseconds / this.numRequests;
+    }
+}
+exports.WaitTime = WaitTime;
 ;
 //# sourceMappingURL=time_helpers.js.map

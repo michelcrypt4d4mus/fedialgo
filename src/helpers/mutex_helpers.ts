@@ -3,7 +3,7 @@
  */
 import { Mutex, Semaphore } from 'async-mutex';
 
-import { ageInMS, ageInSeconds, ageString } from '../helpers/time_helpers';
+import { ageInSeconds, ageString } from './time_helpers';
 import { config } from '../config';
 import { Logger } from './logger';
 import { type ConcurrencyLockRelease } from '../types';
@@ -41,31 +41,4 @@ export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger):
     }
 
     return releaseLock;
-};
-
-
-/** Helper class for telemetry.  */
-export class WaitTime {
-    avgMsPerRequest: number = 0;
-    milliseconds: number = 0;
-    numRequests: number = 0;
-    startedAt: Date = new Date();  // TODO: this shouldn't really be set yet...
-
-    ageInSeconds(): number {
-        return ageInSeconds(this.startedAt);
-    }
-
-    ageString(): string {
-        return ageString(this.startedAt);
-    }
-
-    markStart(): void {
-        this.startedAt = new Date();
-    }
-
-    markEnd(): void {
-        this.numRequests++;
-        this.milliseconds += ageInMS(this.startedAt);
-        this.avgMsPerRequest = this.milliseconds / this.numRequests;
-    }
 };

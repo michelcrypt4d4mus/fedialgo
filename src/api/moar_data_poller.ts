@@ -7,7 +7,7 @@ import { Mutex } from 'async-mutex';
 import MastoApi, { ApiParams } from "../api/api";
 import { ageString } from '../helpers/time_helpers';
 import { config } from "../config";
-import { lockExecution } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/mutex_helpers';
 import { Logger } from '../helpers/logger';
 import { type ApiObj } from '../types';
 

@@ -12,14 +12,14 @@ import Account from "./objects/account";
 import Storage from "../Storage";
 import Toot, { earliestTootedAt, mostRecentTootedAt, sortByCreatedAt } from './objects/toot';
 import UserData from "./user_data";
-import { ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import { config, MIN_RECORDS_FOR_FEATURE_SCORING } from "../config";
 import { extractDomain } from '../helpers/string_helpers';
-import { lockExecution, WaitTime } from '../helpers/log_helpers';
+import { lockExecution } from '../helpers/mutex_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
 import { sleep } from "../helpers/time_helpers";
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked } from "./errors";
+import { WaitTime, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import {
     CacheKey,
     TrendingType,
@@ -177,12 +177,12 @@ interface FetchParamsWithCacheData<T extends ApiObj> extends FetchParamsComplete
 };
 
 type FetchParamName = keyof FetchParamsWithCacheData<ApiObj>;
+type LogParams<T extends ApiObj> = Omit<FetchParams<T>, "fetchGenerator">;
+type PaginationParams = mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams;
 
+// Constants
 export const BIG_NUMBER = 10_000_000_000;
 export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
-// Error messages for MastoHttpError
-export const ACCESS_TOKEN_REVOKED_MSG = "The access token was revoked";
-export const RATE_LIMIT_ERROR_MSG = "Too many requests";  // MastoHttpError: Too many requests
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 // Logging
@@ -380,7 +380,7 @@ export default class MastoApi {
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
      * @param {number} maxRecords - Maximum number of records to fetch.
-     * @returns {Promise<Toot[]>} Array of Toots.
+     * @returns {Promise<Toot[]>} Array of Toot objects.
      */
     async getCacheableToots(
         fetchStatuses: () => Promise<TootLike[]>,
@@ -812,9 +812,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {Promise<ApiObj[]>} Array of API objects.
      */
-    private async fetchApiObjs<T extends ApiObj>(
-        params: FetchParamsWithCacheData<T>
-    ): Promise<ApiObj[]> {
+    private async fetchApiObjs<T extends ApiObj>(params: FetchParamsWithCacheData<T>): Promise<ApiObj[]> {
         this.validateFetchParams<T>(params);
         const { breakIf, cacheKey, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
         const waitTime = this.waitTimes[cacheKey];
@@ -866,9 +864,7 @@ export default class MastoApi {
      * @param {FetchParams<T>} inParams - Fetch parameters.
      * @returns {Promise<ApiObj[]>} Array of API objects.
      */
-    private async getApiObjsAndUpdate<T extends ApiObj>(
-        inParams: FetchParams<T>
-    ): Promise<ResponseRow<T>[]> {
+    private async getApiObjsAndUpdate<T extends ApiObj>(inParams: FetchParams<T>): Promise<ResponseRow<T>[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         const { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
@@ -904,9 +900,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
-    private async getApiObjs<T extends ApiObj>(
-        params: FetchParamsWithCacheData<T>
-    ): Promise<ResponseRow<T>[]> {
+    private async getApiObjs<T extends ApiObj>(params: FetchParamsWithCacheData<T>): Promise<ResponseRow<T>[]> {
         const { cacheKey, isBackgroundFetch, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
         const logger = params.logger.tempLogger('getApiObjs');
         params = { ...params, logger };
@@ -992,12 +986,12 @@ export default class MastoApi {
     /**
      * Builds API request parameters for pagination.
      * @private
-     * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {PaginationParams} API pagination parameters.
      */
-    private buildParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): mastodon.DefaultPaginationParams {
+    private buildParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): PaginationParams {
         const { limit, local, minIdForFetch, maxIdForFetch } = params;
-        let apiParams: mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams = { limit };
+        let apiParams: PaginationParams = { limit };
         if (minIdForFetch) apiParams = {...apiParams, minId: `${minIdForFetch}`};
         if (maxIdForFetch) apiParams = {...apiParams, maxId: `${maxIdForFetch}`};
         if (local) apiParams = {...apiParams, local: true};
@@ -1130,16 +1124,13 @@ export default class MastoApi {
      * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
      * are returned as-is, possibly uniquified by ID.
      * @private
+     * @template T
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
      * @returns {ApiObj[]} Array of constructed objects.
      */
-    private buildFromApiObjects<T extends ApiObj>(
-        key: CacheKey,
-        objects: T[],
-        logger: Logger
-    ): ResponseRow<T>[] {
+    private buildFromApiObjects<T extends ApiObj>(key: CacheKey, objects: T[], logger: Logger): ResponseRow<T>[] {
         let newObjects: ResponseRow<T>[];
         const nullObjs = objects.filter(isNil);
 
@@ -1162,6 +1153,7 @@ export default class MastoApi {
 
     /**
      * Populates fetch options with basic defaults for API requests.
+     * @private
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
      * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
@@ -1184,11 +1176,12 @@ export default class MastoApi {
 
     /**
      * Returns a logger instance for the given fetch parameters.
+     * @private
      * @template T
-     * @param {Omit<FetchParams<T>, "fetchGenerator">} params - Fetch parameters (excluding fetch).
+     * @param {LogParams} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
      */
-    private loggerForParams<T extends ApiObj>(params: Omit<FetchParams<T>, "fetchGenerator">): Logger {
+    private loggerForParams<T extends ApiObj>(params: LogParams<T>): Logger {
         const { cacheKey, isBackgroundFetch, moar } = params;
         return getLogger(cacheKey, moar && "moar", isBackgroundFetch && "backgroundFetch");
     }

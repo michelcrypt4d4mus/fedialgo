@@ -58,11 +58,6 @@ export declare function sleep(milliseconds: number): Promise<void>;
  */
 export declare function subtractSeconds(date: Date, seconds: number): Date;
 /**
- * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
- * @returns {Date} The cutoff date for timeline toots.
- */
-export declare function timelineCutoffAt(): Date;
-/**
  * Generate a string representing a timestamp.
  * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
  *     => 'Thursday, Sep 1, 2022'
@@ -72,6 +67,11 @@ export declare function timelineCutoffAt(): Date;
  */
 export declare const timeString: (_timestamp: DateArg, locale?: string) => string;
 /**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
+export declare function timelineCutoffAt(): Date;
+/**
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.
  * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
@@ -80,4 +80,15 @@ export declare const timeString: (_timestamp: DateArg, locale?: string) => strin
 export declare function toISOFormat(date: DateArg, withMilliseconds?: boolean): string;
 /** Like toISOFormat() but returns null if the date is undefined or null. */
 export declare function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null;
+/** Helper class for telemetry.  */
+export declare class WaitTime {
+    avgMsPerRequest: number;
+    milliseconds: number;
+    numRequests: number;
+    startedAt: Date;
+    ageInSeconds(): number;
+    ageString(): string;
+    markStart(): void;
+    markEnd(): void;
+}
 export {};
