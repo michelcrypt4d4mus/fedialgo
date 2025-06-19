@@ -118,7 +118,7 @@ export default class MastoApi {
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
      * @param {number} maxRecords - Maximum number of records to fetch.
-     * @returns {Promise<Toot[]>} Array of Toots.
+     * @returns {Promise<Toot[]>} Array of Toot objects.
      */
     getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
     /**

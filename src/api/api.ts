@@ -380,7 +380,7 @@ export default class MastoApi {
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
      * @param {number} maxRecords - Maximum number of records to fetch.
-     * @returns {Promise<Toot[]>} Array of Toots.
+     * @returns {Promise<Toot[]>} Array of Toot objects.
      */
     async getCacheableToots(
         fetchStatuses: () => Promise<TootLike[]>,
@@ -812,9 +812,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {Promise<ApiObj[]>} Array of API objects.
      */
-    private async fetchApiObjs<T extends ApiObj>(
-        params: FetchParamsWithCacheData<T>
-    ): Promise<ApiObj[]> {
+    private async fetchApiObjs<T extends ApiObj>(params: FetchParamsWithCacheData<T>): Promise<ApiObj[]> {
         this.validateFetchParams<T>(params);
         const { breakIf, cacheKey, fetchGenerator, isBackgroundFetch, logger, maxRecords } = params;
         const waitTime = this.waitTimes[cacheKey];
@@ -866,9 +864,7 @@ export default class MastoApi {
      * @param {FetchParams<T>} inParams - Fetch parameters.
      * @returns {Promise<ApiObj[]>} Array of API objects.
      */
-    private async getApiObjsAndUpdate<T extends ApiObj>(
-        inParams: FetchParams<T>
-    ): Promise<ResponseRow<T>[]> {
+    private async getApiObjsAndUpdate<T extends ApiObj>(inParams: FetchParams<T>): Promise<ResponseRow<T>[]> {
         const paramsWithCache = await this.addCacheDataToParams<T>(inParams);
         const { cacheKey, cacheResult, logger, moar, skipMutex } = paramsWithCache;
         const hereLogger = logger.tempLogger('getApiObjsAndUpdate');
@@ -904,9 +900,7 @@ export default class MastoApi {
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {Promise<ResponseRow[]>} Array of API objects.
      */
-    private async getApiObjs<T extends ApiObj>(
-        params: FetchParamsWithCacheData<T>
-    ): Promise<ResponseRow<T>[]> {
+    private async getApiObjs<T extends ApiObj>(params: FetchParamsWithCacheData<T>): Promise<ResponseRow<T>[]> {
         const { cacheKey, isBackgroundFetch, maxCacheRecords, processFxn, skipCache, skipMutex } = params;
         const logger = params.logger.tempLogger('getApiObjs');
         params = { ...params, logger };
@@ -1135,11 +1129,7 @@ export default class MastoApi {
      * @param {Logger} logger - Logger instance.
      * @returns {ApiObj[]} Array of constructed objects.
      */
-    private buildFromApiObjects<T extends ApiObj>(
-        key: CacheKey,
-        objects: T[],
-        logger: Logger
-    ): ResponseRow<T>[] {
+    private buildFromApiObjects<T extends ApiObj>(key: CacheKey, objects: T[], logger: Logger): ResponseRow<T>[] {
         let newObjects: ResponseRow<T>[];
         const nullObjs = objects.filter(isNil);
 
