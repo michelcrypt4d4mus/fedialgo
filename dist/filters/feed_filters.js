@@ -36,6 +36,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
+const tag_1 = require("../api/objects/tag");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
 const suppressed_hashtags_1 = require("../helpers/suppressed_hashtags");
@@ -161,8 +162,8 @@ async function updateBooleanFilterOptions(filters, toots) {
             }
         });
     });
-    // TODO: this takes 75 seconds for 1,500 toots. Maybe could just do it for trending and followed tags?
-    // updateHashtagCounts(optionLists[BooleanFilterName.HASHTAG], toots);
+    // This takes 75 seconds for a feed with 1,500 toots so we only do it for followed tags.
+    updateHashtagCounts(optionLists[enums_1.BooleanFilterName.HASHTAG], userData.followedTags, toots);
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
         const filterName = key;
@@ -173,24 +174,24 @@ async function updateBooleanFilterOptions(filters, toots) {
     logger.trace(`Updated filters:`, filters);
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
-// We have to rescan the toots to get the tag counts because the tag counts are built with
-// containsTag() whereas the demo app uses containsString() to actually filter.
-function updateHashtagCounts(hashtagOptions, toots) {
+// Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
+// Currently used to update followed hashtags only because otherwise it's too slow.
+function updateHashtagCounts(hashtagOptions, tags, toots) {
     const startedAt = Date.now();
-    taggishLogger.log(`Launched...`);
-    hashtagOptions.forEach((option) => {
+    tags.forEach((option) => {
         const tag = option;
-        if (tag.name.length <= 1 || config_1.config.toots.tagOnlyStrings.has(tag.name)) {
-            return; // Skip short tags or those that are configured as tagOnlyStrings.
+        // Skip invalid tags and those that don't already appear in the hashtagOptions.
+        if (!(0, tag_1.isValidForSubstringSearch)(tag) || !hashtagOptions.getObj(tag.name)) {
+            return;
         }
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
-                taggishLogger.trace(`Incrementing count for Tag-like string "${tag.name}" in toot ${toot.description}`);
+                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 hashtagOptions.incrementCount(tag.name);
             }
         });
     });
-    taggishLogger.log(`Recomputed tag counts ${(0, time_helpers_1.ageString)(startedAt)}`);
+    taggishLogger.log(`Update tag counts for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
 }
 exports.updateHashtagCounts = updateHashtagCounts;
 ;

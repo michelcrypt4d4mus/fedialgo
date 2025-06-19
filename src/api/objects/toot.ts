@@ -17,9 +17,9 @@ import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectForeignScriptLanguage, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
+import { isValidForSubstringSearch, repairTag } from "./tag";
 import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName, TypeFilterName, CONVERSATION, JUST_MUTING } from '../../enums';
-import { repairTag } from "./tag";
 import {
     asOptionalArray,
     batchMap,
@@ -394,7 +394,7 @@ export default class Toot implements TootObj {
      * @returns {boolean}
      */
     containsTag(tag: TagWithUsageCounts, fullScan?: boolean): boolean {
-        if (fullScan && (tag.name.length > 1) && !config.toots.tagOnlyStrings.has(tag.name)) {
+        if (fullScan && isValidForSubstringSearch(tag)) {
             if (!tag.regex) {
                 tootLogger.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = wordRegex(tag.name);

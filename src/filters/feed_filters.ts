@@ -8,10 +8,12 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import Toot from "../api/objects/toot";
+import type TagList from "../api/tag_list";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
+import { isValidForSubstringSearch } from "../api/objects/tag";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
 import { suppressedHashtags } from "../helpers/suppressed_hashtags";
@@ -20,7 +22,6 @@ import {
     type BooleanFilters,
     type FeedFilterSettings,
     type NumericFilters,
-    type StringNumberDict,
     type TagWithUsageCounts,
     type TootNumberProp,
 } from "../types";
@@ -172,8 +173,8 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
         });
     });
 
-    // TODO: this takes 75 seconds for 1,500 toots. Maybe could just do it for trending and followed tags?
-    // updateHashtagCounts(optionLists[BooleanFilterName.HASHTAG], toots);
+    // This takes 75 seconds for a feed with 1,500 toots so we only do it for followed tags.
+    updateHashtagCounts(optionLists[BooleanFilterName.HASHTAG], userData.followedTags, toots);
 
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
@@ -187,28 +188,28 @@ export async function updateBooleanFilterOptions(filters: FeedFilterSettings, to
 }
 
 
-// We have to rescan the toots to get the tag counts because the tag counts are built with
-// containsTag() whereas the demo app uses containsString() to actually filter.
-export function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, toots: Toot[]): void {
+// Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
+// Currently used to update followed hashtags only because otherwise it's too slow.
+export function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagList, toots: Toot[]): void {
     const startedAt = Date.now();
-    taggishLogger.log(`Launched...`);
 
-    hashtagOptions.forEach((option) => {
+    tags.forEach((option) => {
         const tag = option as TagWithUsageCounts;
 
-        if (tag.name.length <= 1 || config.toots.tagOnlyStrings.has(tag.name)) {
-            return;  // Skip short tags or those that are configured as tagOnlyStrings.
+        // Skip invalid tags and those that don't already appear in the hashtagOptions.
+        if (!isValidForSubstringSearch(tag) || !hashtagOptions.getObj(tag.name)) {
+            return;
         }
 
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
-                taggishLogger.trace(`Incrementing count for Tag-like string "${tag.name}" in toot ${toot.description}`);
+                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 hashtagOptions.incrementCount(tag.name);
             }
         })
     });
 
-    taggishLogger.log(`Recomputed tag counts ${ageString(startedAt)}`);
+    taggishLogger.log(`Update tag counts for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`);
 };
 
 

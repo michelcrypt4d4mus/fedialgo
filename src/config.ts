@@ -463,6 +463,7 @@ class Config implements ConfigType {
             "la",
             "mastodon",
             "press",
+            "processing",
             "tv",
             "un",
             "us",

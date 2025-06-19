@@ -30,9 +30,9 @@ const config_1 = require("../../config");
 const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
+const tag_1 = require("./tag");
 const logger_1 = require("../../helpers/logger");
 const enums_1 = require("../../enums");
-const tag_1 = require("./tag");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -311,7 +311,7 @@ class Toot {
      * @returns {boolean}
      */
     containsTag(tag, fullScan) {
-        if (fullScan && (tag.name.length > 1) && !config_1.config.toots.tagOnlyStrings.has(tag.name)) {
+        if (fullScan && (0, tag_1.isValidForSubstringSearch)(tag)) {
             if (!tag.regex) {
                 tootLogger.warn(`containsTag() called on tag without regex:`, tag);
                 tag.regex = (0, string_helpers_1.wordRegex)(tag.name);
