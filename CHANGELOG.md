@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.73.14
 * Keep track of which Toots have had their tags suppressed
 
 ### v0.73.13
