@@ -9,6 +9,7 @@ import { type OptionalNumber, type StringNumberDict } from "../types";
 
 const NUMBER_REGEX = /^[\d.]+$/;
 
+
 // For use with sizeOf() to try to see internals of object size.
 // There's duplication of byte count here - arrays and objects include the other types
 export class BytesDict {

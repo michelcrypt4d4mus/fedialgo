@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add config.api.errorMsgs
 
 ### v0.73.12
 * (Demo App) Disable Submit button while waiting for a new toot to be posted to the server
