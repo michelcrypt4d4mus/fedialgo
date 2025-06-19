@@ -58,11 +58,6 @@ export declare function sleep(milliseconds: number): Promise<void>;
  */
 export declare function subtractSeconds(date: Date, seconds: number): Date;
 /**
- * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
- * @returns {Date} The cutoff date for timeline toots.
- */
-export declare function timelineCutoffAt(): Date;
-/**
  * Generate a string representing a timestamp.
  * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
  *     => 'Thursday, Sep 1, 2022'
@@ -71,6 +66,11 @@ export declare function timelineCutoffAt(): Date;
  * @returns {string} A formatted string representing the timestamp, or NULL if the timestamp is invalid.
  */
 export declare const timeString: (_timestamp: DateArg, locale?: string) => string;
+/**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
+export declare function timelineCutoffAt(): Date;
 /**
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.

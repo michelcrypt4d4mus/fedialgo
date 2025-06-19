@@ -4,7 +4,7 @@
  * @module time_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timeString = exports.timelineCutoffAt = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 const lodash_1 = require("lodash");
 const config_1 = require("../config");
 const string_helpers_1 = require("./string_helpers");
@@ -120,16 +120,6 @@ function subtractSeconds(date, seconds) {
 exports.subtractSeconds = subtractSeconds;
 ;
 /**
- * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
- * @returns {Date} The cutoff date for timeline toots.
- */
-function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
-}
-exports.timelineCutoffAt = timelineCutoffAt;
-;
-/**
  * Generate a string representing a timestamp.
  * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
  *     => 'Thursday, Sep 1, 2022'
@@ -163,6 +153,16 @@ const timeString = (_timestamp, locale) => {
     return str;
 };
 exports.timeString = timeString;
+/**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
+function timelineCutoffAt() {
+    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
+    return subtractSeconds(new Date(), timelineLookBackMS);
+}
+exports.timelineCutoffAt = timelineCutoffAt;
+;
 /**
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.

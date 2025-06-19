@@ -6,7 +6,7 @@
 import { isNil } from "lodash";
 
 import { config, SECONDS_IN_DAY } from "../config";
-import { NULL, quoted} from "./string_helpers";
+import { NULL, quoted } from "./string_helpers";
 import { type Optional, type OptionalString } from "../types";
 
 type DateArg = Date | OptionalString | number;
@@ -125,16 +125,6 @@ export function subtractSeconds(date: Date, seconds: number): Date {
 
 
 /**
- * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
- * @returns {Date} The cutoff date for timeline toots.
- */
-export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
-};
-
-
-/**
  * Generate a string representing a timestamp.
  * (new Date()).toLocaleDateString('en-us', { weekday: "long", year: "numeric", month: "short", day: "numeric"})
  *     => 'Thursday, Sep 1, 2022'
@@ -163,6 +153,16 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
     str += ` ${timestamp!.toLocaleTimeString(locale)}`;
     // console.debug(`timeString() converted ${_timestamp} to ${str} w/locale "${locale}" (toLocaleString() gives "${timestamp.toLocaleString()}")`);
     return str;
+};
+
+
+/**
+ * Returns the oldest timestamp to use as a cutoff for timeline toots, based on config settings.
+ * @returns {Date} The cutoff date for timeline toots.
+ */
+export function timelineCutoffAt(): Date {
+    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
+    return subtractSeconds(new Date(), timelineLookBackMS);
 };
 
 
