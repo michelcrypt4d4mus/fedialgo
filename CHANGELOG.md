@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.74.2
-* Rename TagTootsType enum to TagTootsCategory
+* Rename `TagTootsType` enum to `TagTootsCategory`
 
 ### v0.74.1
 * Only do the followed hashtag additional scan in finishFeedUpdate(), not for each fetch because it's slow
