@@ -1,13 +1,13 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
-import Account from "../api/objects/account";
 import BooleanFilter, { TYPE_FILTERS, type BooleanFilterArgs } from "./boolean_filter";
 import MastoApi from "../api/api";
 import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./numeric_filter";
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
-import Toot from "../api/objects/toot";
+import type Account from "../api/objects/account";
+import type Toot from "../api/objects/toot";
 import type TagList from "../api/tag_list";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
