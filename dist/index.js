@@ -764,6 +764,6 @@ class TheAlgorithm {
         }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
     }
 }
-;
 exports.default = TheAlgorithm;
+;
 //# sourceMappingURL=index.js.map

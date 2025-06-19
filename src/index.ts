@@ -164,7 +164,7 @@ interface AlgorithmArgs {
  * @property {UserData} userData - User data for scoring and filtering
  * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
-class TheAlgorithm {
+export default class TheAlgorithm {
     /**
      * True if FEDIALGO_DEBUG environment var was set at compile time.
      * @returns {boolean}
@@ -834,8 +834,6 @@ class TheAlgorithm {
     }
 };
 
-
-export default TheAlgorithm;
 
 // Export types and constants needed by apps using this package
 export {
