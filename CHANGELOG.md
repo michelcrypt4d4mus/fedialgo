@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.73.14
-* Keep track of which Toots have had their tags suppressed
+* Keep track of which Toots have had their foreign script hashtags suppressed from the filter options
 
 ### v0.73.13
 * Refactor `SuppressedHashtags` to a singleton class
