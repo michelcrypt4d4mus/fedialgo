@@ -8,10 +8,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const counted_list_1 = __importDefault(require("../../api/counted_list"));
 const feed_scorer_1 = __importDefault(require("../feed_scorer"));
-const toot_1 = require("../../api/objects/toot");
 const config_1 = require("../../config");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const enums_1 = require("../../enums");
+const toot_1 = require("../../api/objects/toot");
 ;
 /**
  * Scores based on how many times each author or trending tag appears in the feed.

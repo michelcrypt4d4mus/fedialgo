@@ -1,9 +1,9 @@
 /*
  * Help prepping data for recharts and other algorithm statistics stuff.
  */
-import { Logger } from "./logger";
-import Toot from "../api/objects/toot";
+import type Toot from "../api/objects/toot";
 import { average, makePercentileChunks } from "./collection_helpers";
+import { Logger } from "./logger";
 import { ScoreName } from '../enums';
 import { suffixedInt } from "./string_helpers";
 import { type MinMaxAvgScore, type ScoresStats, type ScoreType } from "../types";

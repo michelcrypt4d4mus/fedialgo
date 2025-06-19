@@ -4,7 +4,7 @@
  * before it knows how much to penalize prolific tooters.
  */
 import Scorer from "./scorer";
-import Toot from '../api/objects/toot';
+import type Toot from '../api/objects/toot';
 import { type StringNumberDict } from "../types";
 
 

@@ -4,7 +4,7 @@
 import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import TagList from "./tag_list";
-import Toot from "./objects/toot";
+import type Toot from "./objects/toot";
 import { config, type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { resolvePromiseDict, truncateToLength, zipPromiseCalls } from "../helpers/collection_helpers";

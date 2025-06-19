@@ -3,8 +3,8 @@
  */
 import { isFinite, isNil } from 'lodash';
 
-import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
+import type Toot from '../api/objects/toot';
 import { type TootNumberProp } from "../types";
 
 // List of toot numeric properties that can be filtered.

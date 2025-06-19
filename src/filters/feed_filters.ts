@@ -237,7 +237,7 @@ function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagL
         const tag = option as TagWithUsageCounts;
 
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
-        if (!isValidForSubstringSearch(tag) || !hashtagOptions.getObj(tag.name)) {
+        if (!(isValidForSubstringSearch(tag) && hashtagOptions.getObj(tag.name))) {
             return;
         }
 

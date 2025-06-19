@@ -1,5 +1,5 @@
-import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
+import type Toot from '../api/objects/toot';
 import { BooleanFilterName, TypeFilterName } from '../enums';
 import { BooleanFilterOptionList } from '../api/counted_list';
 type TypeFilter = (toot: Toot) => boolean;

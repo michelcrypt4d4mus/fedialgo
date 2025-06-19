@@ -1,7 +1,7 @@
 import Account from '../../api/objects/account';
 import MastoApi from '../../api/api';
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';
 

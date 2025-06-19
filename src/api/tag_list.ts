@@ -3,8 +3,8 @@
  */
 import MastoApi from "./api";
 import CountedList from "./counted_list";
-import Toot from "./objects/toot";
 import UserData from "./user_data";
+import type Toot from "./objects/toot";
 import { config } from "../config";
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";

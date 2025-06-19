@@ -1,8 +1,8 @@
 /**
  * @memberof module:toot_scorers
  */
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 /**
  * Score based on the numTimesShown, which is managed by the client app.
  * @class AlreadyShownScorer

@@ -1,5 +1,5 @@
 import TagList from "./tag_list";
-import Toot from "./objects/toot";
+import type Toot from "./objects/toot";
 import { type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { TagTootsType } from "../enums";

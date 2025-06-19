@@ -1,5 +1,5 @@
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 import { type StringNumberDict } from '../../types';
 /**
  * Score how many times the current user has favourited the toot's hashtags in the past.
