@@ -11,7 +11,7 @@ const string_helpers_1 = require("./string_helpers");
 // TODO: use the formatting functions, don't do date lookup manually
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
-// Compute the difference from 'date' to now in minutes
+// Compute the difference from 'date' to now in hours
 const ageInHours = (date, endTime) => (0, exports.ageInMinutes)(date, endTime) / 60.0;
 exports.ageInHours = ageInHours;
 const ageInMinutes = (date, endTime) => (0, exports.ageInSeconds)(date, endTime) / 60.0;

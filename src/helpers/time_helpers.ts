@@ -16,7 +16,7 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 
 
-// Compute the difference from 'date' to now in minutes
+// Compute the difference from 'date' to now in hours
 export const ageInHours = (date: DateArg, endTime?: DateArg) => ageInMinutes(date, endTime) / 60.0;
 export const ageInMinutes = (date: DateArg, endTime?: DateArg) => ageInSeconds(date, endTime) / 60.0;
 export const ageInSeconds = (date: DateArg, endTime?: DateArg) => ageInMS(date, endTime) / 1000.0;
