@@ -216,7 +216,7 @@ function updateHashtagCounts(hashtagOptions, tags, toots) {
     tags.forEach((option) => {
         const tag = option;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
-        if (!(0, tag_1.isValidForSubstringSearch)(tag) || !hashtagOptions.getObj(tag.name)) {
+        if (!((0, tag_1.isValidForSubstringSearch)(tag) && hashtagOptions.getObj(tag.name))) {
             return;
         }
         toots.forEach((toot) => {

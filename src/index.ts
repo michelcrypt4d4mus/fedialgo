@@ -9,11 +9,10 @@ import { Mutex } from 'async-mutex';
 import Account from './api/objects/account';
 import AlreadyShownScorer from './scorer/toot/already_shown_scorer';
 import AuthorFollowersScorer from './scorer/toot/author_followers_scorer';
-import BooleanFilter, {  } from "./filters/boolean_filter";
+import BooleanFilter from "./filters/boolean_filter";
 import ChaosScorer from "./scorer/toot/chaos_scorer";
 import DiversityFeedScorer from "./scorer/feed/diversity_feed_scorer";
 import FavouritedTagsScorer from './scorer/toot/favourited_tags_scorer';
-import FeedScorer from './scorer/feed_scorer';
 import FollowedAccountsScorer from './scorer/toot/followed_accounts_scorer';
 import FollowedTagsScorer from "./scorer/toot/followed_tags_scorer";
 import FollowersScorer from './scorer/toot/followers_scorer';
@@ -36,13 +35,14 @@ import ScorerCache from './scorer/scorer_cache';
 import Storage, {  } from "./Storage";
 import TagList from './api/tag_list';
 import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
-import TootScorer from './scorer/toot_scorer';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
 import TrendingLinksScorer from './scorer/toot/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
 import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
+import type FeedScorer from './scorer/feed_scorer';
+import type TootScorer from './scorer/toot_scorer';
 import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
@@ -52,9 +52,9 @@ import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRat
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
-import { ObjList } from "./api/counted_list";
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
+import { type ObjList } from "./api/counted_list";
 import {
     AlgorithmStorageKey,
     BooleanFilterName,
@@ -64,7 +64,7 @@ import {
     ScoreName,
     TrendingType,
     TypeFilterName,
-    TagTootsType,
+    TagTootsCategory,
     JUST_MUTING,
     buildCacheKeyDict,
     isValueInStringEnum,
@@ -123,7 +123,7 @@ const DEFAULT_SET_TIMELINE_IN_APP = (_feed: Toot[]) => console.debug(`Default se
 
 const EMPTY_TRENDING_DATA: TrendingData = {
     links: [],
-    tags: new TagList([], TagTootsType.TRENDING),
+    tags: new TagList([], TagTootsCategory.TRENDING),
     servers: {},
     toots: []
 };
@@ -294,7 +294,7 @@ class TheAlgorithm {
         await this.lockLoadingMutex(LogPrefix.TRIGGER_FEED_UPDATE);
 
         try {
-            const tootsForHashtags = async (key: TagTootsType): Promise<Toot[]> => {
+            const tootsForHashtags = async (key: TagTootsCategory): Promise<Toot[]> => {
                 loggers[LogPrefix.TRIGGER_FEED_UPDATE].trace(`Fetching toots for hashtags with key: ${key}`);
                 const tagList = await TagsForFetchingToots.create(key);
                 return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
@@ -305,7 +305,7 @@ class TheAlgorithm {
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(MastoApi.instance.getHomeserverToots(), loggers[CacheKey.HOMESERVER_TOOTS]),
                 this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[CacheKey.FEDIVERSE_TRENDING_TOOTS]),
-                ...Object.values(TagTootsType).map(async (key) => await tootsForHashtags(key)),
+                ...Object.values(TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
                 MastoApi.instance.getUserData(),
@@ -858,7 +858,7 @@ export {
     MediaCategory,
     NonScoreWeightName,
     ScoreName,
-    TagTootsType,
+    TagTootsCategory,
     TrendingType,
     TypeFilterName,
     WeightName,

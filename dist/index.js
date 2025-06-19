@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsType = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
+exports.timeString = exports.sortKeysByValue = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCategory = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -98,7 +98,7 @@ Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: fu
 Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_1.ScoreName; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_1.TrendingType; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return enums_1.TypeFilterName; } });
-Object.defineProperty(exports, "TagTootsType", { enumerable: true, get: function () { return enums_1.TagTootsType; } });
+Object.defineProperty(exports, "TagTootsCategory", { enumerable: true, get: function () { return enums_1.TagTootsCategory; } });
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return enums_1.isValueInStringEnum; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
@@ -132,7 +132,7 @@ exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const EMPTY_TRENDING_DATA = {
     links: [],
-    tags: new tag_list_1.default([], enums_1.TagTootsType.TRENDING),
+    tags: new tag_list_1.default([], enums_1.TagTootsCategory.TRENDING),
     servers: {},
     toots: []
 };
@@ -293,7 +293,7 @@ class TheAlgorithm {
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(api_1.default.instance.getHomeserverToots(), loggers[enums_1.CacheKey.HOMESERVER_TOOTS]),
                 this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]),
-                ...Object.values(enums_1.TagTootsType).map(async (key) => await tootsForHashtags(key)),
+                ...Object.values(enums_1.TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
                 api_1.default.instance.getUserData(),

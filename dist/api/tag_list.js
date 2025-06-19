@@ -24,7 +24,7 @@ class TagList extends counted_list_1.default {
     }
     /** Alternate constructor to build tags where numToots is set to the # of times user favourited that tag. */
     static async buildFavouritedTags() {
-        return TagList.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), enums_1.TagTootsType.FAVOURITED);
+        return TagList.fromUsageCounts(await api_1.default.instance.getFavouritedToots(), enums_1.TagTootsCategory.FAVOURITED);
     }
     /** Alternate constructor to build a list of tags the user has posted about recently. **/
     static async buildParticipatedTags() {
@@ -37,7 +37,7 @@ class TagList extends counted_list_1.default {
      * @returns {TagList} A new TagList instance with tags counted from the recent user toots.
      * */
     static fromParticipations(recentToots, includeRetoots) {
-        const tagList = TagList.fromUsageCounts(recentToots, enums_1.TagTootsType.PARTICIPATED, includeRetoots);
+        const tagList = TagList.fromUsageCounts(recentToots, enums_1.TagTootsCategory.PARTICIPATED, includeRetoots);
         logger.trace(`fromParticipations() found ${tagList.length} tags in ${recentToots.length} recent user toots`);
         return tagList;
     }

@@ -10,7 +10,7 @@ import type Account from "../api/objects/account";
 import type TagList from "../api/tag_list";
 import type Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
 import { isValidForSubstringSearch } from "../api/objects/tag";
@@ -133,7 +133,7 @@ export async function updateBooleanFilterOptions(
             const propertyObj = tagList.getObj(tagOption.name);
 
             if (propertyObj) {
-                tagOption[key as TagTootsType] = propertyObj.numToots || 0;
+                tagOption[key as TagTootsCategory] = propertyObj.numToots || 0;
             }
         });
 

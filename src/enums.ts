@@ -48,7 +48,7 @@ export enum CacheKey {
  * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
  */
-export enum TagTootsType {
+export enum TagTootsCategory {
     FAVOURITED = 'FavouritedHashtagToots',
     PARTICIPATED = 'ParticipatedHashtagToots',
     TRENDING = 'TrendingTagToots'
@@ -166,9 +166,9 @@ export enum TypeFilterName {
 //////////////////
 
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsType;
+export type ApiCacheKey = CacheKey | TagTootsCategory;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsType;
+export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
 /** Possible uniqufiiers for a class of ApiObjs. */
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
@@ -183,7 +183,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
     [AlgorithmStorageKey.TIMELINE_TOOTS] as StorageKey[]
-).concat(Object.values(TagTootsType));
+).concat(Object.values(TagTootsCategory));
 
 // Objects fetched with these keys need to be built into proper Account objects.
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
@@ -212,7 +212,7 @@ export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 } as const;
 
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsType)] as const;
+export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCategory)] as const;
 export const CONVERSATION = 'conversation';
 export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
 export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
@@ -256,7 +256,7 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 /** True if argument is a member of CacheKey. */
 export const isCacheKey = isValueInStringEnum(CacheKey);
 /** True if argument is a member of TagTootsCacheKey. */
-export const isTagTootsCacheKey = isValueInStringEnum(TagTootsType);
+export const isTagTootsCacheKey = isValueInStringEnum(TagTootsCategory);
 
 /** True if argument is a member of NonScoreWeightName enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);

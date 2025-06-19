@@ -24,7 +24,7 @@ import { sizeOf } from "./helpers/math_helper";
 import {
     AlgorithmStorageKey,
     CacheKey,
-    TagTootsType,
+    TagTootsCategory,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
     type ApiCacheKey,
@@ -156,7 +156,7 @@ export default class Storage {
         return {
             links: await this.getCoerced<TrendingLink>(CacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers as MastodonInstances,
-            tags: new TagList(trendingTags, TagTootsType.TRENDING),
+            tags: new TagList(trendingTags, TagTootsCategory.TRENDING),
             toots: await this.getCoerced<Toot>(CacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
