@@ -117,25 +117,19 @@ var LogPrefix;
     LogPrefix["TRIGGER_TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
 })(LogPrefix || (LogPrefix = {}));
 ;
-const LOADING_STATUS_MSGS = {
-    [LogPrefix.RESET]: `Resetting state`,
-    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
-    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
-    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
-};
-const FINALIZING_SCORES_MSG = `Finalizing scores`;
-const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
-exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
-const INITIAL_LOAD_STATUS = "Retrieving initial data";
-const READY_TO_LOAD_MSG = "Ready to load";
-exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
-const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const EMPTY_TRENDING_DATA = {
     links: [],
     tags: new tag_list_1.default([], enums_1.TagTootsCategory.TRENDING),
     servers: {},
     toots: []
 };
+const LOADING_STATUS_MSGS = {
+    [LogPrefix.RESET]: `Resetting state`,
+    [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
+    [LogPrefix.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
+    [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+};
+const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const logger = new logger_1.Logger(`TheAlgorithm`);
 const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key));
 Object.values(LogPrefix).forEach((prefix) => loggers[prefix] = logger.tempLogger(prefix));
@@ -179,7 +173,7 @@ class TheAlgorithm {
     ;
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds;
-    loadingStatus = READY_TO_LOAD_MSG;
+    loadingStatus = config_1.config.locale.messages.readyToLoad;
     trendingData = EMPTY_TRENDING_DATA;
     get apiErrorMsgs() { return api_1.default.instance.apiErrors.map(e => e.message); }
     ;
@@ -455,9 +449,10 @@ class TheAlgorithm {
             this.cacheUpdater && clearInterval(this.cacheUpdater);
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
-            this.loadingStatus = READY_TO_LOAD_MSG;
+            this.loadingStatus = config_1.config.locale.messages.readyToLoad;
             this.loadStartedAt = undefined;
             this.numTriggers = 0;
+            this.trendingData = EMPTY_TRENDING_DATA;
             this.feed = [];
             this.setTimelineInApp([]);
             // Call other classes' reset methods
@@ -595,7 +590,7 @@ class TheAlgorithm {
     // Do some final cleanup and scoring operations on the feed.
     async finishFeedUpdate() {
         const hereLogger = loggers[LogPrefix.FINISH_FEED_UPDATE];
-        this.loadingStatus = FINALIZING_SCORES_MSG;
+        this.loadingStatus = config_1.config.locale.messages.finalizingScores;
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         hereLogger.debug(`${this.loadingStatus}...`);
         await toot_1.default.completeToots(this.feed, hereLogger);
@@ -668,7 +663,7 @@ class TheAlgorithm {
         loggers[logPrefix].log(`called, state:`, this.statusDict());
         if (this.isLoading) {
             loggers[logPrefix].warn(`Load in progress already!`, this.statusDict());
-            throw new Error(GET_FEED_BUSY_MSG);
+            throw new Error(config_1.config.locale.messages.isBusy);
         }
         this.loadStartedAt = new Date();
         this._releaseLoadingMutex = await (0, mutex_helpers_1.lockExecution)(this.loadingMutex, logger);
@@ -676,7 +671,7 @@ class TheAlgorithm {
             this.loadingStatus = LOADING_STATUS_MSGS[logPrefix];
         }
         else if (!this.feed.length) {
-            this.loadingStatus = INITIAL_LOAD_STATUS;
+            this.loadingStatus = config_1.config.locale.messages.initialLoadingStatus;
         }
         else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
@@ -766,4 +761,9 @@ class TheAlgorithm {
 }
 exports.default = TheAlgorithm;
 ;
+// Some strings we want to export from the config
+const GET_FEED_BUSY_MSG = config_1.config.locale.messages.isBusy;
+exports.GET_FEED_BUSY_MSG = GET_FEED_BUSY_MSG;
+const READY_TO_LOAD_MSG = config_1.config.locale.messages.readyToLoad;
+exports.READY_TO_LOAD_MSG = READY_TO_LOAD_MSG;
 //# sourceMappingURL=index.js.map

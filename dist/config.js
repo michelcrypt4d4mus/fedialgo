@@ -294,6 +294,12 @@ class Config {
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
+        messages: {
+            finalizingScores: "Finalizing scores",
+            initialLoadingStatus: "Retrieving initial data",
+            isBusy: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            readyToLoad: "Ready to load",
+        },
     };
     participatedTags = {
         invalidTags: [

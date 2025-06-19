@@ -108,6 +108,13 @@ enum LogPrefix {
     TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill",
 };
 
+const EMPTY_TRENDING_DATA: TrendingData = {
+    links: [],
+    tags: new TagList([], TagTootsCategory.TRENDING),
+    servers: {},
+    toots: []
+};
+
 const LOADING_STATUS_MSGS: {[key in LogPrefix]?: string} = {
     [LogPrefix.RESET]: `Resetting state`,
     [LogPrefix.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
@@ -115,18 +122,7 @@ const LOADING_STATUS_MSGS: {[key in LogPrefix]?: string} = {
     [LogPrefix.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
 };
 
-const FINALIZING_SCORES_MSG = `Finalizing scores`;
-const GET_FEED_BUSY_MSG = `Load in progress (consider using the setTimelineInApp() callback instead)`;
-const INITIAL_LOAD_STATUS = "Retrieving initial data";
-const READY_TO_LOAD_MSG = "Ready to load";
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
-
-const EMPTY_TRENDING_DATA: TrendingData = {
-    links: [],
-    tags: new TagList([], TagTootsCategory.TRENDING),
-    servers: {},
-    toots: []
-};
 
 const logger = new Logger(`TheAlgorithm`);
 const loggers: Record<string, Logger> = buildCacheKeyDict((key) => new Logger(key as string));
@@ -178,7 +174,7 @@ export default class TheAlgorithm {
 
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds?: number;
-    loadingStatus: string | null = READY_TO_LOAD_MSG;
+    loadingStatus: string | null = config.locale.messages.readyToLoad;
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
 
     get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrors.map(e => e.message) };
@@ -478,9 +474,10 @@ export default class TheAlgorithm {
             this.cacheUpdater && clearInterval(this.cacheUpdater!);
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
-            this.loadingStatus = READY_TO_LOAD_MSG;
+            this.loadingStatus = config.locale.messages.readyToLoad;
             this.loadStartedAt = undefined;
             this.numTriggers = 0;
+            this.trendingData = EMPTY_TRENDING_DATA;
             this.feed = [];
             this.setTimelineInApp([]);
 
@@ -632,7 +629,7 @@ export default class TheAlgorithm {
     // Do some final cleanup and scoring operations on the feed.
     private async finishFeedUpdate(): Promise<void> {
         const hereLogger = loggers[LogPrefix.FINISH_FEED_UPDATE];
-        this.loadingStatus = FINALIZING_SCORES_MSG;
+        this.loadingStatus = config.locale.messages.finalizingScores;
 
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         hereLogger.debug(`${this.loadingStatus}...`);
@@ -719,7 +716,7 @@ export default class TheAlgorithm {
 
         if (this.isLoading) {
             loggers[logPrefix].warn(`Load in progress already!`, this.statusDict());
-            throw new Error(GET_FEED_BUSY_MSG);
+            throw new Error(config.locale.messages.isBusy);
         }
 
         this.loadStartedAt = new Date();
@@ -728,7 +725,7 @@ export default class TheAlgorithm {
         if (logPrefix in LOADING_STATUS_MSGS) {
             this.loadingStatus = LOADING_STATUS_MSGS[logPrefix as LogPrefix]!;
         } else if (!this.feed.length) {
-            this.loadingStatus = INITIAL_LOAD_STATUS;
+            this.loadingStatus = config.locale.messages.initialLoadingStatus;
         } else if (this.homeFeed.length > 0) {
             const mostRecentAt = this.mostRecentHomeTootAt();
             this.loadingStatus = `Loading new toots` + optionalSuffix(mostRecentAt, t => `since ${timeString(t)}`);
@@ -834,6 +831,10 @@ export default class TheAlgorithm {
     }
 };
 
+
+// Some strings we want to export from the config
+const GET_FEED_BUSY_MSG = config.locale.messages.isBusy;
+const READY_TO_LOAD_MSG = config.locale.messages.readyToLoad;
 
 // Export types and constants needed by apps using this package
 export {

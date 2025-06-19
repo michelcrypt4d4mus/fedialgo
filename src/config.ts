@@ -76,6 +76,12 @@ type LocaleConfig = {
     defaultLanguage: string;
     language: string;
     locale: string;
+    messages: {
+        finalizingScores: string;
+        isBusy: string;
+        initialLoadingStatus: string;
+        readyToLoad: string;
+    };
 };
 
 interface ParticipatedTagsConfig extends TagTootsConfig {
@@ -406,6 +412,12 @@ class Config implements ConfigType {
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
+        messages: {
+            finalizingScores: "Finalizing scores",
+            initialLoadingStatus: "Retrieving initial data",
+            isBusy: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            readyToLoad: "Ready to load",
+        },
     }
 
     participatedTags = {

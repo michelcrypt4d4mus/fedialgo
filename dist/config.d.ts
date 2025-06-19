@@ -47,6 +47,12 @@ type LocaleConfig = {
     defaultLanguage: string;
     language: string;
     locale: string;
+    messages: {
+        finalizingScores: string;
+        isBusy: string;
+        initialLoadingStatus: string;
+        readyToLoad: string;
+    };
 };
 interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;
@@ -158,6 +164,12 @@ declare class Config implements ConfigType {
         defaultLanguage: string;
         language: string;
         locale: string;
+        messages: {
+            finalizingScores: string;
+            initialLoadingStatus: string;
+            isBusy: string;
+            readyToLoad: string;
+        };
     };
     participatedTags: {
         invalidTags: string[];
