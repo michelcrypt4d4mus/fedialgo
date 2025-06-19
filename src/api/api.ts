@@ -139,10 +139,6 @@ interface BackgroundFetchparams<T extends ApiObj> extends FetchParams<T> {
     minRecords: number,
 };
 
-/** Subset of params for logger construction. */
-type LogParams<T extends ApiObj> = Omit<FetchParams<T>, "fetchGenerator">;
-
-
 /**
  * Same as FetchParams but with default/configured values filled in for some parameters.
  * @template T
@@ -181,7 +177,10 @@ interface FetchParamsWithCacheData<T extends ApiObj> extends FetchParamsComplete
 };
 
 type FetchParamName = keyof FetchParamsWithCacheData<ApiObj>;
+type LogParams<T extends ApiObj> = Omit<FetchParams<T>, "fetchGenerator">;
+type PaginationParams = mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams;
 
+// Constants
 export const BIG_NUMBER = 10_000_000_000;
 export const FULL_HISTORY_PARAMS = {maxRecords: BIG_NUMBER, moar: true};
 // Error messages for MastoHttpError
@@ -990,12 +989,12 @@ export default class MastoApi {
     /**
      * Builds API request parameters for pagination.
      * @private
-     * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {PaginationParams} API pagination parameters.
      */
-    private buildParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): mastodon.DefaultPaginationParams {
+    private buildParams<T extends ApiObj>(params: FetchParamsWithCacheData<T>): PaginationParams {
         const { limit, local, minIdForFetch, maxIdForFetch } = params;
-        let apiParams: mastodon.DefaultPaginationParams | mastodon.rest.v1.ListTimelineParams = { limit };
+        let apiParams: PaginationParams = { limit };
         if (minIdForFetch) apiParams = {...apiParams, minId: `${minIdForFetch}`};
         if (maxIdForFetch) apiParams = {...apiParams, maxId: `${maxIdForFetch}`};
         if (local) apiParams = {...apiParams, local: true};
@@ -1128,6 +1127,7 @@ export default class MastoApi {
      * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
      * are returned as-is, possibly uniquified by ID.
      * @private
+     * @template T
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
@@ -1156,6 +1156,7 @@ export default class MastoApi {
 
     /**
      * Populates fetch options with basic defaults for API requests.
+     * @private
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
      * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
@@ -1178,6 +1179,7 @@ export default class MastoApi {
 
     /**
      * Returns a logger instance for the given fetch parameters.
+     * @private
      * @template T
      * @param {LogParams} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.

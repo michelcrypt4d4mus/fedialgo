@@ -301,8 +301,8 @@ export default class MastoApi {
     /**
      * Builds API request parameters for pagination.
      * @private
-     * @param {FetchParamsWithCacheData<any>} params - Fetch parameters with cache data.
-     * @returns {mastodon.DefaultPaginationParams|mastodon.rest.v1.ListTimelineParams} API pagination parameters.
+     * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
+     * @returns {PaginationParams} API pagination parameters.
      */
     private buildParams;
     /**
@@ -336,6 +336,7 @@ export default class MastoApi {
      * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
      * are returned as-is, possibly uniquified by ID.
      * @private
+     * @template T
      * @param {CacheKey} key - The cache key.
      * @param {ApiObj[]} objects - Array of API objects.
      * @param {Logger} logger - Logger instance.
@@ -344,6 +345,7 @@ export default class MastoApi {
     private buildFromApiObjects;
     /**
      * Populates fetch options with basic defaults for API requests.
+     * @private
      * @template T
      * @param {FetchParams<T>} params - Fetch parameters.
      * @returns {FetchParamsComplete<T>} Fetch parameters with defaults filled in.
@@ -351,6 +353,7 @@ export default class MastoApi {
     private fillInDefaultParams;
     /**
      * Returns a logger instance for the given fetch parameters.
+     * @private
      * @template T
      * @param {LogParams} params - Fetch parameters (excluding fetch).
      * @returns {Logger} Logger instance.
