@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.1
 * Only do the followed hashtag additional scan in finishFeedUpdate(), not for each fetch because it's slow
 
 # v0.74.0
