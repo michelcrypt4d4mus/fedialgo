@@ -7,8 +7,8 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import type Account from "../api/objects/account";
-import type Toot from "../api/objects/toot";
 import type TagList from "../api/tag_list";
+import type Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
