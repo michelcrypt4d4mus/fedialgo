@@ -6,7 +6,7 @@ import { isFinite } from 'lodash';
 
 import ScorerCache from './scorer_cache';
 import Storage from "../Storage";
-import Toot from '../api/objects/toot';
+import type Toot from '../api/objects/toot';
 import { ageString } from '../helpers/time_helpers';
 import { batchMap, sumArray } from "../helpers/collection_helpers";
 import { config } from '../config';

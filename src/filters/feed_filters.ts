@@ -1,16 +1,16 @@
 /*
  * Helpers for building and serializing a complete set of FeedFilterSettings.
  */
-import Account from "../api/objects/account";
 import BooleanFilter, { TYPE_FILTERS, type BooleanFilterArgs } from "./boolean_filter";
 import MastoApi from "../api/api";
 import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./numeric_filter";
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
-import Toot from "../api/objects/toot";
+import type Account from "../api/objects/account";
 import type TagList from "../api/tag_list";
+import type Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { BooleanFilterName, ScoreName, TagTootsType } from '../enums';
+import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
 import { isValidForSubstringSearch } from "../api/objects/tag";
@@ -133,7 +133,7 @@ export async function updateBooleanFilterOptions(
             const propertyObj = tagList.getObj(tagOption.name);
 
             if (propertyObj) {
-                tagOption[key as TagTootsType] = propertyObj.numToots || 0;
+                tagOption[key as TagTootsCategory] = propertyObj.numToots || 0;
             }
         });
 
@@ -231,12 +231,13 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  */
 function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagList, toots: Toot[]): void {
     const startedAt = Date.now();
+    let numTagsFound = 0;
 
     tags.forEach((option) => {
         const tag = option as TagWithUsageCounts;
 
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
-        if (!isValidForSubstringSearch(tag) || !hashtagOptions.getObj(tag.name)) {
+        if (!(isValidForSubstringSearch(tag) && hashtagOptions.getObj(tag.name))) {
             return;
         }
 
@@ -244,9 +245,12 @@ function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagL
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsString(tag.name)) {
                 taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 hashtagOptions.incrementCount(tag.name);
+                numTagsFound++;
             }
         })
     });
 
-    taggishLogger.log(`Updated tag counts for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`);
+    taggishLogger.log(
+        `Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`
+    );
 }

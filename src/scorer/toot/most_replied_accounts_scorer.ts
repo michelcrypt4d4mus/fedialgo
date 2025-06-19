@@ -1,6 +1,6 @@
 import MastoApi from '../../api/api';
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 import { countValues, sumArray } from '../../helpers/collection_helpers';
 import { ScoreName } from '../../enums';
 import { type StringNumberDict } from '../../types';

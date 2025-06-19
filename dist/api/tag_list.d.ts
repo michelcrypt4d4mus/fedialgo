@@ -1,5 +1,5 @@
 import CountedList from "./counted_list";
-import Toot from "./objects/toot";
+import type Toot from "./objects/toot";
 import { type CountedListSource, type MastodonTag, type NamedTootCount, type TagWithUsageCounts } from "../types";
 /**
  * Subclass of CountedList for lists of TagWithUsageCounts objects.

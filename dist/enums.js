@@ -4,7 +4,7 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsType = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -52,12 +52,12 @@ var CacheKey;
  * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
  */
-var TagTootsType;
-(function (TagTootsType) {
-    TagTootsType["FAVOURITED"] = "FavouritedHashtagToots";
-    TagTootsType["PARTICIPATED"] = "ParticipatedHashtagToots";
-    TagTootsType["TRENDING"] = "TrendingTagToots";
-})(TagTootsType || (exports.TagTootsType = TagTootsType = {}));
+var TagTootsCategory;
+(function (TagTootsCategory) {
+    TagTootsCategory["FAVOURITED"] = "FavouritedHashtagToots";
+    TagTootsCategory["PARTICIPATED"] = "ParticipatedHashtagToots";
+    TagTootsCategory["TRENDING"] = "TrendingTagToots";
+})(TagTootsCategory || (exports.TagTootsCategory = TagTootsCategory = {}));
 ;
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
@@ -171,7 +171,7 @@ var TypeFilterName;
 //      Constants        //
 ///////////////////////////
 // Objects fetched with these keys need to be built into proper Toot objects.
-exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS]).concat(Object.values(TagTootsType));
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS]).concat(Object.values(TagTootsCategory));
 // Objects fetched with these keys need to be built into proper Account objects.
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
@@ -188,7 +188,7 @@ exports.UNIQUE_ID_PROPERTIES = {
     [CacheKey.NOTIFICATIONS]: 'id',
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 };
-exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsType)];
+exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCategory)];
 exports.CONVERSATION = 'conversation';
 exports.JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
 exports.TOOT_SOURCES = [...exports.STORAGE_KEYS_WITH_TOOTS, exports.CONVERSATION, exports.JUST_MUTING];
@@ -226,7 +226,7 @@ exports.isValueInStringEnum = isValueInStringEnum;
 /** True if argument is a member of CacheKey. */
 exports.isCacheKey = isValueInStringEnum(CacheKey);
 /** True if argument is a member of TagTootsCacheKey. */
-exports.isTagTootsCacheKey = isValueInStringEnum(TagTootsType);
+exports.isTagTootsCacheKey = isValueInStringEnum(TagTootsCategory);
 /** True if argument is a member of NonScoreWeightName enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
 /** True if argument is a member of ScoreName enum. */

@@ -7,7 +7,7 @@ const enums_1 = require("./enums");
 ////////////////////
 // These server as both Both filter option property names as well as demo app gradient config keys
 exports.FILTER_OPTION_DATA_SOURCES = [
-    ...Object.values(enums_1.TagTootsType),
+    ...Object.values(enums_1.TagTootsCategory),
     enums_1.BooleanFilterName.LANGUAGE,
     enums_1.ScoreName.FAVOURITED_ACCOUNTS,
 ];

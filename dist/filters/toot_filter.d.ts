@@ -1,7 +1,7 @@
 /**
  * @fileoverview Abstract class for filtering Toots in or out of the timeline feed.
  */
-import Toot from '../api/objects/toot';
+import type Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
 import { type FilterProperty } from "../types";
 export interface FilterArgs {

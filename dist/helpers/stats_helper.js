@@ -1,11 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rechartsDataPoints = void 0;
-/*
- * Help prepping data for recharts and other algorithm statistics stuff.
- */
-const logger_1 = require("./logger");
 const collection_helpers_1 = require("./collection_helpers");
+const logger_1 = require("./logger");
 const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
 const logger = new logger_1.Logger("stats_helper.ts");

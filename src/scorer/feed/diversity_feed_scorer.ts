@@ -4,10 +4,11 @@
 
 import CountedList from "../../api/counted_list";
 import FeedScorer from "../feed_scorer";
-import Toot, { sortByCreatedAt } from '../../api/objects/toot';
+import type Toot from '../../api/objects/toot';
 import { config } from "../../config";
 import { incrementCount } from "../../helpers/collection_helpers";
 import { ScoreName } from '../../enums';
+import { sortByCreatedAt } from '../../api/objects/toot';
 import { type NamedTootCount, type StringNumberDict } from "../../types";
 
 interface PenalizedObj extends NamedTootCount {

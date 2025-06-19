@@ -1,6 +1,6 @@
 import TagList from '../../api/tag_list';
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 import { ScoreName } from '../../enums';
 import { sumArray } from '../../helpers/collection_helpers';
 import { type StringNumberDict } from '../../types';

@@ -1,4 +1,4 @@
-import Toot from "../api/objects/toot";
+import type Toot from "../api/objects/toot";
 import { type FeedFilterSettings } from "../types";
 export declare function buildNewFilterSettings(): FeedFilterSettings;
 export declare function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings;

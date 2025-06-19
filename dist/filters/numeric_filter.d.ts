@@ -1,5 +1,5 @@
-import Toot from '../api/objects/toot';
 import TootFilter, { type FilterArgs } from "./toot_filter";
+import type Toot from '../api/objects/toot';
 import { type TootNumberProp } from "../types";
 export declare const FILTERABLE_SCORES: TootNumberProp[];
 export interface NumericFilterArgs extends Omit<FilterArgs, "description"> {

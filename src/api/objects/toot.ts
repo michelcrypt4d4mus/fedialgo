@@ -88,20 +88,6 @@ const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_
 const HASHTAG_PARAGRAPH_REGEX = new RegExp(`^<p>(?:${HASHTAG_LINK_REGEX.source} ?)+</p>`, "i");
 const PROPS_THAT_CHANGE = FILTERABLE_SCORES.concat("numTimesShown");
 
-// We always use containsTag() instead of containsString() for these
-const TAG_ONLY_STRINGS = new Set([
-    "in",
-    "is",
-    "it",
-    "ja",
-    "la",
-    "mastodon",
-    "press",
-    "tv",
-    "un",
-    "us",
-]);
-
 const tootLogger = new Logger("Toot");
 const repairLogger = tootLogger.tempLogger("repairToot");
 

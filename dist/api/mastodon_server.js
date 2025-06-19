@@ -182,12 +182,12 @@ class MastodonServer {
             key: enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
-                const trendingTagList = new tag_list_1.default(tags, enums_1.TagTootsType.TRENDING);
+                const trendingTagList = new tag_list_1.default(tags, enums_1.TagTootsCategory.TRENDING);
                 await trendingTagList.removeInvalidTrendingTags();
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(trendingTagList.objs, t => t.name);
             }
         });
-        return new tag_list_1.default(tags, enums_1.TagTootsType.TRENDING);
+        return new tag_list_1.default(tags, enums_1.TagTootsCategory.TRENDING);
     }
     /**
      * Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.

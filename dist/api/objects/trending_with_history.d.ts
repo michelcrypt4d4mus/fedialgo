@@ -1,5 +1,5 @@
 import { mastodon } from "masto";
-import Toot from "./toot";
+import type Toot from "./toot";
 import { type MastodonTag, type TrendingWithHistory } from "../../types";
 export declare function decorateLinkHistory(link: mastodon.v1.TrendLink): void;
 export declare function decorateTagHistory(tag: MastodonTag): void;

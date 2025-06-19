@@ -20,12 +20,9 @@ class MostFavouritedAccountsScorer extends acccount_scorer_1.default {
     ;
     async prepareScoreData() {
         const favouritedToots = await api_1.default.instance.getFavouritedToots();
-        return MostFavouritedAccountsScorer.buildFavouritedAccounts(favouritedToots);
+        return account_1.default.countAccounts(favouritedToots.map(toot => toot.account));
     }
     ;
-    static buildFavouritedAccounts(favourites) {
-        return account_1.default.countAccounts(favourites.map(toot => toot.account));
-    }
 }
 exports.default = MostFavouritedAccountsScorer;
 ;

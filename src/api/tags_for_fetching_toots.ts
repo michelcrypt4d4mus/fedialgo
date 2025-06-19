@@ -4,12 +4,12 @@
 import MastoApi from "./api";
 import MastodonServer from "./mastodon_server";
 import TagList from "./tag_list";
-import Toot from "./objects/toot";
+import type Toot from "./objects/toot";
 import { config, type TagTootsConfig } from "../config";
 import { Logger } from '../helpers/logger';
 import { resolvePromiseDict, truncateToLength, zipPromiseCalls } from "../helpers/collection_helpers";
 import { tagInfoStr } from "./objects/tag";
-import { TagTootsType } from "../enums";
+import { TagTootsCategory } from "../enums";
 import { type TagWithUsageCounts } from "../types";
 
 type TagTootsBuildConfig = {
@@ -17,8 +17,8 @@ type TagTootsBuildConfig = {
     config: TagTootsConfig;
 };
 
-const HASHTAG_TOOTS_CONFIG: Record<TagTootsType, TagTootsBuildConfig> = {
-    [TagTootsType.FAVOURITED]: {
+const HASHTAG_TOOTS_CONFIG: Record<TagTootsCategory, TagTootsBuildConfig> = {
+    [TagTootsCategory.FAVOURITED]: {
         buildTagList: async () => {
             const tagList = await TagList.buildFavouritedTags();
             // Remove tags that user uses often (we want only what they favourite, not what they participate in)
@@ -28,11 +28,11 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsType, TagTootsBuildConfig> = {
         },
         config: config.favouritedTags,
     },
-    [TagTootsType.PARTICIPATED]: {
+    [TagTootsCategory.PARTICIPATED]: {
         buildTagList: async () => await TagList.buildParticipatedTags(),  // TODO: why do I have to define an anonymous fxn for this to work?
         config: config.participatedTags,
     },
-    [TagTootsType.TRENDING]: {
+    [TagTootsCategory.TRENDING]: {
         buildTagList: async () => await MastodonServer.fediverseTrendingTags(),
         config: config.trending.tags,
     }
@@ -40,13 +40,13 @@ const HASHTAG_TOOTS_CONFIG: Record<TagTootsType, TagTootsBuildConfig> = {
 
 
 export default class TagsForFetchingToots {
-    cacheKey: TagTootsType;
+    cacheKey: TagTootsCategory;
     config: TagTootsConfig;
     logger: Logger;
     tagList: TagList;
 
     /** Alternate async constructor. */
-    static async create(cacheKey: TagTootsType): Promise<TagsForFetchingToots> {
+    static async create(cacheKey: TagTootsCategory): Promise<TagsForFetchingToots> {
         const tootsConfig = HASHTAG_TOOTS_CONFIG[cacheKey];
         const tagList = await tootsConfig.buildTagList();
         const tagsForTootsList = new TagsForFetchingToots(cacheKey, tootsConfig.config, tagList);
@@ -54,7 +54,7 @@ export default class TagsForFetchingToots {
         return tagsForTootsList;
     }
 
-    private constructor(cacheKey: TagTootsType, tagsConfig: TagTootsConfig, tagList: TagList) {
+    private constructor(cacheKey: TagTootsCategory, tagsConfig: TagTootsConfig, tagList: TagList) {
         this.cacheKey = cacheKey;
         this.config = tagsConfig;
         this.tagList = tagList;
@@ -93,7 +93,7 @@ export default class TagsForFetchingToots {
         await this.tagList.removeInvalidTrendingTags();
         this.tagList.removeKeywords(this.config.invalidTags || []);
 
-        if (this.cacheKey != TagTootsType.TRENDING) {
+        if (this.cacheKey != TagTootsCategory.TRENDING) {
             const trendingTags = await MastodonServer.fediverseTrendingTags();
             this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
@@ -108,15 +108,15 @@ export default class TagsForFetchingToots {
     }
 
     /** Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form. */
-    static async rawTagLists(): Promise<Record<TagTootsType, TagList>> {
+    static async rawTagLists(): Promise<Record<TagTootsCategory, TagList>> {
         return await resolvePromiseDict(
             {
-                [TagTootsType.FAVOURITED]: TagList.buildFavouritedTags(),
-                [TagTootsType.PARTICIPATED]: TagList.buildParticipatedTags(),
-                [TagTootsType.TRENDING]: MastodonServer.fediverseTrendingTags(),
+                [TagTootsCategory.FAVOURITED]: TagList.buildFavouritedTags(),
+                [TagTootsCategory.PARTICIPATED]: TagList.buildParticipatedTags(),
+                [TagTootsCategory.TRENDING]: MastodonServer.fediverseTrendingTags(),
             },
             new Logger("TagsForFetchingToots.rawTagLists()"),
-            (failedKey: TagTootsType) => new TagList([], failedKey)
+            (failedKey: TagTootsCategory) => new TagList([], failedKey)
         );
     }
 };

@@ -1,5 +1,5 @@
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 import { type StringNumberDict } from '../../types';
 /**
  * Score how many times the user has replied to the creator of the toot.

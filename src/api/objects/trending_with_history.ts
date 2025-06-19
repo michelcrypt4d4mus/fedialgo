@@ -22,7 +22,7 @@
  */
 import { mastodon } from "masto";
 
-import Toot from "./toot";
+import type Toot from "./toot";
 import { average, groupBy } from "../../helpers/collection_helpers";
 import { config } from "../../config";
 import { repairTag } from "./tag";

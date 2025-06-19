@@ -1,5 +1,5 @@
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 /**
  * Score how many times the toot has been favourited by other users.
  * Note: favorites don't propagate across servers, so this is only useful for the

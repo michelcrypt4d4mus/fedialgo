@@ -1,5 +1,5 @@
-import Toot from '../../api/objects/toot';
 import TootScorer from '../toot_scorer';
+import type Toot from '../../api/objects/toot';
 /**
  * Populate the 'followedTags' property on Toot object and return the number of tags
  * on the Toot that the user is following.

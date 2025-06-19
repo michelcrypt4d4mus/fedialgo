@@ -45,7 +45,7 @@ export declare enum CacheKey {
  * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
  * @enum {string}
  */
-export declare enum TagTootsType {
+export declare enum TagTootsCategory {
     FAVOURITED = "FavouritedHashtagToots",
     PARTICIPATED = "ParticipatedHashtagToots",
     TRENDING = "TrendingTagToots"
@@ -147,9 +147,9 @@ export declare enum TypeFilterName {
     VIDEOS = "videos"
 }
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsType;
+export type ApiCacheKey = CacheKey | TagTootsCategory;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsType;
+export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
 /** Possible uniqufiiers for a class of ApiObjs. */
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
@@ -157,7 +157,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
-export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsType)[];
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCategory)[];
 export declare const CONVERSATION = "conversation";
 export declare const JUST_MUTING = "justMuting";
 export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
