@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Temp fix for bug with tagNames().has()
 
 ### v0.74.9
 * Call `completeObjProperties()` in `CountedList.incrementCount()`
