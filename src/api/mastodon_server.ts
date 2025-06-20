@@ -24,6 +24,7 @@ import {
     uniquifyTrendingObjs,
 } from "./objects/trending_with_history";
 import {
+    type InstanceResponse,
     type MastodonInstance,
     type MastodonInstances,
     type TagWithUsageCounts,
@@ -32,7 +33,6 @@ import {
     type TrendingObj,
 } from "../types";
 
-export type InstanceResponse = MastodonInstance | null;
 type InstanceDict = Record<string, MastodonInstance>;
 
 const API_URI = "api";

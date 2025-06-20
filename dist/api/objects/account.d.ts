@@ -1,6 +1,5 @@
 import { mastodon } from "masto";
-import { type InstanceResponse } from '../mastodon_server';
-import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
+import { type AccountLike, type AccountNames, type BooleanFilterOption, type InstanceResponse, type StringNumberDict } from "../../types";
 type AccountCount = Record<string, {
     account: Account;
     count: number;

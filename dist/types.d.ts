@@ -80,6 +80,7 @@ export interface CacheTimestamp {
 export type CacheableApiObj = (ApiObj[] | MastodonInstances | mastodon.v2.Instance);
 /** Possible data sources for CountedList objects. */
 export type CountedListSource = (FilterOptionDataSource | FilterProperty | FediverseCacheKey.TRENDING_TAGS | ScoreName.DIVERSITY | ScoreName.FOLLOWED_TAGS);
+export type InstanceResponse = MastodonInstance | null;
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;

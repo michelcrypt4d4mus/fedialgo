@@ -145,6 +145,8 @@ export type CountedListSource = (
   | ScoreName.FOLLOWED_TAGS
 );
 
+export type InstanceResponse = MastodonInstance | null;
+
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;

@@ -1,8 +1,7 @@
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { Logger } from '../helpers/logger';
-import { type MastodonInstance, type MastodonInstances, type TagWithUsageCounts, type TrendingData, type TrendingLink } from "../types";
-export type InstanceResponse = MastodonInstance | null;
+import { type InstanceResponse, type MastodonInstances, type TagWithUsageCounts, type TrendingData, type TrendingLink } from "../types";
 /**
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
