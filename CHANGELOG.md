@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Reenable broad search for all hashtags that appear only as strings, not as formal Tags
 
 ### v0.74.7
 * Use existing tag regex when re-scanning filter options for any followed tag strings

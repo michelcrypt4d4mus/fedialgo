@@ -7,7 +7,7 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import type Account from "../api/objects/account";
-import type TagList from "../api/tag_list";
+import TagList from "../api/tag_list";
 import type Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
@@ -178,9 +178,10 @@ export async function updateBooleanFilterOptions(
         });
     });
 
-    // Double check for any followed hashtags that are in the feed but without a formal "#" character.
+    // Double check for hashtags that are in the feed but without a formal "#" character.
     if (scanFollowedTags) {
-        updateHashtagCounts(optionLists[BooleanFilterName.HASHTAG], userData.followedTags, toots);
+        const hashtagOptions = optionLists[BooleanFilterName.HASHTAG];
+        updateHashtagCounts(hashtagOptions, hashtagOptions, toots);
     }
 
     // Build the options for all the boolean filters based on the counts
@@ -225,11 +226,11 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  * 3-4 seconds for a list of 138 followed tags against 3,000 toots.
  *
  * @private
- * @param {BooleanFilterOptionList} hashtagOptions - Options list to update with additional hashtag matches.
+ * @param {BooleanFilterOptionList} options - Options list to update with additional hashtag matches.
  * @param {TagList} tags - List of tags to check against the toots.
  * @param {Toot[]} toots - List of toots to scan.
  */
-function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagList, toots: Toot[]): void {
+function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilterOptionList, toots: Toot[]): void {
     const startedAt = Date.now();
     let numTagsFound = 0;
 
@@ -237,20 +238,20 @@ function updateHashtagCounts(hashtagOptions: BooleanFilterOptionList, tags: TagL
         const tag = option as TagWithUsageCounts;
 
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
-        if (!(isValidForSubstringSearch(tag) && hashtagOptions.getObj(tag.name))) {
+        if (!(isValidForSubstringSearch(tag) && options.getObj(tag.name))) {
             return;
         }
 
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsTag(tag, true)) {
                 taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
-                hashtagOptions.incrementCount(tag.name);
+                options.incrementCount(tag.name);
                 numTagsFound++;
             }
         })
     });
 
-    taggishLogger.log(
+    taggishLogger.info(
         `Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`
     );
 }

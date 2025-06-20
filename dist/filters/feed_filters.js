@@ -166,9 +166,10 @@ async function updateBooleanFilterOptions(filters, toots, scanFollowedTags = fal
             }
         });
     });
-    // Double check for any followed hashtags that are in the feed but without a formal "#" character.
+    // Double check for hashtags that are in the feed but without a formal "#" character.
     if (scanFollowedTags) {
-        updateHashtagCounts(optionLists[enums_1.BooleanFilterName.HASHTAG], userData.followedTags, toots);
+        const hashtagOptions = optionLists[enums_1.BooleanFilterName.HASHTAG];
+        updateHashtagCounts(hashtagOptions, hashtagOptions, toots);
     }
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
@@ -206,27 +207,27 @@ function populateMissingFilters(filters) {
  * 3-4 seconds for a list of 138 followed tags against 3,000 toots.
  *
  * @private
- * @param {BooleanFilterOptionList} hashtagOptions - Options list to update with additional hashtag matches.
+ * @param {BooleanFilterOptionList} options - Options list to update with additional hashtag matches.
  * @param {TagList} tags - List of tags to check against the toots.
  * @param {Toot[]} toots - List of toots to scan.
  */
-function updateHashtagCounts(hashtagOptions, tags, toots) {
+function updateHashtagCounts(options, tags, toots) {
     const startedAt = Date.now();
     let numTagsFound = 0;
     tags.forEach((option) => {
         const tag = option;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
-        if (!((0, tag_1.isValidForSubstringSearch)(tag) && hashtagOptions.getObj(tag.name))) {
+        if (!((0, tag_1.isValidForSubstringSearch)(tag) && options.getObj(tag.name))) {
             return;
         }
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsTag(tag, true)) {
                 taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
-                hashtagOptions.incrementCount(tag.name);
+                options.incrementCount(tag.name);
                 numTagsFound++;
             }
         });
     });
-    taggishLogger.log(`Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+    taggishLogger.info(`Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
 }
 //# sourceMappingURL=feed_filters.js.map
