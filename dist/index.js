@@ -658,12 +658,7 @@ class TheAlgorithm {
         }
         this.loadStartedAt = new Date();
         this._releaseLoadingMutex = await (0, mutex_helpers_1.lockExecution)(this.loadingMutex, logger);
-        if (typeof status === 'function') {
-            this.loadingStatus = status(this.feed, this.mostRecentHomeTootAt());
-        }
-        else {
-            this.loadingStatus = status;
-        }
+        this.loadingStatus = (typeof status === 'string') ? status : status(this.feed, this.mostRecentHomeTootAt());
     }
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
