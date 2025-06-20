@@ -21,11 +21,7 @@ const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month
 
 const logger = new Logger("Account");
 
-
-/**
- * Interface for mastodon.v1.Account object extending with additional helper methods and properties.
-
- */
+/** nterface for mastodon.v1.Account object extending with additional helper methods and properties. */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;

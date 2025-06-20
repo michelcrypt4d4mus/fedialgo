@@ -32,10 +32,10 @@ import NumRetootsScorer from "./scorer/toot/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/toot/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
-import Storage, {  } from "./Storage";
+import Storage from "./Storage";
 import TagList from './api/tag_list';
-import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/toot/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
@@ -53,7 +53,7 @@ import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
-import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
+import { WeightPresetLabel, WEIGHT_PRESETS, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { type ObjList } from "./api/counted_list";
 import {
     AlgorithmStorageKey,

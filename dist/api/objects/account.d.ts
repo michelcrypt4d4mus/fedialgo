@@ -5,10 +5,7 @@ type AccountCount = Record<string, {
     account: Account;
     count: number;
 }>;
-/**
- * Interface for mastodon.v1.Account object extending with additional helper methods and properties.
-
- */
+/** nterface for mastodon.v1.Account object extending with additional helper methods and properties. */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;

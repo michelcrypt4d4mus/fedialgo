@@ -1115,7 +1115,7 @@ export const mostRecentToot = (toots: TootLike[]): TootLike | null => sortByCrea
 /**
  * Returns array with oldest toot first.
  * @private
- * @template T
+ * @template T extends TootLike
  * @param {T} toots - List of toots.
  * @returns {T}
  */
