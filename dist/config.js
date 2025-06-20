@@ -49,7 +49,8 @@ const LOG_PREFIX = '[Config]';
  */
 class Config {
     api = {
-        backgroundLoadSleepBetweenRequestsMS: 1000,
+        // How long to wait between API requests during backgrund load (actually a random number between 0 and this value)
+        backgroundLoadSleepBetweenRequestsMS: 1200,
         backgroundLoadIntervalMinutes: 10,
         daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,
@@ -77,20 +78,7 @@ class Config {
                 initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.FediverseCacheKey.POPULAR_SERVERS]: {
-                minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
-            },
-            [enums_1.FediverseCacheKey.TRENDING_LINKS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-            },
-            [enums_1.FediverseCacheKey.TRENDING_TAGS]: {
-                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
-            },
-            [enums_1.FediverseCacheKey.TRENDING_TOOTS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-            },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
-                allowBackgroundLoad: true,
                 initialMaxRecords: 1600,
                 limit: 80,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
@@ -139,6 +127,18 @@ class Config {
             },
             [enums_1.CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.FediverseCacheKey.POPULAR_SERVERS]: {
+                minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
+            },
+            [enums_1.FediverseCacheKey.TRENDING_LINKS]: {
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.FediverseCacheKey.TRENDING_TAGS]: {
+                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.FediverseCacheKey.TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.TagTootsCategory.FAVOURITED]: {
@@ -393,6 +393,7 @@ class Config {
             "character",
             "circle",
             "citizens",
+            "comment",
             "community",
             "concerns",
             "conflict",
@@ -420,6 +421,7 @@ class Config {
             "episode",
             "era",
             "es",
+            "europe",
             "event",
             "experience",
             "explore",
@@ -435,11 +437,13 @@ class Config {
             "fire",
             "fires",
             "folk",
+            "food",
             "foreign",
             "forum",
             "fr",
             "french",
             "funny",
+            "future",
             "garden",
             "globe",
             "global",
@@ -457,6 +461,7 @@ class Config {
             "homes",
             "http",
             "https",
+            "human",
             "id",
             "identity",
             "im",
@@ -473,9 +478,11 @@ class Config {
             "ja",
             "la",
             "lake",
+            "landscape",
             "lead",
             "leads",
             "leading",
+            "learning",
             "legal",
             "light",
             "live",
@@ -512,6 +519,8 @@ class Config {
             "politics",
             "poll",
             "power",
+            "president",
+            "presidents",
             "press",
             "processing",
             "quote",
@@ -524,6 +533,9 @@ class Config {
             "running",
             "sans",
             "season",
+            "share",
+            "short",
+            "shorts",
             "show",
             "space",
             "spring",
@@ -543,6 +555,7 @@ class Config {
             "tv",
             "uk",
             "un",
+            "uncertainty",
             "unique",
             "united",
             "us",
@@ -550,6 +563,7 @@ class Config {
             "via",
             "video",
             "water",
+            "web",
             "website",
             "week",
             "what",

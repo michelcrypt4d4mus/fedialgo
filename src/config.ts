@@ -40,7 +40,6 @@ const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = '[Config]';
 
 type ApiRequestDefaults = {
-    allowBackgroundLoad?: boolean;      // If true, this endpoint will return the cache immediately and then load more data in the background
     initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
     limit?: number;                     // Max per page is usually 40
     lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
@@ -173,7 +172,8 @@ interface ConfigType {
  */
 class Config implements ConfigType {
     api = {
-        backgroundLoadSleepBetweenRequestsMS: 1_000, // How long to wait between API requests during backgrund load
+        // How long to wait between API requests during backgrund load (actually a random number between 0 and this value)
+        backgroundLoadSleepBetweenRequestsMS: 1_200,
         backgroundLoadIntervalMinutes: 10,      // Time between background polling for additional user data after initial load
         daysBeforeFullCacheRefresh: 21,         // Days before the cache is considered stale and needs to be refreshed completely  // TODO: currently unused
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
@@ -201,20 +201,7 @@ class Config implements ConfigType {
                 initialMaxRecords: Math.floor(MIN_RECORDS_FOR_FEATURE_SCORING / 2),  // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
-            [FediverseCacheKey.POPULAR_SERVERS]: {
-                minutesUntilStale: 5 * MINUTES_IN_DAY,
-            },
-            [FediverseCacheKey.TRENDING_LINKS]: {
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
-            },
-            [FediverseCacheKey.TRENDING_TAGS]: {
-                minutesUntilStale: 6 * MINUTES_IN_HOUR,
-            },
-            [FediverseCacheKey.TRENDING_TOOTS]: {
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
-            },
             [CacheKey.FOLLOWED_ACCOUNTS]: {
-                allowBackgroundLoad: true,
                 initialMaxRecords: 1_600,
                 limit: 80,
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
@@ -263,6 +250,18 @@ class Config implements ConfigType {
             },
             [CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [FediverseCacheKey.POPULAR_SERVERS]: {
+                minutesUntilStale: 5 * MINUTES_IN_DAY,
+            },
+            [FediverseCacheKey.TRENDING_LINKS]: {
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [FediverseCacheKey.TRENDING_TAGS]: {
+                minutesUntilStale: 6 * MINUTES_IN_HOUR,
+            },
+            [FediverseCacheKey.TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [TagTootsCategory.FAVOURITED]: {
@@ -522,6 +521,7 @@ class Config implements ConfigType {
             "character",
             "circle",
             "citizens",
+            "comment",
             "community",
             "concerns",
             "conflict",
@@ -549,6 +549,7 @@ class Config implements ConfigType {
             "episode",
             "era",
             "es",
+            "europe",
             "event",
             "experience",
             "explore",
@@ -564,11 +565,13 @@ class Config implements ConfigType {
             "fire",
             "fires",
             "folk",
+            "food",
             "foreign",
             "forum",
             "fr",
             "french",
             "funny",
+            "future",
             "garden",
             "globe",
             "global",
@@ -586,6 +589,7 @@ class Config implements ConfigType {
             "homes",
             "http",
             "https",
+            "human",
             "id",
             "identity",
             "im",
@@ -602,9 +606,11 @@ class Config implements ConfigType {
             "ja",
             "la",
             "lake",
+            "landscape",
             "lead",
             "leads",
             "leading",
+            "learning",
             "legal",
             "light",
             "live",
@@ -641,6 +647,8 @@ class Config implements ConfigType {
             "politics",
             "poll",
             "power",
+            "president",
+            "presidents",
             "press",
             "processing",
             "quote",
@@ -653,6 +661,9 @@ class Config implements ConfigType {
             "running",
             "sans",
             "season",
+            "share",
+            "short",
+            "shorts",
             "show",
             "space",
             "spring",
@@ -672,6 +683,7 @@ class Config implements ConfigType {
             "tv",
             "uk",
             "un",
+            "uncertainty",
             "unique",
             "united",
             "us",
@@ -679,6 +691,7 @@ class Config implements ConfigType {
             "via",
             "video",
             "water",
+            "web",
             "website",
             "week",
             "what",

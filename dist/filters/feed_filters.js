@@ -223,7 +223,6 @@ function updateHashtagCounts(options, tags, toots) {
         }
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsTag(tag, true)) {
-                // taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 options.incrementCount(tag.name);
                 totalTagsFound++;
                 tagsFound++;

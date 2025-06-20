@@ -841,8 +841,7 @@ export default class MastoApi {
                 }
 
                 if (isBackgroundFetch) {
-                    // Add jitter to space out requests
-                    const sleepMS = config.api.backgroundLoadSleepBetweenRequestsMS + (Math.random() * 1000);
+                    const sleepMS = config.api.backgroundLoadSleepBetweenRequestsMS * Math.random();  // Jitter spaces out requests
                     logger.trace(`Background fetch, sleeping for ${(sleepMS / 1000).toFixed(3)}s`);
                     await sleep(sleepMS);
                 }
@@ -966,16 +965,12 @@ export default class MastoApi {
     ): Promise<ResponseRow<T>[]> {
         const { minRecords } = params;
         const logger = this.loggerForParams(params).tempLogger('getWithBackgroundFetch');
-        if (!params.fetchGenerator) logger.logAndThrowError(`Missing fetchGenerator!`, params);
         logger.trace(`Called with minRecords ${minRecords}`);
         const objs = await this.getApiObjsAndUpdate<T>(params);
 
         if (objs.length < minRecords) {
             logger.log(`Fewer rows (${objs.length}) than required (${minRecords}), launching bg job to get the rest`);
-
-            // TODO: can't import the ScorerCache here because it would create a circular dependency
-            this.getApiObjsAndUpdate<T>({...FULL_HISTORY_PARAMS, ...params, isBackgroundFetch: true})
-                // .then(() => ScorerCache.prepareScorers(true))  // Force ScorerCache to update
+            this.getApiObjsAndUpdate<T>({...FULL_HISTORY_PARAMS, ...params, isBackgroundFetch: true});
         } else {
             logger.trace(`Have enough rows (have ${objs.length}, want ${minRecords}), doing nothing`);
         }
