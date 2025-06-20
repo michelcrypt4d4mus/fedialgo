@@ -281,19 +281,17 @@ type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> =
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
  */
-export function buildCacheKeyDict<K extends string, T, U extends Optional<Record<K, T>>>(
-    fxn: (key?: ApiCacheKey) => T,
+export function buildCacheKeyDict<K extends string, T, D extends Optional<Record<K, T>>>(
+    fxn: (key: ApiCacheKey) => T,
     initialDict?: Optional<Record<K, T>>,
-    keys?: (ApiCacheKey)[],
-): CachedByKey<K, T, U> {
-    keys ??= ALL_CACHE_KEYS as ApiCacheKey[];
-
-    return keys.reduce(
+    keys?: ApiCacheKey[],
+): CachedByKey<K, T, D> {
+    return (keys ?? ALL_CACHE_KEYS).reduce(
         (dict, key) => {
             dict[key] = fxn(key);
             return dict;
         },
-        (initialDict ?? {}) as Record<ApiCacheKey | K, T>
+        (initialDict ?? {}) as CachedByKey<K, T, D>
     );
 };
 

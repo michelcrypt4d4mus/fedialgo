@@ -236,8 +236,7 @@ exports.TOOT_SOURCES = [...exports.STORAGE_KEYS_WITH_TOOTS, exports.CONVERSATION
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
  */
 function buildCacheKeyDict(fxn, initialDict, keys) {
-    keys ??= exports.ALL_CACHE_KEYS;
-    return keys.reduce((dict, key) => {
+    return (keys ?? exports.ALL_CACHE_KEYS).reduce((dict, key) => {
         dict[key] = fxn(key);
         return dict;
     }, (initialDict ?? {}));

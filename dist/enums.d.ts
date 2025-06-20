@@ -198,7 +198,7 @@ type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = IsNull
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
  */
-export declare function buildCacheKeyDict<K extends string, T, U extends Optional<Record<K, T>>>(fxn: (key?: ApiCacheKey) => T, initialDict?: Optional<Record<K, T>>, keys?: (ApiCacheKey)[]): CachedByKey<K, T, U>;
+export declare function buildCacheKeyDict<K extends string, T, D extends Optional<Record<K, T>>>(fxn: (key: ApiCacheKey) => T, initialDict?: Optional<Record<K, T>>, keys?: ApiCacheKey[]): CachedByKey<K, T, D>;
 /**
  * Generate a function to check if a value exists in a string enum.
  * @template E
