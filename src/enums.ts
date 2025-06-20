@@ -227,8 +227,8 @@ export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
 
 // Objects fetched with these keys need to be built into proper Account objects.
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
-    (keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
-    [] as StorageKey[]
+    (keys, [k, v]) => (k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
+    [CacheKey.FOLLOWERS] as StorageKey[]
 );
 
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
