@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Call completeObjProperties() in CountedList.incrementCount()
 
 ### v0.74.8
 * Reenable broad search for all hashtags that appear only as strings, not as formal Tags
