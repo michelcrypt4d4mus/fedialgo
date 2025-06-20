@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.15
 * Filters don't do deep string comparison for tags that appear in tagOnlyStrings
 * Add more tagOnlyStrings
 
