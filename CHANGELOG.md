@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Move `CONVERSATION` and `JUST_MUTING` constants into `LoadAction` enum
 
 ### v0.74.5
 * Last build seemed broken... no changes just a tag here
