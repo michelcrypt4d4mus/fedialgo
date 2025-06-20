@@ -228,7 +228,10 @@ export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey)
 // Objects fetched with these keys need to be built into proper Toot objects.
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
-    [AlgorithmStorageKey.TIMELINE_TOOTS, FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS] as StorageKey[]
+    [
+        AlgorithmStorageKey.TIMELINE_TOOTS,
+        FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS
+    ] as StorageKey[]
 ).concat(Object.values(TagTootsCategory));
 
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.

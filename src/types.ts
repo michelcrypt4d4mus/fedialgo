@@ -12,7 +12,14 @@ import type Toot from './api/objects/toot';
 import { type BooleanFilterArgs } from './filters/boolean_filter';
 import { type NumericFilterArgs } from './filters/numeric_filter';
 import { type SerializableToot } from './api/objects/toot';
-import { BooleanFilterName, FediverseCacheKey, NonScoreWeightName, ScoreName, TagTootsCategory, TOOT_SOURCES } from './enums';
+import {
+    BooleanFilterName,
+    FediverseCacheKey,
+    NonScoreWeightName,
+    ScoreName,
+    TagTootsCategory,
+    TOOT_SOURCES
+} from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
