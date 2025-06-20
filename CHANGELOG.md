@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.4
 * Fix bug where FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS data wasn't being built into Toot objects
 
 ### v0.74.3
