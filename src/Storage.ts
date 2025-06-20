@@ -26,6 +26,7 @@ import {
     CacheKey,
     FediverseCacheKey,
     TagTootsCategory,
+    TrendingType,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
     type ApiCacheKey,
@@ -151,14 +152,14 @@ export default class Storage {
 
     /** Get trending tags, toots, and links as a single TrendingData object. */
     static async getTrendingData(): Promise<TrendingData> {
-        const servers = (await this.get(FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
-        const trendingTags = await this.getCoerced<TagWithUsageCounts>(FediverseCacheKey.FEDIVERSE_TRENDING_TAGS)
+        const servers = (await this.get(FediverseCacheKey.POPULAR_SERVERS)) || {};
+        const trendingTags = await this.getCoerced<TagWithUsageCounts>(FediverseCacheKey.TRENDING_TAGS)
 
         return {
-            links: await this.getCoerced<TrendingLink>(FediverseCacheKey.FEDIVERSE_TRENDING_LINKS),
-            servers: servers as MastodonInstances,
-            tags: new TagList(trendingTags, TagTootsCategory.TRENDING),
-            toots: await this.getCoerced<Toot>(FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS),
+            [TrendingType.LINKS]: await this.getCoerced<TrendingLink>(FediverseCacheKey.TRENDING_LINKS),
+            [TrendingType.SERVERS]: servers as MastodonInstances,
+            [TrendingType.TAGS]: new TagList(trendingTags, TagTootsCategory.TRENDING),
+            toots: await this.getCoerced<Toot>(FediverseCacheKey.TRENDING_TOOTS),
         };
     }
 

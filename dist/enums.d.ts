@@ -10,6 +10,7 @@ import { type Optional } from './types';
  */
 export declare enum LoadAction {
     FEED_UPDATE = "triggerFeedUpdate",
+    GET_CONVERSATION = "conversation",
     GET_MOAR_DATA = "triggerMoarData",
     IS_BUSY = "isBusy",
     PULL_ALL_USER_DATA = "triggerPullAllUserData",
@@ -63,10 +64,10 @@ export declare enum CacheKey {
  * @enum {string}
  */
 export declare enum FediverseCacheKey {
-    FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
-    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
-    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
-    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots"
+    POPULAR_SERVERS = "FediversePopularServers",
+    TRENDING_TAGS = "FediverseTrendingTags",
+    TRENDING_LINKS = "FediverseTrendingLinks",
+    TRENDING_TOOTS = "FediverseTrendingToots"
 }
 /**
  * Enum of categories of toots pulled for a type of tag (favourited/particated/trending).
@@ -79,7 +80,7 @@ export declare enum TagTootsCategory {
 }
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
- * Order influences the order of the score weighting sliders in the demo app.
+ * NOTE: Order influences the order of the score weighting sliders in the demo app.
  * @enum {string}
  */
 export declare enum NonScoreWeightName {
@@ -188,9 +189,7 @@ export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
 export declare const ALL_CACHE_KEYS: readonly (CacheKey | FediverseCacheKey | TagTootsCategory)[];
-export declare const CONVERSATION = "conversation";
-export declare const JUST_MUTING = "justMuting";
-export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
+export declare const TOOT_SOURCES: readonly [...StorageKey[], LoadAction.GET_CONVERSATION, LoadAction.REFRESH_MUTED_ACCOUNTS];
 type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = IsNullOrUndefined<U> extends true ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.

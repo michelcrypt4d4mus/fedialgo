@@ -1,8 +1,7 @@
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { Logger } from '../helpers/logger';
-import { type MastodonInstance, type MastodonInstances, type TagWithUsageCounts, type TrendingData, type TrendingLink } from "../types";
-export type InstanceResponse = MastodonInstance | null;
+import { type InstanceResponse, type MastodonInstances, type TagWithUsageCounts, type TrendingData, type TrendingLink } from "../types";
 /**
  * Class for interacting with the public non-authenticated API of a Mastodon server.
  * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
@@ -14,10 +13,6 @@ export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     logger: Logger;
-    private static v1Url;
-    private static v2Url;
-    private static trendUrl;
-    private static trendingMutexes;
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.
@@ -29,17 +24,16 @@ export default class MastodonServer {
      */
     fetchServerInfo(): Promise<InstanceResponse>;
     /**
-     * Fetch toots that are trending on this server.
-     * Note: Returned toots have not had setDependentProps() called yet.
-     * TODO: should return SerializableToot[] instead of mastodon.v1.Status but the type system is annoying.
-     * @returns {Promise<Toot[]>} Array of trending Toot objects.
-     */
-    fetchTrendingStatuses(): Promise<Toot[]>;
-    /**
      * Get the links that are trending on this server.
      * @returns {Promise<TrendingLink[]>} Array of trending links.
      */
     fetchTrendingLinks(): Promise<TrendingLink[]>;
+    /**
+     * Fetch toots that are trending on this server.
+     * Note: Returned toots have not had setDependentProps() called yet.
+     * @returns {Promise<Toot[]>} Array of trending Toot objects.
+     */
+    fetchTrendingStatuses(): Promise<Toot[]>;
     /**
      * Get the tags that are trending on this server.
      * @returns {Promise<TagWithUsageCounts[]>} Array of trending tags with usage counts.
@@ -71,7 +65,7 @@ export default class MastodonServer {
      * @static
      * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
      */
-    static getMastodonInstancesInfo(): Promise<MastodonInstances>;
+    static getMastodonInstances(): Promise<MastodonInstances>;
     /**
      * Collect all three kinds of trending data (links, tags, toots) in one call.
      * @static
@@ -85,4 +79,7 @@ export default class MastodonServer {
     private static callForTopServers;
     private endpointUrl;
     private static isNoMauServer;
+    private static trendUrl;
+    private static v1Url;
+    private static v2Url;
 }

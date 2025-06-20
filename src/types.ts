@@ -18,7 +18,8 @@ import {
     NonScoreWeightName,
     ScoreName,
     TagTootsCategory,
-    TOOT_SOURCES
+    TrendingType,
+    TOOT_SOURCES,
 } from './enums';
 
 // Records
@@ -139,10 +140,12 @@ export type CacheableApiObj = (
 export type CountedListSource = (
     FilterOptionDataSource
   | FilterProperty
-  | FediverseCacheKey.FEDIVERSE_TRENDING_TAGS
+  | FediverseCacheKey.TRENDING_TAGS
   | ScoreName.DIVERSITY
   | ScoreName.FOLLOWED_TAGS
 );
+
+export type InstanceResponse = MastodonInstance | null;
 
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
@@ -217,18 +220,18 @@ export type TootScore = {
 };
 
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {};
 
-// TODO: we can't enforce that keys are TrendingType enum because "toots" is different from "statuses"
+// TODO: "toots" is different from TrendingType.STATUSES ("statuses" is a Mastodon API type)
 export type TrendingData = {
-    links: TrendingLink[];
-    servers: MastodonInstances;
-    tags: TagList;
+    [TrendingType.LINKS]: TrendingLink[];
+    [TrendingType.SERVERS]: MastodonInstances;
+    [TrendingType.TAGS]: TagList;
     toots: Toot[];
 };
 
+export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {};
+export type TrendingObj = Toot | TrendingWithHistory;
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
-export type TrendingObj = TrendingWithHistory | Toot;
 
 export type WeightedScore = {
     raw: number;

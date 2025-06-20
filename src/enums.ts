@@ -12,6 +12,7 @@ import { type Optional } from './types';
  */
 export enum LoadAction {
     FEED_UPDATE = "triggerFeedUpdate",
+    GET_CONVERSATION = 'conversation',
     GET_MOAR_DATA = 'triggerMoarData',
     IS_BUSY = 'isBusy',
     PULL_ALL_USER_DATA = "triggerPullAllUserData",
@@ -71,10 +72,10 @@ export enum CacheKey {
  * @enum {string}
  */
 export enum FediverseCacheKey {
-    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
-    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
-    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
-    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
+    POPULAR_SERVERS = 'FediversePopularServers',
+    TRENDING_TAGS = 'FediverseTrendingTags',
+    TRENDING_LINKS = 'FediverseTrendingLinks',
+    TRENDING_TOOTS = 'FediverseTrendingToots',
 };
 
 /**
@@ -90,7 +91,7 @@ export enum TagTootsCategory {
 
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
- * Order influences the order of the score weighting sliders in the demo app.
+ * NOTE: Order influences the order of the score weighting sliders in the demo app.
  * @enum {string}
  */
 export enum NonScoreWeightName {
@@ -126,7 +127,7 @@ export enum ScoreName {
     TRENDING_LINKS = 'TrendingLinks',
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = 'VideoAttachments'
+    VIDEO_ATTACHMENTS = 'VideoAttachments',
 };
 
 
@@ -230,7 +231,7 @@ export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
     [
         AlgorithmStorageKey.TIMELINE_TOOTS,
-        FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS
+        FediverseCacheKey.TRENDING_TOOTS
     ] as StorageKey[]
 ).concat(Object.values(TagTootsCategory));
 
@@ -261,9 +262,11 @@ export const ALL_CACHE_KEYS = [
     ...Object.values(TagTootsCategory),
 ] as const;
 
-export const CONVERSATION = 'conversation';
-export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
-export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
+export const TOOT_SOURCES = [
+    ...STORAGE_KEYS_WITH_TOOTS,
+    LoadAction.GET_CONVERSATION,
+    LoadAction.REFRESH_MUTED_ACCOUNTS,
+] as const;
 
 
 ///////////////////////////////

@@ -32,10 +32,10 @@ import NumRetootsScorer from "./scorer/toot/num_retoots_scorer";
 import RetootsInFeedScorer from "./scorer/toot/retoots_in_feed_scorer";
 import Scorer from "./scorer/scorer";
 import ScorerCache from './scorer/scorer_cache';
-import Storage, {  } from "./Storage";
+import Storage from "./Storage";
 import TagList from './api/tag_list';
-import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TagsForFetchingToots from "./api/tags_for_fetching_toots";
+import Toot, { earliestTootedAt, mostRecentTootedAt } from './api/objects/toot';
 import TrendingLinksScorer from './scorer/toot/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
@@ -53,7 +53,7 @@ import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
-import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
+import { WeightPresetLabel, WEIGHT_PRESETS, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { type ObjList } from "./api/counted_list";
 import {
     AlgorithmStorageKey,
@@ -65,12 +65,10 @@ import {
     MediaCategory,
     NonScoreWeightName,
     ScoreName,
+    TagTootsCategory,
     TrendingType,
     TypeFilterName,
-    TagTootsCategory,
     ALL_ACTIONS,
-    JUST_MUTING,
-    // LOG_KEYS,
     buildCacheKeyDict,
     isValueInStringEnum,
     type Action,
@@ -105,7 +103,7 @@ import {
     type Weights,
 } from "./types";
 
-const EMPTY_TRENDING_DATA: TrendingData = {
+const EMPTY_TRENDING_DATA: Readonly<TrendingData> = {
     links: [],
     tags: new TagList([], TagTootsCategory.TRENDING),
     servers: {},
@@ -187,7 +185,7 @@ export default class TheAlgorithm {
     private feed: Toot[] = [];
     private homeFeed: Toot[] = [];  // Just the toots pulled from the home timeline
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
-    private loadStartedAt?: Date;  // Timestamp of when the feed started loading
+    private loadStartedAt: Date | undefined = new Date();  // Timestamp of when the feed started loading
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
     // Utility
     private loadingMutex = new Mutex();
@@ -300,7 +298,7 @@ export default class TheAlgorithm {
                 // Toot fetchers
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(MastoApi.instance.getHomeserverToots(), loggers[CacheKey.HOMESERVER_TOOTS]),
-                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]),
+                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[FediverseCacheKey.TRENDING_TOOTS]),
                 ...Object.values(TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -457,7 +455,7 @@ export default class TheAlgorithm {
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({bustCache: true});
         hereLogger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
-        await Toot.completeToots(this.feed, hereLogger, JUST_MUTING);
+        await Toot.completeToots(this.feed, hereLogger, LoadAction.REFRESH_MUTED_ACCOUNTS);
         await this.finishFeedUpdate();
     }
 

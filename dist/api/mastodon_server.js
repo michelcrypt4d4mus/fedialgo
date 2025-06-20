@@ -26,7 +26,13 @@ const API_V1 = `${API_URI}/v1`;
 const API_V2 = `${API_URI}/v2`;
 const INSTANCE = "instance";
 const LOG_PREFIX = `MastodonServer`;
-const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
+const buildLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
+const loggers = logger_1.Logger.buildEnumLoggers(enums_1.FediverseCacheKey);
+const mutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex(), Object.values(enums_1.FediverseCacheKey));
+function getLogger(key, methodName) {
+    return methodName ? loggers[key].tempLogger(methodName) : loggers[key];
+}
+;
 ;
 /**
  * Class for interacting with the public non-authenticated API of a Mastodon server.
@@ -39,11 +45,6 @@ const getLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
 class MastodonServer {
     domain;
     logger;
-    // Helper methods for building URLs
-    static v1Url = (path) => `${API_V1}/${path}`;
-    static v2Url = (path) => `${API_V2}/${path}`;
-    static trendUrl = (path) => this.v1Url(`trends/${path}`);
-    static trendingMutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex(), Object.values(enums_1.FediverseCacheKey));
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.
@@ -52,42 +53,19 @@ class MastodonServer {
         this.domain = domain;
         this.logger = logger_1.Logger.withParenthesizedName(LOG_PREFIX, domain);
     }
-    ;
     /**
      * Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server.
      * @returns {Promise<InstanceResponse>} The instance info or null if not available.
      */
     async fetchServerInfo() {
-        const logPrefix = `(fetchServerInfo())`;
-        if (MastodonServer.isNoMauServer(this.domain)) {
-            this.logger.debug(`${logPrefix} Instance info for '${this.domain}' is not available...`);
-            return null;
-        }
         try {
             return await this.fetch(MastodonServer.v2Url(INSTANCE));
         }
         catch (error) {
             // TODO: we shouldn't have to catch this error here because zipPromises() will take care of it
-            this.logger.warn(`${logPrefix} Error for server '${this.domain}'`, error);
+            this.logger.tempLogger('fetchServerInfo').warn(`Error for server '${this.domain}'`, error);
             return null;
         }
-    }
-    /**
-     * Fetch toots that are trending on this server.
-     * Note: Returned toots have not had setDependentProps() called yet.
-     * TODO: should return SerializableToot[] instead of mastodon.v1.Status but the type system is annoying.
-     * @returns {Promise<Toot[]>} Array of trending Toot objects.
-     */
-    async fetchTrendingStatuses() {
-        const toots = await this.fetchTrending(enums_1.TrendingType.STATUSES);
-        const trendingToots = toots.map(t => toot_1.default.build(t));
-        // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
-        // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-        trendingToots.forEach((toot, i) => {
-            toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
-            toot.sources = [enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS];
-        });
-        return trendingToots;
     }
     /**
      * Get the links that are trending on this server.
@@ -104,13 +82,29 @@ class MastodonServer {
         return trendingLinks;
     }
     /**
+     * Fetch toots that are trending on this server.
+     * Note: Returned toots have not had setDependentProps() called yet.
+     * @returns {Promise<Toot[]>} Array of trending Toot objects.
+     */
+    async fetchTrendingStatuses() {
+        const toots = await this.fetchTrending(enums_1.TrendingType.STATUSES);
+        return toots.map((t, i) => {
+            const toot = toot_1.default.build(t);
+            toot.sources = [enums_1.FediverseCacheKey.TRENDING_TOOTS];
+            // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
+            // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+            toot.trendingRank = 1 + (toots.length || 0) - i;
+            return toot;
+        });
+    }
+    /**
      * Get the tags that are trending on this server.
      * @returns {Promise<TagWithUsageCounts[]>} Array of trending tags with usage counts.
      */
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending(enums_1.TrendingType.TAGS, numTags);
-        trendingTags.forEach(tag => (0, trending_with_history_1.decorateTagHistory)(tag));
+        trendingTags.forEach(trending_with_history_1.decorateTagHistory);
         return trendingTags;
     }
     ///////////////////////////////////
@@ -134,26 +128,26 @@ class MastodonServer {
     async fetchList(endpoint, limit) {
         const label = endpoint.split("/").pop();
         const endpointURI = `'${this.domain}/${endpoint}`;
-        const logPrefix = `(${endpointURI})`;
+        const logger = this.logger.tempLogger(endpointURI);
         let list = [];
         try {
             list = await this.fetch(endpoint, limit);
             if (!list) {
-                getLogger(endpoint).logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
+                logger.logAndThrowError(`No ${label} found! list: ${JSON.stringify(list)}`);
             }
             else if (list.length === 0) {
-                this.logger.warn(`${logPrefix} Empty array of ${label} found (but no actual error)`);
+                logger.warn(`Empty array of ${label} found (but no actual error)`);
             }
         }
         catch (e) {
-            this.logger.warn(`${logPrefix} Failed to get ${label} data! Error:`, e);
+            logger.warn(`Failed to get ${label} data! Error:`, e);
             list = [];
         }
         return list;
     }
     // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
-    async fetchTrending(typeStr, limit) {
-        return this.fetchList(MastodonServer.trendUrl(typeStr), limit);
+    async fetchTrending(trendingType, limit) {
+        return this.fetchList(MastodonServer.trendUrl(trendingType), limit);
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Static Methods (mostly for calling instance methods on the top 30 or so servers in parallel) //
@@ -165,7 +159,7 @@ class MastodonServer {
      */
     static async fediverseTrendingLinks() {
         return await this.getTrendingObjsFromAllServers({
-            key: enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_LINKS,
+            key: enums_1.FediverseCacheKey.TRENDING_LINKS,
             serverFxn: (server) => server.fetchTrendingLinks(),
             processingFxn: async (links) => {
                 return (0, trending_with_history_1.uniquifyTrendingObjs)(links, link => link.url);
@@ -179,7 +173,7 @@ class MastodonServer {
      */
     static async fediverseTrendingTags() {
         const tags = await this.getTrendingObjsFromAllServers({
-            key: enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TAGS,
+            key: enums_1.FediverseCacheKey.TRENDING_TAGS,
             serverFxn: (server) => server.fetchTrendingTags(),
             processingFxn: async (tags) => {
                 const trendingTagList = new tag_list_1.default(tags, enums_1.TagTootsCategory.TRENDING);
@@ -195,7 +189,7 @@ class MastodonServer {
      * @returns {Promise<Toot[]>} Array of trending Toots across all servers.
      */
     static async fediverseTrendingToots() {
-        const cacheKey = enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS;
+        const cacheKey = enums_1.FediverseCacheKey.TRENDING_TOOTS;
         return await this.getTrendingObjsFromAllServers({
             key: cacheKey,
             serverFxn: (server) => server.fetchTrendingStatuses(),
@@ -211,9 +205,9 @@ class MastodonServer {
      * @static
      * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
      */
-    static async getMastodonInstancesInfo() {
-        const cacheKey = enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS;
-        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.trendingMutexes[cacheKey], getLogger(cacheKey, "getMastodonInstancesInfo"));
+    static async getMastodonInstances() {
+        const cacheKey = enums_1.FediverseCacheKey.POPULAR_SERVERS;
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(mutexes[cacheKey], getLogger(cacheKey, "getMastodonInstances"));
         try {
             let servers = await Storage_1.default.getIfNotStale(cacheKey);
             if (!servers) {
@@ -237,7 +231,7 @@ class MastodonServer {
             this.fediverseTrendingLinks(),
             this.fediverseTrendingTags(),
             this.fediverseTrendingToots(),
-            this.getMastodonInstancesInfo(),
+            this.getMastodonInstances(),
         ]);
         return { links, servers, tags, toots };
     }
@@ -247,8 +241,8 @@ class MastodonServer {
     // Returns a dict of servers with MAU over the minServerMAU threshold
     // and the ratio of the number of users followed on a server to the MAU of that server.
     static async fetchMastodonInstances() {
-        const logger = getLogger(enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS, "fetchMastodonInstances");
-        logger.trace(`Fetching ${enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS} info...`);
+        const logger = getLogger(enums_1.FediverseCacheKey.POPULAR_SERVERS, "fetchMastodonInstances");
+        logger.trace(`Fetching ${enums_1.FediverseCacheKey.POPULAR_SERVERS} info...`);
         const startedAt = new Date();
         // Find the servers which have the most accounts followed by the user to check for trends of interest
         const follows = await api_1.default.instance.getFollowedAccounts(); // TODO: this is a major bottleneck
@@ -297,7 +291,7 @@ class MastodonServer {
     static async getTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
-        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.trendingMutexes[key], logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(mutexes[key], logger);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);
@@ -317,8 +311,8 @@ class MastodonServer {
     }
     // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
     static async getTopServerDomains() {
-        const servers = await this.getMastodonInstancesInfo();
-        const logger = getLogger(enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS, "getTopServerDomains");
+        const logger = getLogger(enums_1.FediverseCacheKey.POPULAR_SERVERS, "getTopServerDomains");
+        const servers = await this.getMastodonInstances();
         // Sort the servers by the % of MAU followed by the fedialgo user
         const topServerDomains = Object.keys(servers).sort((a, b) => servers[b].followedPctOfMAU - servers[a].followedPctOfMAU);
         logger.debug(`Top server domains:`, topServerDomains);
@@ -326,7 +320,7 @@ class MastodonServer {
     }
     // Call 'fxn' for a list of domains and return a dict keyed by domain
     static async callForServers(domains, fxn) {
-        return await (0, collection_helpers_1.zipPromiseCalls)(domains, async (domain) => fxn(new MastodonServer(domain)), getLogger());
+        return await (0, collection_helpers_1.zipPromiseCalls)(domains, async (domain) => fxn(new MastodonServer(domain)), buildLogger());
     }
     // Call 'fxn' for all the top servers and return a dict keyed by server domain
     static async callForTopServers(fxn) {
@@ -338,14 +332,18 @@ class MastodonServer {
     }
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain) {
-        return config_1.config.fediverse.noMauServers.some(s => domain == s);
+        return config_1.config.fediverse.noMauServers.includes(domain);
     }
+    // Helper methods for building URLs
+    static trendUrl = (path) => this.v1Url(`trends/${path}`);
+    static v1Url = (path) => `${API_V1}/${path}`;
+    static v2Url = (path) => `${API_V2}/${path}`;
 }
 exports.default = MastodonServer;
 ;
 // Return a dict of servers with MAU over the minServerMAU threshold
 function filterMinMAU(serverInfos, minMAU) {
-    const logger = getLogger(enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS, "filterMinMAU");
+    const logger = getLogger(enums_1.FediverseCacheKey.POPULAR_SERVERS, "filterMinMAU");
     const servers = Object.entries(serverInfos).reduce((filtered, [domain, instanceObj]) => {
         if ((instanceObj?.usage?.users?.activeMonth || 0) >= minMAU) {
             filtered[domain] = instanceObj;

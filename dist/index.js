@@ -64,9 +64,9 @@ const scorer_cache_1 = __importDefault(require("./scorer/scorer_cache"));
 const Storage_1 = __importDefault(require("./Storage"));
 const tag_list_1 = __importDefault(require("./api/tag_list"));
 exports.TagList = tag_list_1.default;
+const tags_for_fetching_toots_1 = __importDefault(require("./api/tags_for_fetching_toots"));
 const toot_1 = __importStar(require("./api/objects/toot"));
 exports.Toot = toot_1.default;
-const tags_for_fetching_toots_1 = __importDefault(require("./api/tags_for_fetching_toots"));
 const trending_links_scorer_1 = __importDefault(require("./scorer/toot/trending_links_scorer"));
 const trending_tags_scorer_1 = __importDefault(require("./scorer/toot/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/toot/trending_toots_scorer"));
@@ -96,9 +96,9 @@ Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: fun
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_1.MediaCategory; } });
 Object.defineProperty(exports, "NonScoreWeightName", { enumerable: true, get: function () { return enums_1.NonScoreWeightName; } });
 Object.defineProperty(exports, "ScoreName", { enumerable: true, get: function () { return enums_1.ScoreName; } });
+Object.defineProperty(exports, "TagTootsCategory", { enumerable: true, get: function () { return enums_1.TagTootsCategory; } });
 Object.defineProperty(exports, "TrendingType", { enumerable: true, get: function () { return enums_1.TrendingType; } });
 Object.defineProperty(exports, "TypeFilterName", { enumerable: true, get: function () { return enums_1.TypeFilterName; } });
-Object.defineProperty(exports, "TagTootsCategory", { enumerable: true, get: function () { return enums_1.TagTootsCategory; } });
 Object.defineProperty(exports, "isValueInStringEnum", { enumerable: true, get: function () { return enums_1.isValueInStringEnum; } });
 const collection_helpers_1 = require("./helpers/collection_helpers");
 Object.defineProperty(exports, "makeChunks", { enumerable: true, get: function () { return collection_helpers_1.makeChunks; } });
@@ -174,7 +174,7 @@ class TheAlgorithm {
     feed = [];
     homeFeed = []; // Just the toots pulled from the home timeline
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
-    loadStartedAt; // Timestamp of when the feed started loading
+    loadStartedAt = new Date(); // Timestamp of when the feed started loading
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     // Utility
     loadingMutex = new async_mutex_1.Mutex();
@@ -272,7 +272,7 @@ class TheAlgorithm {
                 // Toot fetchers
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(api_1.default.instance.getHomeserverToots(), loggers[enums_1.CacheKey.HOMESERVER_TOOTS]),
-                this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]),
+                this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.FediverseCacheKey.TRENDING_TOOTS]),
                 ...Object.values(enums_1.TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),
@@ -420,7 +420,7 @@ class TheAlgorithm {
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ bustCache: true });
         hereLogger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
-        await toot_1.default.completeToots(this.feed, hereLogger, enums_1.JUST_MUTING);
+        await toot_1.default.completeToots(this.feed, hereLogger, enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS);
         await this.finishFeedUpdate();
     }
     /**

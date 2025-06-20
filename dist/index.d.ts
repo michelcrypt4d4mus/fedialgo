@@ -12,7 +12,7 @@ import { isAccessTokenRevokedError } from './api/errors';
 import { Logger } from './helpers/logger';
 import { WeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { type ObjList } from "./api/counted_list";
-import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCategory, isValueInStringEnum } from "./enums";
+import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCategory, TrendingType, TypeFilterName, isValueInStringEnum } from "./enums";
 import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
 import { FILTER_OPTION_DATA_SOURCES, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
 interface AlgorithmArgs {
@@ -68,7 +68,7 @@ export default class TheAlgorithm {
     private feed;
     private homeFeed;
     private hasProvidedAnyTootsToClient;
-    private loadStartedAt?;
+    private loadStartedAt;
     private totalNumTimesShown;
     private loadingMutex;
     private mergeMutex;

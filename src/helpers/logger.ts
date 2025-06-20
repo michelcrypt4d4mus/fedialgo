@@ -26,6 +26,7 @@ const PREFIXERS = [
     (str: string) => `#${str}#`,
 ] as const;
 
+
 /**
  * Standardized logger for consistent, prefixed, and optionally colorized logging throughout the application.
  * Supports multiple log levels, custom prefixes, telemetry, and error handling utilities.
@@ -261,6 +262,20 @@ export class Logger {
      */
     private makeErrorMsg(error: Error, msg?: string): string {
         return msg ? `${msg} (error.message="${error.message}")` : error.message;
+    }
+
+    /**
+     * Builds a dictionary of Logger instances keyed by the values of a string enum.
+     * @template E - The enum type.
+     * @template T - The type of the enum object.
+     * @param {T} strEnum The enum that will key the loggers.
+     * @returns {Record<E, Logger>} Dict of Logger instances keyed by the enum values.
+     */
+    static buildEnumLoggers<E extends string, T extends Record<string, E>>(strEnum: T): Record<E, Logger> {
+        return Object.values(strEnum).reduce((loggers, value) => {
+            loggers[value] = new Logger(value);
+            return loggers;
+        }, {} as Record<E, Logger>);
     }
 
     /**

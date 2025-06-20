@@ -1,14 +1,10 @@
 import { mastodon } from "masto";
-import { type InstanceResponse } from '../mastodon_server';
-import { type AccountLike, type AccountNames, type BooleanFilterOption, type StringNumberDict } from "../../types";
+import { type AccountLike, type AccountNames, type BooleanFilterOption, type InstanceResponse, type StringNumberDict } from "../../types";
 type AccountCount = Record<string, {
     account: Account;
     count: number;
 }>;
-/**
- * Interface for mastodon.v1.Account object extending with additional helper methods and properties.
-
- */
+/** nterface for mastodon.v1.Account object extending with additional helper methods and properties. */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;

@@ -18,8 +18,8 @@ import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectForeignScriptLanguage, detectLanguage } from "../../helpers/language_helper";
 import { isProduction } from "../../helpers/environment_helpers";
 import { isValidForSubstringSearch, repairTag } from "./tag";
+import { LoadAction, MediaCategory, ScoreName, TypeFilterName } from '../../enums';
 import { Logger } from '../../helpers/logger';
-import { MediaCategory, ScoreName, TypeFilterName, CONVERSATION, JUST_MUTING } from '../../enums';
 import {
     asOptionalArray,
     batchMap,
@@ -473,11 +473,12 @@ export default class Toot implements TootObj {
      * @returns {Promise<Toot[]>}
      */
     async getConversation(): Promise<Toot[]> {
-        const logger = tootLogger.tempLogger(CONVERSATION);
+        const action = LoadAction.GET_CONVERSATION;
+        const logger = tootLogger.tempLogger(action);
         logger.debug(`Fetching conversation for toot:`, this.description);
         const startTime = new Date();
         const context = await MastoApi.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], CONVERSATION);
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], action);
         logger.trace(`Fetched ${toots.length} toots ${ageString(startTime)}`, toots.map(t => t.description));
         return toots;
     }
@@ -612,8 +613,8 @@ export default class Toot implements TootObj {
         if (source) {
             this.sources ??= [];
 
-            // TODO: this JUST_MUTING thing is a really ugly hack to allow muting accounts in real time
-            if (source != JUST_MUTING && !this.sources.includes(source)) {
+            // REFRESH_MUTED_ACCOUNTS isn't a sources for toots even if it's a reason for invoking this method.
+            if (source != LoadAction.REFRESH_MUTED_ACCOUNTS && !this.sources.includes(source)) {
                 this.sources?.push(source);
             }
         }
@@ -870,7 +871,7 @@ export default class Toot implements TootObj {
         // "Best effort" scoring. Note scoreToots() does not sort 'toots' in place but the return value is sorted.
         const tootsSortedByScore = await Scorer.scoreToots(toots, false);
 
-        if (source != CONVERSATION) {
+        if (source != LoadAction.REFRESH_MUTED_ACCOUNTS) {
             toots = this.removeUsersOwnToots(tootsSortedByScore, logger);
         }
 
@@ -1115,7 +1116,7 @@ export const mostRecentToot = (toots: TootLike[]): TootLike | null => sortByCrea
 /**
  * Returns array with oldest toot first.
  * @private
- * @template T
+ * @template T extends TootLike
  * @param {T} toots - List of toots.
  * @returns {T}
  */
