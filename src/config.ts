@@ -1,11 +1,19 @@
 /*
  * Centralized location for non-user configurable settings.
  */
+import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { optionalSuffix } from "./helpers/string_helpers";
 import { timeString } from "./helpers/time_helpers";
-import { CacheKey, LoadAction, LogAction, FEDIVERSE_CACHE_KEYS, NonScoreWeightName, TagTootsCategory, type ApiCacheKey } from "./enums";
-import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { type NonScoreWeightInfoDict, type Optional } from "./types";
+import {
+    CacheKey,
+    LoadAction,
+    LogAction,
+    NonScoreWeightName,
+    TagTootsCategory,
+    FEDIVERSE_CACHE_KEYS,
+    type ApiCacheKey
+} from "./enums";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;

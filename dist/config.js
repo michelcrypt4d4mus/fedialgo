@@ -4,10 +4,10 @@ exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_
 /*
  * Centralized location for non-user configurable settings.
  */
+const environment_helpers_1 = require("./helpers/environment_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
 const time_helpers_1 = require("./helpers/time_helpers");
 const enums_1 = require("./enums");
-const environment_helpers_1 = require("./helpers/environment_helpers");
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.MINUTES_IN_HOUR = 60;
