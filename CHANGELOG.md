@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.10
 * Temp fix for bug with tagNames().has()
 
 ### v0.74.9
