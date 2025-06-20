@@ -295,6 +295,11 @@ export function buildCacheKeyDict<K extends string, T, D extends Optional<Record
     );
 };
 
+// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+export function simpleCacheKeyDict<T>(fxn: () => T, keys?: ApiCacheKey[]) {
+    return buildCacheKeyDict<ApiCacheKey, T, null>(fxn, null, keys);
+};
+
 
 /**
  * Generate a function to check if a value exists in a string enum.

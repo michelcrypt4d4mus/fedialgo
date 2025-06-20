@@ -11,7 +11,7 @@ import Storage from "../Storage";
 import TagList from "./tag_list";
 import Toot from "./objects/toot";
 import { ageString } from "../helpers/time_helpers";
-import { CacheKey, TagTootsCategory, TrendingType, FEDIVERSE_CACHE_KEYS, buildCacheKeyDict } from '../enums';
+import { CacheKey, TagTootsCategory, TrendingType, FEDIVERSE_CACHE_KEYS, simpleCacheKeyDict } from '../enums';
 import { countValues, shuffle, sortKeysByValue, transformKeys, zipPromiseCalls } from "../helpers/collection_helpers";
 import { config } from "../config";
 import { lockExecution } from '../helpers/mutex_helpers';
@@ -66,7 +66,7 @@ export default class MastodonServer {
     private static v1Url = (path: string) => `${API_V1}/${path}`;
     private static v2Url = (path: string) => `${API_V2}/${path}`;
     private static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
-    private static trendingMutexes = buildCacheKeyDict<CacheKey, Mutex, null>(() => new Mutex(), null, FEDIVERSE_CACHE_KEYS);
+    private static trendingMutexes = simpleCacheKeyDict(() => new Mutex(), FEDIVERSE_CACHE_KEYS);
 
     /**
      * Constructs a MastodonServer instance for the given domain.

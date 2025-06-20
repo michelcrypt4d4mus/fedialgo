@@ -26,8 +26,8 @@ import {
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
     UNIQUE_ID_PROPERTIES,
-    buildCacheKeyDict,
     isTagTootsCacheKey,
+    simpleCacheKeyDict,
     type ApiCacheKey,
 } from "../enums";
 import {
@@ -189,8 +189,6 @@ const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetchGenerator", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
 
-// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
-const cachedKeyDict = <T>(fxn: () => T) => buildCacheKeyDict<ApiCacheKey, T, null>(fxn);
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
 export const apiLogger = getLogger();
@@ -216,10 +214,10 @@ export default class MastoApi {
     logger: Logger = getLogger();
     user: Account;
     userData?: UserData;
-    waitTimes = cachedKeyDict(() => new WaitTime());
+    waitTimes = simpleCacheKeyDict(() => new WaitTime());
 
-    private apiMutexes = cachedKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
-    private cacheMutexes = cachedKeyDict(() => new Mutex()); // For locking checking the cache for an API endpoint
+    private apiMutexes = simpleCacheKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
+    private cacheMutexes = simpleCacheKeyDict(() => new Mutex()); // For locking checking the cache for an API endpoint
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
 
     /**

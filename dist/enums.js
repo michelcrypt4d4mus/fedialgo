@@ -4,7 +4,7 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.FEDIVERSE_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.FEDIVERSE_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -242,6 +242,12 @@ function buildCacheKeyDict(fxn, initialDict, keys) {
     }, (initialDict ?? {}));
 }
 exports.buildCacheKeyDict = buildCacheKeyDict;
+;
+// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+function simpleCacheKeyDict(fxn, keys) {
+    return buildCacheKeyDict(fxn, null, keys);
+}
+exports.simpleCacheKeyDict = simpleCacheKeyDict;
 ;
 /**
  * Generate a function to check if a value exists in a string enum.
