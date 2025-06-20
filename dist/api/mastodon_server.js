@@ -78,8 +78,7 @@ class MastodonServer {
         }
         const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending(enums_1.TrendingType.LINKS, numLinks);
-        trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
-        return trendingLinks;
+        return trendingLinks.map(trending_with_history_1.decorateLinkHistory);
     }
     /**
      * Fetch toots that are trending on this server.
@@ -104,8 +103,7 @@ class MastodonServer {
     async fetchTrendingTags() {
         const numTags = config_1.config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending(enums_1.TrendingType.TAGS, numTags);
-        trendingTags.forEach(trending_with_history_1.decorateTagHistory);
-        return trendingTags;
+        return trendingTags.map(trending_with_history_1.decorateTagHistory);
     }
     ///////////////////////////////////
     //        Private Methods       //

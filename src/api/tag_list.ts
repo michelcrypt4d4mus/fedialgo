@@ -11,7 +11,7 @@ import { repairTag } from "./objects/tag";
 import { TagTootsCategory } from "../enums";
 import {
     type CountedListSource,
-    type MastodonTag,
+    type Hashtag,
     type NamedTootCount,
     type TagWithUsageCounts,
 } from "../types";
@@ -81,10 +81,10 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
 
     /**
      * Like getObj() but takes a MastodonTag argument.
-     * @param {MastodonTag} tag - Tag whose name to find an obj for.
+     * @param {Hashtag} tag - Tag whose name to find an obj for.
      * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
      */
-    getTag(tag: MastodonTag): NamedTootCount | undefined {
+    getTag(tag: Hashtag): NamedTootCount | undefined {
         return this.getObj(tag.name);
     }
 

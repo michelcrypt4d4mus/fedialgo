@@ -33,7 +33,7 @@ export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
     if (MastoApi.instance) {
         tag.url = MastoApi.instance.tagUrl(tag)
     } else {
-        console.warn(`MastoApi.instance is null!`);
+        console.warn(`MastoApi.instance is null, can't get homeserver tag URL for tag:`, tag);
         tag.url = tag.url.toLowerCase() || "";
     }
 

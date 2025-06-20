@@ -117,7 +117,7 @@ exports.checkUniqueRows = checkUniqueRows;
  * @template T
  * @param {T[]} array - The array to process.
  * @param {(value: T) => number | undefined} valueFxn - Function to extract value.
- * @returns {MinMax | null} The min and max values, or null if array is empty.
+ * @returns {Optional<MinMax>} The min and max values, or null if array is empty.
  */
 function computeMinMax(array, valueFxn) {
     if (array.length == 0)

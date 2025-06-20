@@ -55,7 +55,7 @@ import {
     type AccountLike,
     type FeedFilterSettings,
     type KeysOfValueType,
-    type MastodonTag,
+    type Hashtag,
     type ScoreType,
     type TagWithUsageCounts,
     type TootLike,
@@ -80,7 +80,8 @@ enum TootCacheKey {
 };
 
 // Cache for methods that build strings from the toot content.
-type TootCache = {[key in TootCacheKey]?: string};
+type TootCacheStrings = {[key in TootCacheKey]?: string};
+type TootCache = TootCacheStrings & {tagNames?: Set<string>};
 
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
@@ -98,7 +99,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
-    followedTags?: MastodonTag[];            // Array of tags that the user follows that exist in this toot
+    followedTags?: Hashtag[];            // Array of tags that the user follows that exist in this toot
     numTimesShown?: number;                  // Managed in client app. # of times the Toot has been shown to the user.
     participatedTags?: TagWithUsageCounts[]; // Tags that the user has participated in that exist in this toot
     reblog?: SerializableToot | null,        // The toot that was retooted (if any)
@@ -148,6 +149,7 @@ interface TootObj extends SerializableToot {
     isValidForFeed: (mutedKeywordRegex: RegExp, blockedDomains:Set<string>) => boolean;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
+    tagNames: () => Set<string>;
 };
 
 
@@ -388,7 +390,7 @@ export default class Toot implements TootObj {
 
             return this.matchesRegex(tag.regex);
         } else {
-            return this.tags.some((t) => t.name == tag.name);
+            return this.tagNames().has(tag.name);
         }
     }
 
@@ -587,6 +589,15 @@ export default class Toot implements TootObj {
         return this.resolvedID;
     }
 
+    /**
+     * Get the toot's tags as a Set of strings. Caches results for future calls.
+     * @returns {Set<string>} Set of the names of the tags in this toot.
+     */
+    tagNames(): Set<string> {
+        this.contentCache.tagNames ??= new Set(this.tags.map((tag) => tag.name))
+        return this.contentCache.tagNames;
+    }
+
     //////////////////////////////
     //     Private methods      //
     //////////////////////////////
@@ -650,7 +661,7 @@ export default class Toot implements TootObj {
 
     // Generate a string describing the followed and trending tags in the toot
     private containsTagsOfTypeMsg(tagType: TypeFilterName): string | undefined {
-        let tags: MastodonTag[] = [];
+        let tags: Hashtag[] = [];
 
         if (tagType == TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];

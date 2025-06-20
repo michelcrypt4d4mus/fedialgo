@@ -1,5 +1,10 @@
 # NEXT RELEASE
 
+### v0.74.7
+* Use existing tag regex when re-scanning filter options for any followed tag strings
+* Add tagNames() method to Toot objects that caches a Set of tag strings for faster lookup
+* Rename `MastodonTag` type to `Hashtag`
+
 ### v0.74.6
 * Move `CONVERSATION` and `JUST_MUTING` constants into `LoadAction` enum
 
@@ -18,10 +23,10 @@
 * Rename `TagTootsType` enum to `TagTootsCategory`
 
 ### v0.74.1
-* Only do the followed hashtag additional scan in finishFeedUpdate(), not for each fetch because it's slow
+* Only do the followed hashtag additional scan in `finishFeedUpdate()`, not for each fetch because it's slow
 
 # v0.74.0
-* Update filter option counts for followed hashtags with substring search even if there's no "#"
+* Update filter option counts for followed hashtags with substring search even if there's no "#" character
 * Turn `TAG_ONLY_STRINGS` into a `config.toots.tagOnlyStrings` parameter; add "is" to list
 * Add `forEach()` to `CountedList` class
 

@@ -44,7 +44,7 @@ import {
     type ApiObjWithID,
     type CacheTimestamp,
     type ConcurrencyLockRelease,
-    type MastodonTag,
+    type Hashtag,
     type MinMaxID,
     type Optional,
     type TootLike,
@@ -760,7 +760,7 @@ export default class MastoApi {
 
     /**
      * Returns the URL for an account on the Feialgo user's home server.
-     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @param {Hashtag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
     accountUrl(account: Account): string {
@@ -778,10 +778,10 @@ export default class MastoApi {
 
     /**
      * Returns the URL for a tag on the Feialgo user's home server.
-     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @param {Hashtag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
-    tagUrl(tag: MastodonTag | string): string {
+    tagUrl(tag: Hashtag | string): string {
         return `${this.endpointURL(TrendingType.TAGS)}/${typeof tag == "string" ? tag : tag.name}`;
     }
 

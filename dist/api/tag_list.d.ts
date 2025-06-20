@@ -1,6 +1,6 @@
 import CountedList from "./counted_list";
 import type Toot from "./objects/toot";
-import { type CountedListSource, type MastodonTag, type NamedTootCount, type TagWithUsageCounts } from "../types";
+import { type CountedListSource, type Hashtag, type NamedTootCount, type TagWithUsageCounts } from "../types";
 /**
  * Subclass of CountedList for lists of TagWithUsageCounts objects.
  * @augments CountedList
@@ -30,10 +30,10 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     /**
      * Like getObj() but takes a MastodonTag argument.
-     * @param {MastodonTag} tag - Tag whose name to find an obj for.
+     * @param {Hashtag} tag - Tag whose name to find an obj for.
      * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
      */
-    getTag(tag: MastodonTag): NamedTootCount | undefined;
+    getTag(tag: Hashtag): NamedTootCount | undefined;
     /** Remove any hashtags that are followed by the FediAlgo user. */
     removeFollowedTags(): Promise<void>;
     /** Remove the configured list of invalid trending tags as well as japanese/korean etc. tags. */

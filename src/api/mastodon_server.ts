@@ -103,8 +103,7 @@ export default class MastodonServer {
 
         const numLinks = config.trending.links.numTrendingLinksPerServer;
         const trendingLinks = await this.fetchTrending<TrendingLink>(TrendingType.LINKS, numLinks);
-        trendingLinks.forEach(decorateLinkHistory);
-        return trendingLinks;
+        return trendingLinks.map(decorateLinkHistory);
     }
 
     /**
@@ -132,8 +131,7 @@ export default class MastodonServer {
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
-        trendingTags.forEach(decorateTagHistory);
-        return trendingTags;
+        return trendingTags.map(decorateTagHistory);
     }
 
     ///////////////////////////////////

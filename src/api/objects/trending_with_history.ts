@@ -28,7 +28,7 @@ import { config } from "../../config";
 import { repairTag } from "./tag";
 import { wordRegex } from "../../helpers/string_helpers";
 import {
-    type MastodonTag,
+    type Hashtag,
     type TagWithUsageCounts,
     type TrendingLink,
     type TrendingWithHistory
@@ -36,18 +36,18 @@ import {
 
 
 // Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts
-export function decorateLinkHistory(link: mastodon.v1.TrendLink): void {
+export function decorateLinkHistory(link: mastodon.v1.TrendLink): TrendingLink {
     const newLink = link as TrendingLink;
     newLink.regex = wordRegex(newLink.url);
-    decorateHistoryScores(newLink);
+    return decorateHistoryScores(newLink);
 };
 
 
 // Decorate a mastodon tag with computed history data, adding numToots & numAccounts
-export function decorateTagHistory(tag: MastodonTag): void {
+export function decorateTagHistory(tag: Hashtag): TagWithUsageCounts {
     const newTag = tag as TagWithUsageCounts;
     repairTag(newTag);
-    decorateHistoryScores(newTag);
+    return decorateHistoryScores(newTag);
 };
 
 
@@ -89,7 +89,7 @@ export function setTrendingRankToAvg(rankedToots: Toot[]): void {
 
 
 // Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
-function decorateHistoryScores(obj: TrendingWithHistory): void {
+function decorateHistoryScores<T extends TrendingWithHistory>(obj: T): T {
     obj.url = obj.url.toLowerCase().trim();  // TODO: not ideal for this to happen here
 
     if (!obj.history?.length) {
@@ -100,4 +100,5 @@ function decorateHistoryScores(obj: TrendingWithHistory): void {
     const recentHistory = obj.history.slice(0, config.trending.daysToCountTrendingData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
+    return obj;
 };

@@ -36,7 +36,7 @@ function repairTag(tag) {
         tag.url = api_1.default.instance.tagUrl(tag);
     }
     else {
-        console.warn(`MastoApi.instance is null!`);
+        console.warn(`MastoApi.instance is null, can't get homeserver tag URL for tag:`, tag);
         tag.url = tag.url.toLowerCase() || "";
     }
     return tag;
