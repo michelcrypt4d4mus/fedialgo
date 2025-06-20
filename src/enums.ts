@@ -3,6 +3,8 @@
  * @module enums
  */
 
+import { type Optional } from './types';
+
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -269,8 +271,10 @@ export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTI
 //     ? Toot
 //     : (T extends mastodon.v1.Account ? Account : T);
 
-
-type CachedByKey<T, U> = IsNullOrUndefined<U> ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>
+type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> =
+    U extends null
+        ? Record<ApiCacheKey, T>
+        : Record<ApiCacheKey | K, T>;
 
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
@@ -282,11 +286,11 @@ type CachedByKey<T, U> = IsNullOrUndefined<U> ? Record<ApiCacheKey, T> : Record<
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
  */
-export function buildCacheKeyDict<K extends string, T, U extends null | Record<K, T>>(
+export function buildCacheKeyDict<K extends string, T, U extends Optional<Record<K, T>>>(
     fxn: (key?: ApiCacheKey) => T,
-    initialDict?: U,
+    initialDict?: Optional<Record<K, T>>,
     keys?: (ApiCacheKey)[],
-): IsNullOrUndefined<U> ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T> {
+): CachedByKey<K, T, U> {
     keys ??= ALL_CACHE_KEYS as ApiCacheKey[];
 
     return keys.reduce(

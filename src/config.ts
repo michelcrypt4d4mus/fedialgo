@@ -65,13 +65,21 @@ type FediverseConfig = {
     numServersToCheck: number;
 };
 
+type LoadActionMessagez = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+
+type TriggerLoadCallback = {
+    [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => string;
+}
+
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    messages: Record<UserMessageKey, string>;
+    messages: LoadActionMessagez & TriggerLoadCallback;
 };
+
+// [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>)
 
 interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;
@@ -137,7 +145,7 @@ interface ConfigType {
     trending: Readonly<TrendingConfig>;
 };
 
-
+type toop = Omit<typeof LoadAction, LoadAction.IS_BUSY | LoadAction.REFRESH_MUTED_ACCOUNTS | LoadAction.RESET>;
 /**
  * Centralized application configuration class for non-user configurable settings.
  *

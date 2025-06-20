@@ -113,10 +113,9 @@ const EMPTY_TRENDING_DATA: TrendingData = {
 
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 
-type LoggerKey = Action | ApiCacheKey;
-
 const logger = new Logger(`TheAlgorithm`);
-const loggers: Record<LoggerKey, Logger> = buildCacheKeyDict(
+
+const loggers: Record<Action | ApiCacheKey, Logger> = buildCacheKeyDict<Action, Logger, Record<Action, Logger>>(
     (key) => new Logger(key as string),
     Object.values(ALL_ACTIONS).reduce(
         (_loggers, action) => {
@@ -126,23 +125,6 @@ const loggers: Record<LoggerKey, Logger> = buildCacheKeyDict(
         {} as Record<Action, Logger>
     )
 );
-
-
-
-
-const loggerize: Record<LoadAction, Logger> = Object.values(LoadAction).reduce(
-    (acc, action) => {
-        acc[action] = logger.tempLogger(action);
-        return acc;
-    },
-    {} as Record<LoadAction, Logger>
-)
-
-const loggerz: Record<LoadAction, Logger> = {
-    ...loggers,
-    ...loggerize,
-}
-LOG_KEYS.forEach((prefix) => loggers[prefix] = logger.tempLogger(prefix));
 
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
@@ -471,7 +453,7 @@ export default class TheAlgorithm {
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({bustCache: true});
         hereLogger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
-        await Toot.completeToots(this.feed, loggers[LoadAction.REFRESH_MUTED_ACCOUNTS], JUST_MUTING);
+        await Toot.completeToots(this.feed, hereLogger, JUST_MUTING);
         await this.finishFeedUpdate();
     }
 
@@ -594,13 +576,14 @@ export default class TheAlgorithm {
 
     // Return true if we're in QUICK_MODE and the feed is fresh enough that we don't need to update it (for dev)
     private shouldSkip(): boolean {
-        loggers[LoadAction.TRIGGER_FEED_UPDATE].info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        const hereLogger = loggers[LoadAction.TRIGGER_FEED_UPDATE];
+        hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes) feedAgeInMinutes /= 60;
         const maxAgeMinutes = config.minTrendingMinutesUntilStale();
 
         if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
-            loggers[LoadAction.TRIGGER_FEED_UPDATE].debug(`QUICK_MODE Feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
+            hereLogger.debug(`QUICK_MODE Feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
             // Needs to be called to update the feed in the app
             ScorerCache.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
@@ -643,8 +626,8 @@ export default class TheAlgorithm {
 
     // Do some final cleanup and scoring operations on the feed.
     private async finishFeedUpdate(): Promise<void> {
-        const hereLogger = loggers[LoadAction.FINISH_FEED_UPDATE];
-        this.loadingStatus = config.locale.messages.finalizingScores;
+        const hereLogger = loggers[LogAction.FINISH_FEED_UPDATE];
+        this.loadingStatus = config.locale.messages[LogAction.FINISH_FEED_UPDATE];
 
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         hereLogger.debug(`${this.loadingStatus}...`);
