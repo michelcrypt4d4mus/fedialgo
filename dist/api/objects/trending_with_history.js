@@ -9,7 +9,7 @@ const string_helpers_1 = require("../../helpers/string_helpers");
 function decorateLinkHistory(link) {
     const newLink = link;
     newLink.regex = (0, string_helpers_1.wordRegex)(newLink.url);
-    decorateHistoryScores(newLink);
+    return decorateHistoryScores(newLink);
 }
 exports.decorateLinkHistory = decorateLinkHistory;
 ;
@@ -17,7 +17,7 @@ exports.decorateLinkHistory = decorateLinkHistory;
 function decorateTagHistory(tag) {
     const newTag = tag;
     (0, tag_1.repairTag)(newTag);
-    decorateHistoryScores(newTag);
+    return decorateHistoryScores(newTag);
 }
 exports.decorateTagHistory = decorateTagHistory;
 ;
@@ -62,6 +62,7 @@ function decorateHistoryScores(obj) {
     const recentHistory = obj.history.slice(0, config_1.config.trending.daysToCountTrendingData);
     obj.numToots = recentHistory.reduce((total, h) => total + parseInt(h.uses), 0);
     obj.numAccounts = recentHistory.reduce((total, h) => total + parseInt(h.accounts), 0);
+    return obj;
 }
 ;
 //# sourceMappingURL=trending_with_history.js.map

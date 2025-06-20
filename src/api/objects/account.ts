@@ -11,7 +11,13 @@ import { config } from "../../config";
 import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
 import { Logger } from "../../helpers/logger";
-import { type AccountLike, type AccountNames, type BooleanFilterOption, type InstanceResponse, type StringNumberDict } from "../../types";
+import {
+    type AccountLike,
+    type AccountNames,
+    type BooleanFilterOption,
+    type InstanceResponse,
+    type StringNumberDict
+} from "../../types";
 
 type AccountCount = Record<string, {account: Account, count: number}>;
 
