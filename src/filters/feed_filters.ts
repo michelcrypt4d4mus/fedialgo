@@ -252,9 +252,9 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
             }
         })
 
-        if (tagsFound > 0) {
-            taggishLogger.debug(`Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`);
-        }
+        if (tagsFound == 0) return;
+        const msg = `Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`;
+        tagsFound > 5 ? taggishLogger.debug(msg) : taggishLogger.trace(msg);
     });
 
     taggishLogger.info(

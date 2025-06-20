@@ -220,6 +220,12 @@ export const ALL_ACTIONS = [
     ...Object.values(LogAction),
 ] as const;
 
+export const ALL_CACHE_KEYS = [
+    ...Object.values(CacheKey),
+    ...Object.values(FediverseCacheKey),
+    ...Object.values(TagTootsCategory),
+] as const;
+
 // Objects fetched with these keys need to be built into proper Account objects.
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => (k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
@@ -256,18 +262,30 @@ export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 } as const;
 
-export const ALL_CACHE_KEYS = [
-    ...Object.values(CacheKey),
-    ...Object.values(FediverseCacheKey),
-    ...Object.values(TagTootsCategory),
-] as const;
-
 export const TOOT_SOURCES = [
     ...STORAGE_KEYS_WITH_TOOTS,
     LoadAction.GET_CONVERSATION,
     LoadAction.REFRESH_MUTED_ACCOUNTS,
 ] as const;
 
+export const MONTHS = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+] as const;
+
+export const MONTHS_SHORT = MONTHS.map(month => month.slice(0, 3));
+export const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
+export const DAYS_SHORT = DAY_NAMES.map(day => day.slice(0, day.startsWith("T") ? 4 : 3));
 
 ///////////////////////////////
 //      Helper Methods       //

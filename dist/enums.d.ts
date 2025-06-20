@@ -185,11 +185,15 @@ type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export declare const ALL_ACTIONS: readonly (LogAction | LoadAction)[];
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | FediverseCacheKey | TagTootsCategory)[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
-export declare const ALL_CACHE_KEYS: readonly (CacheKey | FediverseCacheKey | TagTootsCategory)[];
 export declare const TOOT_SOURCES: readonly [...StorageKey[], LoadAction.GET_CONVERSATION, LoadAction.REFRESH_MUTED_ACCOUNTS];
+export declare const MONTHS: readonly ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+export declare const MONTHS_SHORT: string[];
+export declare const DAY_NAMES: readonly ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+export declare const DAYS_SHORT: string[];
 type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = IsNullOrUndefined<U> extends true ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.

@@ -7,9 +7,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
 const lodash_1 = require("lodash");
 const config_1 = require("../config");
+const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
-// TODO: use the formatting functions, don't do date lookup manually
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 // Compute the difference from 'date' to now in hours
 const ageInHours = (date, endTime) => (0, exports.ageInMinutes)(date, endTime) / 60.0;
@@ -140,10 +139,10 @@ const timeString = (_timestamp, locale) => {
         str = "today";
     }
     else if (seconds < 0 && seconds > (-1 * 7 * config_1.SECONDS_IN_DAY)) {
-        str = `this coming ${DAY_NAMES[timestamp.getDay()]}`;
+        str = `this coming ${enums_1.DAY_NAMES[timestamp.getDay()]}`; // TODO: use the formatting functions, don't do date lookup manually
     }
     else if (seconds < (config_1.SECONDS_IN_DAY * 6)) {
-        str = DAY_NAMES[timestamp.getDay()];
+        str = enums_1.DAY_NAMES[timestamp.getDay()]; // TODO: use the formatting functions, don't do date lookup manually
     }
     else {
         str = timestamp.toLocaleDateString(locale);
