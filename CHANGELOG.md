@@ -1,15 +1,18 @@
 # NEXT RELEASE
+
+### v0.74.17
 * Skip deep scan of tag filter strings when loading cached data
+* More `tagOnlyStrings`
 
 ### v0.74.16
-* More tagOnlyStrings
+* More `tagOnlyStrings`
 
 ### v0.74.15
-* Filters don't do deep string comparison for tags that appear in tagOnlyStrings
-* Add more tagOnlyStrings
+* Filters don't do deep string comparison for tags that appear in `tagOnlyStrings`
+* Add more `tagOnlyStrings`
 
 ### v0.74.14
-* Even more tagOnlyStrings
+* Even more `tagOnlyStrings`
 
 ### v0.74.13
 * Add a lot more `tagOnlyStrings` to configuration
