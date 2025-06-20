@@ -628,7 +628,7 @@ class TheAlgorithm {
         }
         this.trendingData = await Storage_1.default.getTrendingData();
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
-        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed, true);
+        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
         logger.log(`<loadCachedData()> loaded ${this.feed.length} timeline toots from cache, trendingData`);
     }
