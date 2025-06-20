@@ -1,6 +1,5 @@
-import { CacheKey, type ApiCacheKey } from "./enums";
-import { type NonScoreWeightInfoDict } from "./types";
-export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
+import { type NonScoreWeightInfoDict, type Optional } from "./types";
+import { LoadAction, type ApiCacheKey } from "./enums";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;
@@ -42,11 +41,16 @@ type FediverseConfig = {
     noTrendingLinksServers: string[];
     numServersToCheck: number;
 };
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type TriggerLoadMsgFxn = {
+    [LoadAction.FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string;
+};
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
+    messages: LoadingStatusMsgs & TriggerLoadMsgFxn;
 };
 interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;
@@ -158,6 +162,17 @@ declare class Config implements ConfigType {
         defaultLanguage: string;
         language: string;
         locale: string;
+        messages: {
+            finishFeedUpdate: string;
+            initialState: string;
+            triggerFeedUpdate: (timeline: Array<unknown>, since: Optional<Date>) => string;
+            triggerMoarData: string;
+            isBusy: string;
+            triggerPullAllUserData: string;
+            refreshMutedAccounts: string;
+            reset: string;
+            triggerTimelineBackfill: string;
+        };
     };
     participatedTags: {
         invalidTags: string[];
@@ -216,7 +231,7 @@ declare class Config implements ConfigType {
     /** Construct a new Config instance, validate it, and logs the validated config. */
     constructor();
     /**
-     * Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
+     * Computes the minimum value of minutesUntilStale for all FediverseCacheKey values.
      * Warns if any required keys are missing a value.
      * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
      */

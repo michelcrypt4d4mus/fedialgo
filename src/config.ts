@@ -1,17 +1,19 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { CacheKey, NonScoreWeightName, TagTootsCategory, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
-import { type NonScoreWeightInfoDict } from "./types";
-
-// Cachey keys for the fediverse wide trending data
-export const FEDIVERSE_CACHE_KEYS = [
-    CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    CacheKey.FEDIVERSE_TRENDING_LINKS,
-    CacheKey.FEDIVERSE_TRENDING_TAGS,
-    CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
+import { optionalSuffix } from "./helpers/string_helpers";
+import { timeString } from "./helpers/time_helpers";
+import { type NonScoreWeightInfoDict, type Optional } from "./types";
+import {
+    CacheKey,
+    FediverseCacheKey,
+    LoadAction,
+    LogAction,
+    NonScoreWeightName,
+    TagTootsCategory,
+    type ApiCacheKey
+} from "./enums";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
@@ -71,11 +73,15 @@ type FediverseConfig = {
     numServersToCheck: number;
 };
 
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type TriggerLoadMsgFxn = {[LoadAction.FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string};
+
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
+    messages: LoadingStatusMsgs & TriggerLoadMsgFxn;  // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
 };
 
 interface ParticipatedTagsConfig extends TagTootsConfig {
@@ -191,16 +197,16 @@ class Config implements ConfigType {
                 initialMaxRecords: Math.floor(MIN_RECORDS_FOR_FEATURE_SCORING / 2),  // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
-            [CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+            [FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS]: {
                 minutesUntilStale: 5 * MINUTES_IN_DAY,
             },
-            [CacheKey.FEDIVERSE_TRENDING_LINKS]: {
+            [FediverseCacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
-            [CacheKey.FEDIVERSE_TRENDING_TAGS]: {
+            [FediverseCacheKey.FEDIVERSE_TRENDING_TAGS]: {
                 minutesUntilStale: 6 * MINUTES_IN_HOUR,
             },
-            [CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+            [FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.FOLLOWED_ACCOUNTS]: {
@@ -406,6 +412,23 @@ class Config implements ConfigType {
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
+        messages: {                             // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
+            [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
+            [LogAction.INITIAL_LOADING_STATUS]: "Ready to load",
+            [LoadAction.FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => {
+                if (timeline.length == 0) {
+                    return `Loading more toots (retrieved ${timeline.length.toLocaleString()} toots so far)`;
+                } else {
+                    return `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`);
+                }
+            },
+            [LoadAction.GET_MOAR_DATA]: `Fetching more data for the algorithm`,
+            [LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            [LoadAction.PULL_ALL_USER_DATA]: `Pulling your historical data`,
+            [LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
+            [LoadAction.RESET]: `Resetting state`,
+            [LoadAction.TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+        },
     }
 
     participatedTags = {
@@ -498,15 +521,17 @@ class Config implements ConfigType {
     };
 
     /**
-     * Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
+     * Computes the minimum value of minutesUntilStale for all FediverseCacheKey values.
      * Warns if any required keys are missing a value.
      * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
      */
     minTrendingMinutesUntilStale(): number {
-        const trendStalenesses = FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+        const trendStalenesses = Object.values(FediverseCacheKey)
+                                       .map(k => this.api.data[k]?.minutesUntilStale)
+                                       .filter(Boolean);
 
-        if (trendStalenesses.length != FEDIVERSE_CACHE_KEYS.length) {
-            console.warn(`${LOG_PREFIX} Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
+        if (trendStalenesses.length != Object.values(FediverseCacheKey).length) {
+            console.warn(`${LOG_PREFIX} Not all FediverseCacheKey values have minutesUntilStale configured!`);
             return 60;
         } else {
             return Math.min(...trendStalenesses as number[]);

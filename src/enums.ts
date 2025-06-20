@@ -3,6 +3,31 @@
  * @module enums
  */
 
+import { type Optional } from './types';
+
+/**
+ * Actions that TheAlgorithm can take.
+ * @enum {string}
+ * @private
+ */
+export enum LoadAction {
+    FEED_UPDATE = "triggerFeedUpdate",
+    GET_MOAR_DATA = 'triggerMoarData',
+    IS_BUSY = 'isBusy',
+    PULL_ALL_USER_DATA = "triggerPullAllUserData",
+    REFRESH_MUTED_ACCOUNTS = 'refreshMutedAccounts',
+    RESET = 'reset',
+    TIMELINE_BACKFILL = "triggerTimelineBackfill",
+};
+
+export enum LogAction {
+    FINISH_FEED_UPDATE = 'finishFeedUpdate',
+    INITIAL_LOADING_STATUS = 'initialState',
+};
+
+export type Action = LoadAction | LogAction;
+
+
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -27,10 +52,6 @@ export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     BLOCKED_DOMAINS = 'BlockedDomains',
     FAVOURITED_TOOTS = 'FavouritedToots',
-    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
-    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
-    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
-    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = 'FollowedTags',  // this used to be actually set to ScoreName.FOLLOWED_TAGS (same string)... i don't think there's any reason to keep that now
     FOLLOWERS = 'Followers',
@@ -45,7 +66,19 @@ export enum CacheKey {
 };
 
 /**
- * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
+ * Enum of cache keys for the fediverse wide trending data.
+ * @private
+ * @enum {string}
+ */
+export enum FediverseCacheKey {
+    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
+    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
+    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
+    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
+};
+
+/**
+ * Enum of categories of toots pulled for a type of tag (favourited/particated/trending).
  * @enum {string}
  */
 export enum TagTootsCategory {
@@ -166,9 +199,11 @@ export enum TypeFilterName {
 //////////////////
 
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsCategory;
+export type ApiCacheKey = CacheKey | FediverseCacheKey | TagTootsCategory;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
+export type StorageKey = AlgorithmStorageKey | ApiCacheKey;
+/** Utility type. */
+export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 /** Possible uniqufiiers for a class of ApiObjs. */
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
@@ -179,17 +214,22 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 //      Constants        //
 ///////////////////////////
 
+export const ALL_ACTIONS = [
+    ...Object.values(LoadAction),
+    ...Object.values(LogAction),
+] as const;
+
+// Objects fetched with these keys need to be built into proper Account objects.
+export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
+    (keys, [k, v]) => (k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
+    [CacheKey.FOLLOWERS] as StorageKey[]
+);
+
 // Objects fetched with these keys need to be built into proper Toot objects.
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
     [AlgorithmStorageKey.TIMELINE_TOOTS] as StorageKey[]
 ).concat(Object.values(TagTootsCategory));
-
-// Objects fetched with these keys need to be built into proper Account objects.
-export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
-    (keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys,
-    [] as StorageKey[]
-);
 
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
 export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
@@ -212,7 +252,12 @@ export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 } as const;
 
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCategory)] as const;
+export const ALL_CACHE_KEYS = [
+    ...Object.values(CacheKey),
+    ...Object.values(FediverseCacheKey),
+    ...Object.values(TagTootsCategory),
+] as const;
+
 export const CONVERSATION = 'conversation';
 export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
 export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
@@ -222,22 +267,39 @@ export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTI
 //      Helper Methods       //
 ///////////////////////////////
 
+// Conditional type helper to extend keys beyond ApiCacheKey enum or not
+type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> =
+    IsNullOrUndefined<U> extends true
+        ? Record<ApiCacheKey, T>
+        : Record<ApiCacheKey | K, T>;
+
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @private
+ * @template K
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {Record<K, T>} [initialDict] - Optional initial dictionary to extend (default={}).
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
- * @private
  */
-export function buildCacheKeyDict<T>(
-    fxn: (key?: ApiCacheKey) => T,
-    keys?: ApiCacheKey[]
-): Record<ApiCacheKey, T> {
-    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
-        dict[key] = fxn(key);
-        return dict;
-    }, {} as Record<ApiCacheKey, T>);
+export function buildCacheKeyDict<K extends string, T, D extends Optional<Record<K, T>>>(
+    fxn: (key: ApiCacheKey) => T,
+    initialDict?: Optional<Record<K, T>>,
+    keys?: ApiCacheKey[],
+): CachedByKey<K, T, D> {
+    return (keys ?? ALL_CACHE_KEYS).reduce(
+        (dict, key) => {
+            dict[key] = fxn(key);
+            return dict;
+        },
+        (initialDict ?? {}) as CachedByKey<K, T, D>
+    );
+};
+
+// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+export function simpleCacheKeyDict<T>(fxn: () => T, keys?: ApiCacheKey[]) {
+    return buildCacheKeyDict<ApiCacheKey, T, null>(fxn, null, keys);
 };
 
 

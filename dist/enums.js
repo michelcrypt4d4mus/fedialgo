@@ -4,7 +4,29 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.CacheKey = exports.AlgorithmStorageKey = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+/**
+ * Actions that TheAlgorithm can take.
+ * @enum {string}
+ * @private
+ */
+var LoadAction;
+(function (LoadAction) {
+    LoadAction["FEED_UPDATE"] = "triggerFeedUpdate";
+    LoadAction["GET_MOAR_DATA"] = "triggerMoarData";
+    LoadAction["IS_BUSY"] = "isBusy";
+    LoadAction["PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
+    LoadAction["REFRESH_MUTED_ACCOUNTS"] = "refreshMutedAccounts";
+    LoadAction["RESET"] = "reset";
+    LoadAction["TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
+})(LoadAction || (exports.LoadAction = LoadAction = {}));
+;
+var LogAction;
+(function (LogAction) {
+    LogAction["FINISH_FEED_UPDATE"] = "finishFeedUpdate";
+    LogAction["INITIAL_LOADING_STATUS"] = "initialState";
+})(LogAction || (exports.LogAction = LogAction = {}));
+;
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -31,10 +53,6 @@ var CacheKey;
     CacheKey["BLOCKED_ACCOUNTS"] = "BlockedAccounts";
     CacheKey["BLOCKED_DOMAINS"] = "BlockedDomains";
     CacheKey["FAVOURITED_TOOTS"] = "FavouritedToots";
-    CacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
-    CacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
-    CacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
-    CacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
     CacheKey["FOLLOWED_ACCOUNTS"] = "FollowedAccounts";
     CacheKey["FOLLOWED_TAGS"] = "FollowedTags";
     CacheKey["FOLLOWERS"] = "Followers";
@@ -49,7 +67,20 @@ var CacheKey;
 })(CacheKey || (exports.CacheKey = CacheKey = {}));
 ;
 /**
- * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
+ * Enum of cache keys for the fediverse wide trending data.
+ * @private
+ * @enum {string}
+ */
+var FediverseCacheKey;
+(function (FediverseCacheKey) {
+    FediverseCacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
+    FediverseCacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
+    FediverseCacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
+    FediverseCacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
+})(FediverseCacheKey || (exports.FediverseCacheKey = FediverseCacheKey = {}));
+;
+/**
+ * Enum of categories of toots pulled for a type of tag (favourited/particated/trending).
  * @enum {string}
  */
 var TagTootsCategory;
@@ -170,10 +201,14 @@ var TypeFilterName;
 ///////////////////////////
 //      Constants        //
 ///////////////////////////
+exports.ALL_ACTIONS = [
+    ...Object.values(LoadAction),
+    ...Object.values(LogAction),
+];
+// Objects fetched with these keys need to be built into proper Account objects.
+exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, [CacheKey.FOLLOWERS]);
 // Objects fetched with these keys need to be built into proper Toot objects.
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS]).concat(Object.values(TagTootsCategory));
-// Objects fetched with these keys need to be built into proper Account objects.
-exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k == 'FOLLOWERS' || k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, []);
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
 exports.UNIQUE_ID_PROPERTIES = {
     ...exports.STORAGE_KEYS_WITH_TOOTS.reduce((dict, key) => {
@@ -188,28 +223,37 @@ exports.UNIQUE_ID_PROPERTIES = {
     [CacheKey.NOTIFICATIONS]: 'id',
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 };
-exports.ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCategory)];
+exports.ALL_CACHE_KEYS = [
+    ...Object.values(CacheKey),
+    ...Object.values(FediverseCacheKey),
+    ...Object.values(TagTootsCategory),
+];
 exports.CONVERSATION = 'conversation';
 exports.JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
 exports.TOOT_SOURCES = [...exports.STORAGE_KEYS_WITH_TOOTS, exports.CONVERSATION, exports.JUST_MUTING];
-///////////////////////////////
-//      Helper Methods       //
-///////////////////////////////
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @private
+ * @template K
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {Record<K, T>} [initialDict] - Optional initial dictionary to extend (default={}).
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
- * @private
  */
-function buildCacheKeyDict(fxn, keys) {
-    return (keys || exports.ALL_CACHE_KEYS).reduce((dict, key) => {
+function buildCacheKeyDict(fxn, initialDict, keys) {
+    return (keys ?? exports.ALL_CACHE_KEYS).reduce((dict, key) => {
         dict[key] = fxn(key);
         return dict;
-    }, {});
+    }, (initialDict ?? {}));
 }
 exports.buildCacheKeyDict = buildCacheKeyDict;
+;
+// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+function simpleCacheKeyDict(fxn, keys) {
+    return buildCacheKeyDict(fxn, null, keys);
+}
+exports.simpleCacheKeyDict = simpleCacheKeyDict;
 ;
 /**
  * Generate a function to check if a value exists in a string enum.

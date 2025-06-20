@@ -24,6 +24,7 @@ import { sizeOf } from "./helpers/math_helper";
 import {
     AlgorithmStorageKey,
     CacheKey,
+    FediverseCacheKey,
     TagTootsCategory,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
@@ -104,7 +105,7 @@ export default class Storage {
     }
 
     /** Get the value at the given key but coerced to an empty array if there's nothing there. */
-    static async getCoerced<T>(key: CacheKey | AlgorithmStorageKey.TIMELINE_TOOTS): Promise<T[]> {
+    static async getCoerced<T>(key: CacheKey | FediverseCacheKey | AlgorithmStorageKey.TIMELINE_TOOTS): Promise<T[]> {
         let value = await this.get(key);
 
         if (!value) {
@@ -150,14 +151,14 @@ export default class Storage {
 
     /** Get trending tags, toots, and links as a single TrendingData object. */
     static async getTrendingData(): Promise<TrendingData> {
-        const servers = (await this.get(CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
-        const trendingTags = await this.getCoerced<TagWithUsageCounts>(CacheKey.FEDIVERSE_TRENDING_TAGS)
+        const servers = (await this.get(FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
+        const trendingTags = await this.getCoerced<TagWithUsageCounts>(FediverseCacheKey.FEDIVERSE_TRENDING_TAGS)
 
         return {
-            links: await this.getCoerced<TrendingLink>(CacheKey.FEDIVERSE_TRENDING_LINKS),
+            links: await this.getCoerced<TrendingLink>(FediverseCacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers as MastodonInstances,
             tags: new TagList(trendingTags, TagTootsCategory.TRENDING),
-            toots: await this.getCoerced<Toot>(CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            toots: await this.getCoerced<Toot>(FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
 

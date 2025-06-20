@@ -1,6 +1,6 @@
 import Account from "./api/objects/account";
 import UserData from "./api/user_data";
-import { AlgorithmStorageKey, CacheKey, type ApiCacheKey, type StorageKey } from "./enums";
+import { AlgorithmStorageKey, CacheKey, FediverseCacheKey, type ApiCacheKey, type StorageKey } from "./enums";
 import { type CacheableApiObj, type CacheTimestamp, type FeedFilterSettings, type StorableObj, type TrendingData, type Weights } from "./types";
 interface StorableObjWithStaleness extends CacheTimestamp {
     obj: CacheableApiObj;
@@ -12,7 +12,7 @@ export default class Storage {
     /** Get the value at the given key (with the user ID as a prefix). */
     static get(key: StorageKey): Promise<StorableObj | null>;
     /** Get the value at the given key but coerced to an empty array if there's nothing there. */
-    static getCoerced<T>(key: CacheKey | AlgorithmStorageKey.TIMELINE_TOOTS): Promise<T[]>;
+    static getCoerced<T>(key: CacheKey | FediverseCacheKey | AlgorithmStorageKey.TIMELINE_TOOTS): Promise<T[]>;
     /** Get the user's saved timeline filter settings. */
     static getFilters(): Promise<FeedFilterSettings | null>;
     /** Return null if the data in storage is stale or doesn't exist. */

@@ -31,4 +31,4 @@ git commit -am"Build documentation" --no-verify
 git push origin $GITHUB_PAGES_BRANCH
 git checkout $MASTER_BRANCH
 
-echo "Documentation deployed to $GITHUB_PAGES_BRANCH branch."
+echo -e "\n\nDocumentation deployed to $GITHUB_PAGES_BRANCH branch.\n\n"

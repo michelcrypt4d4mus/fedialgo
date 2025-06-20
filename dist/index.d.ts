@@ -15,8 +15,6 @@ import { type ObjList } from "./api/counted_list";
 import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TrendingType, TypeFilterName, TagTootsCategory, isValueInStringEnum } from "./enums";
 import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
 import { FILTER_OPTION_DATA_SOURCES, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MastodonTag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
-declare const GET_FEED_BUSY_MSG = "Load in progress (consider using the setTimelineInApp() callback instead)";
-declare const READY_TO_LOAD_MSG = "Ready to load";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;
@@ -47,7 +45,7 @@ interface AlgorithmArgs {
  * @property {UserData} userData - User data for scoring and filtering
  * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
-declare class TheAlgorithm {
+export default class TheAlgorithm {
     /**
      * True if FEDIALGO_DEBUG environment var was set at compile time.
      * @returns {boolean}
@@ -99,7 +97,6 @@ declare class TheAlgorithm {
     private constructor();
     /**
      * Trigger the retrieval of the user's timeline from all the sources.
-     * @param {boolean} [moreOldToots] - Backfill older toots instead of getting new toots
      * @returns {Promise<void>}
      */
     triggerFeedUpdate(): Promise<void>;
@@ -200,7 +197,7 @@ declare class TheAlgorithm {
     private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;
-    private lockLoadingMutex;
+    private startAction;
     private mergeTootsToFeed;
     private recomputeScorers;
     private releaseLoadingMutex;
@@ -208,6 +205,7 @@ declare class TheAlgorithm {
     private statusDict;
     private enableMoarDataBackgroundPoller;
 }
-export default TheAlgorithm;
+declare const GET_FEED_BUSY_MSG: string;
+declare const READY_TO_LOAD_MSG: string;
 export { FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCategory, TrendingType, TypeFilterName, WeightName, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
 optionalSuffix, sortKeysByValue, timeString, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, };

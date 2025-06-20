@@ -12,7 +12,7 @@ import type Toot from './api/objects/toot';
 import { type BooleanFilterArgs } from './filters/boolean_filter';
 import { type NumericFilterArgs } from './filters/numeric_filter';
 import { type SerializableToot } from './api/objects/toot';
-import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCategory, TOOT_SOURCES } from './enums';
+import { BooleanFilterName, FediverseCacheKey, NonScoreWeightName, ScoreName, TagTootsCategory, TOOT_SOURCES } from './enums';
 
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
@@ -132,7 +132,7 @@ export type CacheableApiObj = (
 export type CountedListSource = (
     FilterOptionDataSource
   | FilterProperty
-  | CacheKey.FEDIVERSE_TRENDING_TAGS
+  | FediverseCacheKey.FEDIVERSE_TRENDING_TAGS
   | ScoreName.DIVERSITY
   | ScoreName.FOLLOWED_TAGS
 );
