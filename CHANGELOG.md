@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.12
 * Another workaround for Toot.tagNames().has()
 
 ### v0.74.11
