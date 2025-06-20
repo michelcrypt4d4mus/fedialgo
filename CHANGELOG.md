@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v0.74.10
-* Temp fix for bug with tagNames().has()
+* Temp fix for bug with `Toot.tagNames().has()`
 
 ### v0.74.9
 * Call `completeObjProperties()` in `CountedList.incrementCount()`
