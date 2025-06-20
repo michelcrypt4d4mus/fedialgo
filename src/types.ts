@@ -108,7 +108,7 @@ export type KeysOfValueType<T, SuperClass> = Exclude<
  */
 export type ApiObj = (
     ApiObjWithID |
-    MastodonTag |
+    Hashtag |
     mastodon.v1.TrendLink |
     string
 );
@@ -145,6 +145,7 @@ export type CountedListSource = (
   | ScoreName.FOLLOWED_TAGS
 );
 
+export type Hashtag = mastodon.v1.Tag | TagWithUsageCounts;
 export type InstanceResponse = MastodonInstance | null;
 
 /** Local extension to the Mastodon Instance type that adds some additional properties */
@@ -153,25 +154,13 @@ export interface MastodonInstance extends mastodon.v2.Instance {
     MAU?: number;  // MAU data is buried in the Instance hierarchy so this just a copy on the top level
 };
 
-export type MastodonTag = (
-    TagWithUsageCounts
-  | mastodon.v1.Tag
-);
-
-export interface MinMax {
-    min: number;
-    max: number;
-};
+export interface MinMax { min: number; max: number; };
+export type MinMaxID = { min: string; max: string; };
 
 export interface MinMaxAvgScore extends MinMax {
     average: number;
     count: number;
     averageFinalScore: number;
-};
-
-export type MinMaxID = {
-    min: string;
-    max: string;
 };
 
 /** Abstract interface for objects that have numToots of some kind */

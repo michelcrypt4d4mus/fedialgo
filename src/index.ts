@@ -89,7 +89,7 @@ import {
     type FilterOptionDataSource,
     type KeysOfValueType,
     type MastodonInstance,
-    type MastodonTag,
+    type Hashtag,
     type MinMaxAvgScore,
     type ScoreStats,
     type StringNumberDict,
@@ -526,10 +526,10 @@ export default class TheAlgorithm {
 
     /**
      * Get the URL for a tag on the user's home instance (aka "server").
-     * @param {string | MastodonTag} tag - The tag or tag object.
+     * @param {string | Hashtag} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
-    tagUrl(tag: string | MastodonTag): string {
+    tagUrl(tag: string | Hashtag): string {
         return MastoApi.instance.tagUrl(tag);
     }
 
@@ -797,7 +797,7 @@ export default class TheAlgorithm {
             isLoading: this.isLoading,
             loadingStatus: this.loadingStatus,
             loadStartedAt: toISOFormatIfExists(this.loadStartedAt),
-            minMaxScores: computeMinMax(this.feed, (toot) => toot.scoreInfo?.score),
+            minMaxScores: computeMinMax(this.feed, (toot) => toot.score),
         };
     }
 

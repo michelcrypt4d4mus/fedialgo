@@ -5,7 +5,7 @@ import UserData from "./user_data";
 import { Logger } from '../helpers/logger';
 import { WaitTime } from "../helpers/time_helpers";
 import { type ApiCacheKey } from "../enums";
-import { type ConcurrencyLockRelease, type MastodonTag, type Optional, type TootLike } from "../types";
+import { type ConcurrencyLockRelease, type Hashtag, type Optional, type TootLike } from "../types";
 /**
  * Generic parameters for MastoApi methods that support backfilling via the "moar" flag.
  * @property {boolean} [bustCache] - If true, don't use cached data and update the cache with new data.
@@ -234,7 +234,7 @@ export default class MastoApi {
     setSemaphoreConcurrency(concurrency: number): void;
     /**
      * Returns the URL for an account on the Feialgo user's home server.
-     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @param {Hashtag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
     accountUrl(account: Account): string;
@@ -246,10 +246,10 @@ export default class MastoApi {
     isLocalUrl(url: string): boolean;
     /**
      * Returns the URL for a tag on the Feialgo user's home server.
-     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @param {Hashtag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
-    tagUrl(tag: MastodonTag | string): string;
+    tagUrl(tag: Hashtag | string): string;
     /**
      * Returns the URL for a given API endpoint on the user's home server.
      * @private

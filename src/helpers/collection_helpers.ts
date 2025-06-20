@@ -18,6 +18,7 @@ import {
     type CountKey,
     type MinMax,
     type MinMaxID,
+    type Optional,
     type OptionalNumber,
     type OptionalString,
     type PromiseDict,
@@ -151,9 +152,9 @@ export function checkUniqueRows<T extends ApiObj>(cacheKey: ApiCacheKey, array: 
  * @template T
  * @param {T[]} array - The array to process.
  * @param {(value: T) => number | undefined} valueFxn - Function to extract value.
- * @returns {MinMax | null} The min and max values, or null if array is empty.
+ * @returns {Optional<MinMax>} The min and max values, or null if array is empty.
  */
-export function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null {
+export function computeMinMax<T>(array: T[], valueFxn: (value: T) => OptionalNumber): Optional<MinMax> {
     if (array.length == 0) return null;
 
     return array.reduce(

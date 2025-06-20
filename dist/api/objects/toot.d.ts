@@ -2,14 +2,14 @@ import { mastodon } from "masto";
 import Account from "./account";
 import { MediaCategory, ScoreName } from '../../enums';
 import { Logger } from '../../helpers/logger';
-import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
+import { type AccountLike, type FeedFilterSettings, type Hashtag, type ScoreType, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo
  * that should be serialized to storage.
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;
-    followedTags?: MastodonTag[];
+    followedTags?: Hashtag[];
     numTimesShown?: number;
     participatedTags?: TagWithUsageCounts[];
     reblog?: SerializableToot | null;

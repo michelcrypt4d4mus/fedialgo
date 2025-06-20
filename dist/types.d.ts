@@ -68,7 +68,7 @@ export type KeysOfValueType<T, SuperClass> = Exclude<{
  * Union type representing any object that can be returned from the Mastodon API and handled by the app
  * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
  */
-export type ApiObj = (ApiObjWithID | MastodonTag | mastodon.v1.TrendLink | string);
+export type ApiObj = (ApiObjWithID | Hashtag | mastodon.v1.TrendLink | string);
 /** Most (but not all) Mastodon API objects have an 'id' property. */
 export type ApiObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 /** Any CacheableApiObj will also be written to localForage with these properties. */
@@ -80,26 +80,26 @@ export interface CacheTimestamp {
 export type CacheableApiObj = (ApiObj[] | MastodonInstances | mastodon.v2.Instance);
 /** Possible data sources for CountedList objects. */
 export type CountedListSource = (FilterOptionDataSource | FilterProperty | FediverseCacheKey.TRENDING_TAGS | ScoreName.DIVERSITY | ScoreName.FOLLOWED_TAGS);
+export type Hashtag = mastodon.v1.Tag | TagWithUsageCounts;
 export type InstanceResponse = MastodonInstance | null;
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;
     MAU?: number;
 }
-export type MastodonTag = (TagWithUsageCounts | mastodon.v1.Tag);
 export interface MinMax {
     min: number;
     max: number;
-}
-export interface MinMaxAvgScore extends MinMax {
-    average: number;
-    count: number;
-    averageFinalScore: number;
 }
 export type MinMaxID = {
     min: string;
     max: string;
 };
+export interface MinMaxAvgScore extends MinMax {
+    average: number;
+    count: number;
+    averageFinalScore: number;
+}
 /** Abstract interface for objects that have numToots of some kind */
 export interface NamedTootCount extends TootCount {
     displayName?: string;

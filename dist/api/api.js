@@ -591,7 +591,7 @@ class MastoApi {
     }
     /**
      * Returns the URL for an account on the Feialgo user's home server.
-     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @param {Hashtag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
     accountUrl(account) {
@@ -607,7 +607,7 @@ class MastoApi {
     }
     /**
      * Returns the URL for a tag on the Feialgo user's home server.
-     * @param {MastodonTag | string} tag - The tag or tag object.
+     * @param {Hashtag | string} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
     tagUrl(tag) {

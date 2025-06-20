@@ -487,7 +487,7 @@ class TheAlgorithm {
     }
     /**
      * Get the URL for a tag on the user's home instance (aka "server").
-     * @param {string | MastodonTag} tag - The tag or tag object.
+     * @param {string | Hashtag} tag - The tag or tag object.
      * @returns {string} The tag URL.
      */
     tagUrl(tag) {
@@ -716,7 +716,7 @@ class TheAlgorithm {
             isLoading: this.isLoading,
             loadingStatus: this.loadingStatus,
             loadStartedAt: (0, time_helpers_1.toISOFormatIfExists)(this.loadStartedAt),
-            minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.scoreInfo?.score),
+            minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.score),
         };
     }
     enableMoarDataBackgroundPoller() {

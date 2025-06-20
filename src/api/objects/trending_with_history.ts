@@ -28,7 +28,7 @@ import { config } from "../../config";
 import { repairTag } from "./tag";
 import { wordRegex } from "../../helpers/string_helpers";
 import {
-    type MastodonTag,
+    type Hashtag,
     type TagWithUsageCounts,
     type TrendingLink,
     type TrendingWithHistory
@@ -44,7 +44,7 @@ export function decorateLinkHistory(link: mastodon.v1.TrendLink): void {
 
 
 // Decorate a mastodon tag with computed history data, adding numToots & numAccounts
-export function decorateTagHistory(tag: MastodonTag): void {
+export function decorateTagHistory(tag: Hashtag): void {
     const newTag = tag as TagWithUsageCounts;
     repairTag(newTag);
     decorateHistoryScores(newTag);

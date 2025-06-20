@@ -4,7 +4,7 @@
  */
 import { Logger } from './logger';
 import { type ApiCacheKey } from "../enums";
-import { type ApiObj, type ApiObjWithID, type CountKey, type MinMax, type MinMaxID, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
+import { type ApiObj, type ApiObjWithID, type CountKey, type MinMax, type MinMaxID, type Optional, type OptionalNumber, type OptionalString, type PromiseDict, type StringDict, type StringNumberDict, type Weights, type WithCreatedAt } from "../types";
 type PromisesResults<T> = {
     fulfilled: T[];
     rejectedReasons: unknown[];
@@ -62,9 +62,9 @@ export declare function checkUniqueRows<T extends ApiObj>(cacheKey: ApiCacheKey,
  * @template T
  * @param {T[]} array - The array to process.
  * @param {(value: T) => number | undefined} valueFxn - Function to extract value.
- * @returns {MinMax | null} The min and max values, or null if array is empty.
+ * @returns {Optional<MinMax>} The min and max values, or null if array is empty.
  */
-export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => number | undefined): MinMax | null;
+export declare function computeMinMax<T>(array: T[], valueFxn: (value: T) => OptionalNumber): Optional<MinMax>;
 /**
  * Returns a dictionary keyed by the result of getKey() with the count of each key.
  * @template T

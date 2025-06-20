@@ -55,7 +55,7 @@ import {
     type AccountLike,
     type FeedFilterSettings,
     type KeysOfValueType,
-    type MastodonTag,
+    type Hashtag,
     type ScoreType,
     type TagWithUsageCounts,
     type TootLike,
@@ -98,7 +98,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
-    followedTags?: MastodonTag[];            // Array of tags that the user follows that exist in this toot
+    followedTags?: Hashtag[];            // Array of tags that the user follows that exist in this toot
     numTimesShown?: number;                  // Managed in client app. # of times the Toot has been shown to the user.
     participatedTags?: TagWithUsageCounts[]; // Tags that the user has participated in that exist in this toot
     reblog?: SerializableToot | null,        // The toot that was retooted (if any)
@@ -650,7 +650,7 @@ export default class Toot implements TootObj {
 
     // Generate a string describing the followed and trending tags in the toot
     private containsTagsOfTypeMsg(tagType: TypeFilterName): string | undefined {
-        let tags: MastodonTag[] = [];
+        let tags: Hashtag[] = [];
 
         if (tagType == TypeFilterName.FOLLOWED_HASHTAGS) {
             tags = this.followedTags || [];
