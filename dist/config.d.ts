@@ -41,16 +41,16 @@ type FediverseConfig = {
     noTrendingLinksServers: string[];
     numServersToCheck: number;
 };
-type LoadActionMessagez = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
-type TriggerLoadCallback = {
-    [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => string;
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type TriggerLoadMsgFxn = {
+    [LoadAction.TRIGGER_FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string;
 };
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    messages: LoadActionMessagez & TriggerLoadCallback;
+    messages: LoadingStatusMsgs & TriggerLoadMsgFxn;
 };
 interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;

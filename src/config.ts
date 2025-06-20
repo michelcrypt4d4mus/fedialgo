@@ -73,21 +73,16 @@ type FediverseConfig = {
     numServersToCheck: number;
 };
 
-type LoadActionMessagez = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
-
-type TriggerLoadCallback = {
-    [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => string;
-}
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type TriggerLoadMsgFxn = {[LoadAction.TRIGGER_FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string};
 
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    messages: LoadActionMessagez & TriggerLoadCallback;
+    messages: LoadingStatusMsgs & TriggerLoadMsgFxn;  // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
 };
-
-// [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>)
 
 interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;
@@ -417,7 +412,7 @@ class Config implements ConfigType {
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
-        messages: {
+        messages: {                             // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
             [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
             [LogAction.INITIAL_LOADING_STATUS]: "Ready to load",
             [LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
