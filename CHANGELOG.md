@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.74.14
+* Even more tagOnlyStrings
+
 ### v0.74.13
 * Add a lot more `tagOnlyStrings` to configuration
 
