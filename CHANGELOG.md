@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Use existing tag regex when re-scanning filter options for any followed tag strings
 * Add tagNames() method to Toot objects that caches a Set of tag strings for faster lookup
 * Rename `MastodonTag` type to `Hashtag`
 
