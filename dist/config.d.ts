@@ -231,7 +231,7 @@ declare class Config implements ConfigType {
     /** Construct a new Config instance, validate it, and logs the validated config. */
     constructor();
     /**
-     * Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
+     * Computes the minimum value of minutesUntilStale for all FediverseCacheKey values.
      * Warns if any required keys are missing a value.
      * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
      */

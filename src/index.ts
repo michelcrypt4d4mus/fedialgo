@@ -59,6 +59,7 @@ import {
     AlgorithmStorageKey,
     BooleanFilterName,
     CacheKey,
+    FediverseCacheKey,
     LoadAction,
     LogAction,
     MediaCategory,
@@ -299,7 +300,7 @@ export default class TheAlgorithm {
                 // Toot fetchers
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(MastoApi.instance.getHomeserverToots(), loggers[CacheKey.HOMESERVER_TOOTS]),
-                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[CacheKey.FEDIVERSE_TRENDING_TOOTS]),
+                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]),
                 ...Object.values(TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),

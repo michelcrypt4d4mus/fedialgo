@@ -45,10 +45,6 @@ export declare enum CacheKey {
     BLOCKED_ACCOUNTS = "BlockedAccounts",
     BLOCKED_DOMAINS = "BlockedDomains",
     FAVOURITED_TOOTS = "FavouritedToots",
-    FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
-    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
-    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
-    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
     FOLLOWED_TAGS = "FollowedTags",
     FOLLOWERS = "Followers",
@@ -62,7 +58,18 @@ export declare enum CacheKey {
     SERVER_SIDE_FILTERS = "ServerFilters"
 }
 /**
- * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
+ * Enum of cache keys for the fediverse wide trending data.
+ * @private
+ * @enum {string}
+ */
+export declare enum FediverseCacheKey {
+    FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
+    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
+    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
+    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots"
+}
+/**
+ * Enum of categories of toots pulled for a type of tag (favourited/particated/trending).
  * @enum {string}
  */
 export declare enum TagTootsCategory {
@@ -167,9 +174,9 @@ export declare enum TypeFilterName {
     VIDEOS = "videos"
 }
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsCategory;
+export type ApiCacheKey = CacheKey | FediverseCacheKey | TagTootsCategory;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
+export type StorageKey = AlgorithmStorageKey | ApiCacheKey;
 /** Utility type. */
 export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 /** Possible uniqufiiers for a class of ApiObjs. */
@@ -177,11 +184,10 @@ type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export declare const ALL_ACTIONS: readonly (LogAction | LoadAction)[];
-export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
-export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCategory)[];
+export declare const ALL_CACHE_KEYS: readonly (CacheKey | FediverseCacheKey | TagTootsCategory)[];
 export declare const CONVERSATION = "conversation";
 export declare const JUST_MUTING = "justMuting";
 export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];

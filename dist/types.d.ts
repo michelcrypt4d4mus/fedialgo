@@ -8,7 +8,7 @@ import type Toot from './api/objects/toot';
 import { type BooleanFilterArgs } from './filters/boolean_filter';
 import { type NumericFilterArgs } from './filters/numeric_filter';
 import { type SerializableToot } from './api/objects/toot';
-import { BooleanFilterName, CacheKey, NonScoreWeightName, ScoreName, TagTootsCategory, TOOT_SOURCES } from './enums';
+import { BooleanFilterName, FediverseCacheKey, NonScoreWeightName, ScoreName, TagTootsCategory, TOOT_SOURCES } from './enums';
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
 export type NonScoreWeightInfoDict = Record<NonScoreWeightName, WeightInfo>;
@@ -79,7 +79,7 @@ export interface CacheTimestamp {
 /** ApiObjs are stored in cache as arrays; MastodonInstances is our custom data structure. */
 export type CacheableApiObj = (ApiObj[] | MastodonInstances | mastodon.v2.Instance);
 /** Possible data sources for CountedList objects. */
-export type CountedListSource = (FilterOptionDataSource | FilterProperty | CacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.DIVERSITY | ScoreName.FOLLOWED_TAGS);
+export type CountedListSource = (FilterOptionDataSource | FilterProperty | FediverseCacheKey.FEDIVERSE_TRENDING_TAGS | ScoreName.DIVERSITY | ScoreName.FOLLOWED_TAGS);
 /** Local extension to the Mastodon Instance type that adds some additional properties */
 export interface MastodonInstance extends mastodon.v2.Instance {
     followedPctOfMAU?: number;

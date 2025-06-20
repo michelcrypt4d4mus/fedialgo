@@ -77,16 +77,16 @@ class Config {
                 initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+            [enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS]: {
                 minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
             },
-            [enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS]: {
+            [enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_LINKS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS]: {
+            [enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TAGS]: {
                 minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+            [enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
@@ -394,14 +394,16 @@ class Config {
     }
     ;
     /**
-     * Computes the minimum value of minutesUntilStale for all FEDIVERSE_CACHE_KEYS.
+     * Computes the minimum value of minutesUntilStale for all FediverseCacheKey values.
      * Warns if any required keys are missing a value.
      * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
      */
     minTrendingMinutesUntilStale() {
-        const trendStalenesses = enums_1.FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
-        if (trendStalenesses.length != enums_1.FEDIVERSE_CACHE_KEYS.length) {
-            console.warn(`${LOG_PREFIX} Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
+        const trendStalenesses = Object.values(enums_1.FediverseCacheKey)
+            .map(k => this.api.data[k]?.minutesUntilStale)
+            .filter(Boolean);
+        if (trendStalenesses.length != Object.values(enums_1.FediverseCacheKey).length) {
+            console.warn(`${LOG_PREFIX} Not all FediverseCacheKey values have minutesUntilStale configured!`);
             return 60;
         }
         else {

@@ -52,10 +52,6 @@ export enum CacheKey {
     BLOCKED_ACCOUNTS = 'BlockedAccounts',
     BLOCKED_DOMAINS = 'BlockedDomains',
     FAVOURITED_TOOTS = 'FavouritedToots',
-    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
-    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
-    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
-    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
     FOLLOWED_ACCOUNTS = 'FollowedAccounts',
     FOLLOWED_TAGS = 'FollowedTags',  // this used to be actually set to ScoreName.FOLLOWED_TAGS (same string)... i don't think there's any reason to keep that now
     FOLLOWERS = 'Followers',
@@ -70,7 +66,19 @@ export enum CacheKey {
 };
 
 /**
- * Enum of localForage cache keys for Toots pulled from the API for a list of hashtags.
+ * Enum of cache keys for the fediverse wide trending data.
+ * @private
+ * @enum {string}
+ */
+export enum FediverseCacheKey {
+    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
+    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
+    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
+    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
+};
+
+/**
+ * Enum of categories of toots pulled for a type of tag (favourited/particated/trending).
  * @enum {string}
  */
 export enum TagTootsCategory {
@@ -191,9 +199,9 @@ export enum TypeFilterName {
 //////////////////
 
 /** API data is written to browser storage with these cache keys. */
-export type ApiCacheKey = CacheKey | TagTootsCategory;
+export type ApiCacheKey = CacheKey | FediverseCacheKey | TagTootsCategory;
 /** All browser storage indexedDB keys. */
-export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
+export type StorageKey = AlgorithmStorageKey | ApiCacheKey;
 /** Utility type. */
 export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 /** Possible uniqufiiers for a class of ApiObjs. */
@@ -210,14 +218,6 @@ export const ALL_ACTIONS = [
     ...Object.values(LoadAction),
     ...Object.values(LogAction),
 ] as const;
-
-// Cache keys for the fediverse wide trending data
-export const FEDIVERSE_CACHE_KEYS = [
-    CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    CacheKey.FEDIVERSE_TRENDING_LINKS,
-    CacheKey.FEDIVERSE_TRENDING_TAGS,
-    CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
 
 // Objects fetched with these keys need to be built into proper Account objects.
 export const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[] = Object.entries(CacheKey).reduce(
@@ -252,7 +252,12 @@ export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 } as const;
 
-export const ALL_CACHE_KEYS = [...Object.values(CacheKey), ...Object.values(TagTootsCategory)] as const;
+export const ALL_CACHE_KEYS = [
+    ...Object.values(CacheKey),
+    ...Object.values(FediverseCacheKey),
+    ...Object.values(TagTootsCategory),
+] as const;
+
 export const CONVERSATION = 'conversation';
 export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
 export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;

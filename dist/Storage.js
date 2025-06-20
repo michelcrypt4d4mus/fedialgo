@@ -138,13 +138,13 @@ class Storage {
     }
     /** Get trending tags, toots, and links as a single TrendingData object. */
     static async getTrendingData() {
-        const servers = (await this.get(enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
-        const trendingTags = await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS);
+        const servers = (await this.get(enums_1.FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS)) || {};
+        const trendingTags = await this.getCoerced(enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TAGS);
         return {
-            links: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS),
+            links: await this.getCoerced(enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_LINKS),
             servers: servers,
             tags: new tag_list_1.default(trendingTags, enums_1.TagTootsCategory.TRENDING),
-            toots: await this.getCoerced(enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS),
+            toots: await this.getCoerced(enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS),
         };
     }
     /** Return the user's stored timeline weightings or the default weightings if none are found. */

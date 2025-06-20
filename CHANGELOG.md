@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * Create config.locale.messages for potentially user facing string configuration
 * Reset trendingData when reset() is called
+* Refactor out FediverseCacheKey enum
 
 ### v0.74.2
 * Rename `TagTootsType` enum to `TagTootsCategory`
