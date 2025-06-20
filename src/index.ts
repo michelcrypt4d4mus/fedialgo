@@ -363,8 +363,9 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData(): Promise<void> {
-        const hereLogger = loggers[LoadAction.TRIGGER_PULL_ALL_USER_DATA];
-        this.startAction(LoadAction.TRIGGER_PULL_ALL_USER_DATA);
+        const action = LoadAction.TRIGGER_PULL_ALL_USER_DATA;
+        const hereLogger = loggers[action];
+        this.startAction(action);
 
         try {
             this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
@@ -380,7 +381,7 @@ export default class TheAlgorithm {
         } catch (error) {
             throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
         } finally {
-            this.releaseLoadingMutex(LoadAction.TRIGGER_PULL_ALL_USER_DATA);  // TODO: should we restart data poller?
+            this.releaseLoadingMutex(action);  // TODO: should we restart data poller?
         }
     }
 
