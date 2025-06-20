@@ -1,17 +1,19 @@
 /*
  * Centralized location for non-user configurable settings.
  */
-import { CacheKey, NonScoreWeightName, TagTootsCategory, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
-import { type NonScoreWeightInfoDict } from "./types";
-
-// Cachey keys for the fediverse wide trending data
-export const FEDIVERSE_CACHE_KEYS = [
-    CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    CacheKey.FEDIVERSE_TRENDING_LINKS,
-    CacheKey.FEDIVERSE_TRENDING_TAGS,
-    CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
+import { optionalSuffix } from "./helpers/string_helpers";
+import { timeString } from "./helpers/time_helpers";
+import { type NonScoreWeightInfoDict, type Optional } from "./types";
+import {
+    CacheKey,
+    LoadAction,
+    LogAction,
+    NonScoreWeightName,
+    TagTootsCategory,
+    FEDIVERSE_CACHE_KEYS,
+    type ApiCacheKey
+} from "./enums";
 
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 export const SECONDS_IN_MINUTE = 60;
@@ -71,17 +73,15 @@ type FediverseConfig = {
     numServersToCheck: number;
 };
 
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type TriggerLoadMsgFxn = {[LoadAction.TRIGGER_FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string};
+
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    messages: {
-        finalizingScores: string;
-        isBusy: string;
-        initialLoadingStatus: string;
-        readyToLoad: string;
-    };
+    messages: LoadingStatusMsgs & TriggerLoadMsgFxn;  // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
 };
 
 interface ParticipatedTagsConfig extends TagTootsConfig {
@@ -412,11 +412,22 @@ class Config implements ConfigType {
         defaultLanguage: DEFAULT_LANGUAGE,
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
-        messages: {
-            finalizingScores: "Finalizing scores",
-            initialLoadingStatus: "Retrieving initial data",
-            isBusy: "Load in progress (consider using the setTimelineInApp() callback instead)",
-            readyToLoad: "Ready to load",
+        messages: {                             // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
+            [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
+            [LogAction.INITIAL_LOADING_STATUS]: "Ready to load",
+            [LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            [LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
+            [LoadAction.RESET]: `Resetting state`,
+            [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => {
+                if (timeline.length == 0) {
+                    return `Loading more toots (retrieved ${timeline.length.toLocaleString()} toots so far)`;
+                } else {
+                    return `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`);
+                }
+            },
+            [LoadAction.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
+            [LoadAction.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
+            [LoadAction.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
         },
     }
 

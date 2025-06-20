@@ -88,9 +88,9 @@ class MastoApi {
     logger = getLogger();
     user;
     userData;
-    waitTimes = (0, enums_1.buildCacheKeyDict)(() => new time_helpers_2.WaitTime());
-    apiMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking data fetching for an API endpoint
-    cacheMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking checking the cache for an API endpoint
+    waitTimes = (0, enums_1.simpleCacheKeyDict)(() => new time_helpers_2.WaitTime());
+    apiMutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking data fetching for an API endpoint
+    cacheMutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking checking the cache for an API endpoint
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
     /**
      * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.

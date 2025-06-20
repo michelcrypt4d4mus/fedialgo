@@ -97,7 +97,6 @@ export default class TheAlgorithm {
     private constructor();
     /**
      * Trigger the retrieval of the user's timeline from all the sources.
-     * @param {boolean} [moreOldToots] - Backfill older toots instead of getting new toots
      * @returns {Promise<void>}
      */
     triggerFeedUpdate(): Promise<void>;
@@ -198,7 +197,7 @@ export default class TheAlgorithm {
     private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;
-    private lockLoadingMutex;
+    private startAction;
     private mergeTootsToFeed;
     private recomputeScorers;
     private releaseLoadingMutex;

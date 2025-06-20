@@ -3,6 +3,31 @@
  * @module enums
  */
 
+import { type Optional } from './types';
+
+/**
+ * Actions that TheAlgorithm can take.
+ * @enum {string}
+ * @private
+ */
+export enum LoadAction {
+    IS_BUSY = 'isBusy',
+    REFRESH_MUTED_ACCOUNTS = 'refreshMutedAccounts',
+    RESET = 'reset',
+    TRIGGER_FEED_UPDATE = "triggerFeedUpdate",
+    TRIGGER_MOAR_DATA = 'triggerMoarData',
+    TRIGGER_PULL_ALL_USER_DATA = "triggerPullAllUserData",
+    TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill",
+};
+
+export enum LogAction {
+    FINISH_FEED_UPDATE = 'finishFeedUpdate',
+    INITIAL_LOADING_STATUS = 'initialState',
+};
+
+export type Action = LoadAction | LogAction;
+
+
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -173,11 +198,26 @@ export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
+/** Utility type. */
+export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 
 
 ///////////////////////////
 //      Constants        //
 ///////////////////////////
+
+export const ALL_ACTIONS = [
+    ...Object.values(LoadAction),
+    ...Object.values(LogAction),
+] as const;
+
+// Cache keys for the fediverse wide trending data
+export const FEDIVERSE_CACHE_KEYS = [
+    CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    CacheKey.FEDIVERSE_TRENDING_LINKS,
+    CacheKey.FEDIVERSE_TRENDING_TAGS,
+    CacheKey.FEDIVERSE_TRENDING_TOOTS,
+];
 
 // Objects fetched with these keys need to be built into proper Toot objects.
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
@@ -222,22 +262,39 @@ export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTI
 //      Helper Methods       //
 ///////////////////////////////
 
+// Conditional type helper to extend keys beyond ApiCacheKey enum or not
+type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> =
+    IsNullOrUndefined<U> extends true
+        ? Record<ApiCacheKey, T>
+        : Record<ApiCacheKey | K, T>;
+
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @private
+ * @template K
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {Record<K, T>} [initialDict] - Optional initial dictionary to extend (default={}).
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
- * @private
  */
-export function buildCacheKeyDict<T>(
-    fxn: (key?: ApiCacheKey) => T,
-    keys?: ApiCacheKey[]
-): Record<ApiCacheKey, T> {
-    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
-        dict[key] = fxn(key);
-        return dict;
-    }, {} as Record<ApiCacheKey, T>);
+export function buildCacheKeyDict<K extends string, T, D extends Optional<Record<K, T>>>(
+    fxn: (key: ApiCacheKey) => T,
+    initialDict?: Optional<Record<K, T>>,
+    keys?: ApiCacheKey[],
+): CachedByKey<K, T, D> {
+    return (keys ?? ALL_CACHE_KEYS).reduce(
+        (dict, key) => {
+            dict[key] = fxn(key);
+            return dict;
+        },
+        (initialDict ?? {}) as CachedByKey<K, T, D>
+    );
+};
+
+// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+export function simpleCacheKeyDict<T>(fxn: () => T, keys?: ApiCacheKey[]) {
+    return buildCacheKeyDict<ApiCacheKey, T, null>(fxn, null, keys);
 };
 
 

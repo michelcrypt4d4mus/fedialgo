@@ -43,7 +43,7 @@ class MastodonServer {
     static v1Url = (path) => `${API_V1}/${path}`;
     static v2Url = (path) => `${API_V2}/${path}`;
     static trendUrl = (path) => this.v1Url(`trends/${path}`);
-    static trendingMutexes = (0, enums_1.buildCacheKeyDict)(() => new async_mutex_1.Mutex(), config_1.FEDIVERSE_CACHE_KEYS);
+    static trendingMutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex(), enums_1.FEDIVERSE_CACHE_KEYS);
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.

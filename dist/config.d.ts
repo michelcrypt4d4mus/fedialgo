@@ -1,6 +1,5 @@
-import { CacheKey, type ApiCacheKey } from "./enums";
-import { type NonScoreWeightInfoDict } from "./types";
-export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
+import { type NonScoreWeightInfoDict, type Optional } from "./types";
+import { LoadAction, type ApiCacheKey } from "./enums";
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
 export declare const MINUTES_IN_DAY: number;
@@ -42,17 +41,16 @@ type FediverseConfig = {
     noTrendingLinksServers: string[];
     numServersToCheck: number;
 };
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type TriggerLoadMsgFxn = {
+    [LoadAction.TRIGGER_FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string;
+};
 type LocaleConfig = {
     country: string;
     defaultLanguage: string;
     language: string;
     locale: string;
-    messages: {
-        finalizingScores: string;
-        isBusy: string;
-        initialLoadingStatus: string;
-        readyToLoad: string;
-    };
+    messages: LoadingStatusMsgs & TriggerLoadMsgFxn;
 };
 interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;
@@ -165,10 +163,15 @@ declare class Config implements ConfigType {
         language: string;
         locale: string;
         messages: {
-            finalizingScores: string;
-            initialLoadingStatus: string;
+            finishFeedUpdate: string;
+            initialState: string;
             isBusy: string;
-            readyToLoad: string;
+            refreshMutedAccounts: string;
+            reset: string;
+            triggerFeedUpdate: (timeline: Array<unknown>, since: Optional<Date>) => string;
+            triggerMoarData: string;
+            triggerPullAllUserData: string;
+            triggerTimelineBackfill: string;
         };
     };
     participatedTags: {
