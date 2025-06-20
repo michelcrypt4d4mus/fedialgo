@@ -80,7 +80,7 @@ export declare enum TagTootsCategory {
 }
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
- * Order influences the order of the score weighting sliders in the demo app.
+ * NOTE: Order influences the order of the score weighting sliders in the demo app.
  * @enum {string}
  */
 export declare enum NonScoreWeightName {

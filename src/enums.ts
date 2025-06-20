@@ -91,7 +91,7 @@ export enum TagTootsCategory {
 
 /**
  * Enum of non-score weight names (used for sliders and scoring adjustments).
- * Order influences the order of the score weighting sliders in the demo app.
+ * NOTE: Order influences the order of the score weighting sliders in the demo app.
  * @enum {string}
  */
 export enum NonScoreWeightName {
@@ -127,7 +127,7 @@ export enum ScoreName {
     TRENDING_LINKS = 'TrendingLinks',
     TRENDING_TAGS = "TrendingTags",
     TRENDING_TOOTS = "TrendingToots",
-    VIDEO_ATTACHMENTS = 'VideoAttachments'
+    VIDEO_ATTACHMENTS = 'VideoAttachments',
 };
 
 

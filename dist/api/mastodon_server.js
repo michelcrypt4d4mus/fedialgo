@@ -73,6 +73,20 @@ class MastodonServer {
         }
     }
     /**
+     * Get the links that are trending on this server.
+     * @returns {Promise<TrendingLink[]>} Array of trending links.
+     */
+    async fetchTrendingLinks() {
+        if (config_1.config.fediverse.noTrendingLinksServers.includes(this.domain)) {
+            this.logger.debug(`Trending links are not available for '${this.domain}', skipping...`);
+            return [];
+        }
+        const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
+        const trendingLinks = await this.fetchTrending(enums_1.TrendingType.LINKS, numLinks);
+        trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
+        return trendingLinks;
+    }
+    /**
      * Fetch toots that are trending on this server.
      * Note: Returned toots have not had setDependentProps() called yet.
      * TODO: should return SerializableToot[] instead of mastodon.v1.Status but the type system is annoying.
@@ -88,20 +102,6 @@ class MastodonServer {
             toot.sources = [enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS];
         });
         return trendingToots;
-    }
-    /**
-     * Get the links that are trending on this server.
-     * @returns {Promise<TrendingLink[]>} Array of trending links.
-     */
-    async fetchTrendingLinks() {
-        if (config_1.config.fediverse.noTrendingLinksServers.includes(this.domain)) {
-            this.logger.debug(`Trending links are not available for '${this.domain}', skipping...`);
-            return [];
-        }
-        const numLinks = config_1.config.trending.links.numTrendingLinksPerServer;
-        const trendingLinks = await this.fetchTrending(enums_1.TrendingType.LINKS, numLinks);
-        trendingLinks.forEach(trending_with_history_1.decorateLinkHistory);
-        return trendingLinks;
     }
     /**
      * Get the tags that are trending on this server.
