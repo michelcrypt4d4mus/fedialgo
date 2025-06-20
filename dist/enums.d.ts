@@ -170,12 +170,12 @@ export declare enum TypeFilterName {
 export type ApiCacheKey = CacheKey | TagTootsCategory;
 /** All browser storage indexedDB keys. */
 export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
+/** Utility type. */
+export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 /** Possible uniqufiiers for a class of ApiObjs. */
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
-/** Utility type. */
-export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 export declare const ALL_ACTIONS: readonly (LogAction | LoadAction)[];
 export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
