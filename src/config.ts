@@ -148,7 +148,7 @@ interface ConfigType {
     trending: Readonly<TrendingConfig>;
 };
 
-type toop = Omit<typeof LoadAction, LoadAction.IS_BUSY | LoadAction.REFRESH_MUTED_ACCOUNTS | LoadAction.RESET>;
+
 /**
  * Centralized application configuration class for non-user configurable settings.
  *
