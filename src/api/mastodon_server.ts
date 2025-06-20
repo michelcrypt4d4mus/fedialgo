@@ -110,7 +110,6 @@ export default class MastodonServer {
     /**
      * Fetch toots that are trending on this server.
      * Note: Returned toots have not had setDependentProps() called yet.
-     * TODO: should return SerializableToot[] instead of mastodon.v1.Status but the type system is annoying.
      * @returns {Promise<Toot[]>} Array of trending Toot objects.
      */
     async fetchTrendingStatuses(): Promise<Toot[]> {
@@ -133,7 +132,7 @@ export default class MastodonServer {
     async fetchTrendingTags(): Promise<TagWithUsageCounts[]> {
         const numTags = config.trending.tags.numTagsPerServer;
         const trendingTags = await this.fetchTrending<TagWithUsageCounts>(TrendingType.TAGS, numTags);
-        trendingTags.forEach(tag => decorateTagHistory(tag));
+        trendingTags.forEach(decorateTagHistory);
         return trendingTags;
     }
 
@@ -180,8 +179,8 @@ export default class MastodonServer {
     }
 
     // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
-    private async fetchTrending<T>(typeStr: TrendingType, limit?: number): Promise<T[]> {
-        return this.fetchList<T>(MastodonServer.trendUrl(typeStr), limit);
+    private async fetchTrending<T>(trendingType: TrendingType, limit?: number): Promise<T[]> {
+        return this.fetchList<T>(MastodonServer.trendUrl(trendingType), limit);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////

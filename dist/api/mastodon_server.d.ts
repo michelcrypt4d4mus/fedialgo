@@ -32,7 +32,6 @@ export default class MastodonServer {
     /**
      * Fetch toots that are trending on this server.
      * Note: Returned toots have not had setDependentProps() called yet.
-     * TODO: should return SerializableToot[] instead of mastodon.v1.Status but the type system is annoying.
      * @returns {Promise<Toot[]>} Array of trending Toot objects.
      */
     fetchTrendingStatuses(): Promise<Toot[]>;
