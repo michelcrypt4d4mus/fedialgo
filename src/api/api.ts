@@ -193,6 +193,9 @@ const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", 
 const getLogger = Logger.logBuilder('API');
 export const apiLogger = getLogger();
 
+function cachedKeyDict<T>(fxn: () => T): Record<ApiCacheKey, T> {
+    return buildCacheKeyDict<ApiCacheKey, T, null>(fxn);
+}
 
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
@@ -214,10 +217,10 @@ export default class MastoApi {
     logger: Logger = getLogger();
     user: Account;
     userData?: UserData;
-    waitTimes = buildCacheKeyDict<ApiCacheKey, WaitTime, null>(() => new WaitTime());
+    waitTimes = cachedKeyDict(() => new WaitTime());
 
-    private apiMutexes = buildCacheKeyDict<ApiCacheKey, Mutex, null>(() => new Mutex());   // For locking data fetching for an API endpoint
-    private cacheMutexes = buildCacheKeyDict<ApiCacheKey, Mutex, null>(() => new Mutex()); // For locking checking the cache for an API endpoint
+    private apiMutexes = cachedKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
+    private cacheMutexes = cachedKeyDict(() => new Mutex()); // For locking checking the cache for an API endpoint
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
 
     /**
