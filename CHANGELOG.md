@@ -1,9 +1,12 @@
 # NEXT RELEASE
 
+### v0.74.4
+* Fix bug where FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS data wasn't being built into Toot objects
+
 ### v0.74.3
-* Create config.locale.messages for potentially user facing string configuration
-* Reset trendingData when reset() is called
-* Refactor out FediverseCacheKey enum
+* Create `config.locale.messages` for potentially user facing string configuration
+* Reset `trendingData` when `reset()` is called
+* Refactor out `FediverseCacheKey` enum
 
 ### v0.74.2
 * Rename `TagTootsType` enum to `TagTootsCategory`
