@@ -80,8 +80,8 @@ enum TootCacheKey {
 };
 
 // Cache for methods that build strings from the toot content.
-type TootCacheBase = {[key in TootCacheKey]?: string};
-type TootCache = TootCacheBase & {tagNames?: Set<string>};
+type TootCacheStrings = {[key in TootCacheKey]?: string};
+type TootCache = TootCacheStrings & {tagNames?: Set<string>};
 
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
