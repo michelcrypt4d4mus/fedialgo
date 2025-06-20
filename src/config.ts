@@ -74,7 +74,7 @@ type FediverseConfig = {
 };
 
 type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
-type TriggerLoadMsgFxn = {[LoadAction.TRIGGER_FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string};
+type TriggerLoadMsgFxn = {[LoadAction.FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string};
 
 type LocaleConfig = {
     country: string;
@@ -415,19 +415,19 @@ class Config implements ConfigType {
         messages: {                             // TRIGGER_FEED_UPDATE is a fxn, everything else is a string
             [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
             [LogAction.INITIAL_LOADING_STATUS]: "Ready to load",
-            [LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
-            [LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
-            [LoadAction.RESET]: `Resetting state`,
-            [LoadAction.TRIGGER_FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => {
+            [LoadAction.FEED_UPDATE]: (timeline: Array<unknown>, since: Optional<Date>) => {
                 if (timeline.length == 0) {
                     return `Loading more toots (retrieved ${timeline.length.toLocaleString()} toots so far)`;
                 } else {
                     return `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`);
                 }
             },
-            [LoadAction.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
-            [LoadAction.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
-            [LoadAction.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+            [LoadAction.GET_MOAR_DATA]: `Fetching more data for the algorithm`,
+            [LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            [LoadAction.PULL_ALL_USER_DATA]: `Pulling your historical data`,
+            [LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
+            [LoadAction.RESET]: `Resetting state`,
+            [LoadAction.TIMELINE_BACKFILL]: `Loading older home timeline toots`,
         },
     }
 

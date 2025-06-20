@@ -292,10 +292,7 @@ class Config {
         messages: {
             [enums_1.LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
             [enums_1.LogAction.INITIAL_LOADING_STATUS]: "Ready to load",
-            [enums_1.LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
-            [enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
-            [enums_1.LoadAction.RESET]: `Resetting state`,
-            [enums_1.LoadAction.TRIGGER_FEED_UPDATE]: (timeline, since) => {
+            [enums_1.LoadAction.FEED_UPDATE]: (timeline, since) => {
                 if (timeline.length == 0) {
                     return `Loading more toots (retrieved ${timeline.length.toLocaleString()} toots so far)`;
                 }
@@ -303,9 +300,12 @@ class Config {
                     return `Loading new toots` + (0, string_helpers_1.optionalSuffix)(since, `since ${(0, time_helpers_1.timeString)(since)}`);
                 }
             },
-            [enums_1.LoadAction.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
-            [enums_1.LoadAction.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
-            [enums_1.LoadAction.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
+            [enums_1.LoadAction.GET_MOAR_DATA]: `Fetching more data for the algorithm`,
+            [enums_1.LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            [enums_1.LoadAction.PULL_ALL_USER_DATA]: `Pulling your historical data`,
+            [enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
+            [enums_1.LoadAction.RESET]: `Resetting state`,
+            [enums_1.LoadAction.TIMELINE_BACKFILL]: `Loading older home timeline toots`,
         },
     };
     participatedTags = {

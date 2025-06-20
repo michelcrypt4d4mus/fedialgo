@@ -284,7 +284,7 @@ export default class TheAlgorithm {
      */
     async triggerFeedUpdate(): Promise<void> {
         if (this.shouldSkip()) return;
-        const action = LoadAction.TRIGGER_FEED_UPDATE;
+        const action = LoadAction.FEED_UPDATE;
         const hereLogger = loggers[action];
         await this.startAction(action);
 
@@ -320,13 +320,13 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerHomeTimelineBackFill(): Promise<void> {
-        await this.startAction(LoadAction.TRIGGER_TIMELINE_BACKFILL);
+        await this.startAction(LoadAction.TIMELINE_BACKFILL);
 
         try {
             this.homeFeed = await this.getHomeTimeline(true);
             await this.finishFeedUpdate();
         } finally {
-            this.releaseLoadingMutex(LoadAction.TRIGGER_TIMELINE_BACKFILL);
+            this.releaseLoadingMutex(LoadAction.TIMELINE_BACKFILL);
         }
     }
 
@@ -336,7 +336,7 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData(): Promise<void> {
-        await this.startAction(LoadAction.TRIGGER_MOAR_DATA);
+        await this.startAction(LoadAction.GET_MOAR_DATA);
         let shouldReenablePoller = false;
 
         try {
@@ -353,7 +353,7 @@ export default class TheAlgorithm {
             throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         } finally {
             if (shouldReenablePoller) this.enableMoarDataBackgroundPoller();  // Reenable poller when finished
-            this.releaseLoadingMutex(LoadAction.TRIGGER_MOAR_DATA);
+            this.releaseLoadingMutex(LoadAction.GET_MOAR_DATA);
         }
     }
 
@@ -363,7 +363,7 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData(): Promise<void> {
-        const action = LoadAction.TRIGGER_PULL_ALL_USER_DATA;
+        const action = LoadAction.PULL_ALL_USER_DATA;
         const hereLogger = loggers[action];
         this.startAction(action);
 
@@ -579,7 +579,7 @@ export default class TheAlgorithm {
 
     // Return true if we're in QUICK_MODE and the feed is fresh enough that we don't need to update it (for dev)
     private shouldSkip(): boolean {
-        const hereLogger = loggers[LoadAction.TRIGGER_FEED_UPDATE];
+        const hereLogger = loggers[LoadAction.FEED_UPDATE];
         hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes) feedAgeInMinutes /= 60;
@@ -731,14 +731,15 @@ export default class TheAlgorithm {
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     private async mergeTootsToFeed(newToots: Toot[], inLogger: Logger): Promise<void> {
-        const startedAt = new Date();
-        const numTootsBefore = this.feed.length;
         const hereLogger = inLogger.tempLogger('mergeTootsToFeed');
+        const numTootsBefore = this.feed.length;
+        const startedAt = new Date();
+
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], hereLogger);
         await updateBooleanFilterOptions(this.filters, this.feed);
         await this.scoreAndFilterFeed();
 
-        const statusMsgFxn = config.locale.messages[LoadAction.TRIGGER_FEED_UPDATE];
+        const statusMsgFxn = config.locale.messages[LoadAction.FEED_UPDATE];
         this.loadingStatus = statusMsgFxn(this.feed, this.mostRecentHomeTootAt());
         hereLogger.logTelemetry(`Merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
     }

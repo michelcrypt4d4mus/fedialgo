@@ -12,13 +12,13 @@ exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.
  */
 var LoadAction;
 (function (LoadAction) {
+    LoadAction["FEED_UPDATE"] = "triggerFeedUpdate";
+    LoadAction["GET_MOAR_DATA"] = "triggerMoarData";
     LoadAction["IS_BUSY"] = "isBusy";
+    LoadAction["PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
     LoadAction["REFRESH_MUTED_ACCOUNTS"] = "refreshMutedAccounts";
     LoadAction["RESET"] = "reset";
-    LoadAction["TRIGGER_FEED_UPDATE"] = "triggerFeedUpdate";
-    LoadAction["TRIGGER_MOAR_DATA"] = "triggerMoarData";
-    LoadAction["TRIGGER_PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
-    LoadAction["TRIGGER_TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
+    LoadAction["TIMELINE_BACKFILL"] = "triggerTimelineBackfill";
 })(LoadAction || (exports.LoadAction = LoadAction = {}));
 ;
 var LogAction;

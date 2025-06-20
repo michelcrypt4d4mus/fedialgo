@@ -9,13 +9,13 @@ import { type Optional } from './types';
  * @private
  */
 export declare enum LoadAction {
+    FEED_UPDATE = "triggerFeedUpdate",
+    GET_MOAR_DATA = "triggerMoarData",
     IS_BUSY = "isBusy",
+    PULL_ALL_USER_DATA = "triggerPullAllUserData",
     REFRESH_MUTED_ACCOUNTS = "refreshMutedAccounts",
     RESET = "reset",
-    TRIGGER_FEED_UPDATE = "triggerFeedUpdate",
-    TRIGGER_MOAR_DATA = "triggerMoarData",
-    TRIGGER_PULL_ALL_USER_DATA = "triggerPullAllUserData",
-    TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill"
+    TIMELINE_BACKFILL = "triggerTimelineBackfill"
 }
 export declare enum LogAction {
     FINISH_FEED_UPDATE = "finishFeedUpdate",

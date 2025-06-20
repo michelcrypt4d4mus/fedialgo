@@ -43,7 +43,7 @@ type FediverseConfig = {
 };
 type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
 type TriggerLoadMsgFxn = {
-    [LoadAction.TRIGGER_FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string;
+    [LoadAction.FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string;
 };
 type LocaleConfig = {
     country: string;
@@ -165,12 +165,12 @@ declare class Config implements ConfigType {
         messages: {
             finishFeedUpdate: string;
             initialState: string;
-            isBusy: string;
-            refreshMutedAccounts: string;
-            reset: string;
             triggerFeedUpdate: (timeline: Array<unknown>, since: Optional<Date>) => string;
             triggerMoarData: string;
+            isBusy: string;
             triggerPullAllUserData: string;
+            refreshMutedAccounts: string;
+            reset: string;
             triggerTimelineBackfill: string;
         };
     };

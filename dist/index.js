@@ -259,7 +259,7 @@ class TheAlgorithm {
     async triggerFeedUpdate() {
         if (this.shouldSkip())
             return;
-        const action = enums_1.LoadAction.TRIGGER_FEED_UPDATE;
+        const action = enums_1.LoadAction.FEED_UPDATE;
         const hereLogger = loggers[action];
         await this.startAction(action);
         try {
@@ -292,13 +292,13 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerHomeTimelineBackFill() {
-        await this.startAction(enums_1.LoadAction.TRIGGER_TIMELINE_BACKFILL);
+        await this.startAction(enums_1.LoadAction.TIMELINE_BACKFILL);
         try {
             this.homeFeed = await this.getHomeTimeline(true);
             await this.finishFeedUpdate();
         }
         finally {
-            this.releaseLoadingMutex(enums_1.LoadAction.TRIGGER_TIMELINE_BACKFILL);
+            this.releaseLoadingMutex(enums_1.LoadAction.TIMELINE_BACKFILL);
         }
     }
     /**
@@ -307,7 +307,7 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData() {
-        await this.startAction(enums_1.LoadAction.TRIGGER_MOAR_DATA);
+        await this.startAction(enums_1.LoadAction.GET_MOAR_DATA);
         let shouldReenablePoller = false;
         try {
             if (this.dataPoller) {
@@ -325,7 +325,7 @@ class TheAlgorithm {
         finally {
             if (shouldReenablePoller)
                 this.enableMoarDataBackgroundPoller(); // Reenable poller when finished
-            this.releaseLoadingMutex(enums_1.LoadAction.TRIGGER_MOAR_DATA);
+            this.releaseLoadingMutex(enums_1.LoadAction.GET_MOAR_DATA);
         }
     }
     /**
@@ -334,7 +334,7 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerPullAllUserData() {
-        const action = enums_1.LoadAction.TRIGGER_PULL_ALL_USER_DATA;
+        const action = enums_1.LoadAction.PULL_ALL_USER_DATA;
         const hereLogger = loggers[action];
         this.startAction(action);
         try {
@@ -532,7 +532,7 @@ class TheAlgorithm {
     ///////////////////////////////
     // Return true if we're in QUICK_MODE and the feed is fresh enough that we don't need to update it (for dev)
     shouldSkip() {
-        const hereLogger = loggers[enums_1.LoadAction.TRIGGER_FEED_UPDATE];
+        const hereLogger = loggers[enums_1.LoadAction.FEED_UPDATE];
         hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
@@ -663,13 +663,13 @@ class TheAlgorithm {
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     async mergeTootsToFeed(newToots, inLogger) {
-        const startedAt = new Date();
-        const numTootsBefore = this.feed.length;
         const hereLogger = inLogger.tempLogger('mergeTootsToFeed');
+        const numTootsBefore = this.feed.length;
+        const startedAt = new Date();
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], hereLogger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        const statusMsgFxn = config_1.config.locale.messages[enums_1.LoadAction.TRIGGER_FEED_UPDATE];
+        const statusMsgFxn = config_1.config.locale.messages[enums_1.LoadAction.FEED_UPDATE];
         this.loadingStatus = statusMsgFxn(this.feed, this.mostRecentHomeTootAt());
         hereLogger.logTelemetry(`Merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
     }
