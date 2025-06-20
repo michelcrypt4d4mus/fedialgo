@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Skip deep scan of tag filter strings when loading cached data
 
 ### v0.74.16
 * More tagOnlyStrings
