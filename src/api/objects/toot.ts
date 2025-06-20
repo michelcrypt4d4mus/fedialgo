@@ -607,6 +607,8 @@ export default class Toot implements TootObj {
      * @returns {Set<string>} Set of the names of the tags in this toot.
      */
     tagNames(): Set<string> {
+        // TODO: class-transformer doesn't serialize Sets correctly so we have to check if it's an array
+        //       See https://github.com/typestack/class-transformer/issues/54
         if (!this.contentCache.tagNames || Array.isArray(this.contentCache.tagNames)) {
             this.contentCache.tagNames = new Set((this.tags || []).map((tag) => tag.name));
         }
