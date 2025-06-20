@@ -214,10 +214,10 @@ export default class MastoApi {
     logger: Logger = getLogger();
     user: Account;
     userData?: UserData;
-    waitTimes = buildCacheKeyDict(() => new WaitTime());
+    waitTimes = buildCacheKeyDict<ApiCacheKey, WaitTime, null>(() => new WaitTime());
 
-    private apiMutexes = buildCacheKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
-    private cacheMutexes = buildCacheKeyDict(() => new Mutex()); // For locking checking the cache for an API endpoint
+    private apiMutexes = buildCacheKeyDict<ApiCacheKey, Mutex, null>(() => new Mutex());   // For locking data fetching for an API endpoint
+    private cacheMutexes = buildCacheKeyDict<ApiCacheKey, Mutex, null>(() => new Mutex()); // For locking checking the cache for an API endpoint
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
 
     /**

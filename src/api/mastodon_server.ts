@@ -66,7 +66,7 @@ export default class MastodonServer {
     private static v1Url = (path: string) => `${API_V1}/${path}`;
     private static v2Url = (path: string) => `${API_V2}/${path}`;
     private static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
-    private static trendingMutexes = buildCacheKeyDict(() => new Mutex(), null, FEDIVERSE_CACHE_KEYS);
+    private static trendingMutexes = buildCacheKeyDict<CacheKey, Mutex, null>(() => new Mutex(), null, FEDIVERSE_CACHE_KEYS);
 
     /**
      * Constructs a MastodonServer instance for the given domain.

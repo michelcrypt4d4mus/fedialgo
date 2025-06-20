@@ -284,11 +284,12 @@ export default class TheAlgorithm {
      */
     async triggerFeedUpdate(): Promise<void> {
         if (this.shouldSkip()) return;
-        await this.lockApiMutex(LoadAction.TRIGGER_FEED_UPDATE);
+        const action = LoadAction.TRIGGER_FEED_UPDATE;
+        await this.lockApiMutex(action);
 
         try {
             const tootsForHashtags = async (key: TagTootsCategory): Promise<Toot[]> => {
-                loggers[LoadAction.TRIGGER_FEED_UPDATE].trace(`Fetching toots for hashtags with key: ${key}`);
+                loggers[action].trace(`Fetching toots for hashtags with key: ${key}`);
                 const tagList = await TagsForFetchingToots.create(key);
                 return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
             };
@@ -306,10 +307,10 @@ export default class TheAlgorithm {
             ];
 
             const allResults = await Promise.allSettled(dataLoads);
-            loggers[LoadAction.TRIGGER_FEED_UPDATE].deep(`FINISHED promises, allResults:`, allResults);
+            loggers[action].deep(`FINISHED promises, allResults:`, allResults);
             await this.finishFeedUpdate();
         } finally {
-            this.releaseLoadingMutex(LoadAction.TRIGGER_FEED_UPDATE);
+            this.releaseLoadingMutex(action);
         }
     }
 
