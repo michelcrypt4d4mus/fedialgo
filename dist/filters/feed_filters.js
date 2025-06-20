@@ -213,21 +213,26 @@ function populateMissingFilters(filters) {
  */
 function updateHashtagCounts(options, tags, toots) {
     const startedAt = Date.now();
-    let numTagsFound = 0;
+    let totalTagsFound = 0;
     tags.forEach((option) => {
         const tag = option;
+        let tagsFound = 0;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
         if (!((0, tag_1.isValidForSubstringSearch)(tag) && options.getObj(tag.name))) {
             return;
         }
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsTag(tag, true)) {
-                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
+                // taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 options.incrementCount(tag.name);
-                numTagsFound++;
+                totalTagsFound++;
+                tagsFound++;
             }
         });
+        if (tagsFound > 0) {
+            taggishLogger.debug(`Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`);
+        }
     });
-    taggishLogger.info(`Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}`);
+    taggishLogger.info(`Found ${totalTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}, topObjs:`, options.topObjs(100));
 }
 //# sourceMappingURL=feed_filters.js.map

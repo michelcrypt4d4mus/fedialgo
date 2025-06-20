@@ -506,7 +506,7 @@ class Toot {
      * @returns {Set<string>} Set of the names of the tags in this toot.
      */
     tagNames() {
-        this.contentCache.tagNames ??= new Set((this.tags ?? []).map((tag) => tag.name));
+        this.contentCache.tagNames ??= new Set((this.tags || []).map((tag) => tag.name));
         return this.contentCache.tagNames;
     }
     //////////////////////////////

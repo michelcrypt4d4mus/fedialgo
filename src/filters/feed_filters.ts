@@ -232,10 +232,11 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  */
 function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilterOptionList, toots: Toot[]): void {
     const startedAt = Date.now();
-    let numTagsFound = 0;
+    let totalTagsFound = 0;
 
     tags.forEach((option) => {
         const tag = option as TagWithUsageCounts;
+        let tagsFound = 0;
 
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
         if (!(isValidForSubstringSearch(tag) && options.getObj(tag.name))) {
@@ -244,14 +245,20 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
 
         toots.forEach((toot) => {
             if (!toot.realToot.containsTag(tag) && toot.realToot.containsTag(tag, true)) {
-                taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
+                // taggishLogger.trace(`Incrementing count for followed tag "${tag.name}"...`);
                 options.incrementCount(tag.name);
-                numTagsFound++;
+                totalTagsFound++;
+                tagsFound++;
             }
         })
+
+        if (tagsFound > 0) {
+            taggishLogger.debug(`Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`);
+        }
     });
 
     taggishLogger.info(
-        `Found ${numTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}`
+        `Found ${totalTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}, topObjs:`,
+        options.topObjs(100)
     );
 }
