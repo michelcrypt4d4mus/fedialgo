@@ -58,17 +58,12 @@ class MastodonServer {
      * @returns {Promise<InstanceResponse>} The instance info or null if not available.
      */
     async fetchServerInfo() {
-        const logPrefix = `(fetchServerInfo())`;
-        if (MastodonServer.isNoMauServer(this.domain)) {
-            this.logger.debug(`${logPrefix} Instance info for '${this.domain}' is not available...`);
-            return null;
-        }
         try {
             return await this.fetch(MastodonServer.v2Url(INSTANCE));
         }
         catch (error) {
             // TODO: we shouldn't have to catch this error here because zipPromises() will take care of it
-            this.logger.warn(`${logPrefix} Error for server '${this.domain}'`, error);
+            this.logger.tempLogger('fetchServerInfo').warn(`Error for server '${this.domain}'`, error);
             return null;
         }
     }
@@ -94,14 +89,14 @@ class MastodonServer {
      */
     async fetchTrendingStatuses() {
         const toots = await this.fetchTrending(enums_1.TrendingType.STATUSES);
-        const trendingToots = toots.map(t => toot_1.default.build(t));
-        // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
-        // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
-        trendingToots.forEach((toot, i) => {
-            toot.trendingRank = 1 + (trendingToots?.length || 0) - i;
+        return toots.map((t, i) => {
+            const toot = toot_1.default.build(t);
             toot.sources = [enums_1.FediverseCacheKey.TRENDING_TOOTS];
+            // Inject toots with a trendingRank score that is reverse-ordered. e.g most popular
+            // trending toot gets numTrendingTootsPerServer points, least trending gets 1).
+            toot.trendingRank = 1 + (toots.length || 0) - i;
+            return toot;
         });
-        return trendingToots;
     }
     /**
      * Get the tags that are trending on this server.
