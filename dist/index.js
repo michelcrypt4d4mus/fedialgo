@@ -420,7 +420,7 @@ class TheAlgorithm {
         const mutedAccounts = await api_1.default.instance.getMutedAccounts({ bustCache: true });
         hereLogger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = account_1.default.buildAccountNames(mutedAccounts);
-        await toot_1.default.completeToots(this.feed, hereLogger, enums_1.JUST_MUTING);
+        await toot_1.default.completeToots(this.feed, hereLogger, enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS);
         await this.finishFeedUpdate();
     }
     /**

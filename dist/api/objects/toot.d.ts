@@ -1,7 +1,7 @@
 import { mastodon } from "masto";
 import Account from "./account";
-import { Logger } from '../../helpers/logger';
 import { MediaCategory, ScoreName } from '../../enums';
+import { Logger } from '../../helpers/logger';
 import { type AccountLike, type FeedFilterSettings, type MastodonTag, type ScoreType, type TagWithUsageCounts, type TootLike, type TootScore, type TootSource, type TrendingLink } from "../../types";
 /**
  * Extension of mastodon.v1.Status data object with additional properties used by fedialgo

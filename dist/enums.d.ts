@@ -10,6 +10,7 @@ import { type Optional } from './types';
  */
 export declare enum LoadAction {
     FEED_UPDATE = "triggerFeedUpdate",
+    GET_CONVERSATION = "conversation",
     GET_MOAR_DATA = "triggerMoarData",
     IS_BUSY = "isBusy",
     PULL_ALL_USER_DATA = "triggerPullAllUserData",
@@ -188,9 +189,7 @@ export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
 export declare const ALL_CACHE_KEYS: readonly (CacheKey | FediverseCacheKey | TagTootsCategory)[];
-export declare const CONVERSATION = "conversation";
-export declare const JUST_MUTING = "justMuting";
-export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
+export declare const TOOT_SOURCES: readonly [...StorageKey[], LoadAction.GET_CONVERSATION, LoadAction.REFRESH_MUTED_ACCOUNTS];
 type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = IsNullOrUndefined<U> extends true ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.

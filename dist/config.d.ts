@@ -41,7 +41,7 @@ type FediverseConfig = {
     noTrendingLinksServers: string[];
     numServersToCheck: number;
 };
-type LoadingStatusMsgs = Omit<Record<LoadAction, string>, "triggerFeedUpdate">;
+type LoadingStatusMsgs = Omit<Record<LoadAction, string>, LoadAction.FEED_UPDATE>;
 type TriggerLoadMsgFxn = {
     [LoadAction.FEED_UPDATE]: (arr: Array<unknown>, since: Optional<Date>) => string;
 };
@@ -166,6 +166,7 @@ declare class Config implements ConfigType {
             finishFeedUpdate: string;
             initialState: string;
             triggerFeedUpdate: (timeline: Array<unknown>, since: Optional<Date>) => string;
+            conversation: string;
             triggerMoarData: string;
             isBusy: string;
             triggerPullAllUserData: string;

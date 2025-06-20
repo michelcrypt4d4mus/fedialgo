@@ -31,8 +31,8 @@ const numeric_filter_1 = require("../../filters/numeric_filter");
 const language_helper_1 = require("../../helpers/language_helper");
 const environment_helpers_1 = require("../../helpers/environment_helpers");
 const tag_1 = require("./tag");
-const logger_1 = require("../../helpers/logger");
 const enums_1 = require("../../enums");
+const logger_1 = require("../../helpers/logger");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
 // https://docs.joinmastodon.org/entities/Status/#visibility
@@ -382,11 +382,12 @@ class Toot {
      * @returns {Promise<Toot[]>}
      */
     async getConversation() {
-        const logger = tootLogger.tempLogger(enums_1.CONVERSATION);
+        const action = enums_1.LoadAction.GET_CONVERSATION;
+        const logger = tootLogger.tempLogger(action);
         logger.debug(`Fetching conversation for toot:`, this.description);
         const startTime = new Date();
         const context = await api_1.default.instance.api.v1.statuses.$select(await this.resolveID()).context.fetch();
-        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], enums_1.CONVERSATION);
+        const toots = await Toot.buildToots([...context.ancestors, this, ...context.descendants], action);
         logger.trace(`Fetched ${toots.length} toots ${(0, time_helpers_1.ageString)(startTime)}`, toots.map(t => t.description));
         return toots;
     }
@@ -510,8 +511,8 @@ class Toot {
     completeProperties(userData, trendingLinks, trendingTags, source) {
         if (source) {
             this.sources ??= [];
-            // TODO: this JUST_MUTING thing is a really ugly hack to allow muting accounts in real time
-            if (source != enums_1.JUST_MUTING && !this.sources.includes(source)) {
+            // REFRESH_MUTED_ACCOUNTS isn't a sources for toots even if it's a reason for invoking this method.
+            if (source != enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS && !this.sources.includes(source)) {
                 this.sources?.push(source);
             }
         }
@@ -740,7 +741,7 @@ class Toot {
         toots = Toot.dedupeToots(toots, logger);
         // "Best effort" scoring. Note scoreToots() does not sort 'toots' in place but the return value is sorted.
         const tootsSortedByScore = await scorer_1.default.scoreToots(toots, false);
-        if (source != enums_1.CONVERSATION) {
+        if (source != enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS) {
             toots = this.removeUsersOwnToots(tootsSortedByScore, logger);
         }
         logger.trace(`${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);

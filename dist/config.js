@@ -300,6 +300,7 @@ class Config {
                     return `Loading new toots` + (0, string_helpers_1.optionalSuffix)(since, `since ${(0, time_helpers_1.timeString)(since)}`);
                 }
             },
+            [enums_1.LoadAction.GET_CONVERSATION]: `Loading conversation`,
             [enums_1.LoadAction.GET_MOAR_DATA]: `Fetching more data for the algorithm`,
             [enums_1.LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
             [enums_1.LoadAction.PULL_ALL_USER_DATA]: `Pulling your historical data`,

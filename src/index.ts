@@ -69,8 +69,6 @@ import {
     TypeFilterName,
     TagTootsCategory,
     ALL_ACTIONS,
-    JUST_MUTING,
-    // LOG_KEYS,
     buildCacheKeyDict,
     isValueInStringEnum,
     type Action,
@@ -457,7 +455,7 @@ export default class TheAlgorithm {
         const mutedAccounts = await MastoApi.instance.getMutedAccounts({bustCache: true});
         hereLogger.log(`Found ${mutedAccounts.length} muted accounts after refresh...`);
         this.userData.mutedAccounts = Account.buildAccountNames(mutedAccounts);
-        await Toot.completeToots(this.feed, hereLogger, JUST_MUTING);
+        await Toot.completeToots(this.feed, hereLogger, LoadAction.REFRESH_MUTED_ACCOUNTS);
         await this.finishFeedUpdate();
     }
 

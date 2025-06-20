@@ -4,7 +4,7 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -13,6 +13,7 @@ exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.
 var LoadAction;
 (function (LoadAction) {
     LoadAction["FEED_UPDATE"] = "triggerFeedUpdate";
+    LoadAction["GET_CONVERSATION"] = "conversation";
     LoadAction["GET_MOAR_DATA"] = "triggerMoarData";
     LoadAction["IS_BUSY"] = "isBusy";
     LoadAction["PULL_ALL_USER_DATA"] = "triggerPullAllUserData";
@@ -231,9 +232,11 @@ exports.ALL_CACHE_KEYS = [
     ...Object.values(FediverseCacheKey),
     ...Object.values(TagTootsCategory),
 ];
-exports.CONVERSATION = 'conversation';
-exports.JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
-exports.TOOT_SOURCES = [...exports.STORAGE_KEYS_WITH_TOOTS, exports.CONVERSATION, exports.JUST_MUTING];
+exports.TOOT_SOURCES = [
+    ...exports.STORAGE_KEYS_WITH_TOOTS,
+    LoadAction.GET_CONVERSATION,
+    LoadAction.REFRESH_MUTED_ACCOUNTS,
+];
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @private

@@ -12,6 +12,7 @@ import { type Optional } from './types';
  */
 export enum LoadAction {
     FEED_UPDATE = "triggerFeedUpdate",
+    GET_CONVERSATION = 'conversation',
     GET_MOAR_DATA = 'triggerMoarData',
     IS_BUSY = 'isBusy',
     PULL_ALL_USER_DATA = "triggerPullAllUserData",
@@ -261,9 +262,11 @@ export const ALL_CACHE_KEYS = [
     ...Object.values(TagTootsCategory),
 ] as const;
 
-export const CONVERSATION = 'conversation';
-export const JUST_MUTING = "justMuting"; // TODO: Ugly hack used in the filter settings to indicate that the user is just muting this toot
-export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTING] as const;
+export const TOOT_SOURCES = [
+    ...STORAGE_KEYS_WITH_TOOTS,
+    LoadAction.GET_CONVERSATION,
+    LoadAction.REFRESH_MUTED_ACCOUNTS,
+] as const;
 
 
 ///////////////////////////////
