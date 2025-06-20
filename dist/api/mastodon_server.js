@@ -53,7 +53,6 @@ class MastodonServer {
         this.domain = domain;
         this.logger = logger_1.Logger.withParenthesizedName(LOG_PREFIX, domain);
     }
-    ;
     /**
      * Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server.
      * @returns {Promise<InstanceResponse>} The instance info or null if not available.
@@ -339,7 +338,7 @@ class MastodonServer {
     }
     // Returns true if the domain is known to not provide MAU and trending data via public API
     static isNoMauServer(domain) {
-        return config_1.config.fediverse.noMauServers.some(s => domain == s);
+        return config_1.config.fediverse.noMauServers.includes(domain);
     }
     // Helper methods for building URLs
     static trendUrl = (path) => this.v1Url(`trends/${path}`);

@@ -26,6 +26,7 @@ const PREFIXERS = [
     (str: string) => `#${str}#`,
 ] as const;
 
+
 /**
  * Standardized logger for consistent, prefixed, and optionally colorized logging throughout the application.
  * Supports multiple log levels, custom prefixes, telemetry, and error handling utilities.

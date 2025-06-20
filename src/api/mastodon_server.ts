@@ -75,7 +75,7 @@ export default class MastodonServer {
     constructor(domain: string) {
         this.domain = domain;
         this.logger = Logger.withParenthesizedName(LOG_PREFIX, domain);
-    };
+    }
 
     /**
      * Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server.
@@ -416,7 +416,7 @@ export default class MastodonServer {
 
     // Returns true if the domain is known to not provide MAU and trending data via public API
     private static isNoMauServer(domain: string): boolean {
-        return config.fediverse.noMauServers.some(s => domain == s);
+        return config.fediverse.noMauServers.includes(domain);
     }
 
     // Helper methods for building URLs
