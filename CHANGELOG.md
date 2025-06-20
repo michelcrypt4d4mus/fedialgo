@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.74.12
+* Another workaround for Toot.tagNames().has()
+
 ### v0.74.11
-* Add a lot more tagOnlyStrings to configuration
+* Add a lot more `tagOnlyStrings` to configuration
 
 ### v0.74.10
 * Temp fix for bug with `Toot.tagNames().has()`
