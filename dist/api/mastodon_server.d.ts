@@ -14,10 +14,7 @@ export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     logger: Logger;
-    private static v1Url;
-    private static v2Url;
-    private static trendUrl;
-    private static trendingMutexes;
+    private static mutexes;
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.
@@ -71,7 +68,7 @@ export default class MastodonServer {
      * @static
      * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
      */
-    static getMastodonInstancesInfo(): Promise<MastodonInstances>;
+    static getMastodonInstances(): Promise<MastodonInstances>;
     /**
      * Collect all three kinds of trending data (links, tags, toots) in one call.
      * @static
@@ -85,4 +82,7 @@ export default class MastodonServer {
     private static callForTopServers;
     private endpointUrl;
     private static isNoMauServer;
+    private static trendUrl;
+    private static v1Url;
+    private static v2Url;
 }
