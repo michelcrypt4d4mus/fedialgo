@@ -77,18 +77,6 @@ class Config {
                 initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
-            [enums_1.FediverseCacheKey.POPULAR_SERVERS]: {
-                minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
-            },
-            [enums_1.FediverseCacheKey.TRENDING_LINKS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-            },
-            [enums_1.FediverseCacheKey.TRENDING_TAGS]: {
-                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
-            },
-            [enums_1.FediverseCacheKey.TRENDING_TOOTS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
-            },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
                 allowBackgroundLoad: true,
                 initialMaxRecords: 1600,
@@ -139,6 +127,18 @@ class Config {
             },
             [enums_1.CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.FediverseCacheKey.POPULAR_SERVERS]: {
+                minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
+            },
+            [enums_1.FediverseCacheKey.TRENDING_LINKS]: {
+                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.FediverseCacheKey.TRENDING_TAGS]: {
+                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+            },
+            [enums_1.FediverseCacheKey.TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.TagTootsCategory.FAVOURITED]: {

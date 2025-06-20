@@ -201,18 +201,6 @@ class Config implements ConfigType {
                 initialMaxRecords: Math.floor(MIN_RECORDS_FOR_FEATURE_SCORING / 2),  // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
-            [FediverseCacheKey.POPULAR_SERVERS]: {
-                minutesUntilStale: 5 * MINUTES_IN_DAY,
-            },
-            [FediverseCacheKey.TRENDING_LINKS]: {
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
-            },
-            [FediverseCacheKey.TRENDING_TAGS]: {
-                minutesUntilStale: 6 * MINUTES_IN_HOUR,
-            },
-            [FediverseCacheKey.TRENDING_TOOTS]: {
-                minutesUntilStale: 4 * MINUTES_IN_HOUR,
-            },
             [CacheKey.FOLLOWED_ACCOUNTS]: {
                 allowBackgroundLoad: true,
                 initialMaxRecords: 1_600,
@@ -263,6 +251,18 @@ class Config implements ConfigType {
             },
             [CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [FediverseCacheKey.POPULAR_SERVERS]: {
+                minutesUntilStale: 5 * MINUTES_IN_DAY,
+            },
+            [FediverseCacheKey.TRENDING_LINKS]: {
+                minutesUntilStale: 4 * MINUTES_IN_HOUR,
+            },
+            [FediverseCacheKey.TRENDING_TAGS]: {
+                minutesUntilStale: 6 * MINUTES_IN_HOUR,
+            },
+            [FediverseCacheKey.TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [TagTootsCategory.FAVOURITED]: {
