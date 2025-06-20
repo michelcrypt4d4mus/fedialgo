@@ -9,6 +9,7 @@ import TootFilter, { type FilterArgs } from "./toot_filter";
 import type Toot from '../api/objects/toot';
 import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums';
 import { BooleanFilterOptionList } from '../api/counted_list';
+import { buildTag } from "../api/objects/tag";
 import { compareStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { type BooleanFilterOption } from "../types";
@@ -51,7 +52,7 @@ const TOOT_MATCHERS: Record<BooleanFilterName, TootMatcher> = {
         return selectedOptions.includes(toot.homeserver);
     },
     [BooleanFilterName.HASHTAG]: (toot: Toot, selectedOptions: string[]) => {
-        return !!selectedOptions.find((v) => toot.realToot.containsString(v));
+        return !!selectedOptions.find((v) => toot.realToot.containsTag(buildTag(v), true));
     },
     [BooleanFilterName.LANGUAGE]: (toot: Toot, selectedOptions: string[]) => {
         return selectedOptions.includes(toot.realToot.language || config.locale.defaultLanguage);
