@@ -14,7 +14,6 @@ export type InstanceResponse = MastodonInstance | null;
 export default class MastodonServer {
     domain: string;
     logger: Logger;
-    private static mutexes;
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.

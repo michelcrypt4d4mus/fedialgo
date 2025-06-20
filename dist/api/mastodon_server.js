@@ -27,14 +27,12 @@ const API_V2 = `${API_URI}/v2`;
 const INSTANCE = "instance";
 const LOG_PREFIX = `MastodonServer`;
 const buildLogger = logger_1.Logger.logBuilder(LOG_PREFIX);
-const loggers = Object.values(enums_1.FediverseCacheKey).reduce((keyedLoggers, key) => {
-    keyedLoggers[key] = buildLogger(key);
-    return keyedLoggers;
-}, {});
+const loggers = logger_1.Logger.buildEnumLoggers(enums_1.FediverseCacheKey);
+const mutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex(), Object.values(enums_1.FediverseCacheKey));
 function getLogger(key, methodName) {
-    const logger = loggers[key];
-    return methodName ? logger.tempLogger(methodName) : logger;
+    return methodName ? loggers[key].tempLogger(methodName) : loggers[key];
 }
+;
 ;
 /**
  * Class for interacting with the public non-authenticated API of a Mastodon server.
@@ -47,8 +45,6 @@ function getLogger(key, methodName) {
 class MastodonServer {
     domain;
     logger;
-    // Mutexes to lock fediverse wide function calls
-    static mutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex(), Object.values(enums_1.FediverseCacheKey));
     /**
      * Constructs a MastodonServer instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.
@@ -218,7 +214,7 @@ class MastodonServer {
      */
     static async getMastodonInstances() {
         const cacheKey = enums_1.FediverseCacheKey.POPULAR_SERVERS;
-        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.mutexes[cacheKey], getLogger(cacheKey, "getMastodonInstances"));
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(mutexes[cacheKey], getLogger(cacheKey, "getMastodonInstances"));
         try {
             let servers = await Storage_1.default.getIfNotStale(cacheKey);
             if (!servers) {
@@ -302,7 +298,7 @@ class MastodonServer {
     static async getTrendingObjsFromAllServers(props) {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
-        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.mutexes[key], logger);
+        const releaseMutex = await (0, mutex_helpers_1.lockExecution)(mutexes[key], logger);
         const startedAt = new Date();
         try {
             let records = await Storage_1.default.getIfNotStale(key);

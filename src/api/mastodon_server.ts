@@ -42,19 +42,12 @@ const INSTANCE = "instance";
 const LOG_PREFIX = `MastodonServer`;
 
 const buildLogger = Logger.logBuilder(LOG_PREFIX);
-
-const loggers = Object.values(FediverseCacheKey).reduce(
-    (keyedLoggers, key) => {
-        keyedLoggers[key] = buildLogger(key);
-        return keyedLoggers;
-    },
-    {} as Record<FediverseCacheKey, Logger>
-);
+const loggers: Record<FediverseCacheKey, Logger> = Logger.buildEnumLoggers(FediverseCacheKey);
+const mutexes = simpleCacheKeyDict(() => new Mutex(), Object.values(FediverseCacheKey))
 
 function getLogger(key: FediverseCacheKey, methodName?: string): Logger {
-    const logger = loggers[key];
-    return methodName ? logger.tempLogger(methodName) : logger;
-}
+    return methodName ? loggers[key].tempLogger(methodName) : loggers[key];
+};
 
 interface FetchTrendingProps<T extends TrendingObj> {
     key: FediverseCacheKey;
@@ -74,9 +67,6 @@ interface FetchTrendingProps<T extends TrendingObj> {
 export default class MastodonServer {
     domain: string;
     logger: Logger;
-
-    // Mutexes to lock fediverse wide function calls
-    private static mutexes = simpleCacheKeyDict(() => new Mutex(), Object.values(FediverseCacheKey));
 
     /**
      * Constructs a MastodonServer instance for the given domain.
@@ -266,7 +256,7 @@ export default class MastodonServer {
      */
     static async getMastodonInstances(): Promise<MastodonInstances> {
         const cacheKey = FediverseCacheKey.POPULAR_SERVERS;
-        const releaseMutex = await lockExecution(this.mutexes[cacheKey], getLogger(cacheKey, "getMastodonInstances"));
+        const releaseMutex = await lockExecution(mutexes[cacheKey], getLogger(cacheKey, "getMastodonInstances"));
 
         try {
             let servers = await Storage.getIfNotStale<MastodonInstances>(cacheKey);
@@ -369,7 +359,7 @@ export default class MastodonServer {
     ): Promise<T[]> {
         const { key, processingFxn, serverFxn } = props;
         const logger = getLogger(key, "fetchTrendingObjsFromAllServers");
-        const releaseMutex = await lockExecution(this.mutexes[key], logger);
+        const releaseMutex = await lockExecution(mutexes[key], logger);
         const startedAt = new Date();
 
         try {

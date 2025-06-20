@@ -237,6 +237,19 @@ class Logger {
         return msg ? `${msg} (error.message="${error.message}")` : error.message;
     }
     /**
+     * Builds a dictionary of Logger instances keyed by the values of a string enum.
+     * @template E - The enum type.
+     * @template T - The type of the enum object.
+     * @param {T} strEnum The enum that will key the loggers.
+     * @returns {Record<E, Logger>} Dict of Logger instances keyed by the enum values.
+     */
+    static buildEnumLoggers(strEnum) {
+        return Object.values(strEnum).reduce((loggers, value) => {
+            loggers[value] = new Logger(value);
+            return loggers;
+        }, {});
+    }
+    /**
      * Returns a function that builds Logger objects with the starting prefixes.
      * @param {string} name - The main name for the logger.
      * @param {...LoggerArg} prefixes - Additional prefixes.

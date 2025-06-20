@@ -126,6 +126,14 @@ export declare class Logger {
      */
     private makeErrorMsg;
     /**
+     * Builds a dictionary of Logger instances keyed by the values of a string enum.
+     * @template E - The enum type.
+     * @template T - The type of the enum object.
+     * @param {T} strEnum The enum that will key the loggers.
+     * @returns {Record<E, Logger>} Dict of Logger instances keyed by the enum values.
+     */
+    static buildEnumLoggers<E extends string, T extends Record<string, E>>(strEnum: T): Record<E, Logger>;
+    /**
      * Returns a function that builds Logger objects with the starting prefixes.
      * @param {string} name - The main name for the logger.
      * @param {...LoggerArg} prefixes - Additional prefixes.
