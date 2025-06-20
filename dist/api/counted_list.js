@@ -82,7 +82,7 @@ class CountedList {
     incrementCount(name, newObjDecorator) {
         let obj = this.nameDict[name];
         if (!obj) {
-            obj = { name, numToots: 0 };
+            obj = this.completeObjProperties({ name, numToots: 0 });
             this.nameDict[name] = obj;
             this.objs.push(obj);
             newObjDecorator?.(obj);

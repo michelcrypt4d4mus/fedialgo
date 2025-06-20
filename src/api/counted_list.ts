@@ -98,7 +98,7 @@ export default class CountedList<T extends NamedTootCount> {
         let obj = this.nameDict[name];
 
         if (!obj) {
-            obj = { name, numToots: 0 } as T;
+            obj = this.completeObjProperties({ name, numToots: 0 } as T);
             this.nameDict[name] = obj;
             this.objs.push(obj);
             newObjDecorator?.(obj);
