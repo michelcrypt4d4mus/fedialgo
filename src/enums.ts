@@ -72,10 +72,10 @@ export enum CacheKey {
  * @enum {string}
  */
 export enum FediverseCacheKey {
-    FEDIVERSE_POPULAR_SERVERS = 'FediversePopularServers',
-    FEDIVERSE_TRENDING_TAGS = 'FediverseTrendingTags',
-    FEDIVERSE_TRENDING_LINKS = 'FediverseTrendingLinks',
-    FEDIVERSE_TRENDING_TOOTS = 'FediverseTrendingToots',
+    POPULAR_SERVERS = 'FediversePopularServers',
+    TRENDING_TAGS = 'FediverseTrendingTags',
+    TRENDING_LINKS = 'FediverseTrendingLinks',
+    TRENDING_TOOTS = 'FediverseTrendingToots',
 };
 
 /**
@@ -231,7 +231,7 @@ export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
     (keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys,
     [
         AlgorithmStorageKey.TIMELINE_TOOTS,
-        FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS
+        FediverseCacheKey.TRENDING_TOOTS
     ] as StorageKey[]
 ).concat(Object.values(TagTootsCategory));
 

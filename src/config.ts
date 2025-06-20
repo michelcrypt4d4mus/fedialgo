@@ -197,16 +197,16 @@ class Config implements ConfigType {
                 initialMaxRecords: Math.floor(MIN_RECORDS_FOR_FEATURE_SCORING / 2),  // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
-            [FediverseCacheKey.FEDIVERSE_POPULAR_SERVERS]: {
+            [FediverseCacheKey.POPULAR_SERVERS]: {
                 minutesUntilStale: 5 * MINUTES_IN_DAY,
             },
-            [FediverseCacheKey.FEDIVERSE_TRENDING_LINKS]: {
+            [FediverseCacheKey.TRENDING_LINKS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
-            [FediverseCacheKey.FEDIVERSE_TRENDING_TAGS]: {
+            [FediverseCacheKey.TRENDING_TAGS]: {
                 minutesUntilStale: 6 * MINUTES_IN_HOUR,
             },
-            [FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]: {
+            [FediverseCacheKey.TRENDING_TOOTS]: {
                 minutesUntilStale: 4 * MINUTES_IN_HOUR,
             },
             [CacheKey.FOLLOWED_ACCOUNTS]: {

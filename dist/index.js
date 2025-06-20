@@ -272,7 +272,7 @@ class TheAlgorithm {
                 // Toot fetchers
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(api_1.default.instance.getHomeserverToots(), loggers[enums_1.CacheKey.HOMESERVER_TOOTS]),
-                this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]),
+                this.fetchAndMergeToots(mastodon_server_1.default.fediverseTrendingToots(), loggers[enums_1.FediverseCacheKey.TRENDING_TOOTS]),
                 ...Object.values(enums_1.TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 mastodon_server_1.default.getTrendingData().then((trendingData) => this.trendingData = trendingData),

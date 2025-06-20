@@ -103,7 +103,7 @@ import {
     type Weights,
 } from "./types";
 
-const EMPTY_TRENDING_DATA: TrendingData = {
+const EMPTY_TRENDING_DATA: Readonly<TrendingData> = {
     links: [],
     tags: new TagList([], TagTootsCategory.TRENDING),
     servers: {},
@@ -298,7 +298,7 @@ export default class TheAlgorithm {
                 // Toot fetchers
                 this.getHomeTimeline().then((toots) => this.homeFeed = toots),
                 this.fetchAndMergeToots(MastoApi.instance.getHomeserverToots(), loggers[CacheKey.HOMESERVER_TOOTS]),
-                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]),
+                this.fetchAndMergeToots(MastodonServer.fediverseTrendingToots(), loggers[FediverseCacheKey.TRENDING_TOOTS]),
                 ...Object.values(TagTootsCategory).map(async (key) => await tootsForHashtags(key)),
                 // Other data fetchers
                 MastodonServer.getTrendingData().then((trendingData) => this.trendingData = trendingData),

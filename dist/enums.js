@@ -74,10 +74,10 @@ var CacheKey;
  */
 var FediverseCacheKey;
 (function (FediverseCacheKey) {
-    FediverseCacheKey["FEDIVERSE_POPULAR_SERVERS"] = "FediversePopularServers";
-    FediverseCacheKey["FEDIVERSE_TRENDING_TAGS"] = "FediverseTrendingTags";
-    FediverseCacheKey["FEDIVERSE_TRENDING_LINKS"] = "FediverseTrendingLinks";
-    FediverseCacheKey["FEDIVERSE_TRENDING_TOOTS"] = "FediverseTrendingToots";
+    FediverseCacheKey["POPULAR_SERVERS"] = "FediversePopularServers";
+    FediverseCacheKey["TRENDING_TAGS"] = "FediverseTrendingTags";
+    FediverseCacheKey["TRENDING_LINKS"] = "FediverseTrendingLinks";
+    FediverseCacheKey["TRENDING_TOOTS"] = "FediverseTrendingToots";
 })(FediverseCacheKey || (exports.FediverseCacheKey = FediverseCacheKey = {}));
 ;
 /**
@@ -211,7 +211,7 @@ exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, 
 // Objects fetched with these keys need to be built into proper Toot objects.
 exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [
     AlgorithmStorageKey.TIMELINE_TOOTS,
-    FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS
+    FediverseCacheKey.TRENDING_TOOTS
 ]).concat(Object.values(TagTootsCategory));
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
 exports.UNIQUE_ID_PROPERTIES = {

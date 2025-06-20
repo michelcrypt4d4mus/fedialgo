@@ -64,10 +64,10 @@ export declare enum CacheKey {
  * @enum {string}
  */
 export declare enum FediverseCacheKey {
-    FEDIVERSE_POPULAR_SERVERS = "FediversePopularServers",
-    FEDIVERSE_TRENDING_TAGS = "FediverseTrendingTags",
-    FEDIVERSE_TRENDING_LINKS = "FediverseTrendingLinks",
-    FEDIVERSE_TRENDING_TOOTS = "FediverseTrendingToots"
+    POPULAR_SERVERS = "FediversePopularServers",
+    TRENDING_TAGS = "FediverseTrendingTags",
+    TRENDING_LINKS = "FediverseTrendingLinks",
+    TRENDING_TOOTS = "FediverseTrendingToots"
 }
 /**
  * Enum of categories of toots pulled for a type of tag (favourited/particated/trending).
