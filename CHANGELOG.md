@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Change background fetch sleep to a random number of milliseconds between 0 and the configured value
 
 ### v0.74.17
 * Skip deep scan of tag filter strings when loading cached data

@@ -49,7 +49,8 @@ const LOG_PREFIX = '[Config]';
  */
 class Config {
     api = {
-        backgroundLoadSleepBetweenRequestsMS: 1000,
+        // How long to wait between API requests during backgrund load (actually a random number between 0 and this value)
+        backgroundLoadSleepBetweenRequestsMS: 1200,
         backgroundLoadIntervalMinutes: 10,
         daysBeforeFullCacheRefresh: 21,
         defaultRecordsPerPage: 40,
@@ -78,7 +79,6 @@ class Config {
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
-                allowBackgroundLoad: true,
                 initialMaxRecords: 1600,
                 limit: 80,
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,

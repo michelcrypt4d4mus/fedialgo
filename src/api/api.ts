@@ -842,7 +842,7 @@ export default class MastoApi {
 
                 if (isBackgroundFetch) {
                     // Add jitter to space out requests
-                    const sleepMS = config.api.backgroundLoadSleepBetweenRequestsMS + (Math.random() * 1000);
+                    const sleepMS = config.api.backgroundLoadSleepBetweenRequestsMS * Math.random();
                     logger.trace(`Background fetch, sleeping for ${(sleepMS / 1000).toFixed(3)}s`);
                     await sleep(sleepMS);
                 }
