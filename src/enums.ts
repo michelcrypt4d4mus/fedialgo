@@ -4,6 +4,36 @@
  */
 
 /**
+ * Actions that TheAlgorithm can take.
+ * @enum {string}
+ * @private
+ */
+export enum LoadAction {
+    IS_BUSY = 'isBusy',
+    REFRESH_MUTED_ACCOUNTS = 'refreshMutedAccounts',
+    RESET = 'reset',
+    TRIGGER_FEED_UPDATE = "triggerFeedUpdate",
+    TRIGGER_MOAR_DATA = 'triggerMoarData',
+    TRIGGER_PULL_ALL_USER_DATA = "triggerPullAllUserData",
+    TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill",
+};
+
+export enum LogAction {
+    FINISH_FEED_UPDATE = 'finishFeedUpdate',
+    INITIAL_LOADING_STATUS = 'initialState',
+};
+
+export type Action = LoadAction | LogAction;
+
+
+export const ALL_ACTIONS = [
+    ...Object.values(LoadAction),
+    ...Object.values(LogAction),
+] as const;
+
+export type UserMessageKey = (typeof ALL_ACTIONS)[number];
+
+/**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
  * @enum {string}
@@ -174,10 +204,23 @@ type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 
+/** Utility types. */
+export type IsNullable<T> = null extends T ? true : false;
+export type IsUndefinedable<T> = undefined extends T ? true : false;
+export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
+
 
 ///////////////////////////
 //      Constants        //
 ///////////////////////////
+
+// Cache keys for the fediverse wide trending data
+export const FEDIVERSE_CACHE_KEYS = [
+    CacheKey.FEDIVERSE_POPULAR_SERVERS,
+    CacheKey.FEDIVERSE_TRENDING_LINKS,
+    CacheKey.FEDIVERSE_TRENDING_TAGS,
+    CacheKey.FEDIVERSE_TRENDING_TOOTS,
+];
 
 // Objects fetched with these keys need to be built into proper Toot objects.
 export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
@@ -222,22 +265,37 @@ export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTI
 //      Helper Methods       //
 ///////////////////////////////
 
+// type ResponseRow<T extends ApiObj> = T extends mastodon.v1.Status
+//     ? Toot
+//     : (T extends mastodon.v1.Account ? Account : T);
+
+
+type CachedByKey<T, U> = IsNullOrUndefined<U> ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>
+
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @private
+ * @template K
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {Record<K, T>} [initialDict] - Optional initial dictionary to extend (default={}).
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
- * @private
  */
-export function buildCacheKeyDict<T>(
+export function buildCacheKeyDict<K extends string, T, U extends null | Record<K, T>>(
     fxn: (key?: ApiCacheKey) => T,
-    keys?: ApiCacheKey[]
-): Record<ApiCacheKey, T> {
-    return (keys || ALL_CACHE_KEYS).reduce((dict, key) => {
-        dict[key] = fxn(key);
-        return dict;
-    }, {} as Record<ApiCacheKey, T>);
+    initialDict?: U,
+    keys?: (ApiCacheKey)[],
+): IsNullOrUndefined<U> ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T> {
+    keys ??= ALL_CACHE_KEYS as ApiCacheKey[];
+
+    return keys.reduce(
+        (dict, key) => {
+            dict[key] = fxn(key);
+            return dict;
+        },
+        (initialDict ?? {}) as Record<ApiCacheKey | K, T>
+    );
 };
 
 
@@ -266,3 +324,18 @@ export const isScoreName = isValueInStringEnum(ScoreName);
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);
+
+
+// const messages = {
+//     [Action.TRIGGER_FEED_UPDATE]: {
+//         ifEmptyTimeline: (numToots: number) => `Loading more toots (retrieved ${numToots.toLocaleString()} toots so far)`,
+//         triggered: (since: Date) => `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`)
+//     },
+//     [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
+//     [LogAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
+
+
+//     loggers[LoadAction.TRIGGER_PULL_ALL_USER_DATA]
+//     loggers[LoadAction.REFRESH_MUTED_ACCOUNTS];
+//     loggers[LoadAction.FINISH_FEED_UPDATE]
+// }
