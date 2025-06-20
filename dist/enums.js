@@ -4,7 +4,7 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -206,6 +206,11 @@ exports.ALL_ACTIONS = [
     ...Object.values(LoadAction),
     ...Object.values(LogAction),
 ];
+exports.ALL_CACHE_KEYS = [
+    ...Object.values(CacheKey),
+    ...Object.values(FediverseCacheKey),
+    ...Object.values(TagTootsCategory),
+];
 // Objects fetched with these keys need to be built into proper Account objects.
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, [CacheKey.FOLLOWERS]);
 // Objects fetched with these keys need to be built into proper Toot objects.
@@ -227,16 +232,28 @@ exports.UNIQUE_ID_PROPERTIES = {
     [CacheKey.NOTIFICATIONS]: 'id',
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 };
-exports.ALL_CACHE_KEYS = [
-    ...Object.values(CacheKey),
-    ...Object.values(FediverseCacheKey),
-    ...Object.values(TagTootsCategory),
-];
 exports.TOOT_SOURCES = [
     ...exports.STORAGE_KEYS_WITH_TOOTS,
     LoadAction.GET_CONVERSATION,
     LoadAction.REFRESH_MUTED_ACCOUNTS,
 ];
+exports.MONTHS = [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+];
+exports.MONTHS_SHORT = exports.MONTHS.map(month => month.slice(0, 3));
+exports.DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+exports.DAYS_SHORT = exports.DAY_NAMES.map(day => day.slice(0, day.startsWith("T") ? 4 : 3));
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @private

@@ -6,13 +6,12 @@
 import { isNil } from "lodash";
 
 import { config, SECONDS_IN_DAY } from "../config";
+import { DAY_NAMES } from "../enums";
 import { NULL, quoted } from "./string_helpers";
 import { type Optional, type OptionalString } from "../types";
 
 type DateArg = Date | OptionalString | number;
 
-// TODO: use the formatting functions, don't do date lookup manually
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 
 
@@ -143,9 +142,9 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
     if (isToday) {
         str = "today";
     } else if (seconds < 0 && seconds > (-1 * 7 * SECONDS_IN_DAY)) {
-        str = `this coming ${DAY_NAMES[timestamp!.getDay()]}`;
+        str = `this coming ${DAY_NAMES[timestamp!.getDay()]}`;  // TODO: use the formatting functions, don't do date lookup manually
     } else if (seconds < (SECONDS_IN_DAY * 6)) {
-        str = DAY_NAMES[timestamp!.getDay()];
+        str = DAY_NAMES[timestamp!.getDay()];  // TODO: use the formatting functions, don't do date lookup manually
     } else {
         str = timestamp!.toLocaleDateString(locale);
     }

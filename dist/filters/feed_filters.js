@@ -229,9 +229,10 @@ function updateHashtagCounts(options, tags, toots) {
                 tagsFound++;
             }
         });
-        if (tagsFound > 0) {
-            taggishLogger.debug(`Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`);
-        }
+        if (tagsFound == 0)
+            return;
+        const msg = `Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`;
+        tagsFound > 5 ? taggishLogger.debug(msg) : taggishLogger.trace(msg);
     });
     taggishLogger.info(`Found ${totalTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}, topObjs:`, options.topObjs(100));
 }
