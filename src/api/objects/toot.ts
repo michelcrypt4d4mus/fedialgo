@@ -83,6 +83,13 @@ enum TootCacheKey {
 type TootCacheStrings = {[key in TootCacheKey]?: string};
 type TootCache = TootCacheStrings & {tagNames?: Set<string>};
 
+class TootCacheObj implements TootCache {
+    [TootCacheKey.CONTENT_STRIPPED]?: string;
+    [TootCacheKey.CONTENT_WITH_EMOJIS]?: string;
+    [TootCacheKey.CONTENT_WITH_CARD]?: string;
+    tagNames?: Set<string>;  // Cache of tag names for faster access
+}
+
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
@@ -600,7 +607,10 @@ export default class Toot implements TootObj {
      * @returns {Set<string>} Set of the names of the tags in this toot.
      */
     tagNames(): Set<string> {
-        this.contentCache.tagNames ??= new Set((this.tags || []).map((tag) => tag.name));
+        if (!this.contentCache.tagNames || Array.isArray(this.contentCache.tagNames)) {
+            this.contentCache.tagNames = new Set((this.tags || []).map((tag) => tag.name));
+        }
+
         return this.contentCache.tagNames;
     }
 
