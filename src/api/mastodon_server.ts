@@ -21,7 +21,7 @@ import {
     decorateLinkHistory,
     decorateTagHistory,
     setTrendingRankToAvg,
-    uniquifyTrendingObjs
+    uniquifyTrendingObjs,
 } from "./objects/trending_with_history";
 import {
     type MastodonInstance,

@@ -133,16 +133,16 @@ export type TootScore = {
     weightedScore: number;
 };
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {
-}
 export type TrendingData = {
     links: TrendingLink[];
     servers: MastodonInstances;
     tags: TagList;
     toots: Toot[];
 };
-export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
+export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {
+}
 export type TrendingObj = TrendingWithHistory | Toot;
+export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 export type WeightedScore = {
     raw: number;
     weighted: number;

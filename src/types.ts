@@ -217,7 +217,6 @@ export type TootScore = {
 };
 
 export type TootScores = Record<ScoreName, WeightedScore>;
-export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {};
 
 // TODO: we can't enforce that keys are TrendingType enum because "toots" is different from "statuses"
 export type TrendingData = {
@@ -227,8 +226,9 @@ export type TrendingData = {
     toots: Toot[];
 };
 
-export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
+export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {};
 export type TrendingObj = TrendingWithHistory | Toot;
+export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
 
 export type WeightedScore = {
     raw: number;
