@@ -28,13 +28,6 @@ export enum LogAction {
 export type Action = LoadAction | LogAction;
 
 
-export const ALL_ACTIONS = [
-    ...Object.values(LoadAction),
-    ...Object.values(LogAction),
-] as const;
-
-export type UserMessageKey = (typeof ALL_ACTIONS)[number];
-
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -216,6 +209,11 @@ export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true 
 //      Constants        //
 ///////////////////////////
 
+export const ALL_ACTIONS = [
+    ...Object.values(LoadAction),
+    ...Object.values(LogAction),
+] as const;
+
 // Cache keys for the fediverse wide trending data
 export const FEDIVERSE_CACHE_KEYS = [
     CacheKey.FEDIVERSE_POPULAR_SERVERS,
@@ -328,18 +326,3 @@ export const isScoreName = isValueInStringEnum(ScoreName);
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);
-
-
-// const messages = {
-//     [Action.TRIGGER_FEED_UPDATE]: {
-//         ifEmptyTimeline: (numToots: number) => `Loading more toots (retrieved ${numToots.toLocaleString()} toots so far)`,
-//         triggered: (since: Date) => `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`)
-//     },
-//     [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
-//     [LogAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
-
-
-//     loggers[LoadAction.TRIGGER_PULL_ALL_USER_DATA]
-//     loggers[LoadAction.REFRESH_MUTED_ACCOUNTS];
-//     loggers[LoadAction.FINISH_FEED_UPDATE]
-// }

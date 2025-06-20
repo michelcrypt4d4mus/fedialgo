@@ -22,8 +22,6 @@ export declare enum LogAction {
     INITIAL_LOADING_STATUS = "initialState"
 }
 export type Action = LoadAction | LogAction;
-export declare const ALL_ACTIONS: readonly (LogAction | LoadAction)[];
-export type UserMessageKey = (typeof ALL_ACTIONS)[number];
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -180,6 +178,7 @@ type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
 export type IsNullable<T> = null extends T ? true : false;
 export type IsUndefinedable<T> = undefined extends T ? true : false;
 export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
+export declare const ALL_ACTIONS: readonly (LogAction | LoadAction)[];
 export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];

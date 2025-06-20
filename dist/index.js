@@ -114,7 +114,7 @@ const EMPTY_TRENDING_DATA = {
 };
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const logger = new logger_1.Logger(`TheAlgorithm`);
-const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key), Object.values(enums_1.ALL_ACTIONS).reduce((_loggers, action) => {
+const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key), enums_1.ALL_ACTIONS.reduce((_loggers, action) => {
     _loggers[action] = logger.tempLogger(action);
     return _loggers;
 }, {}));
@@ -657,10 +657,7 @@ class TheAlgorithm {
         }
         this.loadStartedAt = new Date();
         this._releaseLoadingMutex = await (0, mutex_helpers_1.lockExecution)(this.loadingMutex, logger);
-        if (!this.feed.length) {
-            this.loadingStatus = config_1.config.locale.messages[enums_1.LogAction.INITIAL_LOADING_STATUS];
-        }
-        else if (typeof status === 'function') {
+        if (typeof status === 'function') {
             this.loadingStatus = status(this.feed, this.mostRecentHomeTootAt());
         }
         else {

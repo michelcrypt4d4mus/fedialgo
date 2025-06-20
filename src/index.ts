@@ -56,7 +56,6 @@ import { rechartsDataPoints } from "./helpers/stats_helper";
 import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { type ObjList } from "./api/counted_list";
 import {
-    type Action,
     AlgorithmStorageKey,
     BooleanFilterName,
     CacheKey,
@@ -73,6 +72,7 @@ import {
     // LOG_KEYS,
     buildCacheKeyDict,
     isValueInStringEnum,
+    type Action,
     type ApiCacheKey,
 } from "./enums";
 import {
@@ -117,7 +117,7 @@ const logger = new Logger(`TheAlgorithm`);
 
 const loggers: Record<Action | ApiCacheKey, Logger> = buildCacheKeyDict<Action, Logger, Record<Action, Logger>>(
     (key) => new Logger(key as string),
-    Object.values(ALL_ACTIONS).reduce(
+    ALL_ACTIONS.reduce(
         (_loggers, action) => {
             _loggers[action] = logger.tempLogger(action);
             return _loggers;
@@ -725,10 +725,7 @@ export default class TheAlgorithm {
         this.loadStartedAt = new Date();
         this._releaseLoadingMutex = await lockExecution(this.loadingMutex, logger);
 
-
-        if (!this.feed.length) {
-            this.loadingStatus = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
-        } else if (typeof status === 'function') {
+        if (typeof status === 'function') {
             this.loadingStatus = status(this.feed, this.mostRecentHomeTootAt());
         } else {
             this.loadingStatus = status;

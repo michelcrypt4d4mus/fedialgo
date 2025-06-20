@@ -4,7 +4,7 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.FEDIVERSE_CACHE_KEYS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.CacheKey = exports.AlgorithmStorageKey = exports.ALL_ACTIONS = exports.LogAction = exports.LoadAction = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCacheKey = exports.isCacheKey = exports.isValueInStringEnum = exports.buildCacheKeyDict = exports.TOOT_SOURCES = exports.JUST_MUTING = exports.CONVERSATION = exports.ALL_CACHE_KEYS = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.STORAGE_KEYS_WITH_TOOTS = exports.FEDIVERSE_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -27,10 +27,6 @@ var LogAction;
     LogAction["INITIAL_LOADING_STATUS"] = "initialState";
 })(LogAction || (exports.LogAction = LogAction = {}));
 ;
-exports.ALL_ACTIONS = [
-    ...Object.values(LoadAction),
-    ...Object.values(LogAction),
-];
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -196,6 +192,10 @@ var TypeFilterName;
 ///////////////////////////
 //      Constants        //
 ///////////////////////////
+exports.ALL_ACTIONS = [
+    ...Object.values(LoadAction),
+    ...Object.values(LogAction),
+];
 // Cache keys for the fediverse wide trending data
 exports.FEDIVERSE_CACHE_KEYS = [
     CacheKey.FEDIVERSE_POPULAR_SERVERS,
@@ -269,15 +269,4 @@ exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 const isWeightName = (str) => (0, exports.isScoreName)(str) || (0, exports.isNonScoreWeightName)(str);
 exports.isWeightName = isWeightName;
-// const messages = {
-//     [Action.TRIGGER_FEED_UPDATE]: {
-//         ifEmptyTimeline: (numToots: number) => `Loading more toots (retrieved ${numToots.toLocaleString()} toots so far)`,
-//         triggered: (since: Date) => `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`)
-//     },
-//     [LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
-//     [LogAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
-//     loggers[LoadAction.TRIGGER_PULL_ALL_USER_DATA]
-//     loggers[LoadAction.REFRESH_MUTED_ACCOUNTS];
-//     loggers[LoadAction.FINISH_FEED_UPDATE]
-// }
 //# sourceMappingURL=enums.js.map

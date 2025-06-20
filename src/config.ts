@@ -3,7 +3,7 @@
  */
 import { optionalSuffix } from "./helpers/string_helpers";
 import { timeString } from "./helpers/time_helpers";
-import { LoadAction, CacheKey, FEDIVERSE_CACHE_KEYS, NonScoreWeightName, TagTootsCategory, type UserMessageKey, type ApiCacheKey, LogAction } from "./enums";
+import { CacheKey, LoadAction, LogAction, FEDIVERSE_CACHE_KEYS, NonScoreWeightName, TagTootsCategory, type ApiCacheKey } from "./enums";
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
 import { type NonScoreWeightInfoDict, type Optional } from "./types";
 
