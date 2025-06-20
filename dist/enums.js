@@ -208,7 +208,7 @@ exports.ALL_ACTIONS = [
 // Objects fetched with these keys need to be built into proper Account objects.
 exports.STORAGE_KEYS_WITH_ACCOUNTS = Object.entries(CacheKey).reduce((keys, [k, v]) => (k.endsWith('_ACCOUNTS')) ? keys.concat(v) : keys, [CacheKey.FOLLOWERS]);
 // Objects fetched with these keys need to be built into proper Toot objects.
-exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS]).concat(Object.values(TagTootsCategory));
+exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v]) => k.endsWith('_TOOTS') ? keys.concat(v) : keys, [AlgorithmStorageKey.TIMELINE_TOOTS, FediverseCacheKey.FEDIVERSE_TRENDING_TOOTS]).concat(Object.values(TagTootsCategory));
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
 exports.UNIQUE_ID_PROPERTIES = {
     ...exports.STORAGE_KEYS_WITH_TOOTS.reduce((dict, key) => {
