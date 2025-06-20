@@ -390,7 +390,13 @@ export default class Toot implements TootObj {
 
             return this.matchesRegex(tag.regex);
         } else {
-            return this.tagNames().has(tag.name);
+            try {
+                return this.tagNames().has(tag.name);
+            } catch (err) {
+                tootLogger.error(`Error in containsTag("${tag.name}"), current cache:`, this.contentCache, err);
+                this.contentCache.tagNames = new Set<string>((this.tags || []).map((tag) => tag.name))
+                return this.contentCache.tagNames!.has(tag.name);
+            }
         }
     }
 
@@ -594,7 +600,7 @@ export default class Toot implements TootObj {
      * @returns {Set<string>} Set of the names of the tags in this toot.
      */
     tagNames(): Set<string> {
-        this.contentCache.tagNames ??= new Set(this.tags.map((tag) => tag.name))
+        this.contentCache.tagNames ??= new Set<string>((this.tags ?? []).map((tag) => tag.name));
         return this.contentCache.tagNames;
     }
 

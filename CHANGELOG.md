@@ -1,14 +1,17 @@
 # NEXT RELEASE
 
+### v0.74.10
+* Temp fix for bug with tagNames().has()
+
 ### v0.74.9
-* Call completeObjProperties() in CountedList.incrementCount()
+* Call `completeObjProperties()` in `CountedList.incrementCount()`
 
 ### v0.74.8
 * Reenable broad search for all hashtags that appear only as strings, not as formal Tags
 
 ### v0.74.7
 * Use existing tag regex when re-scanning filter options for any followed tag strings
-* Add tagNames() method to Toot objects that caches a Set of tag strings for faster lookup
+* Add `tagNames()` method to `Toot` objects that caches a Set of tag strings for faster lookup
 * Rename `MastodonTag` type to `Hashtag`
 
 ### v0.74.6
