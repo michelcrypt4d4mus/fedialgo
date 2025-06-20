@@ -1,18 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.FEDIVERSE_CACHE_KEYS = void 0;
+exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
+const string_helpers_1 = require("./helpers/string_helpers");
+const time_helpers_1 = require("./helpers/time_helpers");
 const enums_1 = require("./enums");
 const environment_helpers_1 = require("./helpers/environment_helpers");
-// Cachey keys for the fediverse wide trending data
-exports.FEDIVERSE_CACHE_KEYS = [
-    enums_1.CacheKey.FEDIVERSE_POPULAR_SERVERS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_LINKS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_TAGS,
-    enums_1.CacheKey.FEDIVERSE_TRENDING_TOOTS,
-];
 // Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
 exports.SECONDS_IN_MINUTE = 60;
 exports.MINUTES_IN_HOUR = 60;
@@ -295,10 +290,22 @@ class Config {
         language: DEFAULT_LANGUAGE,
         locale: DEFAULT_LOCALE,
         messages: {
-            finalizingScores: "Finalizing scores",
-            initialLoadingStatus: "Retrieving initial data",
-            isBusy: "Load in progress (consider using the setTimelineInApp() callback instead)",
-            readyToLoad: "Ready to load",
+            [enums_1.LogAction.FINISH_FEED_UPDATE]: `Finalizing scores`,
+            [enums_1.LogAction.INITIAL_LOADING_STATUS]: "Ready to load",
+            [enums_1.LoadAction.IS_BUSY]: "Load in progress (consider using the setTimelineInApp() callback instead)",
+            [enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS]: `Refreshing muted accounts`,
+            [enums_1.LoadAction.RESET]: `Resetting state`,
+            [enums_1.LoadAction.TRIGGER_FEED_UPDATE]: (timeline, since) => {
+                if (timeline.length == 0) {
+                    return `Loading more toots (retrieved ${timeline.length.toLocaleString()} toots so far)`;
+                }
+                else {
+                    return `Loading new toots` + (0, string_helpers_1.optionalSuffix)(since, `since ${(0, time_helpers_1.timeString)(since)}`);
+                }
+            },
+            [enums_1.LoadAction.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,
+            [enums_1.LoadAction.TRIGGER_PULL_ALL_USER_DATA]: `Pulling your historical data`,
+            [enums_1.LoadAction.TRIGGER_TIMELINE_BACKFILL]: `Loading older home timeline toots`,
         },
     };
     participatedTags = {
@@ -392,8 +399,8 @@ class Config {
      * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
      */
     minTrendingMinutesUntilStale() {
-        const trendStalenesses = exports.FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
-        if (trendStalenesses.length != exports.FEDIVERSE_CACHE_KEYS.length) {
+        const trendStalenesses = enums_1.FEDIVERSE_CACHE_KEYS.map(k => this.api.data[k]?.minutesUntilStale).filter(Boolean);
+        if (trendStalenesses.length != enums_1.FEDIVERSE_CACHE_KEYS.length) {
             console.warn(`${LOG_PREFIX} Not all FEDIVERSE_CACHE_KEYS have minutesUntilStale configured!`);
             return 60;
         }

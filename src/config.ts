@@ -419,7 +419,7 @@ class Config implements ConfigType {
                 if (timeline.length == 0) {
                     return `Loading more toots (retrieved ${timeline.length.toLocaleString()} toots so far)`;
                 } else {
-                    return `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`;
+                    return `Loading new toots` + optionalSuffix(since, `since ${timeString(since)}`);
                 }
             },
             [LoadAction.TRIGGER_MOAR_DATA]: `Fetching more data for the algorithm`,

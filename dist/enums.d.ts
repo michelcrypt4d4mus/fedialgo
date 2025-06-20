@@ -2,6 +2,28 @@
  * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
  * @module enums
  */
+import { type Optional } from './types';
+/**
+ * Actions that TheAlgorithm can take.
+ * @enum {string}
+ * @private
+ */
+export declare enum LoadAction {
+    IS_BUSY = "isBusy",
+    REFRESH_MUTED_ACCOUNTS = "refreshMutedAccounts",
+    RESET = "reset",
+    TRIGGER_FEED_UPDATE = "triggerFeedUpdate",
+    TRIGGER_MOAR_DATA = "triggerMoarData",
+    TRIGGER_PULL_ALL_USER_DATA = "triggerPullAllUserData",
+    TRIGGER_TIMELINE_BACKFILL = "triggerTimelineBackfill"
+}
+export declare enum LogAction {
+    FINISH_FEED_UPDATE = "finishFeedUpdate",
+    INITIAL_LOADING_STATUS = "initialState"
+}
+export type Action = LoadAction | LogAction;
+export declare const ALL_ACTIONS: readonly (LogAction | LoadAction)[];
+export type UserMessageKey = (typeof ALL_ACTIONS)[number];
 /**
  * Enum of storage keys for user data and app state and other things not directly tied to API calls.
  * @private
@@ -154,6 +176,11 @@ export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
+/** Utility types. */
+export type IsNullable<T> = null extends T ? true : false;
+export type IsUndefinedable<T> = undefined extends T ? true : false;
+export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
+export declare const FEDIVERSE_CACHE_KEYS: CacheKey[];
 export declare const STORAGE_KEYS_WITH_TOOTS: StorageKey[];
 export declare const STORAGE_KEYS_WITH_ACCOUNTS: StorageKey[];
 export declare const UNIQUE_ID_PROPERTIES: UniqueIdProperties;
@@ -161,15 +188,18 @@ export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCategory)[];
 export declare const CONVERSATION = "conversation";
 export declare const JUST_MUTING = "justMuting";
 export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
+type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = U extends null ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * @private
+ * @template K
  * @template T
  * @param {(key?: ApiCacheKey) => T} fxn - Function to generate a value for each key.
+ * @param {Record<K, T>} [initialDict] - Optional initial dictionary to extend (default={}).
  * @param {ApiCacheKey[]} [keys] - Optional list of keys to use (defaults to ALL_CACHE_KEYS).
  * @returns {Record<ApiCacheKey, T>} Dictionary of values by cache key.
- * @private
  */
-export declare function buildCacheKeyDict<T>(fxn: (key?: ApiCacheKey) => T, keys?: ApiCacheKey[]): Record<ApiCacheKey, T>;
+export declare function buildCacheKeyDict<K extends string, T, U extends Optional<Record<K, T>>>(fxn: (key?: ApiCacheKey) => T, initialDict?: Optional<Record<K, T>>, keys?: (ApiCacheKey)[]): CachedByKey<K, T, U>;
 /**
  * Generate a function to check if a value exists in a string enum.
  * @template E

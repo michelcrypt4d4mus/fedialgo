@@ -172,7 +172,7 @@ export default class TheAlgorithm {
 
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds?: number;
-    loadingStatus: string | null = config.locale.messages.readyToLoad;
+    loadingStatus: string | null = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
 
     get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrors.map(e => e.message) };
@@ -285,11 +285,12 @@ export default class TheAlgorithm {
     async triggerFeedUpdate(): Promise<void> {
         if (this.shouldSkip()) return;
         const action = LoadAction.TRIGGER_FEED_UPDATE;
-        await this.lockApiMutex(action);
+        const hereLogger = loggers[action];
+        await this.startAction(action);
 
         try {
             const tootsForHashtags = async (key: TagTootsCategory): Promise<Toot[]> => {
-                loggers[action].trace(`Fetching toots for hashtags with key: ${key}`);
+                hereLogger.trace(`Fetching toots for hashtags with key: ${key}`);
                 const tagList = await TagsForFetchingToots.create(key);
                 return await this.fetchAndMergeToots(tagList.getToots(), tagList.logger);
             };
@@ -307,7 +308,7 @@ export default class TheAlgorithm {
             ];
 
             const allResults = await Promise.allSettled(dataLoads);
-            loggers[action].deep(`FINISHED promises, allResults:`, allResults);
+            hereLogger.deep(`FINISHED promises, allResults:`, allResults);
             await this.finishFeedUpdate();
         } finally {
             this.releaseLoadingMutex(action);
@@ -319,7 +320,7 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerHomeTimelineBackFill(): Promise<void> {
-        await this.lockApiMutex(LoadAction.TRIGGER_TIMELINE_BACKFILL);
+        await this.startAction(LoadAction.TRIGGER_TIMELINE_BACKFILL);
 
         try {
             this.homeFeed = await this.getHomeTimeline(true);
@@ -335,7 +336,7 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData(): Promise<void> {
-        await this.lockApiMutex(LoadAction.TRIGGER_MOAR_DATA);
+        await this.startAction(LoadAction.TRIGGER_MOAR_DATA);
         let shouldReenablePoller = false;
 
         try {
@@ -363,7 +364,7 @@ export default class TheAlgorithm {
      */
     async triggerPullAllUserData(): Promise<void> {
         const hereLogger = loggers[LoadAction.TRIGGER_PULL_ALL_USER_DATA];
-        this.lockApiMutex(LoadAction.TRIGGER_PULL_ALL_USER_DATA);
+        this.startAction(LoadAction.TRIGGER_PULL_ALL_USER_DATA);
 
         try {
             this.dataPoller && clearInterval(this.dataPoller!);   // Stop the dataPoller if it's running
@@ -464,7 +465,7 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async reset(complete: boolean = false): Promise<void> {
-        await this.lockApiMutex(LoadAction.RESET);
+        await this.startAction(LoadAction.RESET);
 
         try {
             this.dataPoller && clearInterval(this.dataPoller!);
@@ -472,7 +473,7 @@ export default class TheAlgorithm {
             this.cacheUpdater && clearInterval(this.cacheUpdater!);
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
-            this.loadingStatus = config.locale.messages.readyToLoad;
+            this.loadingStatus = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
             this.loadStartedAt = undefined;
             this.numTriggers = 0;
             this.trendingData = EMPTY_TRENDING_DATA;
@@ -627,8 +628,9 @@ export default class TheAlgorithm {
 
     // Do some final cleanup and scoring operations on the feed.
     private async finishFeedUpdate(): Promise<void> {
-        const hereLogger = loggers[LogAction.FINISH_FEED_UPDATE];
-        this.loadingStatus = config.locale.messages[LogAction.FINISH_FEED_UPDATE];
+        const action = LogAction.FINISH_FEED_UPDATE;
+        const hereLogger = loggers[action];
+        this.loadingStatus = config.locale.messages[action];
 
         // Now that all data has arrived go back over the feed and do the slow calculations of trendingLinks etc.
         hereLogger.debug(`${this.loadingStatus}...`);
@@ -710,26 +712,26 @@ export default class TheAlgorithm {
     };
 
     // Throws an error if the feed is loading, otherwise lock the mutex and set the loadStartedAt timestamp.
-    private async lockApiMutex(logPrefix: LoadAction): Promise<void> {
-        loggers[logPrefix].log(`called, state:`, this.statusDict());
+    private async startAction(logPrefix: LoadAction): Promise<void> {
+        const hereLogger = loggers[logPrefix];
+        const status = config.locale.messages[logPrefix];
+        hereLogger.log(`called, state:`, this.statusDict());
 
         if (this.isLoading) {
-            loggers[logPrefix].warn(`Load in progress already!`, this.statusDict());
+            hereLogger.warn(`Load in progress already!`, this.statusDict());
             throw new Error(config.locale.messages.isBusy);
         }
 
         this.loadStartedAt = new Date();
         this._releaseLoadingMutex = await lockExecution(this.loadingMutex, logger);
 
-        if (logPrefix in config.locale.messages && logPrefix != LoadAction.TRIGGER_FEED_UPDATE) {
-            this.loadingStatus = config.locale.messages[logPrefix]!;
-        } else if (!this.feed.length) {
+
+        if (!this.feed.length) {
             this.loadingStatus = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
-        } else if (this.homeFeed.length > 0) {  // If we got here then it must be TRIGGER_FEED_UPDATE
-            const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `Loading new toots` + optionalSuffix(mostRecentAt, `since ${timeString(mostRecentAt)}`);
+        } else if (typeof status === 'function') {
+            this.loadingStatus = status(this.feed, this.mostRecentHomeTootAt());
         } else {
-            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
+            this.loadingStatus = status;
         }
     }
 
@@ -742,13 +744,7 @@ export default class TheAlgorithm {
         await updateBooleanFilterOptions(this.filters, this.feed);
         await this.scoreAndFilterFeed();
         inLogger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
-
-        if (this.homeFeed.length > 0) {
-            const mostRecentAt = this.mostRecentHomeTootAt();
-            this.loadingStatus = `Loading new toots` + optionalSuffix(mostRecentAt, t => `since ${timeString(t)}`);
-        } else {
-            this.loadingStatus = `Loading more toots (retrieved ${this.feed.length.toLocaleString()} toots so far)`;
-        }
+        this.loadingStatus = config.locale.messages[LoadAction.TRIGGER_FEED_UPDATE](this.feed, this.mostRecentHomeTootAt());
     }
 
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
@@ -832,8 +828,8 @@ export default class TheAlgorithm {
 
 
 // Some strings we want to export from the config
-const GET_FEED_BUSY_MSG = config.locale.messages.isBusy;
-const READY_TO_LOAD_MSG = config.locale.messages.readyToLoad;
+const GET_FEED_BUSY_MSG = config.locale.messages[LoadAction.IS_BUSY];
+const READY_TO_LOAD_MSG = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
 
 // Export types and constants needed by apps using this package
 export {
