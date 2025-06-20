@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.74.9
 * Call completeObjProperties() in CountedList.incrementCount()
 
 ### v0.74.8
