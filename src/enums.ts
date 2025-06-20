@@ -198,10 +198,7 @@ export type StorageKey = AlgorithmStorageKey | CacheKey | TagTootsCategory;
 type ApiObjUniqueProperty = 'id' | 'name' | 'uri' | 'webfingerURI' | null;
 /** Which property, if any, can serve as a uniquifier for rows stored at that ApiCacheKey. */
 type UniqueIdProperties = Record<ApiCacheKey, ApiObjUniqueProperty>;
-
-/** Utility types. */
-export type IsNullable<T> = null extends T ? true : false;
-export type IsUndefinedable<T> = undefined extends T ? true : false;
+/** Utility type. */
 export type IsNullOrUndefined<T> = null extends T ? (undefined extends T ? true : false) : false;
 
 
