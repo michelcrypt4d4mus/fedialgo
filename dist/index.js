@@ -670,11 +670,13 @@ class TheAlgorithm {
     async mergeTootsToFeed(newToots, inLogger) {
         const startedAt = new Date();
         const numTootsBefore = this.feed.length;
-        this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], inLogger.tempLogger('mergeTootsToFeed'));
+        const hereLogger = inLogger.tempLogger('mergeTootsToFeed');
+        this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], hereLogger);
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-        inLogger.logTelemetry(`merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
-        this.loadingStatus = config_1.config.locale.messages[enums_1.LoadAction.TRIGGER_FEED_UPDATE](this.feed, this.mostRecentHomeTootAt());
+        const statusMsgFxn = config_1.config.locale.messages[enums_1.LoadAction.TRIGGER_FEED_UPDATE];
+        this.loadingStatus = statusMsgFxn(this.feed, this.mostRecentHomeTootAt());
+        hereLogger.logTelemetry(`Merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
     }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
     async recomputeScorers() {
