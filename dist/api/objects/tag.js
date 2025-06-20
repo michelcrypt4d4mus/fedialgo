@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tagInfoStr = exports.repairTag = exports.isValidForSubstringSearch = void 0;
+exports.tagInfoStr = exports.repairTag = exports.isValidForSubstringSearch = exports.buildTag = void 0;
 /*
  * Helper methods for dealing with Mastodon's Tag objects.
  * API docs: https://docs.joinmastodon.org/entities/Tag/
@@ -13,12 +13,25 @@ const config_1 = require("../../config");
 const language_helper_1 = require("../../helpers/language_helper");
 const string_helpers_1 = require("../../helpers/string_helpers");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
+/**
+ * Build a synthetic TagWithUsageCounts for a given string.
+ * @param {string} str - The string to turn into a TagWithUsageCounts
+ * @returns {TagWithUsageCounts}
+ */
+function buildTag(str) {
+    const name = str.trim().toLowerCase();
+    return {
+        name,
+        regex: (0, string_helpers_1.wordRegex)(name),
+        url: api_1.default.instance.tagUrl(name),
+    };
+}
+exports.buildTag = buildTag;
 /** Returns true for hashtags that can count as existing in a Toot even if the "#" character wasn't used. */
 function isValidForSubstringSearch(tag) {
     return (tag.name.length > 1 && !config_1.config.toots.tagOnlyStrings.has(tag.name));
 }
 exports.isValidForSubstringSearch = isValidForSubstringSearch;
-;
 /** Lowercase the tag name, replace URL with one on homeserver. */
 function repairTag(tag) {
     const language = (0, language_helper_1.detectForeignScriptLanguage)(tag.name);
@@ -42,12 +55,10 @@ function repairTag(tag) {
     return tag;
 }
 exports.repairTag = repairTag;
-;
 /** Create a string representation of the tag with its usage counts & language. */
 function tagInfoStr(tag) {
     const infoStr = `${tag.numToots} numToots${(0, string_helpers_1.optionalSuffix)(tag.language)}`;
     return `${tag.name} (${infoStr})`;
 }
 exports.tagInfoStr = tagInfoStr;
-;
 //# sourceMappingURL=tag.js.map

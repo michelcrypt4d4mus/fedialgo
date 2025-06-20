@@ -13,6 +13,7 @@ const lodash_1 = require("lodash");
 const toot_filter_1 = __importDefault(require("./toot_filter"));
 const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
+const tag_1 = require("../api/objects/tag");
 const string_helpers_1 = require("../helpers/string_helpers");
 const config_1 = require("../config");
 const SOURCE_FILTER_DESCRIPTION = "Choose what kind of toots are in your feed";
@@ -48,7 +49,7 @@ const TOOT_MATCHERS = {
         return selectedOptions.includes(toot.homeserver);
     },
     [enums_1.BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
-        return !!selectedOptions.find((v) => toot.realToot.containsString(v));
+        return !!selectedOptions.find((v) => toot.realToot.containsTag((0, tag_1.buildTag)(v), true));
     },
     [enums_1.BooleanFilterName.LANGUAGE]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot.language || config_1.config.locale.defaultLanguage);

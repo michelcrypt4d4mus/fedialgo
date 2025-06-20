@@ -5,16 +5,32 @@
 import MastoApi from "../../api/api";
 import { config } from "../../config";
 import { detectForeignScriptLanguage } from "../../helpers/language_helper";
-import { optionalSuffix, removeDiacritics } from "../../helpers/string_helpers";
+import { optionalSuffix, removeDiacritics, wordRegex } from "../../helpers/string_helpers";
 import { type TagWithUsageCounts } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
+/**
+ * Build a synthetic TagWithUsageCounts for a given string.
+ * @param {string} str - The string to turn into a TagWithUsageCounts
+ * @returns {TagWithUsageCounts}
+ */
+export function buildTag(str: string): TagWithUsageCounts {
+    const name = str.trim().toLowerCase();
+
+    return {
+        name,
+        regex: wordRegex(name),
+        url: MastoApi.instance.tagUrl(name),
+    };
+}
+
+
 /** Returns true for hashtags that can count as existing in a Toot even if the "#" character wasn't used. */
 export function isValidForSubstringSearch(tag: TagWithUsageCounts): boolean {
     return (tag.name.length > 1 && !config.toots.tagOnlyStrings.has(tag.name))
-};
+}
 
 
 /** Lowercase the tag name, replace URL with one on homeserver. */
@@ -38,11 +54,11 @@ export function repairTag(tag: TagWithUsageCounts): TagWithUsageCounts {
     }
 
     return tag;
-};
+}
 
 
 /** Create a string representation of the tag with its usage counts & language. */
 export function tagInfoStr(tag: TagWithUsageCounts) {
     const infoStr = `${tag.numToots} numToots${optionalSuffix(tag.language)}`;
     return `${tag.name} (${infoStr})`;
-};
+}
