@@ -265,12 +265,9 @@ export const TOOT_SOURCES = [...STORAGE_KEYS_WITH_TOOTS, CONVERSATION, JUST_MUTI
 //      Helper Methods       //
 ///////////////////////////////
 
-// type ResponseRow<T extends ApiObj> = T extends mastodon.v1.Status
-//     ? Toot
-//     : (T extends mastodon.v1.Account ? Account : T);
-
+// Conditional type helper to extend keys beyond ApiCacheKey enum or not
 type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> =
-    U extends null
+    IsNullOrUndefined<U> extends true
         ? Record<ApiCacheKey, T>
         : Record<ApiCacheKey | K, T>;
 

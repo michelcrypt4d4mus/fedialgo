@@ -187,7 +187,7 @@ export declare const ALL_CACHE_KEYS: readonly (CacheKey | TagTootsCategory)[];
 export declare const CONVERSATION = "conversation";
 export declare const JUST_MUTING = "justMuting";
 export declare const TOOT_SOURCES: readonly [...StorageKey[], "conversation", "justMuting"];
-type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = U extends null ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
+type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = IsNullOrUndefined<U> extends true ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
 /**
  * Build a dictionary of values for each ApiCacheKey using the provided function.
  * @private
