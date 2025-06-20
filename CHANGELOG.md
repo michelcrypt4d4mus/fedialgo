@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename isTagTootsCategory()
 
 ### v0.74.18
 * Change background fetch sleep to a random number of milliseconds between 0 and the configured value

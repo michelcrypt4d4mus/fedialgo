@@ -26,7 +26,7 @@ import {
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
     UNIQUE_ID_PROPERTIES,
-    isTagTootsCacheKey,
+    isTagTootsCategory,
     simpleCacheKeyDict,
     type ApiCacheKey,
 } from "../enums";
@@ -832,7 +832,7 @@ export default class MastoApi {
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     const msg = `Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`;
-                    isTagTootsCacheKey(cacheKey) ? logger.trace(msg) : logger.debug(msg);
+                    isTagTootsCategory(cacheKey) ? logger.trace(msg) : logger.debug(msg);
                     break;
                 } else if (waitTime.ageInSeconds() > config.api.maxSecondsPerPage) {
                     logger.logAndThrowError(`Request took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`)
