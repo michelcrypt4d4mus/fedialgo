@@ -189,13 +189,12 @@ const USER_DATA_MUTEX = new Mutex();  // For locking user data fetching
 const PARAMS_TO_NOT_LOG: FetchParamName[] = ["breakIf", "fetchGenerator", "logger", "processFxn"];
 const PARAMS_TO_NOT_LOG_IF_FALSE: FetchParamName[] = ["skipCache", "skipMutex", "moar"];
 
+// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+const cachedKeyDict = <T>(fxn: () => T) => buildCacheKeyDict<ApiCacheKey, T, null>(fxn);
 // Loggers prefixed by [API]
 const getLogger = Logger.logBuilder('API');
 export const apiLogger = getLogger();
 
-function cachedKeyDict<T>(fxn: () => T): Record<ApiCacheKey, T> {
-    return buildCacheKeyDict<ApiCacheKey, T, null>(fxn);
-}
 
 /**
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
