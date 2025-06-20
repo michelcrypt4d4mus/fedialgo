@@ -56,6 +56,7 @@ interface TootObj extends SerializableToot {
     isValidForFeed: (mutedKeywordRegex: RegExp, blockedDomains: Set<string>) => boolean;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
+    tagNames: () => Set<string>;
 }
 /**
  * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
@@ -272,6 +273,11 @@ export default class Toot implements TootObj {
      * @returns {Promise<string>}
      */
     resolveID(): Promise<string>;
+    /**
+     * Get the toot's tags as a Set of strings. Caches results for future calls.
+     * @returns {Set<string>} Set of the names of the tags in this toot.
+     */
+    tagNames(): Set<string>;
     private addEmojiHtmlTags;
     private attachmentsOfType;
     private completeProperties;

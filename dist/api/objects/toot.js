@@ -306,7 +306,7 @@ class Toot {
             return this.matchesRegex(tag.regex);
         }
         else {
-            return this.tags.some((t) => t.name == tag.name);
+            return this.tagNames().has(tag.name);
         }
     }
     /**
@@ -493,6 +493,14 @@ class Toot {
     async resolveID() {
         this.resolvedID ||= (await this.resolve()).id;
         return this.resolvedID;
+    }
+    /**
+     * Get the toot's tags as a Set of strings. Caches results for future calls.
+     * @returns {Set<string>} Set of the names of the tags in this toot.
+     */
+    tagNames() {
+        this.contentCache.tagNames ??= new Set(this.tags.map((tag) => tag.name));
+        return this.contentCache.tagNames;
     }
     //////////////////////////////
     //     Private methods      //

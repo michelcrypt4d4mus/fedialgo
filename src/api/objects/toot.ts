@@ -80,7 +80,8 @@ enum TootCacheKey {
 };
 
 // Cache for methods that build strings from the toot content.
-type TootCache = {[key in TootCacheKey]?: string};
+type TootCacheBase = {[key in TootCacheKey]?: string};
+type TootCache = TootCacheBase & {tagNames?: Set<string>};
 
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
@@ -148,6 +149,7 @@ interface TootObj extends SerializableToot {
     isValidForFeed: (mutedKeywordRegex: RegExp, blockedDomains:Set<string>) => boolean;
     resolve: () => Promise<Toot>;
     resolveID: () => Promise<string>;
+    tagNames: () => Set<string>;
 };
 
 
@@ -388,7 +390,7 @@ export default class Toot implements TootObj {
 
             return this.matchesRegex(tag.regex);
         } else {
-            return this.tags.some((t) => t.name == tag.name);
+            return this.tagNames().has(tag.name);
         }
     }
 
@@ -585,6 +587,15 @@ export default class Toot implements TootObj {
     async resolveID(): Promise<string> {
         this.resolvedID ||= (await this.resolve()).id;
         return this.resolvedID;
+    }
+
+    /**
+     * Get the toot's tags as a Set of strings. Caches results for future calls.
+     * @returns {Set<string>} Set of the names of the tags in this toot.
+     */
+    tagNames(): Set<string> {
+        this.contentCache.tagNames ??= new Set(this.tags.map((tag) => tag.name))
+        return this.contentCache.tagNames;
     }
 
     //////////////////////////////

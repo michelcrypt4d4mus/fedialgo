@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add tagNames() method to Toot objects that caches a Set of tag strings for faster lookup
 * Rename `MastodonTag` type to `Hashtag`
 
 ### v0.74.6
