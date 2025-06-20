@@ -174,7 +174,7 @@ class TheAlgorithm {
     feed = [];
     homeFeed = []; // Just the toots pulled from the home timeline
     hasProvidedAnyTootsToClient = false; // Flag to indicate if the feed has been set in the app
-    loadStartedAt; // Timestamp of when the feed started loading
+    loadStartedAt = new Date(); // Timestamp of when the feed started loading
     totalNumTimesShown = 0; // Sum of timeline toots' numTimesShown
     // Utility
     loadingMutex = new async_mutex_1.Mutex();

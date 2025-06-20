@@ -68,7 +68,7 @@ export default class TheAlgorithm {
     private feed;
     private homeFeed;
     private hasProvidedAnyTootsToClient;
-    private loadStartedAt?;
+    private loadStartedAt;
     private totalNumTimesShown;
     private loadingMutex;
     private mergeMutex;

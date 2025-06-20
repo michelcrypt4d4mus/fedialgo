@@ -185,7 +185,7 @@ export default class TheAlgorithm {
     private feed: Toot[] = [];
     private homeFeed: Toot[] = [];  // Just the toots pulled from the home timeline
     private hasProvidedAnyTootsToClient = false;  // Flag to indicate if the feed has been set in the app
-    private loadStartedAt?: Date;  // Timestamp of when the feed started loading
+    private loadStartedAt: Date | undefined = new Date();  // Timestamp of when the feed started loading
     private totalNumTimesShown = 0;  // Sum of timeline toots' numTimesShown
     // Utility
     private loadingMutex = new Mutex();
