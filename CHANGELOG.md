@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.75.18
 * Add many of the 1,000 most common english words from [here](https://www.ef.edu/english-resources/english-vocabulary/top-1000-words/) to topOnlyTags
 
 ### v0.75.17
