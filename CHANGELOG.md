@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add many of the 1,000 most common english words from [here](https://www.ef.edu/english-resources/english-vocabulary/top-1000-words/) to topOnlyTags
 
 ### v0.75.17
 * Log full list of additional tags found but in a single line
