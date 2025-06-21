@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.75.18
+* Add many of the 1,000 most common english words from [here](https://www.ef.edu/english-resources/english-vocabulary/top-1000-words/) to topOnlyTags
+
 ### v0.75.17
 * Log full list of additional tags found but in a single line
 * More `tagOnlyStrings`
@@ -23,7 +26,7 @@
 * Log `hasNewestApiData()`
 
 ### v0.75.10
-* Add `lastUpdatedA`t` to Storage info returned by `getCurrentState()`
+* Add `lastUpdatedAt`` to Storage info returned by `getCurrentState()`
 
 ### v0.75.8
 * (Demo App) Don't `resolve()` Toot URLs if user is on a GoToSocial instance
