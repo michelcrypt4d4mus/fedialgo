@@ -736,6 +736,8 @@ class Config {
             "to",
             "today",
             "too",
+            "top",
+            "total",
             "track",
             "tracking",
             "trade",

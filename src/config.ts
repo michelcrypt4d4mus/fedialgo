@@ -864,6 +864,8 @@ class Config implements ConfigType {
             "to",
             "today",
             "too",
+            "top",
+            "total",
             "track",
             "tracking",
             "trade",
