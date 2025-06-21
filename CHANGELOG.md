@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.76.1
+* More `tagOnlyStrings`
+
 ## v0.76.0
 * Add all followed tags to the list of existing hashtag filter options so they can be appropriately deep scanned
 
