@@ -60,7 +60,10 @@ export default class CountedList<T extends NamedTootCount> {
         this.logger = new Logger("CountedList", source);
     }
 
-    // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+    /**
+     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * @param {T[]} objs - Array of objects to add to the list.
+     */
     addObjs(objs: T[]): void {
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
     }

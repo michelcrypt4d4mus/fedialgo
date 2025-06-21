@@ -29,6 +29,10 @@ export default class CountedList<T extends NamedTootCount> {
      * @param {CountedListSource} source - Source of the list (for logging/context).
      */
     constructor(objs: T[], source: CountedListSource);
+    /**
+     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * @param {T[]} objs - Array of objects to add to the list.
+     */
     addObjs(objs: T[]): void;
     /**
      * Like the standard Array.filter().
