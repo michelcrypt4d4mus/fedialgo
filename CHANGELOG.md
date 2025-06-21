@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.75.12
+* More `tagOnlyStrings`
+
 ### v0.75.11
 * Log hasNewestApiData()
 

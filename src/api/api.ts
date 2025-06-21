@@ -607,11 +607,14 @@ export default class MastoApi {
         const releaseMutex = await lockExecution(USER_DATA_MUTEX, this.logger);
 
         try {
-            if (force || !this.userData?.hasNewestApiData()) {
+            const hasNewest = this.userData ? this.userData.hasNewestApiData() : false;
+            this.logger.debug(`getUserData() called, hasNewest=${hasNewest}, force=${force}`);
+
+            if (force || !hasNewest) {
                 this.userData = await UserData.build();
             }
 
-            return this.userData;
+            return this.userData!;
         } finally {
             releaseMutex();
         }
