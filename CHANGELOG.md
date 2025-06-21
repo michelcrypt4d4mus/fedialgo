@@ -13,10 +13,10 @@
 * More `tagOnlyStrings`
 
 ### v0.75.11
-* Log hasNewestApiData()
+* Log `hasNewestApiData()`
 
 ### v0.75.10
-* Add lastUpdatedAt to Storage info returned by getCurrentState()
+* Add `lastUpdatedA`t` to Storage info returned by `getCurrentState()`
 
 ### v0.75.8
 * (Demo App) Don't `resolve()` Toot URLs if user is on a GoToSocial instance
