@@ -1,14 +1,14 @@
 # NEXT RELEASE
 
 ### v0.75.18
-* Add many of the 1,000 most common english words from [here](https://www.ef.edu/english-resources/english-vocabulary/top-1000-words/) to topOnlyTags
+* Add many of the 1,000 most common english words from [here](https://www.ef.edu/english-resources/english-vocabulary/top-1000-words/) to `tagOnlyStrings`
 
 ### v0.75.17
 * Log full list of additional tags found but in a single line
 * More `tagOnlyStrings`
 
 ### v0.75.16
-* Be smarter about setting UserData.lastUpdatedAt to avoid unnecessary rebuilds
+* Be smarter about setting `UserData.lastUpdatedAt` to avoid unnecessary rebuilds
 
 ### v0.75.15
 * Reduce debug logging
