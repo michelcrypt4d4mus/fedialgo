@@ -492,6 +492,7 @@ class Config implements ConfigType {
             "activity",
             "activitypub",
             "actual",
+            "age",
             "agency",
             "agent",
             "agents",

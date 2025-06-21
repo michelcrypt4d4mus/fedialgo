@@ -364,6 +364,7 @@ class Config {
             "activity",
             "activitypub",
             "actual",
+            "age",
             "agency",
             "agent",
             "agents",
