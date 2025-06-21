@@ -767,6 +767,7 @@ class Config {
             "videos",
             "voice",
             "vs",
+            "want",
             "was",
             "water",
             "way",

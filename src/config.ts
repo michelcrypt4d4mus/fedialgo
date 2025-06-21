@@ -895,6 +895,7 @@ class Config implements ConfigType {
             "videos",
             "voice",
             "vs",
+            "want",
             "was",
             "water",
             "way",
