@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.76.2
 * Log updateFilters() runtime
 
 ### v0.76.1
