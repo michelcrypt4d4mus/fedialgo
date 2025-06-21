@@ -492,6 +492,7 @@ class Config implements ConfigType {
             "activity",
             "activitypub",
             "actual",
+            "administration",
             "age",
             "agency",
             "agent",
@@ -688,6 +689,7 @@ class Config implements ConfigType {
             "live",
             "lot",
             "local",
+            "los",
             "love",
             "loved",
             "loves",
@@ -704,6 +706,7 @@ class Config implements ConfigType {
             "met",
             "mine",
             "model",
+            "mstdn",
             "mundo",
             "net",
             "new",
@@ -786,6 +789,7 @@ class Config implements ConfigType {
             "shorts",
             "show",
             "six",
+            "social",
             "space",
             "spring",
             "star",
@@ -991,7 +995,7 @@ if (isDebugMode) {
     config.api.data[CacheKey.FOLLOWERS]!.initialMaxRecords = 320;
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 10;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;
-    config.api.backgroundLoadIntervalMinutes = 5;
+    config.api.backgroundLoadIntervalMinutes = 2;
     config.api.maxRecordsForFeatureScoring = 2_500;
     config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;

@@ -1,5 +1,5 @@
-import FeedScorer from "./feed_scorer";
-import TootScorer from "./toot_scorer";
+import type FeedScorer from "./feed_scorer";
+import type TootScorer from "./toot_scorer";
 export default class ScorerCache {
     static feedScorers: FeedScorer[];
     static tootScorers: TootScorer[];

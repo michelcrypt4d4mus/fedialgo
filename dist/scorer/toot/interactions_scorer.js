@@ -19,8 +19,8 @@ class InteractionsScorer extends acccount_scorer_1.default {
     }
     async prepareScoreData() {
         const notifications = await api_1.default.instance.getNotifications();
-        const interactionAccounts = notifications.map(notification => account_1.default.build(notification.account));
-        return account_1.default.countAccounts(interactionAccounts);
+        const accounts = notifications.map(notification => account_1.default.build(notification.account));
+        return account_1.default.countAccounts(accounts);
     }
     ;
 }

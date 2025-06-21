@@ -75,7 +75,7 @@ export default class TheAlgorithm {
     private numTriggers;
     private _releaseLoadingMutex?;
     private cacheUpdater?;
-    private dataPoller?;
+    private dataPoller;
     private feedScorers;
     private tootScorers;
     private weightedScorers;
@@ -197,13 +197,12 @@ export default class TheAlgorithm {
     private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;
-    private startAction;
     private mergeTootsToFeed;
-    private recomputeScorers;
+    private recomputeScores;
     private releaseLoadingMutex;
     private scoreAndFilterFeed;
+    private startAction;
     private statusDict;
-    private enableMoarDataBackgroundPoller;
 }
 declare const GET_FEED_BUSY_MSG: string;
 declare const READY_TO_LOAD_MSG: string;
