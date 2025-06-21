@@ -536,6 +536,16 @@ export function sortKeysByValue(dict: StringNumberDict): string[] {
 
 
 /**
+ * Create a string representation of a dictionary with the keys sorted by their values.
+ * @param {StringNumberDict} dict - The dictionary to sort and format.
+ * @returns {string} The sorted dictionary as a string.
+ */
+export function sortedDictString(dict: StringNumberDict): string {
+    return "\n   " + sortKeysByValue(dict).map(k => `${k}: ${dict[k]}`).join(",\n    ");
+};
+
+
+/**
  * Sorts an array of objects by one or two properties.
  * @template T
  * @param {T[]} array - The array to sort.

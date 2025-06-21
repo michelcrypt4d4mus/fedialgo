@@ -99,7 +99,7 @@ export default class UserData {
         );
 
         const userData = this.buildFromData(responses as UserApiData);
-        logger.debug(`UserData built ${waitTime.ageString()}, setting lastUpdatedAt to "${waitTime.startedAt.toISOString()}"`);
+        logger.debug(`Built ${waitTime.ageString()}, setting lastUpdatedAt to "${waitTime.startedAt.toISOString()}"`);
         userData.lastUpdatedAt = waitTime.startedAt;
         return userData;
     }
@@ -139,7 +139,7 @@ export default class UserData {
         // Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
         userData.lastUpdatedAt = mostRecentTootedAt([...data.recentToots, ...data.favouritedToots]);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
-        isDebugMode ? logger.trace("Built from data:", userData) : logger.debug("Updated with latest API data");
+        logger.trace("Built from data:", userData);
         return userData;
     }
 

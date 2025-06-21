@@ -39,6 +39,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
+const collection_helpers_1 = require("../helpers/collection_helpers");
 const tag_1 = require("../api/objects/tag");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
@@ -213,10 +214,9 @@ function populateMissingFilters(filters) {
  */
 function updateHashtagCounts(options, tags, toots) {
     const startedAt = Date.now();
-    let totalTagsFound = 0;
+    const tagsFound = {};
     tags.topObjs().forEach((option) => {
         const tag = option;
-        let tagsFound = 0;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
         if (!((0, tag_1.isValidForSubstringSearch)(tag) && options.getObj(tag.name))) {
             return;
@@ -224,15 +224,11 @@ function updateHashtagCounts(options, tags, toots) {
         toots.forEach((toot) => {
             if (toot.realToot.containsTag(tag, true) && !toot.realToot.containsTag(tag)) {
                 options.incrementCount(tag.name);
-                totalTagsFound++;
-                tagsFound++;
+                (0, collection_helpers_1.incrementCount)(tagsFound, tag.name);
             }
         });
-        if (tagsFound == 0)
-            return;
-        const msg = `Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`;
-        tagsFound > 5 ? taggishLogger.debug(msg) : taggishLogger.trace(msg);
     });
-    taggishLogger.info(`Found ${totalTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}, topObjs:`, options.topObjs(100));
+    taggishLogger.info(`Found ${(0, collection_helpers_1.sumValues)(tagsFound)} more matches for ${tags.length} tags` +
+        ` in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}: ${(0, collection_helpers_1.sortedDictString)(tagsFound)}`);
 }
 //# sourceMappingURL=feed_filters.js.map
