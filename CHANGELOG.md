@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.75.8
+* (Demo App) Don't `resolve()` Toot URLs if user is on a GoToSocial instance
+
 ### v0.75.7
 * Reverse order of operations when checking that a Toot contains a tag as a substring
 
