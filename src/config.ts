@@ -584,6 +584,7 @@ class Config implements ConfigType {
             "customer",
             "customers",
             "daily",
+            "das",
             "data",
             "day",
             "de",

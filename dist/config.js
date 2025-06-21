@@ -456,6 +456,7 @@ class Config {
             "customer",
             "customers",
             "daily",
+            "das",
             "data",
             "day",
             "de",
