@@ -347,7 +347,7 @@ export default class TheAlgorithm {
             }
 
             await getMoarData();
-            await this.recomputeScorers();
+            await this.recomputeScores();
         } catch (error) {
             throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         } finally {
@@ -376,7 +376,7 @@ export default class TheAlgorithm {
                 MastoApi.instance.getRecentUserToots(FULL_HISTORY_PARAMS),
             ]);
 
-            await this.recomputeScorers();
+            await this.recomputeScores();
         } catch (error) {
             throwSanitizedRateLimitError(error, hereLogger.line(`Error pulling user data:`));
         } finally {
@@ -744,9 +744,8 @@ export default class TheAlgorithm {
     }
 
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
-    private async recomputeScorers(): Promise<void> {
-        await MastoApi.instance.getUserData(true);  // Refresh user data
-        await ScorerCache.prepareScorers(true);  // The "true" arg is the key here
+    private async recomputeScores(): Promise<void> {
+        await ScorerCache.prepareScorers(true);
         await this.scoreAndFilterFeed();
     }
 
@@ -810,7 +809,7 @@ export default class TheAlgorithm {
         this.dataPoller = setInterval(
             async () => {
                 const shouldContinue = await getMoarData();
-                await this.recomputeScorers();  // Force scorers to recompute data, rescore the feed
+                await ScorerCache.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
 
                 if (!shouldContinue) {
                     moarDataLogger.log(`Stopping data poller...`);

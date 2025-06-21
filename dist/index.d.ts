@@ -199,7 +199,7 @@ export default class TheAlgorithm {
     private lockedMergeToFeed;
     private startAction;
     private mergeTootsToFeed;
-    private recomputeScorers;
+    private recomputeScores;
     private releaseLoadingMutex;
     private scoreAndFilterFeed;
     private statusDict;

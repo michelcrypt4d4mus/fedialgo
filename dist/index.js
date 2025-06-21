@@ -317,7 +317,7 @@ class TheAlgorithm {
                 shouldReenablePoller = true;
             }
             await (0, moar_data_poller_1.getMoarData)();
-            await this.recomputeScorers();
+            await this.recomputeScores();
         }
         catch (error) {
             (0, errors_1.throwSanitizedRateLimitError)(error, `triggerMoarData() Error pulling user data:`);
@@ -345,7 +345,7 @@ class TheAlgorithm {
                 api_1.default.instance.getNotifications({ maxRecords: config_1.MAX_ENDPOINT_RECORDS_TO_PULL, moar: true }),
                 api_1.default.instance.getRecentUserToots(api_1.FULL_HISTORY_PARAMS),
             ]);
-            await this.recomputeScorers();
+            await this.recomputeScores();
         }
         catch (error) {
             (0, errors_1.throwSanitizedRateLimitError)(error, hereLogger.line(`Error pulling user data:`));
@@ -674,9 +674,8 @@ class TheAlgorithm {
         hereLogger.logTelemetry(`Merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
     }
     // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
-    async recomputeScorers() {
-        await api_1.default.instance.getUserData(true); // Refresh user data
-        await scorer_cache_1.default.prepareScorers(true); // The "true" arg is the key here
+    async recomputeScores() {
+        await scorer_cache_1.default.prepareScorers(true);
         await this.scoreAndFilterFeed();
     }
     // Release the loading mutex and reset the loading state variables.
@@ -726,7 +725,7 @@ class TheAlgorithm {
         }
         this.dataPoller = setInterval(async () => {
             const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
-            await this.recomputeScorers(); // Force scorers to recompute data, rescore the feed
+            await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
             if (!shouldContinue) {
                 moar_data_poller_1.moarDataLogger.log(`Stopping data poller...`);
                 this.dataPoller && clearInterval(this.dataPoller);

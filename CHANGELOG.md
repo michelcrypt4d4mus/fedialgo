@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Don't rescore the feed after each call to getMoarData() so as to avoid shuffling the feed as the user is looking at it
 
 ### v0.74.20 - v0.74.22
 * More `tagOnlyStrings`

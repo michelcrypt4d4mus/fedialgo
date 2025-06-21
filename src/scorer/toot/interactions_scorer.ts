@@ -19,7 +19,7 @@ export default class InteractionsScorer extends AccountScorer {
 
     async prepareScoreData(): Promise<StringNumberDict> {
         const notifications = await MastoApi.instance.getNotifications();
-        const interactionAccounts = notifications.map(notification => Account.build(notification.account));
-        return Account.countAccounts(interactionAccounts);
+        const accounts = notifications.map(notification => Account.build(notification.account));
+        return Account.countAccounts(accounts);
     };
 };
