@@ -15,7 +15,6 @@ async function lockExecution(locker, logger) {
     logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
-    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     let releaseLock;
     let logMsg;
     if (Array.isArray(acquireLock)) {
@@ -27,10 +26,11 @@ async function lockExecution(locker, logger) {
         releaseLock = acquireLock;
     }
     logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
+    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
     if (waitSeconds > config_1.config.api.mutexWarnSeconds) {
-        logger.warn(logMsg);
+        logger.debug(logMsg);
     }
-    else if (waitSeconds > 2) {
+    else if (waitSeconds > (config_1.config.api.mutexWarnSeconds / 2)) {
         logger.deep(logMsg);
     }
     return releaseLock;

@@ -95,7 +95,7 @@ export default class MoarDataPoller {
                     };
 
                     const newRecords = await pollers[i]({moar: true});  // Launch the puller with moar=true
-                    const newCount = (newRecords?.length || 0);
+                    const newCount = newRecords?.length || 0;
                     const extraCount = newCount - cacheSizes[i];
                     const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
                     this.logger.logStringifiedProps(pollers[i].name, logObj);
