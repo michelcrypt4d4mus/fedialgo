@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.75.14
 * Add isApiCacheKey() method; only update Storage.lastUpdatedAt when API data is written
 
 ### v0.75.13
