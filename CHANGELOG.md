@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.75.1
+* More `tagOnlyStrings`
+
 # v0.75.0
-* Refactor historical data background fetching to MoarDataPoller class
+* Refactor historical data background fetching to `MoarDataPoller` class
 * Don't rescore the feed after each call to `getMoarData()` so as to avoid shuffling the feed as the user is looking at it
 * More `tagOnlyStrings`
 
