@@ -40,6 +40,7 @@ const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
+const environment_helpers_1 = require("../helpers/environment_helpers");
 const tag_1 = require("../api/objects/tag");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
@@ -112,6 +113,7 @@ async function updateBooleanFilterOptions(filters, toots, scanForTags = false) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
     const userData = await api_1.default.instance.getUserData();
+    const timer = new time_helpers_1.WaitTime();
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new counted_list_1.BooleanFilterOptionList([], filterName);
         return lists;
@@ -179,7 +181,8 @@ async function updateBooleanFilterOptions(filters, toots, scanForTags = false) {
     });
     suppressed_hashtags_1.suppressedHashtags.log(logger);
     await Storage_1.default.setFilters(filters);
-    logger.trace(`Updated filters:`, filters);
+    const msg = `Updated all filters ${timer.ageString()}`;
+    environment_helpers_1.isDebugMode ? logger.trace(msg, filters) : logger.debug(msg);
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
