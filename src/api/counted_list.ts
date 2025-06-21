@@ -35,9 +35,9 @@ export default class CountedList<T extends NamedTootCount> {
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: CountedListSource;
 
-    get length(): number { return this._objs.length };
-    get maxNumToots(): number | undefined { return this.maxValue("numToots" as keyof T) };
-    get objs(): T[] { return this._objs };
+    get length() { return this._objs.length };
+    get maxNumToots() { return this.maxValue("numToots" as keyof T) };
+    get objs() { return this._objs };
     private _objs: T[] = [];
 
     /** Has side effect of mutating the 'nameDict' property. */
