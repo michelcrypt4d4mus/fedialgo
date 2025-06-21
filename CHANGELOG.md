@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.75.13
 * Fix bug where getUserData() wasn't updating to latest after Storage data is updated
 
 ### v0.75.12
