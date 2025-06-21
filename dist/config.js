@@ -590,6 +590,8 @@ class Config {
             "latest",
             "le",
             "lead",
+            "leader",
+            "leaders",
             "leads",
             "leading",
             "learn",
