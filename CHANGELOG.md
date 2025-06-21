@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Be smarter about setting UserData.lastUpdatedAt to avoid unnecessary rebuilds
 
 ### v0.75.15
 * Reduce debug logging

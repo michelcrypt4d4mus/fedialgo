@@ -189,7 +189,7 @@ export class WaitTime {
     avgMsPerRequest: number = 0;
     milliseconds: number = 0;
     numRequests: number = 0;
-    startedAt: Date = new Date(); // TODO: this shouldn't really be set yet...
+    startedAt: Date = new Date();
 
     ageInSeconds(): number {
         return ageInSeconds(this.startedAt);

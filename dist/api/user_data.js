@@ -39,6 +39,7 @@ const environment_helpers_1 = require("../helpers/environment_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
+const time_helpers_1 = require("../helpers/time_helpers");
 const logger = new logger_1.Logger("UserData");
 ;
 /**
@@ -83,6 +84,7 @@ class UserData {
      * @returns {Promise<UserData>} UserData instance populated with the user's data.
      */
     static async build() {
+        const waitTime = new time_helpers_1.WaitTime();
         const responses = await (0, collection_helpers_1.resolvePromiseDict)({
             blockedDomains: api_1.default.instance.getBlockedDomains(),
             favouritedToots: api_1.default.instance.getFavouritedToots(),
@@ -92,7 +94,10 @@ class UserData {
             recentToots: api_1.default.instance.getRecentUserToots(),
             serverSideFilters: api_1.default.instance.getServerSideFilters(),
         }, logger, []);
-        return this.buildFromData(responses);
+        const userData = this.buildFromData(responses);
+        logger.debug(`UserData built ${waitTime.ageString()}, setting lastUpdatedAt to "${waitTime.startedAt.toISOString()}"`);
+        userData.lastUpdatedAt = waitTime.startedAt;
+        return userData;
     }
     /**
      * Alternate constructor to build UserData from API data.
@@ -135,7 +140,7 @@ class UserData {
      */
     async hasNewestApiData() {
         const isUpToDate = !!(Storage_1.default.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage_1.default.lastUpdatedAt));
-        logger.debug(`hasNewestApiData() lastUpdatedAt: ${this.lastUpdatedAt}, Storage.lastUpdatedAt: ${Storage_1.default.lastUpdatedAt}, isUpToDate: ${isUpToDate}`);
+        logger.trace(`hasNewestApiData() lastUpdatedAt: ${this.lastUpdatedAt}, Storage.lastUpdatedAt: ${Storage_1.default.lastUpdatedAt}, isUpToDate: ${isUpToDate}`);
         return isUpToDate;
     }
     /**

@@ -17,6 +17,7 @@ import { isDebugMode } from "../helpers/environment_helpers";
 import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
+import { WaitTime } from "../helpers/time_helpers";
 import {
     type AccountNames,
     type BooleanFilterOption,
@@ -81,17 +82,26 @@ export default class UserData {
      * @returns {Promise<UserData>} UserData instance populated with the user's data.
      */
     static async build(): Promise<UserData> {
-        const responses = await resolvePromiseDict({
-            blockedDomains: MastoApi.instance.getBlockedDomains(),
-            favouritedToots: MastoApi.instance.getFavouritedToots(),
-            followedAccounts: MastoApi.instance.getFollowedAccounts(),
-            followedTags: MastoApi.instance.getFollowedTags(),
-            mutedAccounts: MastoApi.instance.getMutedAccounts(),
-            recentToots: MastoApi.instance.getRecentUserToots(),
-            serverSideFilters: MastoApi.instance.getServerSideFilters(),
-        }, logger, []);
+        const waitTime = new WaitTime();
 
-        return this.buildFromData(responses as UserApiData);
+        const responses = await resolvePromiseDict(
+            {
+                blockedDomains: MastoApi.instance.getBlockedDomains(),
+                favouritedToots: MastoApi.instance.getFavouritedToots(),
+                followedAccounts: MastoApi.instance.getFollowedAccounts(),
+                followedTags: MastoApi.instance.getFollowedTags(),
+                mutedAccounts: MastoApi.instance.getMutedAccounts(),
+                recentToots: MastoApi.instance.getRecentUserToots(),
+                serverSideFilters: MastoApi.instance.getServerSideFilters(),
+            },
+            logger,
+            []
+        );
+
+        const userData = this.buildFromData(responses as UserApiData);
+        logger.debug(`UserData built ${waitTime.ageString()}, setting lastUpdatedAt to "${waitTime.startedAt.toISOString()}"`);
+        userData.lastUpdatedAt = waitTime.startedAt;
+        return userData;
     }
 
     /**
@@ -139,7 +149,7 @@ export default class UserData {
      */
     async hasNewestApiData(): Promise<boolean> {
         const isUpToDate = !!(Storage.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage.lastUpdatedAt));
-        logger.debug(`hasNewestApiData() lastUpdatedAt: ${this.lastUpdatedAt}, Storage.lastUpdatedAt: ${Storage.lastUpdatedAt}, isUpToDate: ${isUpToDate}`);
+        logger.trace(`hasNewestApiData() lastUpdatedAt: ${this.lastUpdatedAt}, Storage.lastUpdatedAt: ${Storage.lastUpdatedAt}, isUpToDate: ${isUpToDate}`);
         return isUpToDate;
     }
 
