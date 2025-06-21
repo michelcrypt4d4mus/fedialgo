@@ -1,6 +1,6 @@
 export default class MoarDataPoller {
-    private logger;
     private intervalRunner?;
+    private logger;
     start(): void;
     /**
      * Stop the pollers. Returns true if there was anything to stop.
