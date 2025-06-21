@@ -559,6 +559,7 @@ class Config implements ConfigType {
             "challenge",
             "change",
             "character",
+            "choice",
             "circle",
             "citizens",
             "city",

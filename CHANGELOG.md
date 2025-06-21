@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Reverse order of operations when checking that a Toot contains a tag as a substring
 
 ### v0.75.1 - v0.75.6
 * More `tagOnlyStrings`
