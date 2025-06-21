@@ -149,7 +149,7 @@ class BooleanFilter extends toot_filter_1.default {
      * @param {boolean} isSelected - If true, add the option; if false, remove it.
      */
     updateOption(optionName, isSelected) {
-        this.logger.debug(`Updating options for ${this.propertyName} with ${optionName} and ${isSelected}`);
+        this.logger.trace(`updateOption(${optionName}, ${isSelected}) invoked`);
         if (isSelected && !this.isOptionEnabled(optionName)) {
             this.selectedOptions.push(optionName);
         }

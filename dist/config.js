@@ -364,6 +364,7 @@ class Config {
             "activity",
             "activitypub",
             "actual",
+            "administration",
             "age",
             "agency",
             "agent",
@@ -560,6 +561,7 @@ class Config {
             "live",
             "lot",
             "local",
+            "los",
             "love",
             "loved",
             "loves",
@@ -576,6 +578,7 @@ class Config {
             "met",
             "mine",
             "model",
+            "mstdn",
             "mundo",
             "net",
             "new",
@@ -658,6 +661,7 @@ class Config {
             "shorts",
             "show",
             "six",
+            "social",
             "space",
             "spring",
             "star",
@@ -856,7 +860,7 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[enums_1.CacheKey.FOLLOWERS].initialMaxRecords = 320;
     config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 10;
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 5;
-    config.api.backgroundLoadIntervalMinutes = 5;
+    config.api.backgroundLoadIntervalMinutes = 2;
     config.api.maxRecordsForFeatureScoring = 2500;
     config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;

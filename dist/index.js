@@ -50,6 +50,7 @@ const interactions_scorer_1 = __importDefault(require("./scorer/toot/interaction
 const api_1 = __importStar(require("./api/api"));
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/toot/mentions_followed_scorer"));
+const moar_data_poller_1 = __importDefault(require("./api/moar_data_poller"));
 const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_favourited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_replied_accounts_scorer"));
 const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_retooted_accounts_scorer"));
@@ -82,7 +83,6 @@ Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { re
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
 Object.defineProperty(exports, "extractDomain", { enumerable: true, get: function () { return string_helpers_1.extractDomain; } });
 Object.defineProperty(exports, "optionalSuffix", { enumerable: true, get: function () { return string_helpers_1.optionalSuffix; } });
-const moar_data_poller_1 = require("./api/moar_data_poller");
 const errors_1 = require("./api/errors");
 Object.defineProperty(exports, "isAccessTokenRevokedError", { enumerable: true, get: function () { return errors_1.isAccessTokenRevokedError; } });
 const environment_helpers_1 = require("./helpers/environment_helpers");
@@ -183,7 +183,7 @@ class TheAlgorithm {
     _releaseLoadingMutex; // Mutex release function for loading state
     // Background tasks
     cacheUpdater;
-    dataPoller;
+    dataPoller = new moar_data_poller_1.default();
     // These scorers require the complete feed to work properly
     feedScorers = [
         new diversity_feed_scorer_1.default(),
@@ -307,16 +307,10 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData() {
+        const shouldReenablePoller = this.dataPoller.stop();
         await this.startAction(enums_1.LoadAction.GET_MOAR_DATA);
-        let shouldReenablePoller = false;
         try {
-            if (this.dataPoller) {
-                moar_data_poller_1.moarDataLogger.log(`Disabling current data poller...`);
-                this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
-                this.dataPoller = undefined;
-                shouldReenablePoller = true;
-            }
-            await (0, moar_data_poller_1.getMoarData)();
+            await this.dataPoller.getMoarData();
             await this.recomputeScores();
         }
         catch (error) {
@@ -324,7 +318,7 @@ class TheAlgorithm {
         }
         finally {
             if (shouldReenablePoller)
-                this.enableMoarDataBackgroundPoller(); // Reenable poller when finished
+                this.dataPoller.start();
             this.releaseLoadingMutex(enums_1.LoadAction.GET_MOAR_DATA);
         }
     }
@@ -338,7 +332,7 @@ class TheAlgorithm {
         const hereLogger = loggers[action];
         this.startAction(action);
         try {
-            this.dataPoller && clearInterval(this.dataPoller); // Stop the dataPoller if it's running
+            this.dataPoller.stop(); // Stop the dataPoller if it's running
             const _allResults = await Promise.allSettled([
                 api_1.default.instance.getFavouritedToots(api_1.FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
@@ -431,8 +425,7 @@ class TheAlgorithm {
     async reset(complete = false) {
         await this.startAction(enums_1.LoadAction.RESET);
         try {
-            this.dataPoller && clearInterval(this.dataPoller);
-            this.dataPoller = undefined;
+            this.dataPoller.stop();
             this.cacheUpdater && clearInterval(this.cacheUpdater);
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
@@ -469,7 +462,7 @@ class TheAlgorithm {
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown` +
-                `on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
+                ` on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
             hereLogger.debug(msg);
             await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
@@ -607,16 +600,16 @@ class TheAlgorithm {
     // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
     // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage
     launchBackgroundPollers() {
-        this.enableMoarDataBackgroundPoller();
+        this.dataPoller.start();
         // The cache updater writes the current state of the feed to storage every few seconds
         // to capture changes to the alreadyShown state of toots.
         if (this.cacheUpdater) {
-            moar_data_poller_1.moarDataLogger.trace(`cacheUpdater already exists, not starting another one`);
+            logger.trace(`cacheUpdater already exists, not starting another one`);
             return;
         }
         this.cacheUpdater = setInterval(async () => await this.saveTimelineToCache(), config_1.config.toots.saveChangesIntervalSeconds * 1000);
     }
-    // Load cached data from storage. This is called when the app is first opened and when reset() is called.
+    // Load cached data from Storage. This is called when the app is first opened and when reset() is invoked.
     async loadCachedData() {
         this.homeFeed = await Storage_1.default.getCoerced(enums_1.CacheKey.HOME_TIMELINE_TOOTS);
         this.feed = await Storage_1.default.getCoerced(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS);
@@ -718,20 +711,6 @@ class TheAlgorithm {
             loadStartedAt: (0, time_helpers_1.toISOFormatIfExists)(this.loadStartedAt),
             minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.score),
         };
-    }
-    enableMoarDataBackgroundPoller() {
-        if (this.dataPoller) {
-            moar_data_poller_1.moarDataLogger.trace(`Data poller already exists, not starting another one`);
-            return;
-        }
-        this.dataPoller = setInterval(async () => {
-            const shouldContinue = await (0, moar_data_poller_1.getMoarData)();
-            await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
-            if (!shouldContinue) {
-                moar_data_poller_1.moarDataLogger.log(`Stopping data poller...`);
-                this.dataPoller && clearInterval(this.dataPoller);
-            }
-        }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
     }
 }
 exports.default = TheAlgorithm;

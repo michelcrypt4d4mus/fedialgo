@@ -4,9 +4,10 @@
  */
 import { Mutex } from 'async-mutex';
 
-import MastoApi, { ApiParams } from "../api/api";
+import MastoApi, { type ApiParams } from "../api/api";
+import ScorerCache from '../scorer/scorer_cache';
 import { ageString } from '../helpers/time_helpers';
-import { config } from "../config";
+import { config, SECONDS_IN_MINUTE } from "../config";
 import { lockExecution } from '../helpers/mutex_helpers';
 import { Logger } from '../helpers/logger';
 import { type ApiObj } from '../types';
@@ -14,57 +15,102 @@ import { type ApiObj } from '../types';
 type Poller = (params?: ApiParams) => Promise<ApiObj[]>;
 
 const GET_MOAR_DATA = "getMoarData()";
-const MOAR_DATA_PREFIX = `[${GET_MOAR_DATA}]`;
 const MOAR_MUTEX = new Mutex();
 
-export const moarDataLogger = new Logger(GET_MOAR_DATA);
 
+export default class MoarDataPoller {
+    private logger = new Logger(GET_MOAR_DATA);
+    private dataPoller?: ReturnType<typeof setInterval>;
 
-// Get morar historical data. Returns false if we have enough data and should
-// stop polling.
-export async function getMoarData(): Promise<boolean> {
-    moarDataLogger.log(`triggered by timer...`);
-    const releaseMutex = await lockExecution(MOAR_MUTEX, moarDataLogger);
-    const startedAt = new Date();
-
-    // TODO: Add followed accounts?  for people who follow > 5,000 users?
-    const pollers: Poller[] = [
-        // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
-        MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
-        MastoApi.instance.getNotifications.bind(MastoApi.instance),
-        MastoApi.instance.getRecentUserToots.bind(MastoApi.instance),
-    ];
-
-    try {
-        // Call without moar boolean to check how big the cache is
-        const cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
-
-        // Launch with moar flag those that are insufficient
-        const newRecordCounts = await Promise.all(
-            cacheSizes.map(async (size, i) => {
-                if (size >= config.api.maxRecordsForFeatureScoring) {
-                    moarDataLogger.log(`${pollers[i].name} has enough records (${size})`);
-                    return 0;
-                };
-
-                const newRecords = await pollers[i]({moar: true});  // Launch the puller with moar=true
-                const newCount = (newRecords?.length || 0);
-                const extraCount = newCount - cacheSizes[i];
-                const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
-                moarDataLogger.logStringifiedProps(pollers[i].name, logObj);
-                return extraCount || 0;
-            })
-        );
-
-        moarDataLogger.log(`Finished ${ageString(startedAt)}`);
-
-        if (newRecordCounts.every((x) => x <= 0)) {
-            moarDataLogger.log(`All ${pollers.length} pollers have enough data`);
-            return false;
-        } else {
-            return true;
+    start(): void {
+        if (this.dataPoller) {
+            this.logger.trace(`Data poller already exists, not starting another one`);
+            return;
         }
-    } finally {
-        releaseMutex();
+
+        this.logger.info(`Starting data poller on ${config.api.backgroundLoadIntervalMinutes} minute interval...`);
+
+        this.dataPoller = setInterval(
+            async () => {
+                const shouldContinue = await this.getMoarData();
+                await ScorerCache.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
+
+                if (!shouldContinue) {
+                    this.logger.log(`Stopping data poller because shouldContinue:`, shouldContinue);
+                    this.dataPoller && clearInterval(this.dataPoller!);
+                }
+            },
+            config.api.backgroundLoadIntervalMinutes * SECONDS_IN_MINUTE * 1000
+        );
+    }
+
+    /**
+     * Stop the pollers. Returns true if there was anything to stop.
+     * @param {boolean} [shoulCancelInProgress=false] - If true, will cancel any in-progress data fetches.
+     * @returns {boolean}
+     */
+    stop(): boolean {
+        if (!this.dataPoller) {
+            this.logger.trace(`Data poller does not exist, nothing to stop...`);
+            return false;
+        }
+
+        this.logger.log(`Cancelling in-progress data fetches...`);
+        MOAR_MUTEX.cancel(); // Cancel any in-progress data fetches
+        clearInterval(this.dataPoller);
+        this.dataPoller = undefined;
+        this.logger.log(`Disabled data poller...`);
+        return true;
+    }
+
+    /**
+     * Polls the Mastodon API for more data to assist in scoring the feed.
+     * @returns {Promise<boolean>} - Returns true if new data was fetched, false otherwise.
+     */
+    async getMoarData(): Promise<boolean> {
+        this.logger.log(`triggered by timer...`);
+        const releaseMutex = await lockExecution(MOAR_MUTEX, this.logger);
+        const startedAt = new Date();
+
+        // TODO: Add followed accounts?  for people who follow > 5,000 users?
+        const pollers: Poller[] = [
+            // NOTE: getFavouritedToots API doesn't use maxId argument so each time is a full repull
+            MastoApi.instance.getFavouritedToots.bind(MastoApi.instance),
+            MastoApi.instance.getNotifications.bind(MastoApi.instance),
+            MastoApi.instance.getRecentUserToots.bind(MastoApi.instance),
+        ];
+
+        try {
+            // Call without moar boolean to check how big the cache is
+            const cacheSizes = await Promise.all(pollers.map(async (poll) => (await poll())?.length || 0));
+
+            // Launch with moar flag those that are insufficient
+            const newRecordCounts = await Promise.all(
+                cacheSizes.map(async (size, i) => {
+                    if (size >= config.api.maxRecordsForFeatureScoring) {
+                        this.logger.log(`${pollers[i].name} has enough records (${size})`);
+                        return 0;
+                    };
+
+                    const newRecords = await pollers[i]({moar: true});  // Launch the puller with moar=true
+                    const newCount = (newRecords?.length || 0);
+                    const extraCount = newCount - cacheSizes[i];
+                    const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
+                    this.logger.logStringifiedProps(pollers[i].name, logObj);
+                    return extraCount || 0;
+                })
+            );
+
+            this.logger.log(`Finished ${ageString(startedAt)}`);
+
+            if (newRecordCounts.every((x) => x <= 0)) {
+                this.logger.log(`All ${pollers.length} pollers have enough data`);
+                return false;
+            } else {
+                return true;
+            }
+        } finally {
+            releaseMutex();
+        }
     }
 }
