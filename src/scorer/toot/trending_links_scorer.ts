@@ -31,7 +31,7 @@ export default class TrendingLinksScorer extends TootScorer {
 
     async _score(toot: Toot): Promise<number> {
         if (!toot.realToot.trendingLinks) {
-            this.logger.trace(`No trendingLinks found for toot: ${toot.description}`);
+            this.logger.trace(`No trendingLinks found for toot:`, toot.description);
             return 0;
         }
 

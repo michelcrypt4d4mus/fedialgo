@@ -213,6 +213,12 @@ export declare function shuffle<T extends (string | number | object)>(array: T[]
  */
 export declare function sortKeysByValue(dict: StringNumberDict): string[];
 /**
+ * Create a string representation of a dictionary with the keys sorted by their values.
+ * @param {StringNumberDict} dict - The dictionary to sort and format.
+ * @returns {string} The sorted dictionary as a string.
+ */
+export declare function sortedDictString(dict: StringNumberDict): string;
+/**
  * Sorts an array of objects by one or two properties.
  * @template T
  * @param {T[]} array - The array to sort.

@@ -7,12 +7,12 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import type Account from "../api/objects/account";
-import TagList from "../api/tag_list";
 import type Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
+import { incrementCount, sortedDictString, sumValues } from "../helpers/collection_helpers";
 import { isValidForSubstringSearch } from "../api/objects/tag";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
@@ -22,6 +22,7 @@ import {
     type BooleanFilters,
     type FeedFilterSettings,
     type NumericFilters,
+    type StringNumberDict,
     type TagWithUsageCounts,
     type TootNumberProp,
 } from "../types";
@@ -232,11 +233,10 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  */
 function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilterOptionList, toots: Toot[]): void {
     const startedAt = Date.now();
-    let totalTagsFound = 0;
+    const tagsFound: StringNumberDict = {};
 
     tags.topObjs().forEach((option) => {
         const tag = option as TagWithUsageCounts;
-        let tagsFound = 0;
 
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
         if (!(isValidForSubstringSearch(tag) && options.getObj(tag.name))) {
@@ -246,18 +246,13 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
         toots.forEach((toot) => {
             if (toot.realToot.containsTag(tag, true) && !toot.realToot.containsTag(tag)) {
                 options.incrementCount(tag.name);
-                totalTagsFound++;
-                tagsFound++;
+                incrementCount(tagsFound, tag.name);
             }
-        })
-
-        if (tagsFound == 0) return;
-        const msg = `Found ${tagsFound} more matches for tag "${tag.name}" in ${toots.length} Toots`;
-        tagsFound > 5 ? taggishLogger.debug(msg) : taggishLogger.trace(msg);
+        });
     });
 
     taggishLogger.info(
-        `Found ${totalTagsFound} more matches for ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}, topObjs:`,
-        options.topObjs(100)
+        `Found ${sumValues(tagsFound)} more matches for ${tags.length} tags` +
+        ` in ${toots.length} Toots ${ageString(startedAt)}: ${sortedDictString(tagsFound)}`,
     );
 }

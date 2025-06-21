@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Log full list of additional tags found but in a single line
+* More `tagOnlyStrings`
 
 ### v0.75.16
 * Be smarter about setting UserData.lastUpdatedAt to avoid unnecessary rebuilds
