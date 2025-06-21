@@ -247,7 +247,7 @@ class Storage {
             this.lastUpdatedAt = updatedAt;
         }
         else {
-            logger.debug(`"${key}" is not an API cache key, not updating lastUpdatedAt`);
+            hereLogger.trace(`"${key}" is not an API cache key, not updating lastUpdatedAt`);
         }
     }
     /** Serialize and save the FeedFilterSettings object. */

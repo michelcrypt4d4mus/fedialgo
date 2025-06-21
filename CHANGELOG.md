@@ -1,10 +1,13 @@
 # NEXT RELEASE
 
+### v0.75.15
+* Reduce debug logging
+
 ### v0.75.14
-* Add isApiCacheKey() method; only update Storage.lastUpdatedAt when API data is written
+* Add `isApiCacheKey()` method; only update `Storage.lastUpdatedAt` when API data is written
 
 ### v0.75.13
-* Fix bug where getUserData() wasn't updating to latest after Storage data is updated
+* Fix bug where `getUserData()` wasn't updating to latest after `Storage` data is updated
 
 ### v0.75.12
 * More `tagOnlyStrings`
