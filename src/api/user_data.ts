@@ -13,6 +13,7 @@ import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { buildMutedRegex, extractMutedKeywords } from "./objects/filter";
 import { config } from "../config";
+import { isDebugMode } from "../helpers/environment_helpers";
 import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
@@ -128,7 +129,7 @@ export default class UserData {
         // Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
         userData.lastUpdatedAt = mostRecentTootedAt([...data.recentToots, ...data.favouritedToots]);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config.locale.defaultLanguage;
-        logger.trace("Built from data:", userData);
+        isDebugMode ? logger.trace("Built from data:", userData) : logger.debug("Updated with latest API data");
         return userData;
     }
 

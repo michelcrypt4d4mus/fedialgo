@@ -35,6 +35,7 @@ const toot_1 = __importStar(require("./objects/toot"));
 const enums_1 = require("../enums");
 const filter_1 = require("./objects/filter");
 const config_1 = require("../config");
+const environment_helpers_1 = require("../helpers/environment_helpers");
 const collection_helpers_1 = require("../helpers/collection_helpers");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
@@ -125,7 +126,7 @@ class UserData {
         // Use the newest recent or favourited toot as proxy for freshness (other stuff rarely changes)
         userData.lastUpdatedAt = (0, toot_1.mostRecentTootedAt)([...data.recentToots, ...data.favouritedToots]);
         userData.preferredLanguage = userData.languagesPostedIn.topObjs()[0]?.name || config_1.config.locale.defaultLanguage;
-        logger.trace("Built from data:", userData);
+        environment_helpers_1.isDebugMode ? logger.trace("Built from data:", userData) : logger.debug("Updated with latest API data");
         return userData;
     }
     /**
