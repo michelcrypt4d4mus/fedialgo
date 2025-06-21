@@ -278,7 +278,7 @@ export default class Storage {
         if (isApiCacheKey(key)) {
             this.lastUpdatedAt = updatedAt;
         } else {
-            hereLogger.trace(`"${key}" is not an API cache key, not updating lastUpdatedAt`);
+            hereLogger.deep(`"${key}" is not an API cache key, not updating lastUpdatedAt`);
         }
     }
 

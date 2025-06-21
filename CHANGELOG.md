@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add all followed tags to the list of existing hashtag filter options so they can be appropriately deep scanned
 
 ### v0.75.18
 * Add many of the 1,000 most common english words from [here](https://www.ef.edu/english-resources/english-vocabulary/top-1000-words/) to `tagOnlyStrings`
