@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.75.17
 * Log full list of additional tags found but in a single line
 * More `tagOnlyStrings`
 
