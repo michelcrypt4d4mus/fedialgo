@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Log updateFilters() runtime
 
 ### v0.76.1
 * More `tagOnlyStrings`

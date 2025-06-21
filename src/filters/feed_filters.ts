@@ -9,11 +9,12 @@ import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import type Account from "../api/objects/account";
 import type TagList from "../api/tag_list";
 import type Toot from "../api/objects/toot";
-import { ageString } from "../helpers/time_helpers";
+import { ageString, WaitTime } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
 import { incrementCount, sortedDictString, sumValues } from "../helpers/collection_helpers";
+import { isDebugMode } from "../helpers/environment_helpers";
 import { isValidForSubstringSearch } from "../api/objects/tag";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
@@ -114,6 +115,7 @@ export async function updateBooleanFilterOptions(
     populateMissingFilters(filters);  // Ensure all filters are instantiated
     const tagLists = await TagsForFetchingToots.rawTagLists();
     const userData = await MastoApi.instance.getUserData();
+    const timer = new WaitTime();
 
     const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new BooleanFilterOptionList([], filterName as BooleanFilterName);
@@ -194,7 +196,8 @@ export async function updateBooleanFilterOptions(
 
     suppressedHashtags.log(logger);
     await Storage.setFilters(filters);
-    logger.trace(`Updated filters:`, filters);
+    const msg = `Updated all filters ${timer.ageString()}`
+    isDebugMode ? logger.trace(msg, filters) : logger.debug(msg);
 }
 
 
