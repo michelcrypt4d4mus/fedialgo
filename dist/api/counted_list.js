@@ -16,16 +16,17 @@ const string_helpers_1 = require("../helpers/string_helpers");
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
+ * @property {number | undefined} maxNumToots - The maximum numToots value in the list.*
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
- * @property {ListSource} source - The source of the list (for logging/context).
- * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
+ * @property {ListSource} source - The source of the list (for logging/context).
  */
 class CountedList {
     logger;
     nameDict = {}; // Dict of obj.names to objs
     source;
     get length() { return this._objs.length; }
+    ;
     get maxNumToots() { return this.maxValue("numToots"); }
     ;
     get objs() { return this._objs; }
@@ -48,7 +49,10 @@ class CountedList {
         this.source = source;
         this.logger = new logger_1.Logger("CountedList", source);
     }
-    // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+    /**
+     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * @param {T[]} objs - Array of objects to add to the list.
+     */
     addObjs(objs) {
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
     }

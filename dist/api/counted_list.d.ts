@@ -1,5 +1,6 @@
 import { Logger } from '../helpers/logger';
 import { type BooleanFilterOption, type CountedListSource, type NamedTootCount, type StringNumberDict } from "../types";
+/** Generic version of CountedList. */
 export type ObjList = CountedList<NamedTootCount>;
 /**
  * Generic list-ish class for NamedTootCount objects with 'name' and 'numToots' properties.
@@ -8,10 +9,10 @@ export type ObjList = CountedList<NamedTootCount>;
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
+ * @property {number | undefined} maxNumToots - The maximum numToots value in the list.*
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
- * @property {ListSource} source - The source of the list (for logging/context).
- * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
+ * @property {ListSource} source - The source of the list (for logging/context).
  */
 export default class CountedList<T extends NamedTootCount> {
     logger: Logger;
@@ -28,6 +29,10 @@ export default class CountedList<T extends NamedTootCount> {
      * @param {CountedListSource} source - Source of the list (for logging/context).
      */
     constructor(objs: T[], source: CountedListSource);
+    /**
+     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * @param {T[]} objs - Array of objects to add to the list.
+     */
     addObjs(objs: T[]): void;
     /**
      * Like the standard Array.filter().

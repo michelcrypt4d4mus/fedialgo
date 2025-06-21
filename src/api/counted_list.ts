@@ -14,6 +14,7 @@ import {
     type StringNumberDict,
 } from "../types";
 
+/** Generic version of CountedList. */
 export type ObjList = CountedList<NamedTootCount>;
 
 
@@ -24,19 +25,19 @@ export type ObjList = CountedList<NamedTootCount>;
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
+ * @property {number | undefined} maxNumToots - The maximum numToots value in the list.*
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
- * @property {ListSource} source - The source of the list (for logging/context).
- * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
+ * @property {ListSource} source - The source of the list (for logging/context).
  */
 export default class CountedList<T extends NamedTootCount> {
     logger: Logger;
     nameDict: Record<string, T> = {};  // Dict of obj.names to objs
     source: CountedListSource;
 
-    get length(): number { return this._objs.length; }
-    get maxNumToots(): number | undefined { return this.maxValue("numToots" as keyof T) };
-    get objs(): T[] { return this._objs };
+    get length() { return this._objs.length };
+    get maxNumToots() { return this.maxValue("numToots" as keyof T) };
+    get objs() { return this._objs };
     private _objs: T[] = [];
 
     /** Has side effect of mutating the 'nameDict' property. */
@@ -59,7 +60,10 @@ export default class CountedList<T extends NamedTootCount> {
         this.logger = new Logger("CountedList", source);
     }
 
-    // Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+    /**
+     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * @param {T[]} objs - Array of objects to add to the list.
+     */
     addObjs(objs: T[]): void {
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
     }
