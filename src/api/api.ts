@@ -829,8 +829,8 @@ export default class MastoApi {
 
                 // breakIf() must be called before we check the length of rows!  // TODO: still necessary?
                 const shouldStop = breakIf ? (await breakIf(page, newRows)) : false;
-                let resultsMsg = `got page ${++pageNumber} with ${page.length} objs ${waitTime.ageString()}`;
-                resultsMsg += `, ${newRows.length} objs so far`;
+                const resultsMsg = `got page ${++pageNumber} with ${page.length} objs ${waitTime.ageString()}` +
+                                   `, ${newRows.length} objs so far`;
 
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     const msg = `Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`;

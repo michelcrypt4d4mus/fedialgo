@@ -652,7 +652,7 @@ class TheAlgorithm {
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], hereLogger);
         this.numUnscannedToots += newToots.length;
         // Building filter options is expensive so we only do it when it's justifiable
-        if (this.feed.length < config_1.config.toots.minToSkipFilterUpdates || this.numUnscannedToots > config_1.config.toots.filterUpdateBatchSize) {
+        if ((this.feed.length < config_1.config.toots.minToSkipFilterUpdates) || (this.numUnscannedToots > config_1.config.toots.filterUpdateBatchSize)) {
             await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
             this.numUnscannedToots = 0;
         }

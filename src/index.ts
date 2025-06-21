@@ -715,7 +715,7 @@ export default class TheAlgorithm {
         this.numUnscannedToots += newToots.length;
 
         // Building filter options is expensive so we only do it when it's justifiable
-        if (this.feed.length < config.toots.minToSkipFilterUpdates || this.numUnscannedToots > config.toots.filterUpdateBatchSize) {
+        if ((this.feed.length < config.toots.minToSkipFilterUpdates) || (this.numUnscannedToots > config.toots.filterUpdateBatchSize)) {
             await updateBooleanFilterOptions(this.filters, this.feed);
             this.numUnscannedToots = 0;
         } else {
