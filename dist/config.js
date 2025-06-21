@@ -463,6 +463,7 @@ class Config {
             "decision",
             "deep",
             "defense",
+            "den",
             "der",
             "design",
             "details",

@@ -591,6 +591,7 @@ class Config implements ConfigType {
             "decision",
             "deep",
             "defense",
+            "den",
             "der",
             "design",
             "details",
