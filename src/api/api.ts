@@ -607,8 +607,7 @@ export default class MastoApi {
         const releaseMutex = await lockExecution(USER_DATA_MUTEX, this.logger);
 
         try {
-            const hasNewest = this.userData ? this.userData.hasNewestApiData() : false;
-            this.logger.debug(`getUserData() called, hasNewest=${hasNewest}, force=${force}`);
+            const hasNewest: boolean = this.userData ? (await this.userData.hasNewestApiData()) : false;
 
             if (force || !hasNewest) {
                 this.userData = await UserData.build();
