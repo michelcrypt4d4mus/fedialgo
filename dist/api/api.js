@@ -445,8 +445,7 @@ class MastoApi {
     async getUserData(force) {
         const releaseMutex = await (0, mutex_helpers_1.lockExecution)(USER_DATA_MUTEX, this.logger);
         try {
-            const hasNewest = this.userData ? this.userData.hasNewestApiData() : false;
-            this.logger.debug(`getUserData() called, hasNewest=${hasNewest}, force=${force}`);
+            const hasNewest = this.userData ? (await this.userData.hasNewestApiData()) : false;
             if (force || !hasNewest) {
                 this.userData = await user_data_1.default.build();
             }

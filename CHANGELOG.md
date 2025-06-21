@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug where getUserData() wasn't updating to latest after Storage data is updated
 
 ### v0.75.12
 * More `tagOnlyStrings`
