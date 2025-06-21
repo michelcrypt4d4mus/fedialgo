@@ -1441,6 +1441,7 @@ if (isQuickMode) {
     config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = SECONDS_IN_HOUR;
     config.favouritedTags.numTags = 5;
+    config.toots.maxTimelineLength = 1_500;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
@@ -1453,9 +1454,8 @@ if (isDebugMode) {
     config.api.data[CacheKey.FOLLOWERS]!.initialMaxRecords = 320;
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 10;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;
-    config.api.backgroundLoadIntervalMinutes = 2;
+    config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2_500;
-    config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;
 };
 
