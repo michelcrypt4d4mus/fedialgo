@@ -14,6 +14,7 @@ import {
     type StringNumberDict,
 } from "../types";
 
+/** Generic version of CountedList. */
 export type ObjList = CountedList<NamedTootCount>;
 
 

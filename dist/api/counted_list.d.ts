@@ -1,5 +1,6 @@
 import { Logger } from '../helpers/logger';
 import { type BooleanFilterOption, type CountedListSource, type NamedTootCount, type StringNumberDict } from "../types";
+/** Generic version of CountedList. */
 export type ObjList = CountedList<NamedTootCount>;
 /**
  * Generic list-ish class for NamedTootCount objects with 'name' and 'numToots' properties.
