@@ -55,11 +55,12 @@ interface ParticipatedTagsConfig extends TagTootsConfig {
     minPctToCountRetoots: number;
 }
 type ScoringConfig = {
+    diversityScorerMinTrendingTagTootsForPenalty: number;
+    diversityScorerRetootMultiplier: number;
     excessiveTags: number;
     excessiveTagsPenalty: number;
     nonScoreWeightMinValue: number;
     nonScoreWeightsConfig: Readonly<NonScoreWeightInfoDict>;
-    minTrendingTagTootsForPenalty: number;
     scoringBatchSize: number;
     timeDecayExponent: number;
 };
@@ -186,7 +187,8 @@ declare class Config implements ConfigType {
     scoring: {
         excessiveTags: number;
         excessiveTagsPenalty: number;
-        minTrendingTagTootsForPenalty: number;
+        diversityScorerMinTrendingTagTootsForPenalty: number;
+        diversityScorerRetootMultiplier: number;
         nonScoreWeightMinValue: number;
         nonScoreWeightsConfig: {
             TimeDecay: {
