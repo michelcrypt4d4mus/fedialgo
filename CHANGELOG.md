@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.77.1
 * Add config.scoring.diversityScorerRetootMultiplier to apply a harsher diversity penalty to retoots than to a user's own toots
 
 ## v0.77.0
