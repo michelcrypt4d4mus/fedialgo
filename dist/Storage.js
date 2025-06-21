@@ -302,7 +302,7 @@ class Storage {
             }
             return summary; // Only include storage for this user
         }, {});
-        return { detailedInfo, summary };
+        return { detailedInfo, lastUpdatedAt: this.lastUpdatedAt?.toISOString(), summary };
     }
     //////////////////////////////
     //     Private methods      //
