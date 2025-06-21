@@ -176,7 +176,7 @@ export default class CountedList<T extends NamedTootCount> {
      * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
     topObjs(maxObjs?: number): T[] {
-        const sortBy = (this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots");
+        const sortBy: keyof T = this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots";
         const sortByAndName = [sortBy, "name"] as (keyof T)[]
         this.objs = sortObjsByProps(Object.values(this.objs), sortByAndName, [false, true]);
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
