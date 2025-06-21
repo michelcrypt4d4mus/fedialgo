@@ -37,7 +37,6 @@ const DEFAULT_FILTERS: FeedFilterSettings = {
 };
 
 const logger = new Logger('feed_filters.ts');
-const taggishLogger = logger.tempLogger("updateHashtagCounts");
 
 
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
@@ -74,8 +73,9 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     let wasChanged = false;
 
     // For upgrades of existing users for the rename of booleanFilterArgs
+    // TODO: remove this eventually
     if ("feedFilterSectionArgs" in filters) {
-        logger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
+        logger.warn(`Old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
         filters.booleanFilterArgs = filters.feedFilterSectionArgs as BooleanFilterArgs[];
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
@@ -251,8 +251,8 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
         });
     });
 
-    taggishLogger.info(
-        `Found ${sumValues(tagsFound)} more matches for ${tags.length} tags` +
-        ` in ${toots.length} Toots ${ageString(startedAt)}: ${sortedDictString(tagsFound)}`,
+    logger.info(
+        `updateHashtagCounts() found ${sumValues(tagsFound)} more matches for ${Object.keys(tagsFound).length}` +
+        ` of ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}: ${sortedDictString(tagsFound)}`,
     );
 }

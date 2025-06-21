@@ -51,7 +51,6 @@ const DEFAULT_FILTERS = {
     numericFilters: {},
 };
 const logger = new logger_1.Logger('feed_filters.ts');
-const taggishLogger = logger.tempLogger("updateHashtagCounts");
 // Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
 // Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
 function buildNewFilterSettings() {
@@ -81,8 +80,9 @@ exports.buildFiltersFromArgs = buildFiltersFromArgs;
 function repairFilterSettings(filters) {
     let wasChanged = false;
     // For upgrades of existing users for the rename of booleanFilterArgs
+    // TODO: remove this eventually
     if ("feedFilterSectionArgs" in filters) {
-        logger.warn(`Found old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
+        logger.warn(`Old filter format "feedFilterSectionArgs:, converting to booleanFilterArgs:`, filters);
         filters.booleanFilterArgs = filters.feedFilterSectionArgs;
         delete filters.feedFilterSectionArgs;
         wasChanged = true;
@@ -228,7 +228,7 @@ function updateHashtagCounts(options, tags, toots) {
             }
         });
     });
-    taggishLogger.info(`Found ${(0, collection_helpers_1.sumValues)(tagsFound)} more matches for ${tags.length} tags` +
-        ` in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}: ${(0, collection_helpers_1.sortedDictString)(tagsFound)}`);
+    logger.info(`updateHashtagCounts() found ${(0, collection_helpers_1.sumValues)(tagsFound)} more matches for ${Object.keys(tagsFound).length}` +
+        ` of ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}: ${(0, collection_helpers_1.sortedDictString)(tagsFound)}`);
 }
 //# sourceMappingURL=feed_filters.js.map
