@@ -25,10 +25,10 @@ export type ObjList = CountedList<NamedTootCount>;
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
+ * @property {number | undefined} maxNumToots - The maximum numToots value in the list.*
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
- * @property {ListSource} source - The source of the list (for logging/context).
- * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
+ * @property {ListSource} source - The source of the list (for logging/context).
  */
 export default class CountedList<T extends NamedTootCount> {
     logger: Logger;

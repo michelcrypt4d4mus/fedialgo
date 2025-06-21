@@ -16,10 +16,10 @@ const string_helpers_1 = require("../helpers/string_helpers");
  * @template T extends NamedTootCount
  * @property {number} length - The number of objects in the list.*
  * @property {Logger} logger - Logger instance for this list.
+ * @property {number | undefined} maxNumToots - The maximum numToots value in the list.*
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
- * @property {ListSource} source - The source of the list (for logging/context).
- * @property {number | undefined} maxNumToots - The maximum numToots value in the list.
  * @property {T[]} objs - The array of objects in the list.
+ * @property {ListSource} source - The source of the list (for logging/context).
  */
 class CountedList {
     logger;
