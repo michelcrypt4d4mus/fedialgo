@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.74.22
+* More `tagOnlyStrings`
+
 ### v0.74.21
 * More `tagOnlyStrings`
 
@@ -25,11 +28,8 @@
 * Filters don't do deep string comparison for tags that appear in `tagOnlyStrings`
 * Add more `tagOnlyStrings`
 
-### v0.74.14
+### v0.74.13 - v0.74.14
 * Even more `tagOnlyStrings`
-
-### v0.74.13
-* Add a lot more `tagOnlyStrings` to configuration
 
 ### v0.74.12
 * Another workaround for `Toot.tagNames().has()`
