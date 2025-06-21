@@ -343,6 +343,11 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 export const isCacheKey = isValueInStringEnum(CacheKey);
 /** True if argument is a member of TagTootsCacheKey. */
 export const isTagTootsCategory = isValueInStringEnum(TagTootsCategory);
+/** True if argument is a member of FediverseCacheKey. */
+export const isFediverseCacheKey = isValueInStringEnum(FediverseCacheKey);
+/** True if argument is an ApiCacheKey. */
+export const isApiCacheKey = (s: string) => (isCacheKey(s) || isFediverseCacheKey(s) || isTagTootsCategory(s));
+
 
 /** True if argument is a member of NonScoreWeightName enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);

@@ -243,7 +243,12 @@ class Storage {
         const msg = `Updating cache with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
         environment_helpers_1.isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localforage_1.default.setItem(storageKey, withTimestamp);
-        this.lastUpdatedAt = updatedAt;
+        if ((0, enums_1.isApiCacheKey)(key)) {
+            this.lastUpdatedAt = updatedAt;
+        }
+        else {
+            logger.debug(`"${key}" is not an API cache key, not updating lastUpdatedAt`);
+        }
     }
     /** Serialize and save the FeedFilterSettings object. */
     static async setFilters(filters) {

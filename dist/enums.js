@@ -4,7 +4,7 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isTagTootsCategory = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isApiCacheKey = exports.isFediverseCacheKey = exports.isTagTootsCategory = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -294,6 +294,11 @@ exports.isValueInStringEnum = isValueInStringEnum;
 exports.isCacheKey = isValueInStringEnum(CacheKey);
 /** True if argument is a member of TagTootsCacheKey. */
 exports.isTagTootsCategory = isValueInStringEnum(TagTootsCategory);
+/** True if argument is a member of FediverseCacheKey. */
+exports.isFediverseCacheKey = isValueInStringEnum(FediverseCacheKey);
+/** True if argument is an ApiCacheKey. */
+const isApiCacheKey = (s) => ((0, exports.isCacheKey)(s) || (0, exports.isFediverseCacheKey)(s) || (0, exports.isTagTootsCategory)(s));
+exports.isApiCacheKey = isApiCacheKey;
 /** True if argument is a member of NonScoreWeightName enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
 /** True if argument is a member of ScoreName enum. */
