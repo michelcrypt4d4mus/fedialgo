@@ -244,7 +244,7 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
         }
 
         toots.forEach((toot) => {
-            if (!toot.realToot.containsTag(tag) && toot.realToot.containsTag(tag, true)) {
+            if (toot.realToot.containsTag(tag, true) && !toot.realToot.containsTag(tag)) {
                 options.incrementCount(tag.name);
                 totalTagsFound++;
                 tagsFound++;
