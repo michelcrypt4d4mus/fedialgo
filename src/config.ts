@@ -694,6 +694,8 @@ class Config implements ConfigType {
             "it",
             "ja",
             "jp",
+            "know",
+            "knew",
             "la",
             "lake",
             "landscape",

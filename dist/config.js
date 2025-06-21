@@ -566,6 +566,8 @@ class Config {
             "it",
             "ja",
             "jp",
+            "know",
+            "knew",
             "la",
             "lake",
             "landscape",
