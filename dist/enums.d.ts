@@ -218,6 +218,10 @@ export declare function isValueInStringEnum<E extends string>(strEnum: Record<st
 export declare const isCacheKey: (str: string) => boolean;
 /** True if argument is a member of TagTootsCacheKey. */
 export declare const isTagTootsCategory: (str: string) => boolean;
+/** True if argument is a member of FediverseCacheKey. */
+export declare const isFediverseCacheKey: (str: string) => boolean;
+/** True if argument is an ApiCacheKey. */
+export declare const isApiCacheKey: (s: string) => boolean;
 /** True if argument is a member of NonScoreWeightName enum. */
 export declare const isNonScoreWeightName: (str: string) => boolean;
 /** True if argument is a member of ScoreName enum. */

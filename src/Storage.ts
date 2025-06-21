@@ -31,6 +31,7 @@ import {
     STORAGE_KEYS_WITH_TOOTS,
     type ApiCacheKey,
     type StorageKey,
+    isApiCacheKey,
 } from "./enums";
 import {
     type ApiObj,
@@ -273,7 +274,12 @@ export default class Storage {
         const msg = `Updating cache with ` + (Array.isArray(value) ? `${value.length} records` : `an object`);
         isDeepDebug ? hereLogger.deep(msg, withTimestamp) : hereLogger.trace(msg);
         await localForage.setItem(storageKey, withTimestamp);
-        this.lastUpdatedAt = updatedAt;
+
+        if (isApiCacheKey(key)) {
+            this.lastUpdatedAt = updatedAt;
+        } else {
+            logger.debug(`"${key}" is not an API cache key, not updating lastUpdatedAt`);
+        }
     }
 
     /** Serialize and save the FeedFilterSettings object. */

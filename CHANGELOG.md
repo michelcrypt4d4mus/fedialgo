@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add isApiCacheKey() method; only update Storage.lastUpdatedAt when API data is written
 
 ### v0.75.13
 * Fix bug where getUserData() wasn't updating to latest after Storage data is updated
