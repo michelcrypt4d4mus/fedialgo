@@ -1,6 +1,6 @@
 # NEXT RELEASE
 
-# v0.76.0
+## v0.76.0
 * Add all followed tags to the list of existing hashtag filter options so they can be appropriately deep scanned
 
 ### v0.75.18
@@ -40,7 +40,7 @@
 ### v0.75.1 - v0.75.6
 * More `tagOnlyStrings`
 
-# v0.75.0
+## v0.75.0
 * Refactor historical data background fetching to `MoarDataPoller` class
 * Don't rescore the feed after each call to `getMoarData()` so as to avoid shuffling the feed as the user is looking at it
 * More `tagOnlyStrings`
@@ -110,7 +110,7 @@
 ### v0.74.1
 * Only do the followed hashtag additional scan in `finishFeedUpdate()`, not for each fetch because it's slow
 
-# v0.74.0
+## v0.74.0
 * Update filter option counts for followed hashtags with substring search even if there's no "#" character
 * Turn `TAG_ONLY_STRINGS` into a `config.toots.tagOnlyStrings` parameter; add "is" to list
 * Add `forEach()` to `CountedList` class
