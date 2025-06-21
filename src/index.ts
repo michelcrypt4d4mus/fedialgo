@@ -466,7 +466,7 @@ export default class TheAlgorithm {
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
             this.loadingStatus = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
-            this.loadStartedAt = undefined;
+            this.loadStartedAt = new Date();
             this.numTriggers = 0;
             this.trendingData = EMPTY_TRENDING_DATA;
             this.feed = [];
@@ -660,13 +660,12 @@ export default class TheAlgorithm {
         // to capture changes to the alreadyShown state of toots.
         if (this.cacheUpdater) {
             logger.trace(`cacheUpdater already exists, not starting another one`);
-            return;
+        } else {
+            this.cacheUpdater = setInterval(
+                async () => await this.saveTimelineToCache(),
+                config.toots.saveChangesIntervalSeconds * 1000
+            );
         }
-
-        this.cacheUpdater = setInterval(
-            async () => await this.saveTimelineToCache(),
-            config.toots.saveChangesIntervalSeconds * 1000
-        );
     }
 
     // Load cached data from Storage. This is called when the app is first opened and when reset() is invoked.
