@@ -234,7 +234,7 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
     const startedAt = Date.now();
     let totalTagsFound = 0;
 
-    tags.forEach((option) => {
+    tags.topObjs().forEach((option) => {
         const tag = option as TagWithUsageCounts;
         let tagsFound = 0;
 
