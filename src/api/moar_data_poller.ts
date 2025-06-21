@@ -20,24 +20,24 @@ const MOAR_MUTEX = new Mutex();
 
 export default class MoarDataPoller {
     private logger = new Logger(GET_MOAR_DATA);
-    private dataPoller?: ReturnType<typeof setInterval>;
+    private intervalRunner?: ReturnType<typeof setInterval>;
 
     start(): void {
-        if (this.dataPoller) {
+        if (this.intervalRunner) {
             this.logger.trace(`Data poller already exists, not starting another one`);
             return;
         }
 
         this.logger.info(`Starting data poller on ${config.api.backgroundLoadIntervalMinutes} minute interval...`);
 
-        this.dataPoller = setInterval(
+        this.intervalRunner = setInterval(
             async () => {
                 const shouldContinue = await this.getMoarData();
                 await ScorerCache.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
 
                 if (!shouldContinue) {
                     this.logger.log(`Stopping data poller because shouldContinue:`, shouldContinue);
-                    this.dataPoller && clearInterval(this.dataPoller!);
+                    this.intervalRunner && clearInterval(this.intervalRunner!);
                 }
             },
             config.api.backgroundLoadIntervalMinutes * SECONDS_IN_MINUTE * 1000
@@ -46,20 +46,22 @@ export default class MoarDataPoller {
 
     /**
      * Stop the pollers. Returns true if there was anything to stop.
-     * @param {boolean} [shoulCancelInProgress=false] - If true, will cancel any in-progress data fetches.
      * @returns {boolean}
      */
     stop(): boolean {
-        if (!this.dataPoller) {
+        if (MOAR_MUTEX.isLocked()) {
+            this.logger.log(`Cancelling in-progress data fetch...`);
+            MOAR_MUTEX.cancel();
+        }
+
+        if (!this.intervalRunner) {
             this.logger.trace(`Data poller does not exist, nothing to stop...`);
             return false;
         }
 
-        this.logger.log(`Cancelling in-progress data fetches...`);
-        MOAR_MUTEX.cancel(); // Cancel any in-progress data fetches
-        clearInterval(this.dataPoller);
-        this.dataPoller = undefined;
-        this.logger.log(`Disabled data poller...`);
+        clearInterval(this.intervalRunner);
+        this.intervalRunner = undefined;
+        this.logger.log(`Disabled data poller`);
         return true;
     }
 

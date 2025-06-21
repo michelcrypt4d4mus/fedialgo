@@ -1,10 +1,9 @@
 export default class MoarDataPoller {
     private logger;
-    private dataPoller?;
+    private intervalRunner?;
     start(): void;
     /**
      * Stop the pollers. Returns true if there was anything to stop.
-     * @param {boolean} [shoulCancelInProgress=false] - If true, will cancel any in-progress data fetches.
      * @returns {boolean}
      */
     stop(): boolean;
