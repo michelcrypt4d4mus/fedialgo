@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.75.9
 * Add lastUpdatedAt to Storage info returned by getCurrentState()
 
 ### v0.75.8
