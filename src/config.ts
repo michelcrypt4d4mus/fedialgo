@@ -718,6 +718,8 @@ class Config implements ConfigType {
             "latest",
             "le",
             "lead",
+            "leader",
+            "leaders",
             "leads",
             "leading",
             "learn",
