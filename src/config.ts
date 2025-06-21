@@ -875,6 +875,7 @@ class Config implements ConfigType {
             "stock",
             "strange",
             "strikes",
+            "su",
             "substack",
             "success",
             "summer",
