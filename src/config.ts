@@ -555,6 +555,7 @@ class Config implements ConfigType {
             "before",
             "benefit",
             "benefits",
+            "bet",
             "bi",
             "big",
             "bigger",
@@ -578,7 +579,7 @@ class Config implements ConfigType {
             "buy",
             "by",
             "bye",
-            "ca",
+            "ca",      // TLD
             "call",
             "calls",
             "came",
@@ -602,13 +603,13 @@ class Config implements ConfigType {
             "citizens",
             "city",
             "classic",
-            "co",
+            "co",         // TLD
             "collaboration",
-            "com",
+            "com",        // TLD
             "come",
             "comment",
             "community",
-            "con", // spanish
+            "con",        // spanish
             "concern",
             "concerns",
             "conflict",
@@ -633,7 +634,7 @@ class Config implements ConfigType {
             "das",      // german
             "data",
             "day",
-            "de",
+            "de",       // german
             "decide",
             "decides",
             "decision",
@@ -682,7 +683,7 @@ class Config implements ConfigType {
             "english",
             "episode",
             "era",
-            "es",
+            "es",          // Spanish
             "essential",
             "euro",
             "europe",
@@ -814,8 +815,8 @@ class Config implements ConfigType {
             "it",
             "its",
             "itself",
-            "ja",
-            "je",
+            "ja",      // German
+            "je",      // French
             "jp",
             "keep",
             "keeps",
@@ -824,13 +825,13 @@ class Config implements ConfigType {
             "kind",
             "knew",
             "know",
-            "la",
+            "la",      // French
             "lake",
             "landscape",
             "large",
             "larger",
             "largest",
-            "las",
+            "las",       // Spanish
             "last",
             "lasts",
             "late",
@@ -838,7 +839,7 @@ class Config implements ConfigType {
             "latest",
             "lay",
             "lays",
-            "le",
+            "le",        // French
             "lead",
             "leader",
             "leaders",
@@ -848,9 +849,10 @@ class Config implements ConfigType {
             "learns",
             "learning",
             "legal",
-            "lemonde",
-            "les",
+            "lemonde",   // French
+            "les",       // French
             "let",
+            "lie",
             "lies",
             "light",
             "like",
@@ -881,7 +883,7 @@ class Config implements ConfigType {
             "man",
             "many",
             "marketing",
-            "mas",       // Spanish
+            "mas",         // Spanish
             "mastodon",
             "may",
             "maybe",
@@ -905,7 +907,7 @@ class Config implements ConfigType {
             "minutes",
             "mode",
             "model",
-            "monde",
+            "monde",      // French
             "more",
             "most",
             "mostly",
@@ -916,8 +918,8 @@ class Config implements ConfigType {
             "ms",
             "mstdn",
             "much",
-            "mucho",
-            "mundo",
+            "mucho",     // Spanish
+            "mundo",     // Spanish
             "must",
             "my",
             "natural",
@@ -1093,7 +1095,7 @@ class Config implements ConfigType {
             "saving",
             "say",
             "says",
-            "se",
+            "se",        // Spanish
             "season",
             "second",
             "seconds",
@@ -1112,7 +1114,7 @@ class Config implements ConfigType {
             "she",
             "short",
             "show",
-            "si",
+            "si",     // Spanish
             "side",
             "sides",
             "similar",
@@ -1269,6 +1271,7 @@ class Config implements ConfigType {
             "went",
             "were",
             "west",
+            "weighing",
             "what",
             "where",
             "whether",
@@ -1322,7 +1325,7 @@ class Config implements ConfigType {
             "yourself",
             "yourselves",
             "youtube",
-            "za",
+            "za",      // South Africa TLD
             "ze",
         ]),
     }
