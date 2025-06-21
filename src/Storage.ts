@@ -347,7 +347,7 @@ export default class Storage {
             {} as StringNumberDict
         );
 
-        return { detailedInfo, summary };
+        return { detailedInfo, lastUpdatedAt: this.lastUpdatedAt?.toISOString(), summary };
     }
 
     //////////////////////////////
