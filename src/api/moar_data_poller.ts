@@ -19,8 +19,8 @@ const MOAR_MUTEX = new Mutex();
 
 
 export default class MoarDataPoller {
-    private logger = new Logger(GET_MOAR_DATA);
     private intervalRunner?: ReturnType<typeof setInterval>;
+    private logger = new Logger(GET_MOAR_DATA);
 
     start(): void {
         if (this.intervalRunner) {
@@ -61,7 +61,7 @@ export default class MoarDataPoller {
 
         clearInterval(this.intervalRunner);
         this.intervalRunner = undefined;
-        this.logger.log(`Disabled data poller`);
+        this.logger.log(`Stopped data poller.`);
         return true;
     }
 
@@ -70,7 +70,7 @@ export default class MoarDataPoller {
      * @returns {Promise<boolean>} - Returns true if new data was fetched, false otherwise.
      */
     async getMoarData(): Promise<boolean> {
-        this.logger.log(`triggered by timer...`);
+        this.logger.log(`Triggered by timer...`);
         const releaseMutex = await lockExecution(MOAR_MUTEX, this.logger);
         const startedAt = new Date();
 
@@ -95,7 +95,7 @@ export default class MoarDataPoller {
                     };
 
                     const newRecords = await pollers[i]({moar: true});  // Launch the puller with moar=true
-                    const newCount = (newRecords?.length || 0);
+                    const newCount = newRecords?.length || 0;
                     const extraCount = newCount - cacheSizes[i];
                     const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
                     this.logger.logStringifiedProps(pollers[i].name, logObj);

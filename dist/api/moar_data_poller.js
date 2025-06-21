@@ -17,8 +17,8 @@ const logger_1 = require("../helpers/logger");
 const GET_MOAR_DATA = "getMoarData()";
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 class MoarDataPoller {
-    logger = new logger_1.Logger(GET_MOAR_DATA);
     intervalRunner;
+    logger = new logger_1.Logger(GET_MOAR_DATA);
     start() {
         if (this.intervalRunner) {
             this.logger.trace(`Data poller already exists, not starting another one`);
@@ -49,7 +49,7 @@ class MoarDataPoller {
         }
         clearInterval(this.intervalRunner);
         this.intervalRunner = undefined;
-        this.logger.log(`Disabled data poller`);
+        this.logger.log(`Stopped data poller.`);
         return true;
     }
     /**
@@ -57,7 +57,7 @@ class MoarDataPoller {
      * @returns {Promise<boolean>} - Returns true if new data was fetched, false otherwise.
      */
     async getMoarData() {
-        this.logger.log(`triggered by timer...`);
+        this.logger.log(`Triggered by timer...`);
         const releaseMutex = await (0, mutex_helpers_1.lockExecution)(MOAR_MUTEX, this.logger);
         const startedAt = new Date();
         // TODO: Add followed accounts?  for people who follow > 5,000 users?
@@ -78,7 +78,7 @@ class MoarDataPoller {
                 }
                 ;
                 const newRecords = await pollers[i]({ moar: true }); // Launch the puller with moar=true
-                const newCount = (newRecords?.length || 0);
+                const newCount = newRecords?.length || 0;
                 const extraCount = newCount - cacheSizes[i];
                 const logObj = { extraCount, newCount, oldCount: cacheSizes[i] };
                 this.logger.logStringifiedProps(pollers[i].name, logObj);

@@ -20,7 +20,6 @@ export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger):
     logger.deep(`lockExecution called...`);
     const startedAt = new Date();
     const acquireLock = await locker.acquire();
-    const waitSeconds = ageInSeconds(startedAt);
     let releaseLock: ConcurrencyLockRelease;
     let logMsg: string;
 
@@ -33,10 +32,11 @@ export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger):
     }
 
     logMsg += ` lock acquired ${ageString(startedAt)}`;
+    const waitSeconds = ageInSeconds(startedAt);
 
     if (waitSeconds > config.api.mutexWarnSeconds) {
-        logger.warn(logMsg);
-    } else if (waitSeconds > 2) {
+        logger.debug(logMsg);
+    } else if (waitSeconds > (config.api.mutexWarnSeconds / 2)) {
         logger.deep(logMsg);
     }
 
