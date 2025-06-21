@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.75.11
+* Log hasNewestApiData()
+
 ### v0.75.10
 * Add lastUpdatedAt to Storage info returned by getCurrentState()
 

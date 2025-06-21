@@ -133,7 +133,9 @@ class UserData {
      * @returns {Promise<boolean>} True if UserData object was created after the last updatedAt in Storage.
      */
     async hasNewestApiData() {
-        return !!(Storage_1.default.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage_1.default.lastUpdatedAt));
+        const isUpToDate = !!(Storage_1.default.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage_1.default.lastUpdatedAt));
+        logger.debug(`hasNewestApiData() lastUpdatedAt: ${this.lastUpdatedAt}, Storage.lastUpdatedAt: ${Storage_1.default.lastUpdatedAt}, isUpToDate: ${isUpToDate}`);
+        return isUpToDate;
     }
     /**
      * Add up the favourites, retoots, and replies for each account
