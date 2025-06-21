@@ -711,33 +711,17 @@ export default class TheAlgorithm {
         }
     };
 
-    // Throws an error if the feed is loading, otherwise lock the mutex and set the loadStartedAt timestamp.
-    private async startAction(logPrefix: LoadAction): Promise<void> {
-        const hereLogger = loggers[logPrefix];
-        const status = config.locale.messages[logPrefix];
-        hereLogger.log(`called, state:`, this.statusDict());
-
-        if (this.isLoading) {
-            hereLogger.warn(`Load in progress already!`, this.statusDict());
-            throw new Error(config.locale.messages.isBusy);
-        }
-
-        this.loadStartedAt = new Date();
-        this._releaseLoadingMutex = await lockExecution(this.loadingMutex, logger);
-        this.loadingStatus = (typeof status === 'string') ? status : status(this.feed, this.mostRecentHomeTootAt());
-    }
-
     // Merge newToots into this.feed, score, and filter the feed.
     // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
     private async mergeTootsToFeed(newToots: Toot[], inLogger: Logger): Promise<void> {
         const hereLogger = inLogger.tempLogger('mergeTootsToFeed');
         const numTootsBefore = this.feed.length;
         const startedAt = new Date();
-
+        // Merge new Toots
         this.feed = Toot.dedupeToots([...this.feed, ...newToots], hereLogger);
         await updateBooleanFilterOptions(this.filters, this.feed);
         await this.scoreAndFilterFeed();
-
+        // Update loadingStatus and log telemetry
         const statusMsgFxn = config.locale.messages[LoadAction.FEED_UPDATE];
         this.loadingStatus = statusMsgFxn(this.feed, this.mostRecentHomeTootAt());
         hereLogger.logTelemetry(`Merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
@@ -764,7 +748,6 @@ export default class TheAlgorithm {
     // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
     // Returns the FILTERED set of toots (NOT the entire feed!)
     private async scoreAndFilterFeed(): Promise<Toot[]> {
-        // await ScorerCache.prepareScorers();
         this.feed = await Scorer.scoreToots(this.feed, true);
 
         this.feed = truncateToLength(
@@ -775,6 +758,22 @@ export default class TheAlgorithm {
 
         await Storage.set(AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         return this.filterFeedAndSetInApp();
+    }
+
+    // Throws an error if the feed is loading, otherwise lock the mutex and set the loadStartedAt timestamp.
+    private async startAction(logPrefix: LoadAction): Promise<void> {
+        const hereLogger = loggers[logPrefix];
+        const status = config.locale.messages[logPrefix];
+        hereLogger.log(`called, state:`, this.statusDict());
+
+        if (this.isLoading) {
+            hereLogger.warn(`Load in progress already!`, this.statusDict());
+            throw new Error(config.locale.messages.isBusy);
+        }
+
+        this.loadStartedAt = new Date();
+        this._releaseLoadingMutex = await lockExecution(this.loadingMutex, logger);
+        this.loadingStatus = (typeof status === 'string') ? status : status(this.feed, this.mostRecentHomeTootAt());
     }
 
     // Info about the state of this TheAlgorithm instance

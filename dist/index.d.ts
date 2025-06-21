@@ -197,11 +197,11 @@ export default class TheAlgorithm {
     private launchBackgroundPollers;
     private loadCachedData;
     private lockedMergeToFeed;
-    private startAction;
     private mergeTootsToFeed;
     private recomputeScores;
     private releaseLoadingMutex;
     private scoreAndFilterFeed;
+    private startAction;
     private statusDict;
     private enableMoarDataBackgroundPoller;
 }
