@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.74.19
+* Rename `isTagTootsCategory()`
+* More `tagOnlyStrings`
+
 ### v0.74.18
 * Change background fetch sleep to a random number of milliseconds between 0 and the configured value
 * More `tagOnlyStrings`

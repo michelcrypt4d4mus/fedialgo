@@ -654,7 +654,7 @@ class MastoApi {
                 resultsMsg += `, ${newRows.length} objs so far`;
                 if (newRows.length >= maxRecords || page.length == 0 || shouldStop) {
                     const msg = `Fetch finished (${resultsMsg}, shouldStop=${shouldStop}, maxRecords=${maxRecords})`;
-                    (0, enums_1.isTagTootsCacheKey)(cacheKey) ? logger.trace(msg) : logger.debug(msg);
+                    (0, enums_1.isTagTootsCategory)(cacheKey) ? logger.trace(msg) : logger.debug(msg);
                     break;
                 }
                 else if (waitTime.ageInSeconds() > config_1.config.api.maxSecondsPerPage) {

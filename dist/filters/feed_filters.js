@@ -214,7 +214,7 @@ function populateMissingFilters(filters) {
 function updateHashtagCounts(options, tags, toots) {
     const startedAt = Date.now();
     let totalTagsFound = 0;
-    tags.forEach((option) => {
+    tags.topObjs().forEach((option) => {
         const tag = option;
         let tagsFound = 0;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
