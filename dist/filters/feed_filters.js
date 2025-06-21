@@ -105,10 +105,10 @@ exports.repairFilterSettings = repairFilterSettings;
  * will all have been stored and reloaded along with the feed that birthed those filter options.
  * @param {FeedFilterSettings} filters - The filter settings to update with new options.
  * @param {Toot[]} toots - The toots to analyze for filter options.
- * @param {boolean} [scanFollowedTags=false] - Whether to scan followed tags for counts.
+ * @param {boolean} [scanForTags=false] - Whether to scan followed tags for counts.
  * @returns {Promise<void>} A promise that resolves when the filter options have been updated.
  */
-async function updateBooleanFilterOptions(filters, toots, scanFollowedTags = false) {
+async function updateBooleanFilterOptions(filters, toots, scanForTags = false) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
     const userData = await api_1.default.instance.getUserData();
@@ -168,9 +168,9 @@ async function updateBooleanFilterOptions(filters, toots, scanFollowedTags = fal
         });
     });
     // Double check for hashtags that are in the feed but without a formal "#" character.
-    if (scanFollowedTags) {
+    if (scanForTags) {
         const hashtagOptions = optionLists[enums_1.BooleanFilterName.HASHTAG];
-        updateHashtagCounts(hashtagOptions, hashtagOptions, toots);
+        optionLists[enums_1.BooleanFilterName.HASHTAG] = updateHashtagCounts(hashtagOptions, userData.followedTags, toots);
     }
     // Build the options for all the boolean filters based on the counts
     Object.keys(optionLists).forEach((key) => {
@@ -209,13 +209,17 @@ function populateMissingFilters(filters) {
  *
  * @private
  * @param {BooleanFilterOptionList} options - Options list to update with additional hashtag matches.
- * @param {TagList} tags - List of tags to check against the toots.
+ * @param {TagList} followedTags - List of followed tags to check against.
  * @param {Toot[]} toots - List of toots to scan.
  */
-function updateHashtagCounts(options, tags, toots) {
+function updateHashtagCounts(options, followedTags, toots) {
     const startedAt = Date.now();
     const tagsFound = {};
-    tags.topObjs().forEach((option) => {
+    // Add followedTags to the options list so we can increment their counts if found.
+    const allOptions = new counted_list_1.BooleanFilterOptionList(options.objs, options.source);
+    allOptions.addObjs(followedTags.objs.map(tag => { return { name: tag.name, isFollowed: true }; }));
+    let followedTagsFound = 0;
+    allOptions.topObjs().forEach((option) => {
         const tag = option;
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
         if (!((0, tag_1.isValidForSubstringSearch)(tag) && options.getObj(tag.name))) {
@@ -223,12 +227,17 @@ function updateHashtagCounts(options, tags, toots) {
         }
         toots.forEach((toot) => {
             if (toot.realToot.containsTag(tag, true) && !toot.realToot.containsTag(tag)) {
-                options.incrementCount(tag.name);
+                allOptions.incrementCount(tag.name);
                 (0, collection_helpers_1.incrementCount)(tagsFound, tag.name);
+                if (option.isFollowed) {
+                    followedTagsFound++;
+                }
             }
         });
     });
-    logger.info(`updateHashtagCounts() found ${(0, collection_helpers_1.sumValues)(tagsFound)} more matches for ${Object.keys(tagsFound).length}` +
-        ` of ${tags.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)}: ${(0, collection_helpers_1.sortedDictString)(tagsFound)}`);
+    logger.info(`updateHashtagCounts() found ${(0, collection_helpers_1.sumValues)(tagsFound)} more matches for ${Object.keys(tagsFound).length} of` +
+        ` ${allOptions.length} tags in ${toots.length} Toots ${(0, time_helpers_1.ageString)(startedAt)} (${followedTagsFound} followed tags): ` +
+        (0, collection_helpers_1.sortedDictString)(tagsFound));
+    return allOptions;
 }
 //# sourceMappingURL=feed_filters.js.map

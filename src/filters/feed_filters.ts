@@ -7,6 +7,7 @@ import NumericFilter, { FILTERABLE_SCORES, type NumericFilterArgs } from "./nume
 import Storage from "../Storage";
 import TagsForFetchingToots from "../api/tags_for_fetching_toots";
 import type Account from "../api/objects/account";
+import type TagList from "../api/tag_list";
 import type Toot from "../api/objects/toot";
 import { ageString } from "../helpers/time_helpers";
 import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
@@ -102,13 +103,13 @@ export function repairFilterSettings(filters: FeedFilterSettings): boolean {
  * will all have been stored and reloaded along with the feed that birthed those filter options.
  * @param {FeedFilterSettings} filters - The filter settings to update with new options.
  * @param {Toot[]} toots - The toots to analyze for filter options.
- * @param {boolean} [scanFollowedTags=false] - Whether to scan followed tags for counts.
+ * @param {boolean} [scanForTags=false] - Whether to scan followed tags for counts.
  * @returns {Promise<void>} A promise that resolves when the filter options have been updated.
  */
 export async function updateBooleanFilterOptions(
     filters: FeedFilterSettings,
     toots: Toot[],
-    scanFollowedTags: boolean = false
+    scanForTags: boolean = false
 ): Promise<void> {
     populateMissingFilters(filters);  // Ensure all filters are instantiated
     const tagLists = await TagsForFetchingToots.rawTagLists();
@@ -180,9 +181,9 @@ export async function updateBooleanFilterOptions(
     });
 
     // Double check for hashtags that are in the feed but without a formal "#" character.
-    if (scanFollowedTags) {
+    if (scanForTags) {
         const hashtagOptions = optionLists[BooleanFilterName.HASHTAG];
-        updateHashtagCounts(hashtagOptions, hashtagOptions, toots);
+        optionLists[BooleanFilterName.HASHTAG] = updateHashtagCounts(hashtagOptions, userData.followedTags, toots);
     }
 
     // Build the options for all the boolean filters based on the counts
@@ -228,14 +229,19 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  *
  * @private
  * @param {BooleanFilterOptionList} options - Options list to update with additional hashtag matches.
- * @param {TagList} tags - List of tags to check against the toots.
+ * @param {TagList} followedTags - List of followed tags to check against.
  * @param {Toot[]} toots - List of toots to scan.
  */
-function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilterOptionList, toots: Toot[]): void {
+function updateHashtagCounts(options: BooleanFilterOptionList, followedTags: TagList, toots: Toot[]): BooleanFilterOptionList {
     const startedAt = Date.now();
     const tagsFound: StringNumberDict = {};
 
-    tags.topObjs().forEach((option) => {
+    // Add followedTags to the options list so we can increment their counts if found.
+    const allOptions = new BooleanFilterOptionList(options.objs, options.source);
+    allOptions.addObjs(followedTags.objs.map(tag => { return {name: tag.name, isFollowed: true} }));
+    let followedTagsFound = 0;
+
+    allOptions.topObjs().forEach((option) => {
         const tag = option as TagWithUsageCounts;
 
         // Skip invalid tags and those that don't already appear in the hashtagOptions.
@@ -245,14 +251,21 @@ function updateHashtagCounts(options: BooleanFilterOptionList, tags: BooleanFilt
 
         toots.forEach((toot) => {
             if (toot.realToot.containsTag(tag, true) && !toot.realToot.containsTag(tag)) {
-                options.incrementCount(tag.name);
+                allOptions.incrementCount(tag.name);
                 incrementCount(tagsFound, tag.name);
+
+                if (option.isFollowed) {
+                    followedTagsFound++;
+                }
             }
         });
     });
 
     logger.info(
-        `updateHashtagCounts() found ${sumValues(tagsFound)} more matches for ${Object.keys(tagsFound).length}` +
-        ` of ${tags.length} tags in ${toots.length} Toots ${ageString(startedAt)}: ${sortedDictString(tagsFound)}`,
+        `updateHashtagCounts() found ${sumValues(tagsFound)} more matches for ${Object.keys(tagsFound).length} of` +
+        ` ${allOptions.length} tags in ${toots.length} Toots ${ageString(startedAt)} (${followedTagsFound} followed tags): ` +
+        sortedDictString(tagsFound)
     );
+
+    return allOptions;
 }

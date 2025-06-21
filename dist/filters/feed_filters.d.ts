@@ -9,7 +9,7 @@ export declare function repairFilterSettings(filters: FeedFilterSettings): boole
  * will all have been stored and reloaded along with the feed that birthed those filter options.
  * @param {FeedFilterSettings} filters - The filter settings to update with new options.
  * @param {Toot[]} toots - The toots to analyze for filter options.
- * @param {boolean} [scanFollowedTags=false] - Whether to scan followed tags for counts.
+ * @param {boolean} [scanForTags=false] - Whether to scan followed tags for counts.
  * @returns {Promise<void>} A promise that resolves when the filter options have been updated.
  */
-export declare function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[], scanFollowedTags?: boolean): Promise<void>;
+export declare function updateBooleanFilterOptions(filters: FeedFilterSettings, toots: Toot[], scanForTags?: boolean): Promise<void>;

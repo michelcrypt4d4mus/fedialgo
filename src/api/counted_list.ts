@@ -65,7 +65,10 @@ export default class CountedList<T extends NamedTootCount> {
      * @param {T[]} objs - Array of objects to add to the list.
      */
     addObjs(objs: T[]): void {
+        const numObjsBefore = this.objs.length;
         this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
+        const numAdded = this.objs.length - numObjsBefore;
+        this.logger.debug(`addObjs() added ${numAdded} of ${objs.length} incoming objects to the initial ${numObjsBefore}`);
     }
 
     /**

@@ -46,7 +46,7 @@ import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
 import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
-import { config, MAX_ENDPOINT_RECORDS_TO_PULL, SECONDS_IN_MINUTE } from './config';
+import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRateLimitError } from './api/errors';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
