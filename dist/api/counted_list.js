@@ -26,6 +26,7 @@ class CountedList {
     nameDict = {}; // Dict of obj.names to objs
     source;
     get length() { return this._objs.length; }
+    ;
     get maxNumToots() { return this.maxValue("numToots"); }
     ;
     get objs() { return this._objs; }
