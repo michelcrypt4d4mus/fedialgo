@@ -92,11 +92,12 @@ interface ParticipatedTagsConfig extends TagTootsConfig {
 };
 
 type ScoringConfig = {
+    diversityScorerMinTrendingTagTootsForPenalty: number,
+    diversityScorerRetootMultiplier: number; // How much to multiply the diversity score of a toot with retweets by
     excessiveTags: number;
     excessiveTagsPenalty: number;
     nonScoreWeightMinValue: number;
     nonScoreWeightsConfig: Readonly<NonScoreWeightInfoDict>;
-    minTrendingTagTootsForPenalty: number,
     scoringBatchSize: number;
     timeDecayExponent: number;
 };
@@ -453,7 +454,8 @@ class Config implements ConfigType {
     scoring = {
         excessiveTags: 25,                      // Toots with more than this many tags will be penalized
         excessiveTagsPenalty: 0.1,              // Multiplier to penalize toots with excessive tags
-        minTrendingTagTootsForPenalty: 9,       // Min number of toots w/a trending tag before DiversityFeedScorer applies a penalty
+        diversityScorerMinTrendingTagTootsForPenalty: 9,  // Min number of toots w/a trending tag before DiversityFeedScorer applies a penalty
+        diversityScorerRetootMultiplier: 4,     // How much to multiply the diversity score of a toot with retweets by
         nonScoreWeightMinValue: 0.001,          // Min value for non-score weights (trending, time decay, etc.)
         nonScoreWeightsConfig: {
             // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
@@ -578,6 +580,7 @@ class Config implements ConfigType {
             "broken",
             "bsky",
             "build",
+            "building",
             "business",
             "but",
             "buy",
@@ -622,6 +625,9 @@ class Config implements ConfigType {
             "considered",
             "contain",
             "contains",
+            "contrast",
+            "contrasting",
+            "contrasts",
             "control",
             "cool",
             "corporate",
@@ -642,6 +648,9 @@ class Config implements ConfigType {
             "decide",
             "decides",
             "decision",
+            "decline",
+            "declined",
+            "declining",
             "deep",
             "defence",
             "defense",
@@ -717,6 +726,7 @@ class Config implements ConfigType {
             "features",
             "federal",
             "feed",
+            "female",
             "fi",
             "fight",
             "fill",
@@ -884,6 +894,7 @@ class Config implements ConfigType {
             "make",
             "makes",
             "making",
+            "male",
             "man",
             "many",
             "marketing",
@@ -1022,6 +1033,9 @@ class Config implements ConfigType {
             "presidents",
             "press",
             "pretty",
+            "previous",
+            "previously",
+            "print",
             "pro",
             "probably",
             "processing",
@@ -1081,6 +1095,7 @@ class Config implements ConfigType {
             "rise",
             "risk",
             "risks",
+            "ro",         // Romanian TLD
             "road",
             "rose",
             "run",
@@ -1170,6 +1185,8 @@ class Config implements ConfigType {
             "systems",
             "team",
             "tech",
+            "template",
+            "ten",
             "tend",
             "tends",
             "than",

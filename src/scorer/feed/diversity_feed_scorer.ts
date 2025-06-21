@@ -46,7 +46,7 @@ export default class DiversityFeedScorer extends FeedScorer {
                 const penalizedTag = trendingTagsInFeed.incrementCount(tag.name);
                 penalizedTag.numAccounts = Math.max(tag.numAccounts || 0, penalizedTag.numAccounts || 0);
                 penalizedTag.penaltyIncrement = penalizedTag.numAccounts / penalizedTag.numToots!;
-                penalizedTag.numToPenalize = penalizedTag.numToots! - config.scoring.minTrendingTagTootsForPenalty;
+                penalizedTag.numToPenalize = penalizedTag.numToots! - config.scoring.diversityScorerMinTrendingTagTootsForPenalty;
             });
         });
 
@@ -91,7 +91,7 @@ export default class DiversityFeedScorer extends FeedScorer {
             return 0;
         }
 
-        return score;
+        return toot.reblog ? (score * config.scoring.diversityScorerRetootMultiplier) : score;
     }
 
     // The more often we see an object, the less we want to penalize it

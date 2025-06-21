@@ -1,6 +1,9 @@
 # NEXT RELEASE
 
-# v0.77.0
+### v0.77.1
+* Add config.scoring.diversityScorerRetootMultiplier to apply a harsher diversity penalty to retoots than to a user's own toots
+
+## v0.77.0
 * Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to updateFilterOptions()
 * Fix runtime logging of updateFilters()
 
