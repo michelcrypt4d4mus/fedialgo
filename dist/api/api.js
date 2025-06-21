@@ -587,7 +587,7 @@ class MastoApi {
      * @param {number} concurrency - The new concurrency value.
      */
     setSemaphoreConcurrency(concurrency) {
-        this.logger.log(`Setting semaphore to background concurrency to ${concurrency}`);
+        this.logger.trace(`Setting semaphore to background concurrency to ${concurrency}`);
         this.requestSemphore = new async_mutex_1.Semaphore(concurrency);
     }
     /**

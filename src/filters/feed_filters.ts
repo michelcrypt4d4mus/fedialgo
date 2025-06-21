@@ -113,9 +113,9 @@ export async function updateBooleanFilterOptions(
     scanForTags: boolean = false
 ): Promise<void> {
     populateMissingFilters(filters);  // Ensure all filters are instantiated
+    const timer = new WaitTime();
     const tagLists = await TagsForFetchingToots.rawTagLists();
     const userData = await MastoApi.instance.getUserData();
-    const timer = new WaitTime();
 
     const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new BooleanFilterOptionList([], filterName as BooleanFilterName);

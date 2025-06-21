@@ -348,10 +348,12 @@ class Config {
         batchCompleteSize: 25,
         batchCompleteSleepBetweenMS: 150,
         completeAfterMinutes: exports.MINUTES_IN_DAY,
+        filterUpdateBatchSize: 240,
         maxAgeInDays: 7,
         maxContentPreviewChars: 110,
         maxTimelineLength: 3000,
         minCharsForLanguageDetect: 8,
+        minToSkipFilterUpdates: 300,
         saveChangesIntervalSeconds: 30,
         truncateFullTimelineToLength: 2000,
         tagOnlyStrings: new Set([
@@ -1307,6 +1309,7 @@ if (environment_helpers_1.isQuickMode) {
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
     config.favouritedTags.numTags = 5;
+    config.toots.maxTimelineLength = 1500;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
@@ -1318,9 +1321,8 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[enums_1.CacheKey.FOLLOWERS].initialMaxRecords = 320;
     config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 10;
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 5;
-    config.api.backgroundLoadIntervalMinutes = 2;
+    config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2500;
-    config.toots.maxTimelineLength = 1500;
     config.toots.saveChangesIntervalSeconds = 15;
 }
 ;

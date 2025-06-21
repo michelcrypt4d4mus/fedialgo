@@ -179,6 +179,7 @@ class TheAlgorithm {
     // Utility
     loadingMutex = new async_mutex_1.Mutex();
     mergeMutex = new async_mutex_1.Mutex();
+    numUnscannedToots = 0; // Keep track of how many new toots were merged into the feed but not into the filter options
     numTriggers = 0; // How many times has a load been triggered, only matters for QUICK_LOAD mode
     _releaseLoadingMutex; // Mutex release function for loading state
     // Background tasks
@@ -649,7 +650,15 @@ class TheAlgorithm {
         const startedAt = new Date();
         // Merge new Toots
         this.feed = toot_1.default.dedupeToots([...this.feed, ...newToots], hereLogger);
-        await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+        this.numUnscannedToots += newToots.length;
+        // Building filter options is expensive so we only do it when it's justifiable
+        if (this.feed.length < config_1.config.toots.minToSkipFilterUpdates || this.numUnscannedToots > config_1.config.toots.filterUpdateBatchSize) {
+            await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
+            this.numUnscannedToots = 0;
+        }
+        else {
+            logger.trace(`Skipping filter update, feed length: ${this.feed.length}, unscanned toots: ${this.numUnscannedToots}`);
+        }
         await this.scoreAndFilterFeed();
         // Update loadingStatus and log telemetry
         const statusMsgFxn = config_1.config.locale.messages[enums_1.LoadAction.FEED_UPDATE];

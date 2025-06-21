@@ -112,8 +112,10 @@ type TootsConfig = {
     batchCompleteSize: number;
     batchCompleteSleepBetweenMS: number;
     completeAfterMinutes: number;
+    filterUpdateBatchSize: number; // How many new Toots before calling updateFilterOptions()
     maxAgeInDays: number;
     maxTimelineLength: number;
+    minToSkipFilterUpdates: number;
     minCharsForLanguageDetect: number;
     saveChangesIntervalSeconds: number;
     tagOnlyStrings: Set<string>;
@@ -476,13 +478,15 @@ class Config implements ConfigType {
         batchCompleteSize: 25,                  // How many toots call completeToot() on at once
         batchCompleteSleepBetweenMS: 150,       // How long to wait between batches of Toot.completeProperties() calls
         completeAfterMinutes: MINUTES_IN_DAY,   // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
+        filterUpdateBatchSize: 240,          // How many new Toots before calling updateFilterOptions()
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
         maxContentPreviewChars: 110,            // How many characters to show in a Toot preview
         maxTimelineLength: 3_000,               // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
-        minCharsForLanguageDetect: 8,           // Minimum number of characters in a toot before we try to detect its language
+        minCharsForLanguageDetect: 8,           // Min number of characters in a toot before we try to detect its language
+        minToSkipFilterUpdates: 300,            // Min timeline toots before we start getting choosy about calling updateFilterOptions()
         saveChangesIntervalSeconds: 30,         // How often to check for updates to toots' numTimesShown
         truncateFullTimelineToLength: 2_000,    // If on startup the timeline is full, truncate it to this length
-        tagOnlyStrings: new Set<string>([      // These strings can only be matched as tags, not as content
+        tagOnlyStrings: new Set<string>([       // These strings can only be matched as tags, not as content
             ...DAY_NAMES.map(m => m.toLowerCase()),
             ...DAYS_SHORT.map(m => m.toLowerCase()),
             ...MONTHS.map(m => m.toLowerCase()),
@@ -1441,6 +1445,7 @@ if (isQuickMode) {
     config.api.data[CacheKey.HOME_TIMELINE_TOOTS]!.lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = SECONDS_IN_HOUR;
     config.favouritedTags.numTags = 5;
+    config.toots.maxTimelineLength = 1_500;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
@@ -1453,9 +1458,8 @@ if (isDebugMode) {
     config.api.data[CacheKey.FOLLOWERS]!.initialMaxRecords = 320;
     config.api.data[CacheKey.NOTIFICATIONS]!.minutesUntilStale = 10;
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;
-    config.api.backgroundLoadIntervalMinutes = 2;
+    config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2_500;
-    config.toots.maxTimelineLength = 1_500;
     config.toots.saveChangesIntervalSeconds = 15;
 };
 

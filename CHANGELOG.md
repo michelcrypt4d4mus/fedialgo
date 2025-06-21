@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+# v0.77.0
+* Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to updateFilterOptions()
+* Fix runtime logging of updateFilters()
+
 ### v0.76.2
 * Log updateFilters() runtime
 

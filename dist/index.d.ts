@@ -72,6 +72,7 @@ export default class TheAlgorithm {
     private totalNumTimesShown;
     private loadingMutex;
     private mergeMutex;
+    private numUnscannedToots;
     private numTriggers;
     private _releaseLoadingMutex?;
     private cacheUpdater?;
