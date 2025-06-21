@@ -505,6 +505,7 @@ class Config {
             "events",
             "experience",
             "explore",
+            "facebook",
             "fair",
             "fall",
             "failure",

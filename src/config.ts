@@ -633,6 +633,7 @@ class Config implements ConfigType {
             "events",
             "experience",
             "explore",
+            "facebook",
             "fair",
             "fall",
             "failure",
