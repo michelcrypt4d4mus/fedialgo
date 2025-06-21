@@ -111,9 +111,9 @@ exports.repairFilterSettings = repairFilterSettings;
  */
 async function updateBooleanFilterOptions(filters, toots, scanForTags = false) {
     populateMissingFilters(filters); // Ensure all filters are instantiated
+    const timer = new time_helpers_1.WaitTime();
     const tagLists = await tags_for_fetching_toots_1.default.rawTagLists();
     const userData = await api_1.default.instance.getUserData();
-    const timer = new time_helpers_1.WaitTime();
     const optionLists = Object.values(enums_1.BooleanFilterName).reduce((lists, filterName) => {
         lists[filterName] = new counted_list_1.BooleanFilterOptionList([], filterName);
         return lists;

@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix runtime logging of updateFilters()
 
 ### v0.76.2
 * Log updateFilters() runtime
