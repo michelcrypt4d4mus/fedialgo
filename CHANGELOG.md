@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.77.2
 * Set `Account.suspended` correctly in `dedupeToots()`
 * More `tagOnlyStrings`
 
