@@ -364,7 +364,6 @@ class MastoApi {
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
     async getRecentUserToots(params) {
-        this.user.statusesCount;
         const fetchParams = {
             cacheKey: enums_1.CacheKey.RECENT_USER_TOOTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).statuses.list,
