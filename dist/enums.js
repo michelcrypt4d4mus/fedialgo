@@ -220,12 +220,12 @@ exports.STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce((keys, [k, v])
 ]).concat(Object.values(TagTootsCategory));
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
 exports.UNIQUE_ID_PROPERTIES = {
-    ...exports.STORAGE_KEYS_WITH_TOOTS.reduce((dict, key) => {
-        dict[key] = 'uri';
-        return dict;
-    }, {}),
     ...exports.STORAGE_KEYS_WITH_ACCOUNTS.reduce((dict, key) => {
         dict[key] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
+        return dict;
+    }, {}),
+    ...exports.STORAGE_KEYS_WITH_TOOTS.reduce((dict, key) => {
+        dict[key] = 'uri';
         return dict;
     }, {}),
     [CacheKey.FOLLOWED_TAGS]: 'name',

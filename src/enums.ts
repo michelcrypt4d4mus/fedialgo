@@ -243,16 +243,16 @@ export const STORAGE_KEYS_WITH_TOOTS = Object.entries(CacheKey).reduce(
 
 // The property that can be used to uniquely identify objects stored at that ApiCacheKey.
 export const UNIQUE_ID_PROPERTIES: UniqueIdProperties = {
-    ...STORAGE_KEYS_WITH_TOOTS.reduce(
+    ...STORAGE_KEYS_WITH_ACCOUNTS.reduce(
         (dict, key) => {
-            dict[key as ApiCacheKey] = 'uri';
+            dict[key as ApiCacheKey] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
             return dict;
         },
         {} as UniqueIdProperties
     ),
-    ...STORAGE_KEYS_WITH_ACCOUNTS.reduce(
+    ...STORAGE_KEYS_WITH_TOOTS.reduce(
         (dict, key) => {
-            dict[key as ApiCacheKey] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
+            dict[key as ApiCacheKey] = 'uri';
             return dict;
         },
         {} as UniqueIdProperties
