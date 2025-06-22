@@ -4,7 +4,7 @@ import Toot from './objects/toot';
 import UserData from "./user_data";
 import { Logger } from '../helpers/logger';
 import { WaitTime } from "../helpers/time_helpers";
-import { type ApiCacheKey } from "../enums";
+import { TagTootsCategory, type ApiCacheKey } from "../enums";
 import { type ConcurrencyLockRelease, type Hashtag, type Optional, type TootLike } from "../types";
 /**
  * Generic parameters for MastoApi methods that support backfilling via the "moar" flag.
@@ -53,7 +53,7 @@ export declare const apiLogger: Logger;
  * @property {Logger} logger - API logger instance.
  * @property {Account} user - The Fedialgo user's Account object.
  * @property {UserData} [userData] - The Fedialgo user's historical info.
- * @property {Record<CacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
+ * @property {Record<ApiCacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
  */
 export default class MastoApi {
     #private;
@@ -118,7 +118,7 @@ export default class MastoApi {
      * @param {number} maxRecords - Maximum number of records to fetch.
      * @returns {Promise<Toot[]>} Array of Toot objects.
      */
-    getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
+    getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: TagTootsCategory, maxRecords: number): Promise<Toot[]>;
     /**
      * Gets the toots recently favourited by the user.
      * @param {ApiParams} [params] - Optional parameters.

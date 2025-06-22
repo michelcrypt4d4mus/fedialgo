@@ -22,6 +22,7 @@ import { isAccessTokenRevokedError, throwIfAccessTokenRevoked } from "./errors";
 import { WaitTime, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import {
     CacheKey,
+    TagTootsCategory,
     TrendingType,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
@@ -113,7 +114,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  * @template T
  * @augments ApiParamsWithMaxID
  * @property {(pageOfResults: T[], allResults: T[]) => Promise<true | undefined>} [breakIf] - Function to check if more pages should be fetched.
- * @property {CacheKey} cacheKey - Cache key for storage.
+ * @property {ApiCacheKey} cacheKey - Cache key for storage.
  * @property {() => ApiFetcher<T>} fetchGenerator - Function to create a new API paginator for fetching data.
  * @property {boolean} [isBackgroundFetch] - Logging flag to indicate if this is a background fetch.
  * @property {(obj: ResponseRow<T>) => void} [processFxn] - Optional function to process the object before storing and returning it.
@@ -121,7 +122,7 @@ interface HomeTimelineParams extends ApiParamsWithMaxID {
  */
 interface FetchParams<T extends ApiObj> extends ApiParamsWithMaxID {
     breakIf?: (pageOfResults: T[], allResults: T[]) => Promise<true | undefined>,
-    cacheKey: CacheKey,
+    cacheKey: ApiCacheKey,
     fetchGenerator: () => ApiFetcher<T>,
     isBackgroundFetch?: boolean,
     local?: boolean,
@@ -203,7 +204,7 @@ export const apiLogger = getLogger();
  * @property {Logger} logger - API logger instance.
  * @property {Account} user - The Fedialgo user's Account object.
  * @property {UserData} [userData] - The Fedialgo user's historical info.
- * @property {Record<CacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
+ * @property {Record<ApiCacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
  */
 export default class MastoApi {
     static #instance: MastoApi;
@@ -384,11 +385,11 @@ export default class MastoApi {
      */
     async getCacheableToots(
         fetchStatuses: () => Promise<TootLike[]>,
-        cacheKey: ApiCacheKey,
+        cacheKey: TagTootsCategory,
         maxRecords: number,
     ): Promise<Toot[]> {
         const defaultParams = this.fillInDefaultParams({
-            cacheKey: cacheKey as CacheKey,
+            cacheKey,
             fetchGenerator: () => this.api.v1.timelines.public.list, // TODO: this is a junk value that shouldn't be here
             maxRecords,
         });
@@ -822,7 +823,7 @@ export default class MastoApi {
      * @param {CacheKey} cacheKey - The cache key.
      * @returns {boolean} True if min/max ID is supported.
      */
-    private supportsMinMaxId = (cacheKey: CacheKey): boolean => !!config.api.data[cacheKey]?.supportsMinMaxId;
+    private supportsMinMaxId = (cacheKey: ApiCacheKey): boolean => !!config.api.data[cacheKey]?.supportsMinMaxId;
 
     /**
      * Pure fetch of API records, no caching or background updates.
@@ -1145,7 +1146,7 @@ export default class MastoApi {
      * @returns {ApiObj[]} Array of constructed objects.
      */
     private buildFromApiObjects<T extends ApiObj>(
-        key: CacheKey,
+        key: ApiCacheKey,
         objects: T[],
         logger: Logger
     ): ResponseRow<T>[] {

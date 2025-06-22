@@ -78,7 +78,7 @@ exports.apiLogger = getLogger();
  * @property {Logger} logger - API logger instance.
  * @property {Account} user - The Fedialgo user's Account object.
  * @property {UserData} [userData] - The Fedialgo user's historical info.
- * @property {Record<CacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
+ * @property {Record<ApiCacheKey, WaitTime>} waitTimes - Tracks the amount of time spent waiting for each endpoint's API responses.
  */
 class MastoApi {
     static #instance;
@@ -243,7 +243,7 @@ class MastoApi {
      */
     async getCacheableToots(fetchStatuses, cacheKey, maxRecords) {
         const defaultParams = this.fillInDefaultParams({
-            cacheKey: cacheKey,
+            cacheKey,
             fetchGenerator: () => this.api.v1.timelines.public.list,
             maxRecords,
         });
