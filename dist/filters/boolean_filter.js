@@ -141,7 +141,9 @@ class BooleanFilter extends toot_filter_1.default {
      * @returns {BooleanFilterOptionList}
      */
     optionsSortedByValue(minToots = 0) {
-        return this.optionListWithMinToots(this.options.topObjs(), minToots);
+        const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots);
+        this.logger.debug(`optionsSortedByValue() sortedObjs:`, sortedObjs.objs);
+        return sortedObjs;
     }
     /**
      * Add or remove an option from the filter.

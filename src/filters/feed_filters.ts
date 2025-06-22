@@ -235,7 +235,11 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
  * @param {TagList} followedTags - List of followed tags to check against.
  * @param {Toot[]} toots - List of toots to scan.
  */
-function updateHashtagCounts(options: BooleanFilterOptionList, followedTags: TagList, toots: Toot[]): BooleanFilterOptionList {
+function updateHashtagCounts(
+    options: BooleanFilterOptionList,
+    followedTags: TagList,
+    toots: Toot[]
+): BooleanFilterOptionList {
     const startedAt = Date.now();
     const tagsFound: StringNumberDict = {};
 
