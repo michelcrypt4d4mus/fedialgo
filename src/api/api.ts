@@ -530,7 +530,7 @@ export default class MastoApi {
         // TODO: somehow my account landed in a bad state with empty non-stale array of RecentUserToots.
         // That shouldn't happen but this is here in case it does.
         if (toots.length == 0 && this.user.statusesCount) {
-            this.logger.warn(`No toots found for user ${this.user.acct} (${this.user.statusesCount} total), busting cache`);
+            this.logger.warn(`No toots found for user ${this.user.acct} with ${this.user.statusesCount} total, busting cache`);
             toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({...fetchParams, bustCache: true}) as Toot[];
         }
 
