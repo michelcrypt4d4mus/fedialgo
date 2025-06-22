@@ -1139,6 +1139,7 @@ class Config implements ConfigType {
             "safety",
             "said",
             "sale",
+            "sales",
             "same",
             "san",
             "sans",      // French

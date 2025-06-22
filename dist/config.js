@@ -1008,6 +1008,7 @@ class Config {
             "safety",
             "said",
             "sale",
+            "sales",
             "same",
             "san",
             "sans",
