@@ -159,7 +159,9 @@ export default class BooleanFilter extends TootFilter {
      * @returns {BooleanFilterOptionList}
      */
     optionsSortedByValue(minToots: number = 0): BooleanFilterOptionList {
-        return this.optionListWithMinToots(this.options.topObjs(), minToots);
+        const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots);
+        this.logger.debug(`optionsSortedByValue() sortedObjs:`, sortedObjs.objs);
+        return sortedObjs;
     }
 
     /**
