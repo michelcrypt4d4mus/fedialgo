@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.77.5
 * Put in a cache busting fallback if user's RecentUserToots end up empty
 
 ### v0.77.4
