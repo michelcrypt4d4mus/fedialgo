@@ -1,7 +1,11 @@
 # NEXT RELEASE
 
+### v0.77.2
+* Set `Account.suspended` correctly in `dedupeToots()`
+* More `tagOnlyStrings`
+
 ### v0.77.1
-* Add config.scoring.diversityScorerRetootMultiplier to apply a harsher diversity penalty to retoots than to a user's own toots
+* Add `config.scoring.diversityScorerRetootMultiplier` to apply a harsher diversity penalty to retoots than to a user's own toots
 
 ## v0.77.0
 * Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to updateFilterOptions()

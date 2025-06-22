@@ -656,6 +656,7 @@ class Config implements ConfigType {
             "defense",
             "degree",
             "deja",     // french
+            "dem",      // german
             "den",      // german
             "der",      // german
             "design",
@@ -698,6 +699,8 @@ class Config implements ConfigType {
             "era",
             "es",          // Spanish
             "essential",
+            "est",         // Spanish
+            "etc",
             "euro",
             "europe",
             "european",
@@ -806,7 +809,7 @@ class Config implements ConfigType {
             "id",
             "if",
             "identity",
-            "il",
+            "il",         // Italian / French
             "im",
             "image",
             "images",
@@ -903,7 +906,7 @@ class Config implements ConfigType {
             "may",
             "maybe",
             "me",
-            "media",
+            "media",     // TLD
             "medias",
             "medium",
             "meduza",
@@ -922,8 +925,10 @@ class Config implements ConfigType {
             "minutes",
             "mode",
             "model",
+            "modern",
             "monde",      // French
             "more",
+            "morning",
             "most",
             "mostly",
             "move",
@@ -938,7 +943,9 @@ class Config implements ConfigType {
             "must",
             "my",
             "natural",
+            "ne",         // Spanish
             "near",
+            "nearby",
             "nearer",
             "nears",
             "nearly",
@@ -995,9 +1002,11 @@ class Config implements ConfigType {
             "owner",
             "pa",
             "pace",
+            "panel",
             "part",
             "parts",
             "party",
+            "pas",        // French
             "pass",
             "passed",
             "past",
@@ -1092,6 +1101,10 @@ class Config implements ConfigType {
             "return",
             "returned",
             "returns",
+            "reveal",
+            "revealed",
+            "revealing",
+            "reveals",
             "rise",
             "risk",
             "risks",
@@ -1107,7 +1120,7 @@ class Config implements ConfigType {
             "sale",
             "same",
             "san",
-            "sans",
+            "sans",      // French
             "save",
             "saved",
             "saves",
@@ -1315,6 +1328,10 @@ class Config implements ConfigType {
             "without",
             "woman",
             "women",
+            "wonder",
+            "wondered",
+            "wondering",
+            "wonders",
             "wore",
             "worker",
             "workers",

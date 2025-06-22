@@ -787,14 +787,14 @@ class Toot {
         const userData = await api_1.default.instance.getUserData();
         const trendingTags = (await mastodon_server_1.default.fediverseTrendingTags()).topObjs();
         const trendingLinks = isDeepInspect ? (await mastodon_server_1.default.fediverseTrendingLinks()) : []; // Skip trending links
-        let completeToots = [];
-        let tootsToComplete = toots;
+        let completedToots = [];
+        let incompleteToots = toots;
         // If isDeepInspect separate toots that need completing bc it's slow to rely on isComplete() + batching
         if (isDeepInspect) {
-            [completeToots, tootsToComplete] = ((0, collection_helpers_1.split)(toots, (t) => t instanceof Toot && t.isComplete()));
+            [completedToots, incompleteToots] = ((0, collection_helpers_1.split)(toots, (t) => t instanceof Toot && t.isComplete()));
         }
-        const newCompleteToots = await (0, collection_helpers_1.batchMap)(tootsToComplete, async (tootLike) => {
-            const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
+        const newCompleteToots = await (0, collection_helpers_1.batchMap)(incompleteToots, async (tootLike) => {
+            const toot = (tootLike instanceof Toot) ? tootLike : Toot.build(tootLike);
             toot.completeProperties(userData, trendingLinks, trendingTags, source);
             return toot;
         }, {
@@ -803,8 +803,8 @@ class Toot {
             sleepBetweenMS: isDeepInspect ? config_1.config.toots.batchCompleteSleepBetweenMS : 0
         });
         const msg = `${toots.length} toots ${(0, time_helpers_1.ageString)(startedAt)}`;
-        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
-        return newCompleteToots.concat(completeToots);
+        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completedToots.length} skipped)`);
+        return newCompleteToots.concat(completedToots);
     }
     /**
      * Remove dupes by uniquifying on the toot's URI.
@@ -835,9 +835,10 @@ class Toot {
             let reblogsBy = this.uniqFlatMap(uriToots, "reblogsBy", (account) => account.webfingerURI);
             reblogsBy = (0, collection_helpers_1.sortObjsByProps)(reblogsBy, ["displayName"], true, true);
             // Collate accounts - reblogs and realToot accounts
-            const allAccounts = uriToots.flatMap(t => [t.account].concat(t.reblog ? [t.reblog.account] : []));
+            const allAccounts = uriToots.flatMap(toot => toot.accounts);
             // Helper method to collate the isFollowed property for the accounts
             const isFollowed = (uri) => allAccounts.some((a) => a.isFollowed && (a.webfingerURI == uri));
+            const isSuspended = (uri) => allAccounts.some((a) => a.suspended && (a.webfingerURI == uri));
             // Counts may increase over time w/repeated fetches so we collate the max
             const propsThatChange = PROPS_THAT_CHANGE.reduce((propValues, propName) => {
                 propValues[propName] = Math.max(...uriToots.map(t => t.realToot[propName] || 0));
@@ -863,11 +864,13 @@ class Toot {
                 toot.realToot.bookmarked = uriToots.some(toot => toot.realToot.bookmarked);
                 toot.realToot.favourited = uriToots.some(toot => toot.realToot.favourited);
                 toot.realToot.reblogged = uriToots.some(toot => toot.realToot.reblogged);
-                toot.account.isFollowed ||= isFollowed(toot.account.webfingerURI);
                 toot.muted = uriToots.some(toot => toot.muted || toot.realToot.muted); // Liberally set muted on retoots and real toots
+                toot.accounts.forEach((account) => {
+                    account.isFollowed ||= isFollowed(account.webfingerURI);
+                    account.suspended ||= isSuspended(account.webfingerURI);
+                });
                 // Reblog props
                 if (toot.reblog) {
-                    toot.reblog.account.isFollowed ||= isFollowed(toot.reblog.account.webfingerURI);
                     toot.reblog.completedAt ??= lastCompleted?.realToot.completedAt;
                     toot.reblog.filtered = uniqFiltered;
                     toot.reblog.reblogsBy = reblogsBy;

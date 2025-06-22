@@ -26,7 +26,7 @@ class TrendingLinksScorer extends toot_scorer_1.default {
     }
     async _score(toot) {
         if (!toot.realToot.trendingLinks) {
-            this.logger.trace(`No trendingLinks found for toot:`, toot.description);
+            this.logger.deep(`No trendingLinks found for toot:`, toot.description);
             return 0;
         }
         return (0, collection_helpers_1.sumArray)(toot.realToot.trendingLinks.map(link => this.scoreData[link.url]));
