@@ -523,7 +523,7 @@ export default class MastoApi {
             cacheKey: CacheKey.RECENT_USER_TOOTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).statuses.list,
             ...(params || {})
-        }
+        };
 
         let toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>(fetchParams) as Toot[];
 
