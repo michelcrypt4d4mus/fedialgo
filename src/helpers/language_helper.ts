@@ -224,14 +224,14 @@ export const FOREIGN_SCRIPTS: StringSet = new Set([
 // See https://www.regular-expressions.info/unicode.html for unicode regex scripts
 // Also https://github.com/slevithan/xregexp/blob/master/tools/output/scripts.js
 const LANGUAGE_CHAR_CLASSES: Record<string, string> = {
-    [LANGUAGE_NAMES.arabic]: `\\p{Script=Arabic}`,
-    [LANGUAGE_NAMES.greek]: `\\p{Script=Greek}`,
-    [LANGUAGE_NAMES.hebrew]: `\\p{Script=Hebrew}`,
-    [LANGUAGE_NAMES.hindi]: `\\p{Script=Devanagari}`,
-    [LANGUAGE_NAMES.japanese]: 'ー・\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}',
-    [LANGUAGE_NAMES.korean]: `\\p{Script=Hangul}`,
-    [LANGUAGE_NAMES.russian]: `\\p{Script=Cyrillic}`,
-    [LANGUAGE_NAMES.thai]: `\\p{Script=Thai}`,
+    [LANGUAGE_NAMES.arabic]:   `\\p{Script=Arabic}`,
+    [LANGUAGE_NAMES.greek]:    `\\p{Script=Greek}`,
+    [LANGUAGE_NAMES.hebrew]:   `\\p{Script=Hebrew}`,
+    [LANGUAGE_NAMES.hindi]:    `\\p{Script=Devanagari}`,
+    [LANGUAGE_NAMES.japanese]: '\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}ー・',
+    [LANGUAGE_NAMES.korean]:   `\\p{Script=Hangul}`,
+    [LANGUAGE_NAMES.russian]:  `\\p{Script=Cyrillic}`,
+    [LANGUAGE_NAMES.thai]:     `\\p{Script=Thai}`,
 } as const;
 
 // Matches if whole string is language + numbers OR if there's at least three characters in that language somewhere in the string
