@@ -1079,6 +1079,7 @@ class Config implements ConfigType {
             "pushed",
             "pushes",
             "put",
+            "puts",
             "quality",
             "question",
             "questions",
