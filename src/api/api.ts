@@ -387,12 +387,20 @@ export default class MastoApi {
         cacheKey: ApiCacheKey,
         maxRecords: number,
     ): Promise<Toot[]> {
-        const logger = getLogger(cacheKey);
+        const defaultParams = this.fillInDefaultParams({
+            cacheKey: cacheKey as CacheKey,
+            fetchGenerator: () => this.api.v1.timelines.public.list, // TODO: this is a junk value that shouldn't be here
+            maxRecords,
+        });
+
+        const logger = defaultParams.logger;
         const releaseMutex = await lockExecution(this.apiMutexes[cacheKey], logger);
-        this.waitTimes[cacheKey].markStart();  // Telemetry stuff that should be removed eventually
+        const params = await this.addCacheDataToParams(defaultParams);  // TODO: this should be inside the try block?
+        let toots: Optional<Toot[]>;
 
         try {
-            let toots = await Storage.getIfNotStale<Toot[]>(cacheKey);
+            this.waitTimes[cacheKey].markStart();  // Telemetry stuff that should be removed eventually
+            toots = params.cacheResult?.rows;
 
             if (!toots) {
                 const statuses = await fetchStatuses();
@@ -404,9 +412,7 @@ export default class MastoApi {
 
             return toots;
         } catch (err) {
-            // TODO: the hacky cast is because ApiCacheKey is broader than CacheKey
-            this.handleApiError({ cacheKey: cacheKey as CacheKey, logger }, [], err);
-            return [];
+            return this.handleApiError(params, [], err);
         } finally {
             this.waitTimes[cacheKey].markEnd();
             releaseMutex();

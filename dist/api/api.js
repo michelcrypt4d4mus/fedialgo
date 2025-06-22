@@ -242,11 +242,18 @@ class MastoApi {
      * @returns {Promise<Toot[]>} Array of Toot objects.
      */
     async getCacheableToots(fetchStatuses, cacheKey, maxRecords) {
-        const logger = getLogger(cacheKey);
+        const defaultParams = this.fillInDefaultParams({
+            cacheKey: cacheKey,
+            fetchGenerator: () => this.api.v1.timelines.public.list,
+            maxRecords,
+        });
+        const logger = defaultParams.logger;
         const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.apiMutexes[cacheKey], logger);
-        this.waitTimes[cacheKey].markStart(); // Telemetry stuff that should be removed eventually
+        const params = await this.addCacheDataToParams(defaultParams); // TODO: this should be inside the try block?
+        let toots;
         try {
-            let toots = await Storage_1.default.getIfNotStale(cacheKey);
+            this.waitTimes[cacheKey].markStart(); // Telemetry stuff that should be removed eventually
+            toots = params.cacheResult?.rows;
             if (!toots) {
                 const statuses = await fetchStatuses();
                 logger.trace(`Retrieved ${statuses.length} Toots ${this.waitTimes[cacheKey].ageString()}`);
@@ -257,9 +264,7 @@ class MastoApi {
             return toots;
         }
         catch (err) {
-            // TODO: the hacky cast is because ApiCacheKey is broader than CacheKey
-            this.handleApiError({ cacheKey: cacheKey, logger }, [], err);
-            return [];
+            return this.handleApiError(params, [], err);
         }
         finally {
             this.waitTimes[cacheKey].markEnd();
