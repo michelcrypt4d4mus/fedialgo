@@ -1354,6 +1354,7 @@ class Config implements ConfigType {
             "yes",
             "yesterday",
             "yet",
+            "yo",
             "yonhapinfomax",
             "you",
             "young",

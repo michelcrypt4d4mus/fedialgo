@@ -1223,6 +1223,7 @@ class Config {
             "yes",
             "yesterday",
             "yet",
+            "yo",
             "yonhapinfomax",
             "you",
             "young",
