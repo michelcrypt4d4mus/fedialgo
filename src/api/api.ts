@@ -932,7 +932,7 @@ export default class MastoApi {
             // If endpoint has unique IDs use both cached and new rows (it's deduped in buildFromApiObjects())
             // newRows are in front so they will survive truncation (if it happens)
             newRows = UNIQUE_ID_PROPERTIES[cacheKey] ? [...newRows, ...cachedRows] : newRows;
-            const objs = await this.buildFromApiObjects<T>(cacheKey, newRows as T[], logger);
+            const objs = this.buildFromApiObjects<T>(cacheKey, newRows as T[], logger);
 
             // If we have a maxCacheRecords limit, truncate the new rows to that limit
             if (maxCacheRecords && objs.length > maxCacheRecords) {
@@ -1127,11 +1127,11 @@ export default class MastoApi {
      * @param {Logger} logger - Logger instance.
      * @returns {ApiObj[]} Array of constructed objects.
      */
-    private async buildFromApiObjects<T extends ApiObj>(
+    private buildFromApiObjects<T extends ApiObj>(
         key: CacheKey,
         objects: T[],
         logger: Logger
-    ): Promise<ResponseRow<T>[]> {
+    ): ResponseRow<T>[] {
         let newObjects: ResponseRow<T>[];
         const nullObjs = objects.filter(isNil);
 
@@ -1140,7 +1140,9 @@ export default class MastoApi {
         }
 
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
-            return await Toot.buildToots(objects as TootLike[], key) as ResponseRow<T>[];  // Toots have special dedupe handling
+            const toots = objects.map(obj => Toot.build(obj as TootLike));
+            return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`)) as ResponseRow<T>[];
+            // return await Toot.buildToots(objects as TootLike[], key) as ResponseRow<T>[];  // Toots have special dedupe handling
         } else if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             newObjects = objects.map(obj => Account.build(obj as AccountLike)) as ResponseRow<T>[];
         } else {

@@ -47,17 +47,17 @@ class CountedList {
     constructor(objs, source) {
         this.objs = objs;
         this.source = source;
-        this.logger = new logger_1.Logger("CountedList", source);
+        this.logger = new logger_1.Logger(source, "CountedList");
     }
     /**
      * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
      * @param {T[]} objs - Array of objects to add to the list.
      */
     addObjs(objs) {
-        const numObjsBefore = this.objs.length;
-        this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
-        const numAdded = this.objs.length - numObjsBefore;
-        this.logger.debug(`addObjs() added ${numAdded} of ${objs.length} incoming objects to the initial ${numObjsBefore}`);
+        const numObjsBefore = this.length;
+        const addableObjs = objs.filter(obj => !this.nameDict[obj.name]).map(this.completeObjProperties.bind(this));
+        this.objs = [...this.objs, ...addableObjs];
+        this.logger.debug(`addObjs() added ${addableObjs.length} of ${objs.length} incoming objs to initial ${numObjsBefore}:`, addableObjs);
     }
     /**
      * Like the standard Array.filter().
@@ -157,6 +157,7 @@ class CountedList {
      */
     topObjs(maxObjs) {
         const sortBy = this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots";
+        this.logger.debug(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
         const sortByAndName = [sortBy, "name"];
         this.objs = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.objs), sortByAndName, [false, true]);
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
