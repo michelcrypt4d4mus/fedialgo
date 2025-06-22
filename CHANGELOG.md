@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.77.3
+* Logging of sortByValue results
+
 ### v0.77.2
 * Set `Account.suspended` correctly in `dedupeToots()`
 * More `tagOnlyStrings`
