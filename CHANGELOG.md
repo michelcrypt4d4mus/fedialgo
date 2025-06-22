@@ -1,16 +1,16 @@
 # NEXT RELEASE
 
 ### v0.77.6
-* Try to fix the minTootsSlider default value
+* (Demo App) Try to fix the `MinTootsSlider` default value
 
 ### v0.77.5
-* Put in a cache busting fallback if user's RecentUserToots end up empty
+* Put in a cache busting fallback if user's `RecentUserToots` end up empty
 
 ### v0.77.4
 * Go back to manual `Toot` construction in `MastoApi.buildFromApiObjects()`
 
 ### v0.77.3
-* Logging of sortByValue results
+* Logging of `sortByValue()` results
 
 ### v0.77.2
 * Set `Account.suspended` correctly in `dedupeToots()`
