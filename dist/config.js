@@ -980,6 +980,7 @@ class Config {
             "respond",
             "responds",
             "response",
+            "restore",
             "result",
             "resulted",
             "results",

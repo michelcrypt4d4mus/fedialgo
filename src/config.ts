@@ -1111,6 +1111,7 @@ class Config implements ConfigType {
             "respond",
             "responds",
             "response",
+            "restore",
             "result",
             "resulted",
             "results",
