@@ -519,11 +519,25 @@ export default class MastoApi {
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
     async getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]> {
-        return await this.getApiObjsAndUpdate<mastodon.v1.Status>({
+        this.user.statusesCount;
+
+        const fetchParams = {
             cacheKey: CacheKey.RECENT_USER_TOOTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).statuses.list,
             ...(params || {})
-        }) as Toot[];
+        }
+
+        let toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>(fetchParams) as Toot[];
+
+        // TODO: somehow my account landed in a bad state with empty non-stale array of RecentUserToots.
+        // That shouldn't happen but this is here in case it does.
+        if (toots.length == 0 && this.user.statusesCount) {
+            this.logger.warn(`No toots found for user ${this.user.acct} (${this.user.statusesCount} total), busting cache`);
+            fetchParams.bustCache = true;
+            toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>(fetchParams) as Toot[];
+        }
+
+        return toots;
     }
 
     /**

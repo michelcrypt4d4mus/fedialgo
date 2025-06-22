@@ -47,7 +47,7 @@ class CountedList {
     constructor(objs, source) {
         this.objs = objs;
         this.source = source;
-        this.logger = new logger_1.Logger(source, "CountedList");
+        this.logger = new logger_1.Logger("CountedList", source);
     }
     /**
      * Add objects we don't already have. This does NOT set the numToots property on incoming objs!

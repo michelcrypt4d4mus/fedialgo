@@ -57,7 +57,7 @@ export default class CountedList<T extends NamedTootCount> {
     constructor(objs: T[], source: CountedListSource) {
         this.objs = objs;
         this.source = source;
-        this.logger = new Logger(source, "CountedList");
+        this.logger = new Logger("CountedList", source);
     }
 
     /**
