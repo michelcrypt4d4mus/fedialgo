@@ -531,8 +531,7 @@ export default class MastoApi {
         // That shouldn't happen but this is here in case it does.
         if (toots.length == 0 && this.user.statusesCount) {
             this.logger.warn(`No toots found for user ${this.user.acct} (${this.user.statusesCount} total), busting cache`);
-            fetchParams.bustCache = true;
-            toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>(fetchParams) as Toot[];
+            toots = await this.getApiObjsAndUpdate<mastodon.v1.Status>({...fetchParams, bustCache: true}) as Toot[];
         }
 
         return toots;
