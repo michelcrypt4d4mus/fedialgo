@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.77.5
+* Put in a cache busting fallback if user's RecentUserToots end up empty
+
 ### v0.77.4
-* Go back to manual Toot construction in buildFromApiObjects()
+* Go back to manual `Toot` construction in `MastoApi.buildFromApiObjects()`
 
 ### v0.77.3
 * Logging of sortByValue results

@@ -364,11 +364,19 @@ class MastoApi {
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
     async getRecentUserToots(params) {
-        return await this.getApiObjsAndUpdate({
+        const fetchParams = {
             cacheKey: enums_1.CacheKey.RECENT_USER_TOOTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).statuses.list,
             ...(params || {})
-        });
+        };
+        let toots = await this.getApiObjsAndUpdate(fetchParams);
+        // TODO: somehow my account landed in a bad state with empty non-stale array of RecentUserToots.
+        // That shouldn't happen but this is here in case it does.
+        if (toots.length == 0 && this.user.statusesCount) {
+            this.logger.warn(`No toots found for user ${this.user.acct} with ${this.user.statusesCount} total, busting cache`);
+            toots = await this.getApiObjsAndUpdate({ ...fetchParams, bustCache: true });
+        }
+        return toots;
     }
     /**
      * Retrieves content-based feed filters set up by the user on the server.
