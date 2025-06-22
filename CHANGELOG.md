@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.77.4
+* Go back to manual Toot construction in buildFromApiObjects()
+
 ### v0.77.3
 * Logging of sortByValue results
 

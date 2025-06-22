@@ -57,7 +57,7 @@ export default class CountedList<T extends NamedTootCount> {
     constructor(objs: T[], source: CountedListSource) {
         this.objs = objs;
         this.source = source;
-        this.logger = new Logger("CountedList", source);
+        this.logger = new Logger(source, "CountedList");
     }
 
     /**
@@ -65,10 +65,10 @@ export default class CountedList<T extends NamedTootCount> {
      * @param {T[]} objs - Array of objects to add to the list.
      */
     addObjs(objs: T[]): void {
-        const numObjsBefore = this.objs.length;
-        this.objs = [...this.objs, ...objs.filter(obj => !this.nameDict[obj.name])];
-        const numAdded = this.objs.length - numObjsBefore;
-        this.logger.debug(`addObjs() added ${numAdded} of ${objs.length} incoming objects to the initial ${numObjsBefore}`);
+        const numObjsBefore = this.length;
+        const addableObjs = objs.filter(obj => !this.nameDict[obj.name]).map(this.completeObjProperties.bind(this));
+        this.objs = [...this.objs, ...addableObjs];
+        this.logger.debug(`addObjs() added ${addableObjs.length} of ${objs.length} incoming objs to initial ${numObjsBefore}:`, addableObjs);
     }
 
     /**
@@ -184,7 +184,8 @@ export default class CountedList<T extends NamedTootCount> {
      */
     topObjs(maxObjs?: number): T[] {
         const sortBy: keyof T = this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots";
-        const sortByAndName = [sortBy, "name"] as (keyof T)[]
+        this.logger.debug(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
+        const sortByAndName: (keyof T)[] = [sortBy, "name"];
         this.objs = sortObjsByProps(Object.values(this.objs), sortByAndName, [false, true]);
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
     }

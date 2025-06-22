@@ -117,10 +117,13 @@ export async function updateBooleanFilterOptions(
     const tagLists = await TagsForFetchingToots.rawTagLists();
     const userData = await MastoApi.instance.getUserData();
 
-    const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce((lists, filterName) => {
-        lists[filterName] = new BooleanFilterOptionList([], filterName as BooleanFilterName);
-        return lists;
-    }, {} as FilterOptions);
+    const optionLists: FilterOptions = Object.values(BooleanFilterName).reduce(
+        (lists, filterName) => {
+            lists[filterName] = new BooleanFilterOptionList([], filterName);
+            return lists;
+        },
+        {} as FilterOptions
+    );
 
     const decorateAccount = (accountOption: BooleanFilterOption, account: Account): void => {
         accountOption.displayName = account.displayName;
