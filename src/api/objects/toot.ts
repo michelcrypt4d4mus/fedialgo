@@ -924,18 +924,18 @@ export default class Toot implements TootObj {
         const userData = await MastoApi.instance.getUserData();
         const trendingTags = (await MastodonServer.fediverseTrendingTags()).topObjs();
         const trendingLinks = isDeepInspect ? (await MastodonServer.fediverseTrendingLinks()) : []; // Skip trending links
-        let completeToots: TootLike[] = [];
-        let tootsToComplete = toots;
+        let completedToots: TootLike[] = [];
+        let incompleteToots = toots;
 
         // If isDeepInspect separate toots that need completing bc it's slow to rely on isComplete() + batching
         if (isDeepInspect) {
-            [completeToots, tootsToComplete] = (split(toots, (t) => t instanceof Toot && t.isComplete()));
+            [completedToots, incompleteToots] = (split(toots, (t) => t instanceof Toot && t.isComplete()));
         }
 
         const newCompleteToots: Toot[] = await batchMap(
-            tootsToComplete,
+            incompleteToots,
             async (tootLike: TootLike) => {
-                const toot = (tootLike instanceof Toot ? tootLike : Toot.build(tootLike));
+                const toot = (tootLike instanceof Toot) ? tootLike : Toot.build(tootLike);
                 toot.completeProperties(userData, trendingLinks, trendingTags, source);
                 return toot as Toot;
             },
@@ -947,8 +947,8 @@ export default class Toot implements TootObj {
         );
 
         const msg = `${toots.length} toots ${ageString(startedAt)}`;
-        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completeToots.length} skipped)`);
-        return newCompleteToots.concat(completeToots as Toot[]);
+        logger.debug(`${msg} (${newCompleteToots.length} completed, ${completedToots.length} skipped)`);
+        return newCompleteToots.concat(completedToots as Toot[]);
     }
 
     /**

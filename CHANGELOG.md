@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Set `Account.suspended` correctly in `dedupeToots()`
+* More `tagOnlyStrings`
 
 ### v0.77.1
 * Add `config.scoring.diversityScorerRetootMultiplier` to apply a harsher diversity penalty to retoots than to a user's own toots
