@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.77.16
+* More `tagOnlyStrings`
+
 ### v0.77.15
-* Properly set the website param when registering a new app (should fix issues with GoToSocial logins)
+* (Demo App) Properly set the website param when registering a new app (should fix issues with GoToSocial logins)
 
 ### v0.77.14
 * More `tagOnlyStrings`
@@ -41,7 +44,7 @@
 * Add `config.scoring.diversityScorerRetootMultiplier` to apply a harsher diversity penalty to retoots than to a user's own toots
 
 ## v0.77.0
-* Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to `updateFilterOptions()`
+* Add `config.toots.minToSkipFilterUpdates` and `config.toots.filterUpdateBatchSize` to cut down on the number of (slow, expensive) calls to `updateFilterOptions()` during loads
 * Fix runtime logging of `updateFilters()`
 
 ### v0.76.2
