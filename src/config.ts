@@ -802,6 +802,7 @@ class Config implements ConfigType {
             "guardian",
             "guide",
             "guy",
+            "haber",     // Spanish
             "hackernews",
             "had",
             "has",
@@ -865,6 +866,7 @@ class Config implements ConfigType {
             "keeps",
             "key",
             "keys",
+            "ki",     // Spanish?
             "kind",
             "knew",
             "know",
@@ -1121,6 +1123,7 @@ class Config implements ConfigType {
             "random",
             "rate",
             "rates",
+            "raw",
             "read",
             "reads",
             "reading",
@@ -1310,6 +1313,7 @@ class Config implements ConfigType {
             "tie",
             "ties",
             "til",
+            "tim",
             "time",
             "times",
             "to",
