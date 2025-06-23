@@ -142,7 +142,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionsSortedByValue(minToots = 0) {
         const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots);
-        this.logger.debug(`optionsSortedByValue() sortedObjs:`, sortedObjs.objs);
+        this.logger.trace(`optionsSortedByValue() sortedObjs:`, sortedObjs.objs);
         return sortedObjs;
     }
     /**

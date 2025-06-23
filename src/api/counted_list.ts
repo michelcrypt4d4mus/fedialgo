@@ -186,10 +186,10 @@ export default class CountedList<T extends NamedTootCount> {
     topObjs(maxObjs?: number): T[] {
         const sortBy: keyof T = this.objs.every(t => !isNil(t.numAccounts)) ? "numAccounts" : "numToots";
         const validObjs = this.objs.filter(t => (t[sortBy] as number || 0) > 0);
-        this.logger.debug(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
+        this.logger.trace(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
         const sortByAndName: (keyof T)[] = [sortBy, "name"];
         const sortedObjs = sortObjsByProps(validObjs, sortByAndName, [false, true]);
-        this.logger.debug(`topObjs() sorted ${this.objs.length} first 100 objs:`, sortedObjs.slice(0, 100));
+        this.logger.trace(`topObjs() sorted ${this.objs.length} first 100 objs:`, sortedObjs.slice(0, 100));
         return maxObjs ? sortedObjs.slice(0, maxObjs) : sortedObjs;
     }
 
