@@ -272,7 +272,7 @@ export default class Toot implements TootObj {
     get realToot(): Toot { return this.reblog ?? this };
     get realURI(): string { return this.realToot.uri };
     get realURL(): string { return this.realToot.url || this.realURI };
-    get replyMentions() { return [this.author.acct].concat((this.mentions || []).map((m) => m.acct)).map(at) };
+    get replyMentions() { return [...this.accounts, ...(this.mentions || [])].map((m) => at(m.acct)) };
     get score(): number { return this.scoreInfo?.score || 0 };
     get tootedAt(): Date { return new Date(this.createdAt) };  // TODO: should this consider the values in reblogsBy?
     get withRetoot(): Toot[] { return [this, ...asOptionalArray(this.reblog)] };
