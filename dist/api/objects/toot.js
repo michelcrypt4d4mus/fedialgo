@@ -191,7 +191,7 @@ class Toot {
     ;
     get realURL() { return this.realToot.url || this.realURI; }
     ;
-    get replyMentions() { return [this.author.webfingerURI].concat((this.mentions || []).map((m) => m.acct)).map(string_helpers_1.at); }
+    get replyMentions() { return [this.author.acct].concat((this.mentions || []).map((m) => m.acct)).map(string_helpers_1.at); }
     ;
     get score() { return this.scoreInfo?.score || 0; }
     ;

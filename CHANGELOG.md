@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug with Toot.replyMentions when replying to users on the same server as the fedialgo user
 
 ### v0.77.10 - v0.77.11
 * More `tagOnlyStrings`
