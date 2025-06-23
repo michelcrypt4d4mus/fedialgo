@@ -160,6 +160,7 @@ class CountedList {
         this.logger.debug(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
         const sortByAndName = [sortBy, "name"];
         this.objs = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.objs), sortByAndName, [false, true]);
+        this.logger.debug(`topObjs() sorted ${this.objs.length} first 100 objs:`, this.objs.slice(0, 100));
         return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
     }
     // Lowercase the name and set the regex property if it doesn't exist.

@@ -482,7 +482,7 @@ function sortObjsByProps(array, prop, ascending, ignoreCase) {
         // Compare second property
         aVal = a[props[1]];
         bVal = b[props[1]];
-        ascending = ascendings.length > 1 ? ascendings[1] : ascendings[1];
+        ascending = ascendings.length > 1 ? ascendings[1] : ascendings[0];
         if (ignoreCase && typeof aVal == "string" && typeof bVal == "string") {
             aVal = aVal.toLowerCase();
             bVal = bVal.toLowerCase();
