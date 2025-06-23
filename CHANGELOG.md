@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Don't count the empty string as a valid spoilerText
 
 ### v0.77.16 - v0.77.19
 * More `tagOnlyStrings`
