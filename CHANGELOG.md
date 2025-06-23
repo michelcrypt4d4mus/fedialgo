@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix bug with sorting hashtag filter options by excluding all options with 0 or undefined numToots
 
 ### v0.77.7
 * Fix potential issue with sorting when only one value provided for ascending/descending arg

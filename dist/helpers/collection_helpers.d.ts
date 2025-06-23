@@ -227,7 +227,7 @@ export declare function sortedDictString(dict: StringNumberDict): string;
  * @param {boolean} [ignoreCase] - Ignore case for string properties.
  * @returns {T[]} The sorted array.
  */
-export declare function sortObjsByProps<T>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];
+export declare function sortObjsByProps<T extends object>(array: T[], prop: keyof T | (keyof T)[], ascending?: boolean | boolean[], ignoreCase?: boolean): T[];
 /**
  * Sorts an array of objects by the createdAt property.
  * @template T

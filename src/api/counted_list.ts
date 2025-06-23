@@ -2,7 +2,7 @@
  * Base class for lists of things with a name and a 'numToots' property that can be used
  * somewhat interchangeably as a dictionary or a sorted list.
  */
-import { isFinite } from "lodash";
+import { isFinite, isNil } from "lodash";
 
 import { Logger } from '../helpers/logger';
 import { sortObjsByProps } from "../helpers/collection_helpers";
@@ -10,6 +10,7 @@ import { wordRegex } from "../helpers/string_helpers";
 import {
     type BooleanFilterOption,
     type CountedListSource,
+    type KeysOfValueType,
     type NamedTootCount,
     type StringNumberDict,
 } from "../types";
@@ -183,12 +184,13 @@ export default class CountedList<T extends NamedTootCount> {
      * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
     topObjs(maxObjs?: number): T[] {
-        const sortBy: keyof T = this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots";
+        const sortBy: keyof T = this.objs.every(t => !isNil(t.numAccounts)) ? "numAccounts" : "numToots";
+        const validObjs = this.objs.filter(t => (t[sortBy] as number || 0) > 0);
         this.logger.debug(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
         const sortByAndName: (keyof T)[] = [sortBy, "name"];
-        this.objs = sortObjsByProps(Object.values(this.objs), sortByAndName, [false, true]);
-        this.logger.debug(`topObjs() sorted ${this.objs.length} first 100 objs:`, this.objs.slice(0, 100));
-        return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
+        const sortedObjs = sortObjsByProps(validObjs, sortByAndName, [false, true]);
+        this.logger.debug(`topObjs() sorted ${this.objs.length} first 100 objs:`, sortedObjs.slice(0, 100));
+        return maxObjs ? sortedObjs.slice(0, maxObjs) : sortedObjs;
     }
 
     // Lowercase the name and set the regex property if it doesn't exist.
