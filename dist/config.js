@@ -1158,6 +1158,7 @@ class Config {
             "tend",
             "tends",
             "than",
+            "that",
             "the",
             "theguardian",
             "them",

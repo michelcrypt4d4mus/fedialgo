@@ -1289,6 +1289,7 @@ class Config implements ConfigType {
             "tend",
             "tends",
             "than",
+            "that",
             "the",
             "theguardian",
             "them",
