@@ -38,7 +38,7 @@ exports.DEFAULT_WEIGHTS = {
     [enums_1.ScoreName.MENTIONS_FOLLOWED]: 2.0,
     [enums_1.ScoreName.MOST_REPLIED_ACCOUNTS]: 1.0,
     [enums_1.ScoreName.MOST_RETOOTED_ACCOUNTS]: 1.5,
-    [enums_1.ScoreName.NUM_FAVOURITES]: 0.1,
+    [enums_1.ScoreName.NUM_FAVOURITES]: 0.0,
     [enums_1.ScoreName.NUM_REPLIES]: 1.0,
     [enums_1.ScoreName.NUM_RETOOTS]: 1.0,
     [enums_1.ScoreName.PARTICIPATED_TAGS]: 0.15,
