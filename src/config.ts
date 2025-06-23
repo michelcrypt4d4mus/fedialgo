@@ -503,6 +503,7 @@ class Config implements ConfigType {
             "activitypub",
             "actu",            // french
             "actual",
+            "actualites",      // french
             "add",
             "address",
             "administration",
@@ -707,6 +708,8 @@ class Config implements ConfigType {
             "episode",
             "era",
             "es",          // Spanish
+            "et",          // French
+            "ete",         // French
             "essential",
             "est",         // Spanish
             "etc",
@@ -1106,6 +1109,9 @@ class Config implements ConfigType {
             "quickly",
             "quite",
             "quote",
+            "quoted",
+            "quotes",
+            "quoting",
             "random",
             "rate",
             "rates",
@@ -1231,6 +1237,7 @@ class Config implements ConfigType {
             "stopped",
             "stopping",
             "stops",
+            "stories",
             "story",
             "strange",
             "street",
