@@ -501,9 +501,9 @@ class Config implements ConfigType {
             "actions",
             "activity",
             "activitypub",
-            "actu",            // french
+            "actu",                // french
             "actual",
-            "actualites",      // french
+            "actualites",          // french
             "add",
             "address",
             "administration",
@@ -521,6 +521,7 @@ class Config implements ConfigType {
             "agreed",
             "ahead",
             "alienvault",
+            "all",
             "also",
             "america",
             "american",
@@ -532,13 +533,13 @@ class Config implements ConfigType {
             "analysis",
             "and",
             "angeles",
-            "ano",         // spanish
-            "anos",        // spanish
+            "ano",                // spanish
+            "anos",               // spanish
             "another",
             "anti",
             "app",
             "apps",
-            "archive",     // archive.org links
+            "archive",            // archive.org links
             "are",
             "area",
             "areas",
@@ -555,7 +556,7 @@ class Config implements ConfigType {
             "association",
             "at",
             "attention",
-            "aus",       // German
+            "aus",              // German
             "author",
             "authority",
             "auto",
@@ -600,7 +601,7 @@ class Config implements ConfigType {
             "buy",
             "by",
             "bye",
-            "ca",      // TLD
+            "ca",            // TLD
             "call",
             "calls",
             "came",
@@ -624,14 +625,14 @@ class Config implements ConfigType {
             "citizens",
             "city",
             "classic",
-            "co",         // TLD
+            "co",             // TLD
             "cold",
             "collaboration",
-            "com",        // TLD
+            "com",            // TLD
             "come",
             "comment",
             "community",
-            "con",        // spanish
+            "con",            // spanish
             "concern",
             "concerns",
             "conflict",
@@ -648,7 +649,12 @@ class Config implements ConfigType {
             "corporate",
             "could",
             "cover",
-            "cu",        // tagalog
+            "create",
+            "created",
+            "creating",
+            "creation",
+            "creates",
+            "cu",             // tagalog
             "cup",
             "cut",
             "culture",
@@ -657,10 +663,10 @@ class Config implements ConfigType {
             "customers",
             "daily",
             "dark",
-            "das",      // german
+            "das",            // german
             "data",
             "day",
-            "de",       // german
+            "de",             // german
             "decide",
             "decides",
             "decision",
@@ -671,10 +677,10 @@ class Config implements ConfigType {
             "defence",
             "defense",
             "degree",
-            "deja",     // french
-            "dem",      // german
-            "den",      // german
-            "der",      // german
+            "deja",          // french
+            "dem",           // german
+            "den",           // german
+            "der",           // german
             "design",
             "detail",
             "details",
@@ -682,7 +688,7 @@ class Config implements ConfigType {
             "did",
             "diego",
             "digital",
-            "dir",      // german
+            "dir",           // german
             "direct",
             "direction",
             "do",
@@ -696,7 +702,7 @@ class Config implements ConfigType {
             "done",
             "down",
             "draw",
-            "du",      // German
+            "du",           // German
             "each",
             "early",
             "earth",
@@ -715,6 +721,7 @@ class Config implements ConfigType {
             "english",
             "episode",
             "era",
+            "er",          // German
             "es",          // Spanish
             "et",          // French
             "ete",         // French
@@ -899,6 +906,7 @@ class Config implements ConfigType {
             "learn",
             "learns",
             "learning",
+            "left",
             "legal",
             "lemonde",   // French
             "les",       // French
@@ -917,6 +925,11 @@ class Config implements ConfigType {
             "links",
             "little",
             "live",
+            "lose",
+            "loses",
+            "losing",
+            "loss",
+            "lost",
             "lot",
             "local",
             "locally",
@@ -981,6 +994,8 @@ class Config implements ConfigType {
             "mundo",     // Spanish
             "must",
             "my",
+            "nation",
+            "nations",
             "natural",
             "ne",         // Spanish
             "near",
@@ -1046,6 +1061,10 @@ class Config implements ConfigType {
             "owner",
             "pa",
             "pace",
+            "pack",
+            "package",
+            "packed",
+            "packs",
             "paid",
             "panel",
             "part",
@@ -1082,6 +1101,9 @@ class Config implements ConfigType {
             "pluralistic",  // TODO: the regex should probably exclude @account mentions...
             "plus",
             "point",
+            "pointed",
+            "points",
+            "pol",
             "policy",
             "political",
             "politics",
@@ -1144,6 +1166,8 @@ class Config implements ConfigType {
             "reasons",
             "recent",
             "recently",
+            "region",
+            "regions",
             "relate",
             "related",
             "relates",
@@ -1180,6 +1204,8 @@ class Config implements ConfigType {
             "risks",
             "ro",         // Romanian TLD
             "road",
+            "room",
+            "rooms",
             "rose",
             "rule",
             "ruled",
