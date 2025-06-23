@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.77.14
+
 ### v0.77.13
 * Drop default NUM_FAVOURITES weight to 0 now that we are pulling in toots from the home server, drop default DIVERSITY weight to -3
 
