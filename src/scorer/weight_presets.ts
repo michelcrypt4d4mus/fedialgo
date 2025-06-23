@@ -27,7 +27,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [ScoreName.ALREADY_SHOWN]: -5,
     [ScoreName.AUTHOR_FOLLOWERS]: -0.1,
     [ScoreName.CHAOS]: 1.0,
-    [ScoreName.DIVERSITY]: -2.0,
+    [ScoreName.DIVERSITY]: -3.0,
     [ScoreName.FAVOURITED_ACCOUNTS]: 1.0,
     [ScoreName.FAVOURITED_TAGS]: 0.1,
     [ScoreName.FOLLOWED_ACCOUNTS]: 1.5,
@@ -38,7 +38,7 @@ export const DEFAULT_WEIGHTS: Weights = {
     [ScoreName.MENTIONS_FOLLOWED]: 2.0,
     [ScoreName.MOST_REPLIED_ACCOUNTS]: 1.0,
     [ScoreName.MOST_RETOOTED_ACCOUNTS]: 1.5,
-    [ScoreName.NUM_FAVOURITES]: 0.1,  // Favourites only show up on the home server so underweight this
+    [ScoreName.NUM_FAVOURITES]: 0.0,  // Favourites only show up on the home server so underweight this
     [ScoreName.NUM_REPLIES]: 1.0,
     [ScoreName.NUM_RETOOTS]: 1.0,
     [ScoreName.PARTICIPATED_TAGS]: 0.15,
