@@ -1,5 +1,26 @@
 # NEXT RELEASE
 
+### v0.77.15
+* Properly set the website param when registering a new app (should fix issues with GoToSocial logins)
+
+### v0.77.14
+* More `tagOnlyStrings`
+
+### v0.77.13
+* Drop default `NUM_FAVOURITES` weight to 0 now that we are pulling in toots from the home server, drop default `DIVERSITY` weight to -3
+
+### v0.77.12
+* Fix bug with `Toot.replyMentions` when replying to users on the same server as the fedialgo user
+
+### v0.77.10 - v0.77.11
+* More `tagOnlyStrings`
+
+### v0.77.9
+* Fix bug with sorting hashtag filter options by excluding all options with 0 or undefined `numToots`
+
+### v0.77.7
+* Fix potential issue with sorting when only one value provided for ascending/descending arg
+
 ### v0.77.6
 * (Demo App) Try to fix the `MinTootsSlider` default value
 
@@ -20,11 +41,11 @@
 * Add `config.scoring.diversityScorerRetootMultiplier` to apply a harsher diversity penalty to retoots than to a user's own toots
 
 ## v0.77.0
-* Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to updateFilterOptions()
-* Fix runtime logging of updateFilters()
+* Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to `updateFilterOptions()`
+* Fix runtime logging of `updateFilters()`
 
 ### v0.76.2
-* Log updateFilters() runtime
+* Log `updateFilters()` at runtime
 
 ### v0.76.1
 * More `tagOnlyStrings`
@@ -58,13 +79,13 @@
 * Log `hasNewestApiData()`
 
 ### v0.75.10
-* Add `lastUpdatedAt`` to Storage info returned by `getCurrentState()`
+* Add `lastUpdatedAt` to `Storage` info returned by `getCurrentState()`
 
 ### v0.75.8
 * (Demo App) Don't `resolve()` Toot URLs if user is on a GoToSocial instance
 
 ### v0.75.7
-* Reverse order of operations when checking that a Toot contains a tag as a substring
+* Reverse order of operations when checking that a `Toot` contains a tag as a substring
 
 ### v0.75.1 - v0.75.6
 * More `tagOnlyStrings`

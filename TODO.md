@@ -1,5 +1,6 @@
 # TODO
 1. Get `MastodonServer` errors into the API error messages somehow
+1. After muting an account and calling refreshMutedAccounts() somehow the filters stop applying and the whole feed is shown again
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 1. Why does this happen, where we get two copies of bridged bsky accounts?
    ```json

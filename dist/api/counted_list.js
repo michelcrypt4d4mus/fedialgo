@@ -156,11 +156,13 @@ class CountedList {
      * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
      */
     topObjs(maxObjs) {
-        const sortBy = this.objs.every(t => t.numAccounts) ? "numAccounts" : "numToots";
-        this.logger.debug(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
+        const sortBy = this.objs.every(t => !(0, lodash_1.isNil)(t.numAccounts)) ? "numAccounts" : "numToots";
+        const validObjs = this.objs.filter(t => (t[sortBy] || 0) > 0);
+        this.logger.trace(`topObjs() sorting by "${sortBy.toString()}" then by "name"`);
         const sortByAndName = [sortBy, "name"];
-        this.objs = (0, collection_helpers_1.sortObjsByProps)(Object.values(this.objs), sortByAndName, [false, true]);
-        return maxObjs ? this.objs.slice(0, maxObjs) : this.objs;
+        const sortedObjs = (0, collection_helpers_1.sortObjsByProps)(validObjs, sortByAndName, [false, true]);
+        this.logger.trace(`topObjs() sorted ${this.objs.length} first 100 objs:`, sortedObjs.slice(0, 100));
+        return maxObjs ? sortedObjs.slice(0, maxObjs) : sortedObjs;
     }
     // Lowercase the name and set the regex property if it doesn't exist.
     completeObjProperties(obj) {
