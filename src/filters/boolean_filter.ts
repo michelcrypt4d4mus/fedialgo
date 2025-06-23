@@ -10,7 +10,7 @@ import type Toot from '../api/objects/toot';
 import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums';
 import { BooleanFilterOptionList } from '../api/counted_list';
 import { buildTag } from "../api/objects/tag";
-import { compareStr } from '../helpers/string_helpers';
+import { compareStr, isEmptyStr } from '../helpers/string_helpers';
 import { config } from '../config';
 import { type BooleanFilterOption } from "../types";
 
@@ -36,7 +36,7 @@ export const TYPE_FILTERS: Record<TypeFilterName, TypeFilter> = {
     [TypeFilterName.REPLIES]:           (toot) => !!toot.realToot.inReplyToId,
     [TypeFilterName.RETOOTS]:           (toot) => !!toot.reblog,
     [TypeFilterName.SENSITIVE]:         (toot) => toot.realToot.sensitive,
-    [TypeFilterName.SPOILERED]:         (toot) => !!toot.realToot.spoilerText,
+    [TypeFilterName.SPOILERED]:         (toot) => !isEmptyStr(toot.realToot.spoilerText),
     [TypeFilterName.TRENDING_LINKS]:    (toot) => !!toot.realToot.trendingLinks?.length,
     [TypeFilterName.TRENDING_TAGS]:     (toot) => !!toot.realToot.trendingTags?.length,
     [TypeFilterName.TRENDING_TOOTS]:    (toot) => !!toot.realToot.trendingRank,

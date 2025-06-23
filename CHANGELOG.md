@@ -1,9 +1,10 @@
 # NEXT RELEASE
 
-### v0.77.19
-* More `tagOnlyStrings`
+# v0.78.0
+* Don't count the empty string as a valid `spoilerText` for the Type: Spoilered filter
+* (Demo App) Hide sensitive / NSFW images behind a clickthrough and add a toggle to enable / disable this behavior
 
-### v0.77.16 - v0.77.18
+### v0.77.16 - v0.77.19
 * More `tagOnlyStrings`
 
 ### v0.77.15
