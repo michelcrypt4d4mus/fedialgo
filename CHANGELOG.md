@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.77.9
+
 ### v0.77.8
 * Fix bug with sorting hashtag filter options by excluding all options with 0 or undefined `numToots`
 
