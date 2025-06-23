@@ -528,14 +528,17 @@ class Config implements ConfigType {
             "americas",
             "am",
             "an",
+            "ann",
             "analysis",
             "and",
             "angeles",
+            "ano",         // spanish
+            "anos",        // spanish
             "another",
             "anti",
             "app",
             "apps",
-            "archive",    // archive.org links
+            "archive",     // archive.org links
             "are",
             "area",
             "areas",
@@ -564,6 +567,8 @@ class Config implements ConfigType {
             "based",
             "be",
             "before",
+            "belief",
+            "beliefs",
             "believe",
             "believed",
             "believes",
@@ -651,6 +656,7 @@ class Config implements ConfigType {
             "customer",
             "customers",
             "daily",
+            "dark",
             "das",      // german
             "data",
             "day",
@@ -1055,6 +1061,8 @@ class Config implements ConfigType {
             "pays",
             "people",
             "per",
+            "pete",
+            "peter",
             "photo",
             "photos",
             "picture",
@@ -1071,6 +1079,7 @@ class Config implements ConfigType {
             "plant",
             "planted",
             "platform",
+            "pluralistic",  // TODO: the regex should probably exclude @account mentions...
             "plus",
             "point",
             "policy",
@@ -1192,6 +1201,7 @@ class Config implements ConfigType {
             "saving",
             "say",
             "says",
+            "scheme",
             "se",        // Spanish
             "season",
             "second",
@@ -1401,6 +1411,7 @@ class Config implements ConfigType {
             "west",
             "weighing",
             "what",
+            "when",
             "where",
             "whether",
             "which",
@@ -1417,6 +1428,7 @@ class Config implements ConfigType {
             "willing",
             "win",
             "winter",
+            "wird",    // German
             "with",
             "within",
             "without",
