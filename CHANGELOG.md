@@ -1,9 +1,6 @@
 # NEXT RELEASE
 
-### v0.77.11
-* More `tagOnlyStrings`
-
-### v0.77.10
+### v0.77.10 - v0.77.11
 * More `tagOnlyStrings`
 
 ### v0.77.9
@@ -32,8 +29,8 @@
 * Add `config.scoring.diversityScorerRetootMultiplier` to apply a harsher diversity penalty to retoots than to a user's own toots
 
 ## v0.77.0
-* Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to updateFilterOptions()
-* Fix runtime logging of updateFilters()
+* Add minToSkipFilterUpdates and filterUpdateBatchSize to try to cut down on the number of (slow, expensive) calls to `updateFilterOptions()`
+* Fix runtime logging of `updateFilters()`
 
 ### v0.76.2
 * Log `updateFilters()` at runtime
