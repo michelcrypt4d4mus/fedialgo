@@ -552,7 +552,7 @@ class Config implements ConfigType {
             "association",
             "at",
             "attention",
-            "aus",
+            "aus",       // German
             "author",
             "authority",
             "auto",
@@ -676,6 +676,7 @@ class Config implements ConfigType {
             "did",
             "diego",
             "digital",
+            "dir",      // german
             "direct",
             "direction",
             "do",
@@ -689,6 +690,7 @@ class Config implements ConfigType {
             "done",
             "down",
             "draw",
+            "du",      // German
             "each",
             "early",
             "earth",
@@ -813,6 +815,7 @@ class Config implements ConfigType {
             "her",
             "here",
             "herself",
+            "hier",     // German
             "high",
             "him",
             "historic",
@@ -1003,9 +1006,12 @@ class Config implements ConfigType {
             "nytimes",
             "nz",         // TLD
             "oc",
+            "oder",       // German
             "of",
             "off",
             "offensive",
+            "office",
+            "offices",
             "official",
             "officials",
             "oft",
@@ -1120,6 +1126,10 @@ class Config implements ConfigType {
             "reading",
             "real",
             "really",
+            "reason",
+            "reasoned",
+            "reasoning",
+            "reasons",
             "recent",
             "recently",
             "relate",
@@ -1157,6 +1167,9 @@ class Config implements ConfigType {
             "ro",         // Romanian TLD
             "road",
             "rose",
+            "rule",
+            "ruled",
+            "rules",
             "run",
             "running",
             "sa",
@@ -1323,6 +1336,7 @@ class Config implements ConfigType {
             "un",
             "uncertain",
             "uncertainty",
+            "und",     // German
             "under",
             "understand",
             "understanding",
@@ -1331,6 +1345,7 @@ class Config implements ConfigType {
             "unique",
             "united",
             "unity",
+            "uns",     // German
             "until",
             "unusual",
             "unusually",
@@ -1368,6 +1383,7 @@ class Config implements ConfigType {
             "web",
             "website",
             "week",
+            "wenn",    // German
             "went",
             "were",
             "west",
@@ -1432,6 +1448,7 @@ class Config implements ConfigType {
             "youtube",
             "za",      // South Africa TLD
             "ze",
+            "zu",      // German
         ]),
     }
 
