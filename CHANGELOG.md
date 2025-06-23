@@ -1,5 +1,7 @@
 # NEXT RELEASE
-* Drop default NUM_FAVOURITES weight to 0 now that we are pulling in toots from the home server
+
+### v0.77.13
+* Drop default NUM_FAVOURITES weight to 0 now that we are pulling in toots from the home server, drop default DIVERSITY weight to -3
 
 ### v0.77.12
 * Fix bug with Toot.replyMentions when replying to users on the same server as the fedialgo user
