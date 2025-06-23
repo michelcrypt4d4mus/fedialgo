@@ -16,6 +16,7 @@ import {
     type ApiObj,
     type ApiObjWithID,
     type CountKey,
+    type KeysOfValueType,
     type MinMax,
     type MinMaxID,
     type Optional,
@@ -554,7 +555,7 @@ export function sortedDictString(dict: StringNumberDict): string {
  * @param {boolean} [ignoreCase] - Ignore case for string properties.
  * @returns {T[]} The sorted array.
  */
-export function sortObjsByProps<T>(
+export function sortObjsByProps<T extends object>(
     array: T[],
     prop: keyof T | (keyof T)[],
     ascending?: boolean | boolean[],
