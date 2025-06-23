@@ -6,7 +6,7 @@
 * More `tagOnlyStrings`
 
 ### v0.77.15
-* (Demo App) Properly set the website param when registering a new app (should fix issues with GoToSocial logins)
+* (Demo App) Properly set the `website` param when registering a new app (should fix issues with GoToSocial logins)
 
 ### v0.77.14
 * More `tagOnlyStrings`
