@@ -36,7 +36,7 @@
 * Fix runtime logging of updateFilters()
 
 ### v0.76.2
-* Log updateFilters() runtime
+* Log `updateFilters()` at runtime
 
 ### v0.76.1
 * More `tagOnlyStrings`
@@ -70,13 +70,13 @@
 * Log `hasNewestApiData()`
 
 ### v0.75.10
-* Add `lastUpdatedAt`` to Storage info returned by `getCurrentState()`
+* Add `lastUpdatedAt` to `Storage` info returned by `getCurrentState()`
 
 ### v0.75.8
 * (Demo App) Don't `resolve()` Toot URLs if user is on a GoToSocial instance
 
 ### v0.75.7
-* Reverse order of operations when checking that a Toot contains a tag as a substring
+* Reverse order of operations when checking that a `Toot` contains a tag as a substring
 
 ### v0.75.1 - v0.75.6
 * More `tagOnlyStrings`
