@@ -1,5 +1,8 @@
 # NEXT RELEASE
+
+### v0.77.7
 * Fix potential issue with sorting when only one value provided for ascending/descending arg
+* More `tagOnlyStrings`
 
 ### v0.77.6
 * (Demo App) Try to fix the `MinTootsSlider` default value
