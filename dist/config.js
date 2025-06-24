@@ -911,6 +911,8 @@ class Config {
             "must",
             "my",
             "nation",
+            "national",
+            "nationality",
             "nations",
             "natural",
             "ne",

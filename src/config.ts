@@ -1042,6 +1042,8 @@ class Config implements ConfigType {
             "must",
             "my",
             "nation",
+            "national",
+            "nationality",
             "nations",
             "natural",
             "ne",         // Spanish

@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v0.78.7
+* Handle edge case issue where muting an account causes selected filter option to disappear from list even though filter is still applied
+* (Demo App) Add blurred filter to sensitive videos (maybe)
+
 ### v0.78.6
 * Fix zh-TW => Taiwanese language map
 
