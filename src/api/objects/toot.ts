@@ -900,7 +900,7 @@ export default class Toot implements TootObj {
         // "Best effort" scoring. Note scoreToots() does not sort 'toots' in place but the return value is sorted.
         const tootsSortedByScore = await Scorer.scoreToots(toots, false);
 
-        if (source != LoadAction.REFRESH_MUTED_ACCOUNTS) {
+        if (source != LoadAction.GET_CONVERSATION) {
             toots = this.removeUsersOwnToots(tootsSortedByScore, logger);
         }
 
