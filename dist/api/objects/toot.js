@@ -766,7 +766,7 @@ class Toot {
         toots = Toot.dedupeToots(toots, logger);
         // "Best effort" scoring. Note scoreToots() does not sort 'toots' in place but the return value is sorted.
         const tootsSortedByScore = await scorer_1.default.scoreToots(toots, false);
-        if (source != enums_1.LoadAction.REFRESH_MUTED_ACCOUNTS) {
+        if (source != enums_1.LoadAction.GET_CONVERSATION) {
             toots = this.removeUsersOwnToots(tootsSortedByScore, logger);
         }
         logger.trace(`${toots.length} toots built in ${(0, time_helpers_1.ageString)(startedAt)}`);
