@@ -169,7 +169,7 @@ export const LANGUAGE_NAMES: StringDict = {
     sundanese: "su",
     swedish: "sv",
     swahili: "sw",
-    taiwanese: "zh-TW",  // Chinese (Taiwan)
+    taiwanese: "zh-tw",  // Chinese (Taiwan)
     tamil: "ta",
     telugu: "te",
     tajik: "tg",
@@ -198,7 +198,7 @@ export const LANGUAGE_NAMES: StringDict = {
     yoruba: "yo",
     zhuang: "za",
     chinese: "zh",
-    chineseMainland: "zh-CN",  // Chinese (China)
+    chineseMainland: "zh-cn",  // Chinese (China)
     zulu: "zu",
 } as const;
 

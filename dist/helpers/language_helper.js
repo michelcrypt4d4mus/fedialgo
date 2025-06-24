@@ -172,7 +172,7 @@ exports.LANGUAGE_NAMES = {
     sundanese: "su",
     swedish: "sv",
     swahili: "sw",
-    taiwanese: "zh-TW",
+    taiwanese: "zh-tw",
     tamil: "ta",
     telugu: "te",
     tajik: "tg",
@@ -201,7 +201,7 @@ exports.LANGUAGE_NAMES = {
     yoruba: "yo",
     zhuang: "za",
     chinese: "zh",
-    chineseMainland: "zh-CN",
+    chineseMainland: "zh-cn",
     zulu: "zu",
 };
 // Mapping of language codes to the actual name of the language
