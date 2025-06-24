@@ -992,6 +992,8 @@ class Config implements ConfigType {
             "ma",
             "made",
             "mail",
+            "main",
+            "mainly",
             "make",
             "makes",
             "making",

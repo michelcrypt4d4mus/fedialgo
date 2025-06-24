@@ -861,6 +861,8 @@ class Config {
             "ma",
             "made",
             "mail",
+            "main",
+            "mainly",
             "make",
             "makes",
             "making",

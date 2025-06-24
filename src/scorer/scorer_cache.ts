@@ -5,6 +5,7 @@
 import { Mutex } from "async-mutex";
 
 import type FeedScorer from "./feed_scorer";
+import type Scorer from "./scorer";
 import type TootScorer from "./toot_scorer";
 import { ageString } from "../helpers/time_helpers";
 
@@ -17,7 +18,7 @@ export default class ScorerCache {
     // These can score a toot without knowing about the rest of the toots in the feed
     static tootScorers: TootScorer[] = [];
     // All scorers that can be weighted
-    static weightedScorers: (FeedScorer | TootScorer)[] = [];
+    static weightedScorers: Scorer[] = [];
 
     static addScorers(tootScorers: TootScorer[], feedScorers: FeedScorer[]) {
         this.feedScorers = feedScorers;
