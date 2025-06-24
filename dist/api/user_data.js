@@ -157,7 +157,7 @@ class UserData {
         const favouredAccounts = [...repliedToAccounts, ...retootAndFaveAccounts];
         this.favouriteAccounts.populateByCountingProps(favouredAccounts, account => account.asBooleanFilterOption);
         // Find the followed accounts that don't exist yet as options. Has side effect of mutating isFollowed property
-        const optionsToAdd = data.followedAccounts.filter((account) => {
+        const additionalFollowedAccounts = data.followedAccounts.filter((account) => {
             const option = account.asBooleanFilterOption;
             const existingOption = this.favouriteAccounts.getObj(option.name);
             if (!option.isFollowed) {
@@ -172,7 +172,7 @@ class UserData {
                 return true;
             }
         });
-        this.favouriteAccounts.addObjs(optionsToAdd.map(account => account.asBooleanFilterOption));
+        this.favouriteAccounts.addObjs(additionalFollowedAccounts.map(account => account.asBooleanFilterOption));
     }
     /////////////////////////////
     //      Static Methods     //

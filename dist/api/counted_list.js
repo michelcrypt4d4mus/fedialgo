@@ -57,7 +57,7 @@ class CountedList {
         const numObjsBefore = this.length;
         const addableObjs = objs.filter(obj => !this.nameDict[obj.name]).map(this.completeObjProperties.bind(this));
         this.objs = [...this.objs, ...addableObjs];
-        this.logger.debug(`addObjs() added ${addableObjs.length} of ${objs.length} incoming objs to initial ${numObjsBefore}:`, addableObjs);
+        this.logger.trace(`addObjs() added ${addableObjs.length} of ${objs.length} incoming objs to initial ${numObjsBefore}:`, addableObjs);
     }
     /**
      * Like the standard Array.filter().
