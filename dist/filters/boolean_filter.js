@@ -182,8 +182,14 @@ class BooleanFilter extends toot_filter_1.default {
      * @returns {BooleanFilterOptionList}
      */
     optionListWithMinToots(options, minToots = 0) {
-        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new counted_list_1.BooleanFilterOptionList(options, this.propertyName);
+        const newOptions = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
+        this.selectedOptions.forEach((selected) => {
+            if (!newOptions.some(opt => opt.name === selected)) {
+                this.logger.warn(`Selected option "${selected}" not found in options, adding synthetically`);
+                newOptions.push({ name: selected, displayName: selected, numToots: 0 });
+            }
+        });
+        return new counted_list_1.BooleanFilterOptionList(newOptions, this.propertyName);
     }
     /**
      * Checks if a given property name is a valid numeric filter name.

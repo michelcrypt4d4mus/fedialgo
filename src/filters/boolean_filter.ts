@@ -205,8 +205,16 @@ export default class BooleanFilter extends TootFilter {
      * @returns {BooleanFilterOptionList}
      */
     private optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
-        options = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
-        return new BooleanFilterOptionList(options, this.propertyName);
+        const newOptions = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
+
+        this.selectedOptions.forEach((selected) => {
+            if (!newOptions.some(opt => opt.name === selected)) {
+                this.logger.warn(`Selected option "${selected}" not found in options, adding synthetically`);
+                newOptions.push({ name: selected, displayName: selected, numToots: 0 } as BooleanFilterOption);
+            }
+        });
+
+        return new BooleanFilterOptionList(newOptions, this.propertyName);
     }
 
     /**

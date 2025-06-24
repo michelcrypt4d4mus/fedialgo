@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Handle edge case issue where muting an account causes selected filter option to disappear from list even though filter is still applied
 
 ### v0.78.6
 * Fix zh-TW => Taiwanese language map
