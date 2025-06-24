@@ -495,7 +495,15 @@ class Config implements ConfigType {
             ...MONTHS_SHORT.map(m => m.toLowerCase()),
             "ab",
             "about",
+            "accident",
+            "accidents",
+            "account",
+            "accounts",
             "accuracy",
+            "achieve",
+            "achieved",
+            "achieving",
+            "across",
             "act",
             "action",
             "actions",
@@ -559,6 +567,7 @@ class Config implements ConfigType {
             "associates",
             "association",
             "at",
+            "ate",
             "attention",
             "auch",             // German
             "aus",              // German
@@ -587,6 +596,7 @@ class Config implements ConfigType {
             "bigger",
             "biggest",
             "bit",
+            "biz",
             "block",
             "blog",
             "bloomberg",
@@ -621,6 +631,7 @@ class Config implements ConfigType {
             "central",
             "certain",
             "certainly",
+            "cesko",          // Czech
             "challenge",
             "change",
             "character",
@@ -656,22 +667,32 @@ class Config implements ConfigType {
             "corporate",
             "could",
             "cover",
+            "craft",
+            "crafts",
             "create",
             "created",
             "creating",
             "creation",
             "creates",
+            "critical",
+            "cross",
             "cu",             // tagalog
             "cup",
             "cut",
             "culture",
             "current",
+            "currently",
             "customer",
             "customers",
+            "cz",             // TLD
             "daily",
             "dark",
             "das",            // german
             "data",
+            "date",
+            "dated",
+            "daten",          // german
+            "dates",
             "day",
             "de",             // german
             "decide",
@@ -714,6 +735,8 @@ class Config implements ConfigType {
             "early",
             "earth",
             "east",
+            "eat",
+            "eats",
             "economic",
             "effort",
             "efforts",
@@ -723,6 +746,13 @@ class Config implements ConfigType {
             "else",
             "email",
             "en",
+            "encourage",
+            "encouraged",
+            "encourages",
+            "encouraging",
+            "encounter",
+            "encountered",
+            "encounters",
             "end",
             "ending",
             "enjoy",
@@ -857,6 +887,10 @@ class Config implements ConfigType {
             "https",
             "human",
             "id",
+            "idea",
+            "ideal",
+            "ideals",
+            "ideas",
             "if",
             "identity",
             "il",         // Italian / French
@@ -876,30 +910,32 @@ class Config implements ConfigType {
             "international",
             "internet",
             "into",
+            "intro",
+            "io",             // TLD
             "is",
             "issue",
             "issues",
             "it",
             "its",
             "itself",
-            "ja",      // German
-            "je",      // French
+            "ja",             // German
+            "je",             // French
             "jp",
             "keep",
             "keeps",
             "key",
             "keys",
-            "ki",     // Spanish?
+            "ki",             // Spanish?
             "kind",
             "knew",
             "know",
-            "la",      // French
+            "la",             // French
             "lake",
             "landscape",
             "large",
             "larger",
             "largest",
-            "las",       // Spanish
+            "las",            // Spanish
             "last",
             "lasts",
             "late",
@@ -907,7 +943,7 @@ class Config implements ConfigType {
             "latest",
             "lay",
             "lays",
-            "le",        // French
+            "le",             // French
             "lead",
             "leader",
             "leaders",
@@ -918,8 +954,8 @@ class Config implements ConfigType {
             "learning",
             "left",
             "legal",
-            "lemonde",   // French
-            "les",       // French
+            "lemonde",        // French
+            "les",            // French
             "let",
             "lie",
             "lies",
@@ -1031,15 +1067,22 @@ class Config implements ConfigType {
             "nor",
             "north",
             "not",
+            "note",
+            "noted",
+            "notes",
+            "nothing",
             "notice",
+            "noticeable",
             "notices",
             "noticed",
             "noticias",
+            "noting",
             "novel",
             "now",
             "nytimes",
             "nz",         // TLD
             "oc",
+            "odd",
             "oder",       // German
             "of",
             "off",
@@ -1283,6 +1326,9 @@ class Config implements ConfigType {
             "situation",
             "situations",
             "six",
+            "slow",
+            "slower",
+            "slowest",
             "small",
             "smaller",
             "smallest",
@@ -1324,11 +1370,12 @@ class Config implements ConfigType {
             "street",
             "strikes",
             "stuff",
+            "sturm",        // German
             "style",
             "styles",
             "subject",
             "subjects",
-            "subj",     // German
+            "subj",         // German
             "su",
             "substack",
             "such",
@@ -1357,6 +1404,8 @@ class Config implements ConfigType {
             "tend",
             "tends",
             "than",
+            "thank",
+            "thanks",
             "that",
             "the",
             "theguardian",
@@ -1412,6 +1461,10 @@ class Config implements ConfigType {
             "trending",
             "true",
             "truth",
+            "turn",
+            "turned",
+            "turning",
+            "turns",
             "tv",
             "two",
             "ua",
@@ -1449,6 +1502,7 @@ class Config implements ConfigType {
             "viewed",
             "voice",
             "vs",
+            "wahrun",        // German
             "wait",
             "waiting",
             "waits",
@@ -1468,11 +1522,19 @@ class Config implements ConfigType {
             "web",
             "website",
             "week",
-            "wenn",    // German
+            "weigh",
+            "weighing",
+            "weird",
+            "weirder",
+            "weirdest",
+            "weirdly",
+            "weirdness",
+            "well",
+            "wenn",          // German
             "went",
             "were",
             "west",
-            "weighing",
+            "wetter",        // German
             "what",
             "when",
             "where",
