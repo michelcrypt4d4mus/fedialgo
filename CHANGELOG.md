@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Fix zh-TW => Taiwanese language map
 
 ### v0.78.5
 * (Demo App) Remove useless show content button for NSFW images
