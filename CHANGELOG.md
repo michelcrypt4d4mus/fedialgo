@@ -1,11 +1,9 @@
 # NEXT RELEASE
 
-### v0.78.4
+### v0.78.5
+* (Demo App) Remove useless show content button for NSFW images
 
-### v0.78.3
-* More `tagOnlyStrings`
-
-### v0.78.2
+### v0.78.2 - v0.78.4
 * More `tagOnlyStrings`
 
 ### v0.78.1
