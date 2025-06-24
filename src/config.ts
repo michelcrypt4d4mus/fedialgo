@@ -1493,6 +1493,12 @@ class Config implements ConfigType {
             "usa",
             "usual",
             "usually",
+            "varieties",
+            "variety",
+            "various",
+            "variously",
+            "ve",          // French
+            "ver",         // German
             "very",
             "via",
             "video",
