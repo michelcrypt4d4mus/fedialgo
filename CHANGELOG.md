@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.78.8
 * Fix bug where user's own Toots were being incorrectly removed from getConversation() and conversation Toots were being incorrectly sorted by score instead of createdAt
 
 ### v0.78.7
