@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v0.78.2
+* More `tagOnlyStrings`
+
 ### v0.78.1
 * (Demo App) Fix default value for `hideSensitive`
 
