@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.78.6
 * Fix zh-TW => Taiwanese language map
 
 ### v0.78.5
