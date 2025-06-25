@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v0.78.9
+* (Demo App) Add blurred filter to sensitive videos (maybe)
+
 ### v0.78.8
-* Fix bug where user's own Toots were being incorrectly removed from getConversation() and conversation Toots were being incorrectly sorted by score instead of createdAt
+* Fix bug where user's own Toots were being incorrectly removed from `getConversation()` and conversation Toots were being incorrectly sorted by score instead of createdAt
 
 ### v0.78.7
 * Handle edge case issue where muting an account causes selected filter option to disappear from list even though filter is still applied
