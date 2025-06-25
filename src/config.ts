@@ -840,7 +840,10 @@ class Config implements ConfigType {
             "fyi",
             "garden",
             "gen",
+            "general",
+            "generally",
             "get",
+            "getting",
             "gets",
             "gift",
             "globe",
@@ -848,6 +851,7 @@ class Config implements ConfigType {
             "go",
             "good",
             "got",
+            "gotten",
             "gov",    // TLD
             "govern",
             "government",
