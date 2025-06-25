@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v0.78.9
 * (Demo App) Add blurred filter to sensitive videos (maybe)
 
 ### v0.78.8
