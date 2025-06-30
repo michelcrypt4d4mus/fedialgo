@@ -691,6 +691,7 @@ class Config implements ConfigType {
             "collaboration",
             "color",
             "colored",
+            "colorful",
             "coloring",
             "colors",
             "com",            // TLD
@@ -794,6 +795,7 @@ class Config implements ConfigType {
             "delivery",
             "dem",           // german
             "den",           // german
+            "density",
             "depart",
             "department",
             "departments",
@@ -1364,6 +1366,9 @@ class Config implements ConfigType {
             "paid",
             "panel",
             "paper",
+            "papier",      // French
+            "papieros",    // French
+            "papiers",     // French
             "park",
             "part",
             "partly",
@@ -1458,6 +1463,7 @@ class Config implements ConfigType {
             "press",
             "pretty",
             "prevent",
+            "preventable",
             "prevented",
             "preventing",
             "prevents",
@@ -1474,6 +1480,7 @@ class Config implements ConfigType {
             "processing",
             "produce",
             "product",
+            "production",
             "products",
             "progress",
             "progressed",
@@ -1485,10 +1492,13 @@ class Config implements ConfigType {
             "prominent",
             "promise",
             "promises",
+            "promo",
             "promote",
             "promoted",
             "promotes",
             "promoting",
+            "promotion",
+            "promotions",
             "prompted",
             "prompting",
             "proper",
@@ -1544,6 +1554,10 @@ class Config implements ConfigType {
             "reasoned",
             "reasoning",
             "reasons",
+            "receive",
+            "received",
+            "receives",
+            "receiving",
             "recent",
             "recently",
             "record",
