@@ -473,6 +473,13 @@ class TheAlgorithm {
         }
     }
     /**
+     * True if fedialgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
+     * @returns {boolean}
+     */
+    async isGoToSocialUser() {
+        return await api_1.default.instance.isGoToSocialUser();
+    }
+    /**
      * Return info about the Fedialgo user's home mastodon instance.
      * @returns {Promise<mastodon.v2.Instance>} Instance info.
      */

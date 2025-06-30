@@ -1,9 +1,10 @@
 # NEXT RELEASE
-* Add isGoToSocialUser() method to MastoApi; add canBeDisabledOnGoToSocial to API endpoint config; handle API errors differently for potentially disabled GoToSocial endpoints
+* Add `isGoToSocialUser()` method to `MastoApi` and `TheAlgorithm`; add `canBeDisabledOnGoToSocial` to API endpoint config; handle API errors differently for potentially disabled GoToSocial endpoints
+* (Demo App) Support maintaining registered app and user state across multiple servers
+* (Demo App) Don't call `api.apps.v1.verifyCredentials()` if user is on a GoToSocial instance (that endpoint doesn't exist on GoToSocial)
+* (Demo App) Fix bug where configured default server wasn't actually getting set as the default server
 
-### v0.78.21
-
-### v0.78.10 - v0.78.20
+### v0.78.10 - v0.78.21
 * More `tagOnlyStrings`
 
 ### v0.78.9

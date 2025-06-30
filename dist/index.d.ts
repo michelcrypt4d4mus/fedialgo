@@ -162,6 +162,11 @@ export default class TheAlgorithm {
      */
     saveTimelineToCache(): Promise<void>;
     /**
+     * True if fedialgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
+     * @returns {boolean}
+     */
+    isGoToSocialUser(): Promise<boolean>;
+    /**
      * Return info about the Fedialgo user's home mastodon instance.
      * @returns {Promise<mastodon.v2.Instance>} Instance info.
      */
