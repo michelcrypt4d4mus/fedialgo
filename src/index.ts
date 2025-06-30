@@ -44,7 +44,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
 import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
-import { ageInHours, ageInSeconds, ageInMinutes, ageString, timeString, toISOFormatIfExists } from './helpers/time_helpers';
+import { ageInHours, ageInSeconds, ageInMinutes, ageString, sleep, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
@@ -847,6 +847,7 @@ export {
     makeChunks,
     makePercentileChunks,  // TODO: unused in demo app (for now)
     optionalSuffix,
+    sleep,
     sortKeysByValue,
     timeString,
     // Types
