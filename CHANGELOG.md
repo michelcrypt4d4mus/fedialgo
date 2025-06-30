@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v0.79.0
 * Add `isGoToSocialUser()` method to `MastoApi` and `TheAlgorithm`; add `canBeDisabledOnGoToSocial` to API endpoint config; handle API errors differently for potentially disabled GoToSocial endpoints
 * (Demo App) Support maintaining registered app and user state across multiple servers
 * (Demo App) Don't call `api.apps.v1.verifyCredentials()` if user is on a GoToSocial instance (that endpoint doesn't exist on GoToSocial)
