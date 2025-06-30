@@ -518,6 +518,16 @@ export default class TheAlgorithm {
     }
 
     /**
+     * Update the local trendingData property. // TODO: this shouldn't be necessary but there's weirdness on initial load
+     * @returns {Promise<TrendingData>}
+     */
+    async refreshTrendingData(): Promise<TrendingData> {
+        const trendingData = await MastodonServer.getTrendingData();
+        this.trendingData = trendingData;
+        return this.trendingData;
+    }
+
+    /**
      * Return info about the Fedialgo user's home mastodon instance.
      * @returns {Promise<mastodon.v2.Instance>} Instance info.
      */

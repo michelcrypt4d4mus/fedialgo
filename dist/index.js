@@ -481,6 +481,15 @@ class TheAlgorithm {
         return await api_1.default.instance.isGoToSocialUser();
     }
     /**
+     * Update the local trendingData property. // TODO: this shouldn't be necessary but there's weirdness on initial load
+     * @returns {Promise<TrendingData>}
+     */
+    async refreshTrendingData() {
+        const trendingData = await mastodon_server_1.default.getTrendingData();
+        this.trendingData = trendingData;
+        return this.trendingData;
+    }
+    /**
      * Return info about the Fedialgo user's home mastodon instance.
      * @returns {Promise<mastodon.v2.Instance>} Instance info.
      */

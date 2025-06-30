@@ -1,5 +1,6 @@
 # NEXT RELEASE
-* Export sleep() method
+* Add refreshTrendingData() method
+* Export `sleep()` method
 * (Demo App) Fix preservation of `server` state in browser storage
 
 ### v0.79.1
