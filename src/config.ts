@@ -40,13 +40,14 @@ const LOCALE_REGEX = /^[a-z]{2}(-[A-Za-z]{2})?$/;
 const LOG_PREFIX = '[Config]';
 
 type ApiRequestDefaults = {
-    initialMaxRecords?: number;         // How many records to pull in the initial bootstrap
-    limit?: number;                     // Max per page is usually 40
-    lookbackForUpdatesMinutes?: number; // How long to look back for updates (edits, increased reblogs, etc.)
+    initialMaxRecords?: number;           // How many records to pull in the initial bootstrap
+    canBeDisabledOnGoToSocial?: boolean;  // If true, this endpoint is enabled on GoToSocial servers
+    limit?: number;                       // Max per page is usually 40
+    lookbackForUpdatesMinutes?: number;   // How long to look back for updates (edits, increased reblogs, etc.)
     maxCacheRecords?: number;
-    minutesUntilStale?: number;         // How long until the data is considered stale
-    skipCache?: boolean;                // If true, skip the cache and always make a request
-    supportsMinMaxId?: boolean;         // True if the endpoint supports min/maxId
+    minutesUntilStale?: number;           // How long until the data is considered stale
+    skipCache?: boolean;                  // If true, skip the cache and always make a request
+    supportsMinMaxId?: boolean;           // True if the endpoint supports min/maxId
 };
 
 type ApiDataConfig = Record<ApiCacheKey, ApiRequestDefaults>;
@@ -58,7 +59,12 @@ interface ApiConfig {
     data: Readonly<ApiDataConfig>;
     daysBeforeFullCacheRefresh: number; // How many days before the cache is considered stale and needs to be refreshed completely
     defaultRecordsPerPage: number;
-    errorMsgs: Readonly<Record<string, string>>;
+    errorMsgs: {
+        accessTokenRevoked: string;
+        goToSocialHashtagTimeline: (s: string) => string;
+        rateLimitError: string;
+        rateLimitWarning: string;
+    };
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     maxSecondsPerPage: number;
@@ -182,6 +188,7 @@ class Config implements ConfigType {
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         errorMsgs: {
             accessTokenRevoked: "The access token was revoked",
+            goToSocialHashtagTimeline: (s: string) => `GoToSocial servers don't enable ${s} by default, check if yours does.`,
             rateLimitError: "Too many requests",  // MastoHttpError: Too many requests
             rateLimitWarning: "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.",
         },
@@ -197,6 +204,7 @@ class Config implements ConfigType {
                 minutesUntilStale: 12 * MINUTES_IN_HOUR,
             },
             [CacheKey.BLOCKED_DOMAINS]: {
+                canBeDisabledOnGoToSocial: true,
                 initialMaxRecords: MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: MINUTES_IN_DAY,
             },
@@ -222,6 +230,7 @@ class Config implements ConfigType {
             [CacheKey.HASHTAG_TOOTS]: {
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
                 // to create other sets of toots from a lot of small requests, e.g. TRENDING_TAG_TOOTS or PARTICIPATED_TAG_TOOTS
+                canBeDisabledOnGoToSocial: true,
             },
             [CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
@@ -1739,7 +1748,9 @@ class Config implements ConfigType {
             "solving",
             "soul",
             "source",
+            "sourced",
             "sources",
+            "sourcing",
             "south",
             "southern",
             "space",
@@ -1822,6 +1833,9 @@ class Config implements ConfigType {
             "taps",
             "task",
             "team",
+            "teamed",
+            "teaming",
+            "teams",
             "tech",
             "template",
             "ten",

@@ -10,6 +10,7 @@ export declare const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export declare const MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 type ApiRequestDefaults = {
     initialMaxRecords?: number;
+    canBeDisabledOnGoToSocial?: boolean;
     limit?: number;
     lookbackForUpdatesMinutes?: number;
     maxCacheRecords?: number;
@@ -24,7 +25,12 @@ interface ApiConfig {
     data: Readonly<ApiDataConfig>;
     daysBeforeFullCacheRefresh: number;
     defaultRecordsPerPage: number;
-    errorMsgs: Readonly<Record<string, string>>;
+    errorMsgs: {
+        accessTokenRevoked: string;
+        goToSocialHashtagTimeline: (s: string) => string;
+        rateLimitError: string;
+        rateLimitWarning: string;
+    };
     maxConcurrentHashtagRequests: number;
     maxRecordsForFeatureScoring: number;
     maxSecondsPerPage: number;
@@ -134,6 +140,7 @@ declare class Config implements ConfigType {
         defaultRecordsPerPage: number;
         errorMsgs: {
             accessTokenRevoked: string;
+            goToSocialHashtagTimeline: (s: string) => string;
             rateLimitError: string;
             rateLimitWarning: string;
         };

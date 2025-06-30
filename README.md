@@ -48,7 +48,7 @@ import { createRestAPIClient, mastodon } from "masto";
 const mastodonServer = "https://mastodon.social";
 const accessToken = getTheUserAccessTokenSomehow();
 const api = createRestAPIClient({accessToken: accessToken, url: mastodonServer});
-const currentUser = await api.v1.accounts.verifyCredentials();
+const currentUser = await api.v1.accounts.verifyCredentials();  // NOTE: GoToSocial servers don't support verifyCredentials()
 
 // Instantiate a TheAlgorithm object
 const algo = await TheAlgorithm.create({
