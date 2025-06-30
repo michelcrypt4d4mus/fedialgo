@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add isGoToSocialUser() method to MastoApi; add canBeDisabledOnGoToSocial to API endpoint config; handle API errors differently for potentially disabled GoToSocial endpoints
 
 ### v0.78.21
 

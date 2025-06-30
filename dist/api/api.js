@@ -91,6 +91,7 @@ class MastoApi {
     waitTimes = (0, enums_1.simpleCacheKeyDict)(() => new time_helpers_2.WaitTime());
     apiMutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking data fetching for an API endpoint
     cacheMutexes = (0, enums_1.simpleCacheKeyDict)(() => new async_mutex_1.Mutex()); // For locking checking the cache for an API endpoint
+    isHomeserverGoToSocial = undefined;
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
     /**
      * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
@@ -258,7 +259,7 @@ class MastoApi {
         }
         catch (err) {
             // TODO: the hacky cast is because ApiCacheKey is broader than CacheKey
-            this.handleApiError({ cacheKey: cacheKey, logger }, [], err);
+            await this.handleApiError({ cacheKey: cacheKey, logger }, [], err);
             return [];
         }
         finally {
@@ -525,6 +526,24 @@ class MastoApi {
         return instanceInfo;
     }
     /**
+     * Return true if the user's home server is a GoToSocial server.
+     * @returns {Promise<boolean>}
+     */
+    async isGoToSocialUser() {
+        if ((0, lodash_1.isNil)(this.isHomeserverGoToSocial)) {
+            this.logger.debug(`Checking if user's home server is GoToSocial...`);
+            const instance = await this.instanceInfo();
+            this.isHomeserverGoToSocial = instance?.sourceUrl?.endsWith('gotosocial');
+            if (typeof this.isHomeserverGoToSocial !== 'boolean') {
+                this.logger.warn(`Failed to set isHomeserverGoToSocial to bool, sourceUrl: "${instance?.sourceUrl}", instance`, instance);
+            }
+            else {
+                this.logger.debug(`Set isHomeserverGoToSocial to ${this.isHomeserverGoToSocial} based on instance:`, instance);
+            }
+        }
+        return !!this.isHomeserverGoToSocial;
+    }
+    /**
      * Locks all API and cache mutexes for cache state operations.
      * @returns {Promise<ConcurrencyLockRelease[]>} Array of lock release functions.
      */
@@ -684,7 +703,7 @@ class MastoApi {
             return newRows;
         }
         catch (e) {
-            return this.handleApiError(params, newRows, e);
+            return await this.handleApiError(params, newRows, e);
         }
     }
     /**
@@ -897,13 +916,22 @@ class MastoApi {
      * @param {Error | unknown} err - The error encountered.
      * @returns {T[]} Array of rows to use.
      */
-    handleApiError(params, newRows, err) {
+    async handleApiError(params, newRows, err) {
         const { cacheResult } = params;
         let { cacheKey, logger } = params;
         cacheKey ??= enums_1.CacheKey.HOME_TIMELINE_TOOTS; // TODO: this is a hack to avoid undefined cacheKey
         const waitTime = this.waitTimes[cacheKey];
+        const requestDefaults = config_1.config.api.data[cacheKey] ?? {};
         logger = logger ? logger.tempLogger('handleApiError') : getLogger(cacheKey, 'handleApiError');
+        logger.trace(`Handling API error for params:`, params, `\nerror:`, err);
         const cachedRows = cacheResult?.rows || [];
+        if (!newRows?.length && requestDefaults.canBeDisabledOnGoToSocial && await this.isGoToSocialUser()) {
+            const goToSocialWarning = config_1.config.api.errorMsgs.goToSocialHashtagTimeline(cacheKey);
+            const goToSocialError = logger.line(`Failed to fetch data. ${goToSocialWarning}`);
+            this.logger.warn(goToSocialError, err);
+            this.apiErrors.push(new Error(goToSocialError, { cause: err }));
+            return cachedRows;
+        }
         let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
         (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);

@@ -56,6 +56,7 @@ class Config {
         defaultRecordsPerPage: 40,
         errorMsgs: {
             accessTokenRevoked: "The access token was revoked",
+            goToSocialHashtagTimeline: (s) => `GoToSocial servers don't enable ${s} by default, check if yours does.`,
             rateLimitError: "Too many requests",
             rateLimitWarning: "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.",
         },
@@ -71,6 +72,7 @@ class Config {
                 minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.BLOCKED_DOMAINS]: {
+                canBeDisabledOnGoToSocial: true,
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 minutesUntilStale: exports.MINUTES_IN_DAY,
             },
@@ -94,8 +96,9 @@ class Config {
                 minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.HASHTAG_TOOTS]: {
-            // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
-            // to create other sets of toots from a lot of small requests, e.g. TRENDING_TAG_TOOTS or PARTICIPATED_TAG_TOOTS
+                // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
+                // to create other sets of toots from a lot of small requests, e.g. TRENDING_TAG_TOOTS or PARTICIPATED_TAG_TOOTS
+                canBeDisabledOnGoToSocial: true,
             },
             [enums_1.CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
@@ -1608,7 +1611,9 @@ class Config {
             "solving",
             "soul",
             "source",
+            "sourced",
             "sources",
+            "sourcing",
             "south",
             "southern",
             "space",
@@ -1691,6 +1696,9 @@ class Config {
             "taps",
             "task",
             "team",
+            "teamed",
+            "teaming",
+            "teams",
             "tech",
             "template",
             "ten",

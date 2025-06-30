@@ -66,6 +66,7 @@ export default class MastoApi {
     waitTimes: Record<ApiCacheKey, WaitTime>;
     private apiMutexes;
     private cacheMutexes;
+    private isHomeserverGoToSocial;
     private requestSemphore;
     /**
      * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
@@ -202,6 +203,11 @@ export default class MastoApi {
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */
     instanceInfo(): Promise<mastodon.v2.Instance>;
+    /**
+     * Return true if the user's home server is a GoToSocial server.
+     * @returns {Promise<boolean>}
+     */
+    isGoToSocialUser(): Promise<boolean>;
     /**
      * Locks all API and cache mutexes for cache state operations.
      * @returns {Promise<ConcurrencyLockRelease[]>} Array of lock release functions.
