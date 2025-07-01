@@ -1,7 +1,14 @@
 # NEXT RELEASE
 
+### v0.79.2
+* Add `refreshTrendingData()` method to `TheAlgorithm`
+* Export `sleep()` helper method
+* (Demo App) Set default server to mastodon.social unless it's debug mode
+* (Demo App) Fix preservation of `server` state in browser storage
+* (Demo App) Fix bug where trending links and toots wouldn't show up during initial load
+
 ### v0.79.1
-* (Demo App) Fix error logging on LoginPage
+* (Demo App) Fix error logging on `LoginPage`
 
 ## v0.79.0
 * Add `isGoToSocialUser()` method to `MastoApi` and `TheAlgorithm`; add `canBeDisabledOnGoToSocial` to API endpoint config; handle API errors differently for potentially disabled GoToSocial endpoints

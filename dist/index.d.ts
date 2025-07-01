@@ -6,7 +6,7 @@ import NumericFilter from './filters/numeric_filter';
 import TagList from './api/tag_list';
 import Toot from './api/objects/toot';
 import UserData from "./api/user_data";
-import { timeString } from './helpers/time_helpers';
+import { sleep, timeString } from './helpers/time_helpers';
 import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { isAccessTokenRevokedError } from './api/errors';
 import { Logger } from './helpers/logger';
@@ -167,6 +167,11 @@ export default class TheAlgorithm {
      */
     isGoToSocialUser(): Promise<boolean>;
     /**
+     * Update the local trendingData property. // TODO: this shouldn't be necessary but there's weirdness on initial load
+     * @returns {Promise<TrendingData>}
+     */
+    refreshTrendingData(): Promise<TrendingData>;
+    /**
      * Return info about the Fedialgo user's home mastodon instance.
      * @returns {Promise<mastodon.v2.Instance>} Instance info.
      */
@@ -213,4 +218,4 @@ export default class TheAlgorithm {
 declare const GET_FEED_BUSY_MSG: string;
 declare const READY_TO_LOAD_MSG: string;
 export { FILTER_OPTION_DATA_SOURCES, FEDIALGO, GET_FEED_BUSY_MSG, GIFV, READY_TO_LOAD_MSG, VIDEO_TYPES, Account, BooleanFilter, Logger, NumericFilter, TagList, Toot, BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCategory, TrendingType, TypeFilterName, WeightName, extractDomain, isAccessTokenRevokedError, isValueInStringEnum, makeChunks, makePercentileChunks, // TODO: unused in demo app (for now)
-optionalSuffix, sortKeysByValue, timeString, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, };
+optionalSuffix, sleep, sortKeysByValue, timeString, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ObjList, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type Weights, };
