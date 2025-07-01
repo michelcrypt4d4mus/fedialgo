@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v0.79.3
+
 ### v0.79.2
 * Add `refreshTrendingData()` method to `TheAlgorithm`
 * Export `sleep()` helper method
