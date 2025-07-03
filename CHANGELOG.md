@@ -1,11 +1,7 @@
 # NEXT RELEASE
 
-### v0.79.5
-
-### v0.79.4
+### v0.79.3 - v0.79.5
 * More `tagOnlyStrings`
-
-### v0.79.3
 
 ### v0.79.2
 * Add `refreshTrendingData()` method to `TheAlgorithm`
