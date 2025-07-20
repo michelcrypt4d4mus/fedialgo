@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v1.0.0
 * Fix bug where toots were being kept in cache well beyond `config.toots.maxAgeInDays` value
 
 ### v0.79.3 - v0.79.8
