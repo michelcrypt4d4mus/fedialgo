@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More `tagOnlyStrings`
 
 # v1.0.0
 * Fix bug where toots were being kept in cache well beyond `config.toots.maxAgeInDays` value
