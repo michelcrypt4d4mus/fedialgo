@@ -1,18 +1,13 @@
 # NEXT RELEASE
+* Fix bug where toots were being kept in cache well beyond `config.toots.maxAgeInDays` value
 
-### v0.79.8
-
-### v0.79.7
-
-### v0.79.6
-
-### v0.79.3 - v0.79.5
+### v0.79.3 - v0.79.8
 * More `tagOnlyStrings`
 
 ### v0.79.2
 * Add `refreshTrendingData()` method to `TheAlgorithm`
 * Export `sleep()` helper method
-* (Demo App) Set default server to mastodon.social unless it's debug mode
+* (Demo App) Set default server to `mastodon.social` unless it's debug mode
 * (Demo App) Fix preservation of `server` state in browser storage
 * (Demo App) Fix bug where trending links and toots wouldn't show up during initial load
 
