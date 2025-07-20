@@ -160,8 +160,8 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
  * @returns {Date} The cutoff date for timeline toots.
  */
 export function timelineCutoffAt(): Date {
-    const timelineLookBackMS = config.toots.maxAgeInDays * SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
+    const timelineLookBackSeconds = config.toots.maxAgeInDays * SECONDS_IN_DAY;
+    return subtractSeconds(new Date(), timelineLookBackSeconds);
 };
 
 

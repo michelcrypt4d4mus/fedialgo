@@ -157,8 +157,8 @@ exports.timeString = timeString;
  * @returns {Date} The cutoff date for timeline toots.
  */
 function timelineCutoffAt() {
-    const timelineLookBackMS = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY * 1000;
-    return subtractSeconds(new Date(), timelineLookBackMS);
+    const timelineLookBackSeconds = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY;
+    return subtractSeconds(new Date(), timelineLookBackSeconds);
 }
 exports.timelineCutoffAt = timelineCutoffAt;
 ;
