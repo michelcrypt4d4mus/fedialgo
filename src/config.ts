@@ -589,6 +589,7 @@ class Config implements ConfigType {
             "at",
             "ate",
             "attention",
+            "au",               // Country code for Australia
             "auch",             // German
             "aus",              // German
             "author",
@@ -598,7 +599,7 @@ class Config implements ConfigType {
             "away",
             "bad",
             "ba",
-            "bahn",          // German
+            "bahn",             // German
             "bar",
             "barred",
             "barring",
@@ -707,6 +708,7 @@ class Config implements ConfigType {
             "co",             // TLD
             "cold",
             "collaboration",
+            "collection",
             "color",
             "colored",
             "colorful",
@@ -1625,6 +1627,7 @@ class Config implements ConfigType {
             "recording",
             "recordings",
             "records",
+            "recovery",
             "red",
             "redo",
             "reduce",
@@ -2018,6 +2021,12 @@ class Config implements ConfigType {
             "upon",
             "us",
             "usa",
+            "use",
+            "used",
+            "user",
+            "users",
+            "uses",
+            "using",
             "usual",
             "usually",
             "valley",
