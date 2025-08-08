@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.0.3
 * `npm audit fix` to update a few packages
 
 ### v1.0.2
