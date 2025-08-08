@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Fix EISDIR error in `serve_dist_bundle.js` (PR: https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/pull/6)
 
 ### v1.0.3
 * `npm audit fix` to update a few packages
