@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.0.2
 * (Demo App) Don't show retoot button for DMs
 
 ### v1.0.1
