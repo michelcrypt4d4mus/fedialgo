@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.0.5
+* More `tagOnlyStrings`
+
 ### v1.0.4
 * (Demo App) Fix EISDIR error in `serve_dist_bundle.js` (PR: https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/pull/6)
 
