@@ -1,5 +1,7 @@
 # TODO
 1. Get `MastodonServer` errors into the API error messages somehow
+1. Color DMs differently in demo app
+1. There's a bug when trying to resolve a toot from a suspended account where it gets stuck in a loop and needs reload
 1. Allow for multiple accounts on a single server (right now it is assumed that the user has only one account on each server)
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 1. Why does this happen, where we get two copies of bridged bsky accounts?

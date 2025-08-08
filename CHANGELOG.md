@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Don't show retoot button for DMs
 
 ### v1.0.1
 * More `tagOnlyStrings`
