@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* `npm audit fix` to update a few packages
 
 ### v1.0.2
 * (Demo App) Don't show retoot button for DMs
