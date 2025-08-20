@@ -1120,6 +1120,7 @@ export default class MastoApi {
     ): Promise<ResponseRow<T>[]> {
         const { cacheResult } = params;
         let { cacheKey, logger } = params;
+
         cacheKey ??= CacheKey.HOME_TIMELINE_TOOTS;  // TODO: this is a hack to avoid undefined cacheKey
         const waitTime = this.waitTimes[cacheKey];
         const requestDefaults = config.api.data[cacheKey] ?? {};
