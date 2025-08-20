@@ -598,7 +598,8 @@ export default class MastoApi {
             if (accessRevokedError) {
                 throw accessRevokedError;
             } else {
-                this.apiErrors.push(new Error(`Error getting toots for "#${tagName}"`, {cause: results.rejectedReasons}));
+                const err = new Error(`Error getting toots for tag: "#${tagName}"`, {cause: results.rejectedReasons});
+                this.apiErrors.push(err);
             }
         }
 

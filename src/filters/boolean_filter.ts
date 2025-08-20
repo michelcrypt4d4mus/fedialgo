@@ -168,9 +168,16 @@ export default class BooleanFilter extends TootFilter {
      * Add or remove an option from the filter.
      * @param {string} optionName - The option name.
      * @param {boolean} isSelected - If true, add the option; if false, remove it.
+     * @param {boolean} [allowMultiSelect=true] - If false, only one option can be selected at a time.
      */
-    updateOption(optionName: string, isSelected: boolean): void {
-        this.logger.trace(`updateOption(${optionName}, ${isSelected}) invoked`);
+    updateOption(optionName: string, isSelected: boolean, allowMultiSelect: boolean = true): void {
+        this.logger.trace(`updateOption(${optionName}, ${isSelected}, ${allowMultiSelect}) invoked`);
+
+        if (!allowMultiSelect && isSelected) {
+            this.selectedOptions = [optionName];
+            this.logger.trace(`updateOption with no multiselect so set selectedOptions to`, this.selectedOptions);
+            return;
+        }
 
         if (isSelected && !this.isOptionEnabled(optionName)) {
             this.selectedOptions.push(optionName);
@@ -183,7 +190,7 @@ export default class BooleanFilter extends TootFilter {
             this.selectedOptions.splice(this.selectedOptions.indexOf(optionName), 1);
         }
 
-        // Remove duplicates; build new Array object to trigger useMemo() in Demo App // TODO: not great
+        // Remove duplicates; build new Array object to trigger useMemo() in Demo App  // TODO: not great
         this.selectedOptions = [...new Set(this.selectedOptions)];
     }
 
