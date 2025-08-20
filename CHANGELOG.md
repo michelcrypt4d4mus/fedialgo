@@ -1,4 +1,7 @@
 # NEXT RELEASE
+* Add `allowMultiSelect` argument to `BooleanFilter.updateOption()` method
+* (Demo App) Add checkbox for `allowMultiSelect`
+* (Demo App) Flip boolean and rename switches for `showFilterHighlights` and `showLinkPreviews`
 
 ### v1.0.6
 * More `tagOnlyStrings`

@@ -62,8 +62,9 @@ export default class BooleanFilter extends TootFilter {
      * Add or remove an option from the filter.
      * @param {string} optionName - The option name.
      * @param {boolean} isSelected - If true, add the option; if false, remove it.
+     * @param {boolean} [allowMultiSelect=true] - If false, only one option can be selected at a time.
      */
-    updateOption(optionName: string, isSelected: boolean): void;
+    updateOption(optionName: string, isSelected: boolean, allowMultiSelect?: boolean): void;
     /**
      * Required for serialization of settings to local storage.
      * @returns {BooleanFilterArgs}
