@@ -932,7 +932,7 @@ class MastoApi {
             this.apiErrors.push(new Error(goToSocialError, { cause: err }));
             return cachedRows;
         }
-        let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err}" after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), { cause: err }));
         (0, errors_1.throwIfAccessTokenRevoked)(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows; // buildFromApiObjects() will sort out the types later

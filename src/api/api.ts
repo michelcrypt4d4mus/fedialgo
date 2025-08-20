@@ -1135,7 +1135,7 @@ export default class MastoApi {
             return cachedRows;
         }
 
-        let msg = `"${err} after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
+        let msg = `"${err}" after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
         this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
         throwIfAccessTokenRevoked(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
