@@ -1186,7 +1186,6 @@ export default class MastoApi {
         if (STORAGE_KEYS_WITH_TOOTS.includes(key)) {
             const toots = objects.map(obj => Toot.build(obj as TootLike));
             return Toot.dedupeToots(toots, logger.tempLogger(`buildFromApiObjects`)) as ResponseRow<T>[];
-            // return await Toot.buildToots(objects as TootLike[], key) as ResponseRow<T>[];  // Toots have special dedupe handling
         } else if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             newObjects = objects.map(obj => Account.build(obj as AccountLike)) as ResponseRow<T>[];
         } else {
@@ -1261,7 +1260,7 @@ export default class MastoApi {
             logger.logAndThrowError(`maxIdForFetch and minIdForFetch can't be used at same time!`, params);
         }
 
-        // HASHTAG_TOOTS is a special case that doesn't use the cache and has no min/max ID that also spams logs
+        // HASHTAG_TOOTS is a special case w/no cache usage, no min/max ID, and a lot of log spamming
         if (cacheKey != CacheKey.HASHTAG_TOOTS) {
             const paramsToLog = removeKeys(params, PARAMS_TO_NOT_LOG, PARAMS_TO_NOT_LOG_IF_FALSE);
 
