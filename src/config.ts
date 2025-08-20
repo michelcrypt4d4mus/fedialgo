@@ -914,6 +914,7 @@ class Config implements ConfigType {
             "episode",
             "era",
             "er",          // German
+            "erin",        // name
             "es",          // Spanish
             "et",          // French
             "ete",         // French
@@ -1049,6 +1050,7 @@ class Config implements ConfigType {
             "global",
             "go",
             "good",
+            "goods",
             "got",
             "gotten",
             "gov",    // TLD
@@ -1117,6 +1119,9 @@ class Config implements ConfigType {
             "im",
             "image",
             "images",
+            "imagine",
+            "immediate",
+            "immediately",
             "impact",
             "impacted",
             "impacts",
@@ -1133,6 +1138,7 @@ class Config implements ConfigType {
             "influencing",
             "info",
             "information",
+            "infosec",      // infosec.exchange is a big server
             "insight",
             "insightful",
             "insights",
@@ -1208,6 +1214,8 @@ class Config implements ConfigType {
             "les",            // French
             "less",
             "let",
+            "level",
+            "levels",
             "lie",
             "lies",
             "life",
@@ -1225,6 +1233,8 @@ class Config implements ConfigType {
             "links",
             "little",
             "live",
+            "location",
+            "locations",
             "lose",
             "loses",
             "losing",
@@ -1368,6 +1378,7 @@ class Config implements ConfigType {
             "noting",
             "novel",
             "now",
+            "number",
             "nytimes",
             "nz",         // TLD
             "oc",
@@ -1516,6 +1527,10 @@ class Config implements ConfigType {
             "politik",
             "poll",
             "por",    // Spanish
+            "possibility",
+            "possibilities",
+            "possible",
+            "possibly",
             "post",
             "posted",
             "pour",
