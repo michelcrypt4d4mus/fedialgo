@@ -5,7 +5,7 @@
 import MastoApi from "../../api/api";
 import { config } from "../../config";
 import { detectForeignScriptLanguage } from "../../helpers/language_helper";
-import { optionalSuffix, removeDiacritics, wordRegex } from "../../helpers/string_helpers";
+import { createRandomString, optionalSuffix, removeDiacritics, wordRegex } from "../../helpers/string_helpers";
 import { type TagWithUsageCounts } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";
@@ -21,6 +21,7 @@ export function buildTag(str: string): TagWithUsageCounts {
 
     return {
         name,
+        id: createRandomString(16),  // Generate a random ID for the tag
         regex: wordRegex(name),
         url: MastoApi.instance.tagUrl(name),
     };
