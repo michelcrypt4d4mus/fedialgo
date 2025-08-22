@@ -21,7 +21,7 @@ export function buildTag(str: string): TagWithUsageCounts {
 
     return {
         name,
-        id: createRandomString(16),  // Generate a random ID for the tag
+        id: createRandomString(16),  // Generate a random ID for the tag. // TODO: same str should return the same ID?
         regex: wordRegex(name),
         url: MastoApi.instance.tagUrl(name),
     };
