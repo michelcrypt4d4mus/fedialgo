@@ -22,6 +22,7 @@ function buildTag(str) {
     const name = str.trim().toLowerCase();
     return {
         name,
+        id: (0, string_helpers_1.createRandomString)(16),
         regex: (0, string_helpers_1.wordRegex)(name),
         url: api_1.default.instance.tagUrl(name),
     };
