@@ -32,7 +32,7 @@ const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month
 
 const logger = new Logger("Account");
 
-/** nterface for mastodon.v1.Account object extending with additional helper methods and properties. */
+/** Interface for mastodon.v1.Account object extending with additional helper methods and properties. */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;
@@ -174,7 +174,7 @@ export default class Account implements AccountObj {
 
     /**
      * Returns the display name with emojis <img> tags and webfinger URI in HTML.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
      * @returns {string}
      */
     displayNameFullHTML(fontSize: number = DEFAULT_FONT_SIZE): string {
@@ -183,7 +183,7 @@ export default class Account implements AccountObj {
 
     /**
      * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
