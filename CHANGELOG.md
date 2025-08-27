@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Export `DEFAULT_FONT_SIZE`
 
 ### v1.1.2
 * More `tagOnlyStrings`

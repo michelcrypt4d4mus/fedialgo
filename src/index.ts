@@ -44,17 +44,24 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
 import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
-import { ageInHours, ageInSeconds, ageInMinutes, ageString, sleep, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
-import { FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
+import { DEFAULT_FONT_SIZE, FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRateLimitError } from './api/errors';
 import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import { WeightPresetLabel, WEIGHT_PRESETS, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
-import { type ObjList } from "./api/counted_list";
+import {
+    ageInHours,
+    ageInSeconds,
+    ageInMinutes,
+    ageString,
+    sleep,
+    timeString,
+    toISOFormatIfExists
+} from './helpers/time_helpers';
 import {
     AlgorithmStorageKey,
     BooleanFilterName,
@@ -81,6 +88,7 @@ import {
     sortKeysByValue,
     truncateToLength,
 } from "./helpers/collection_helpers";
+import { type ObjList } from "./api/counted_list";
 import {
     FILTER_OPTION_DATA_SOURCES,
     type BooleanFilterOption,
@@ -828,6 +836,7 @@ const READY_TO_LOAD_MSG = config.locale.messages[LogAction.INITIAL_LOADING_STATU
 // Export types and constants needed by apps using this package
 export {
     // Constants
+    DEFAULT_FONT_SIZE,
     FILTER_OPTION_DATA_SOURCES,
     FEDIALGO,
     GET_FEED_BUSY_MSG,
