@@ -10,7 +10,6 @@ import { wordRegex } from "../helpers/string_helpers";
 import {
     type BooleanFilterOption,
     type CountedListSource,
-    type KeysOfValueType,
     type NamedTootCount,
     type StringNumberDict,
 } from "../types";
