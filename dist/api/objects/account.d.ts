@@ -35,32 +35,32 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 export default class Account implements AccountObj {
+    acct: string;
     id: string;
     username: string;
-    acct: string;
-    bot: boolean;
     createdAt: string;
-    discoverable: boolean;
     displayName: string;
     followersCount: number;
     followingCount: number;
-    group: boolean;
     lastStatusAt: string;
-    locked: boolean;
     note: string;
     statusesCount: number;
     url: string;
-    emojis: mastodon.v1.CustomEmoji[];
-    fields: mastodon.v1.AccountField[];
     avatar: string;
     avatarStatic: string;
     header: string;
     headerStatic: string;
+    bot: boolean;
+    discoverable: boolean;
+    group: boolean;
     limited?: boolean | null;
-    moved?: Account | null;
+    locked: boolean;
     noindex?: boolean;
-    roles: mastodon.v1.Account["roles"];
     suspended?: boolean | null;
+    emojis: mastodon.v1.CustomEmoji[];
+    fields: mastodon.v1.AccountField[];
+    moved?: Account | null;
+    roles: mastodon.v1.Account["roles"];
     isFollowed?: boolean;
     isFollower?: boolean;
     webfingerURI: string;

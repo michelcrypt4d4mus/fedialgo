@@ -65,35 +65,37 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 export default class Account implements AccountObj {
+    // Identifying properties
+    acct!: string;
     id!: string;
     username!: string;
-    acct!: string;
-    bot!: boolean;  // isBot
+    // Other poperties
     createdAt!: string;
-    discoverable!: boolean;
     displayName!: string;
     followersCount!: number;
     followingCount!: number;
-    group!: boolean;
     lastStatusAt!: string;
-    locked!: boolean;
     note!: string;  // Profile bio, in plain-text instead of in HTML.
     statusesCount!: number;
     url!: string;
-    // Arrays
-    emojis!: mastodon.v1.CustomEmoji[];
-    fields!: mastodon.v1.AccountField[];
-    // Images
+    // Image URLs
     avatar!: string;
     avatarStatic!: string;
     header!: string;
     headerStatic!: string;
-    // Optional
+    // Boolean flags
+    bot!: boolean;  // Would have been better to be named "isBot"
+    discoverable!: boolean;
+    group!: boolean;
     limited?: boolean | null;
-    @Type(() => Account) moved?: Account | null;
+    locked!: boolean;
     noindex?: boolean;  // Don't index this account in search engines
-    roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
     suspended?: boolean | null;
+    // Arrays and optional fields
+    emojis!: mastodon.v1.CustomEmoji[];
+    fields!: mastodon.v1.AccountField[];
+    @Type(() => Account) moved?: Account | null;
+    roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
     // Fedialgo extension fields
     isFollowed?: boolean;  // Is this account followed by the user?
     isFollower?: boolean;  // Is this account following the user?
@@ -137,38 +139,42 @@ export default class Account implements AccountObj {
         if (account instanceof Account) return account;  // Already an Account instance so return it
 
         const accountObj = new Account();
+        // Identifying properties
+        accountObj.acct = account.acct;
         accountObj.id = account.id;
         accountObj.username = account.username;
-        accountObj.acct = account.acct;
-        accountObj.displayName = account.displayName;
-        accountObj.locked = account.locked;
-        accountObj.bot = account.bot;
+        // Other properties
         accountObj.createdAt = account.createdAt;
+        accountObj.displayName = account.displayName;
+        accountObj.followersCount = account.followersCount;
+        accountObj.followingCount = account.followingCount;
         accountObj.group = account.group;
         accountObj.note = account.note;
+        accountObj.statusesCount = account.statusesCount;
+        accountObj.lastStatusAt = account.lastStatusAt;
         accountObj.url = account.url;
+        // Image URLs
         accountObj.avatar = account.avatar;
         accountObj.avatarStatic = account.avatarStatic;
         accountObj.header = account.header;
         accountObj.headerStatic = account.headerStatic;
-        accountObj.followersCount = account.followersCount;
-        accountObj.followingCount = account.followingCount;
-        accountObj.statusesCount = account.statusesCount;
-        accountObj.lastStatusAt = account.lastStatusAt;
-        // Arrays and optional fields
-        accountObj.moved = account.moved ? Account.build(account.moved) : null;
-        accountObj.emojis = account.emojis || [];
-        accountObj.fields = account.fields || [];
-        // boolean flags
+        // Boolean flags
+        accountObj.bot = account.bot || false;
         accountObj.discoverable = account.discoverable || false;
         accountObj.limited = account.limited || false;
+        accountObj.locked = account.locked || false;
         accountObj.noindex = account.noindex || false;
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
+        // Arrays and optional fields
+        accountObj.emojis = account.emojis || [];
+        accountObj.fields = account.fields || [];
+        accountObj.moved = account.moved ? Account.build(account.moved) : null;
         // Fedialgo extension fields
         accountObj.isFollowed = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.isFollower = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.webfingerURI = accountObj.buildWebfingerURI();
+
         return accountObj;
     }
 

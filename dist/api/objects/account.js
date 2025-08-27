@@ -45,35 +45,37 @@ const logger = new logger_1.Logger("Account");
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 class Account {
+    // Identifying properties
+    acct;
     id;
     username;
-    acct;
-    bot; // isBot
+    // Other poperties
     createdAt;
-    discoverable;
     displayName;
     followersCount;
     followingCount;
-    group;
     lastStatusAt;
-    locked;
     note; // Profile bio, in plain-text instead of in HTML.
     statusesCount;
     url;
-    // Arrays
-    emojis;
-    fields;
-    // Images
+    // Image URLs
     avatar;
     avatarStatic;
     header;
     headerStatic;
-    // Optional
+    // Boolean flags
+    bot; // Would have been better to be named "isBot"
+    discoverable;
+    group;
     limited;
-    moved;
+    locked;
     noindex; // Don't index this account in search engines
-    roles = []; // TODO: not sure default is a good idea
     suspended;
+    // Arrays and optional fields
+    emojis;
+    fields;
+    moved;
+    roles = []; // TODO: not sure default is a good idea
     // Fedialgo extension fields
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
@@ -115,34 +117,37 @@ class Account {
         if (account instanceof Account)
             return account; // Already an Account instance so return it
         const accountObj = new Account();
+        // Identifying properties
+        accountObj.acct = account.acct;
         accountObj.id = account.id;
         accountObj.username = account.username;
-        accountObj.acct = account.acct;
-        accountObj.displayName = account.displayName;
-        accountObj.locked = account.locked;
-        accountObj.bot = account.bot;
+        // Other properties
         accountObj.createdAt = account.createdAt;
+        accountObj.displayName = account.displayName;
+        accountObj.followersCount = account.followersCount;
+        accountObj.followingCount = account.followingCount;
         accountObj.group = account.group;
         accountObj.note = account.note;
+        accountObj.statusesCount = account.statusesCount;
+        accountObj.lastStatusAt = account.lastStatusAt;
         accountObj.url = account.url;
+        // Image URLs
         accountObj.avatar = account.avatar;
         accountObj.avatarStatic = account.avatarStatic;
         accountObj.header = account.header;
         accountObj.headerStatic = account.headerStatic;
-        accountObj.followersCount = account.followersCount;
-        accountObj.followingCount = account.followingCount;
-        accountObj.statusesCount = account.statusesCount;
-        accountObj.lastStatusAt = account.lastStatusAt;
-        // Arrays and optional fields
-        accountObj.moved = account.moved ? Account.build(account.moved) : null;
-        accountObj.emojis = account.emojis || [];
-        accountObj.fields = account.fields || [];
-        // boolean flags
+        // Boolean flags
+        accountObj.bot = account.bot || false;
         accountObj.discoverable = account.discoverable || false;
         accountObj.limited = account.limited || false;
+        accountObj.locked = account.locked || false;
         accountObj.noindex = account.noindex || false;
         accountObj.suspended = account.suspended || false;
         accountObj.roles = account.roles || [];
+        // Arrays and optional fields
+        accountObj.emojis = account.emojis || [];
+        accountObj.fields = account.fields || [];
+        accountObj.moved = account.moved ? Account.build(account.moved) : null;
         // Fedialgo extension fields
         accountObj.isFollowed = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.isFollower = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
