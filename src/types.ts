@@ -1,5 +1,5 @@
 /*
- * Typescript type definitions.
+ * Typescript type definitions. Should only import types and enums.
  */
 import { mastodon } from 'masto';
 import { MutexInterface, SemaphoreInterface } from 'async-mutex';
