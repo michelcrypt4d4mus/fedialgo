@@ -1,6 +1,6 @@
 # NEXT RELEASE
 * **(BREAKING CHANGE)** Add `fontSize` argument to `Account.noteWithAccountInfo()`, which is now a fxn not a getter
-* (Demo App) Add `config.theme.accountBioFontSize` property
+* (Demo App) Add `accountBioFontSize` and `errorFontSize` properties to `config.theme`
 
 ### v1.1.3
 * Export `DEFAULT_FONT_SIZE`
