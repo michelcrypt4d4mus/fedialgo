@@ -101,7 +101,7 @@ export default class Account implements AccountObj {
     isFollower?: boolean;  // Is this account following the user?
     webfingerURI!: string;
 
-    // Returns this account's properties that are required for use in a BooleanFilter.
+    // Returns this account's properties that can be used by the BooleanFilter class.
     get asBooleanFilterOption(): BooleanFilterOption {
         return {
             name: this.webfingerURI,
@@ -123,8 +123,8 @@ export default class Account implements AccountObj {
 
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
-     * @param {AccountLike} account - The account data to build from.
-     * @returns {Account} The constructed Account instance.
+     * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
+     * @returns {Account} Constructed Account instance with extra methods and properties.
      */
     static build(account: AccountLike): Account {
         if (account instanceof Account) return account;  // Already an Account instance so return it
@@ -171,7 +171,7 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Returns the display name with emoji <img> tags and webfinger URI in HTML.
+     * Returns HTML-ish string combining the displayName (with custom emojis as <img> tags) and the webfingerURI.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
@@ -180,7 +180,7 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Returns HTML-ish string that is the display name with custom emoji <img> tags.
+     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
@@ -189,7 +189,7 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Get this account's Mastodon server (AKA "Instance") info from API. Note that not all servers provide this!
+     * Get this account's Mastodon server (AKA "Instance") from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     async homeInstanceInfo(): Promise<InstanceResponse> {
@@ -198,7 +198,7 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * HTML combining account's bio (AKA the "note" property) with creation date, followers, and toots count.
+     * HTML combining the account bio (AKA the "note" property) with createdAt, follower count, and toots count.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
      * @returns {Promise<InstanceResponse>}
      */
@@ -232,7 +232,7 @@ export default class Account implements AccountObj {
     /**
      * Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument.
      * @param {Account[]} accounts - Array of Account objects.
-     * @returns {StringNumberDict} Dictionary from webfingerURI to count.
+     * @returns {StringNumberDict} Dictionary from webfingerURI to count of appearances.
      */
     static countAccounts(accounts: Account[]): StringNumberDict {
         return Object.values(this.countAccountsWithObj(accounts)).reduce(
