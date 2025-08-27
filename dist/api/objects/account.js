@@ -41,7 +41,6 @@ const logger = new logger_1.Logger("Account");
  * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 class Account {
@@ -81,7 +80,7 @@ class Account {
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
     webfingerURI;
-    // Returns the account properties used in BooleanFilter.
+    // Returns this account's properties that are required for use in a BooleanFilter.
     get asBooleanFilterOption() {
         return {
             name: this.webfingerURI,
@@ -98,16 +97,9 @@ class Account {
     ;
     get localServerUrl() { return api_1.default.instance.accountUrl(this); }
     ;
-    // Returns HTML combining the note property with creation date, followers, and toots count
-    get noteWithAccountInfo() {
-        const txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
-        const createdAt = new Date(this.createdAt);
-        const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
-            `${this.followersCount.toLocaleString()} Followers`,
-            `${this.statusesCount.toLocaleString()} Toots`,
-        ];
-        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
+    // Build the full webfinger URI for this account by appending the homeserver if necessary.
+    get buildWebfingerURI() {
+        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
     }
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
@@ -153,27 +145,27 @@ class Account {
         // Fedialgo extension fields
         accountObj.isFollowed = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.isFollower = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
-        accountObj.webfingerURI = accountObj.buildWebfingerURI();
+        accountObj.webfingerURI = accountObj.buildWebfingerURI; // Memoized for future use
         return accountObj;
     }
     /**
-     * Returns the display name with emojis <img> tags and webfinger URI in HTML.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
+     * Returns the display name with emoji <img> tags and webfinger URI in HTML.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameFullHTML(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return this.displayNameWithEmojis(fontSize) + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
     }
     /**
-     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
+     * Returns HTML-ish string that is the display name with custom emoji <img> tags.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(this.displayName, this.emojis || [], fontSize);
     }
     /**
-     * Gets the account's instance info from the API (note some servers don't provide this).
+     * Get this account's Mastodon server (AKA "Instance") info from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     async homeInstanceInfo() {
@@ -181,11 +173,21 @@ class Account {
         return await server.fetchServerInfo();
     }
     /**
-     * Builds the webfinger URI for the account.
-     * @private
+     * Returns HTML combining the Account.note property (the user defined account description stuff) with
+     * creation date, followers, and toots count.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * @returns {Promise<InstanceResponse>}
      */
-    buildWebfingerURI() {
-        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
+    noteWithAccountInfo(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        const txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ];
+        const noteHTML = `${txt}<br /><p style="font-weight: bold; font-size: ${fontSize}px;">`;
+        return noteHTML + `[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
     ////////////////////////////
     //     Static Methods     //

@@ -340,7 +340,7 @@ class Toot {
     }
     /**
      * Return all but the last paragraph if that last paragraph is just hashtag links.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     contentNonTagsParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -351,7 +351,7 @@ class Toot {
     }
     /**
      * Break up the content into paragraphs and add <img> tags for custom emojis.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string[]}
      */
     contentParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -376,7 +376,7 @@ class Toot {
     }
     /**
      * Replace custom emoji shortcodes (e.g. ":myemoji:") with image tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emoji imgs. Should match surrounding text.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji imgs. Should match surrounding text.
      * @returns {string}
      */
     contentWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {

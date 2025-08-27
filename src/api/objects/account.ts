@@ -37,13 +37,13 @@ interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;
     homeInstanceInfo: () => Promise<InstanceResponse>;
+    noteWithAccountInfo: (fontSize?: number) => string;
     asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
     localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
-    noteWithAccountInfo: string;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
@@ -61,7 +61,6 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 export default class Account implements AccountObj {
@@ -102,7 +101,7 @@ export default class Account implements AccountObj {
     isFollower?: boolean;  // Is this account following the user?
     webfingerURI!: string;
 
-    // Returns the account properties used in BooleanFilter.
+    // Returns this account's properties that are required for use in a BooleanFilter.
     get asBooleanFilterOption(): BooleanFilterOption {
         return {
             name: this.webfingerURI,
@@ -117,18 +116,9 @@ export default class Account implements AccountObj {
     get isLocal(): boolean { return MastoApi.instance.isLocalUrl(this.url) };
     get localServerUrl(): string { return MastoApi.instance.accountUrl(this) };
 
-    // Returns HTML combining the note property with creation date, followers, and toots count
-    get noteWithAccountInfo(): string {
-        const txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
-        const createdAt = new Date(this.createdAt);
-
-        const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config.locale.locale, ACCOUNT_CREATION_FMT)}`,
-            `${this.followersCount.toLocaleString()} Followers`,
-            `${this.statusesCount.toLocaleString()} Toots`,
-        ]
-
-        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
+    // Build the full webfinger URI for this account by appending the homeserver if necessary.
+    private get buildWebfingerURI(): string {
+        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
     }
 
     /**
@@ -175,14 +165,14 @@ export default class Account implements AccountObj {
         // Fedialgo extension fields
         accountObj.isFollowed = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.isFollower = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
-        accountObj.webfingerURI = accountObj.buildWebfingerURI();
+        accountObj.webfingerURI = accountObj.buildWebfingerURI;  // Memoized for future use
 
         return accountObj;
     }
 
     /**
-     * Returns the display name with emojis <img> tags and webfinger URI in HTML.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
+     * Returns the display name with emoji <img> tags and webfinger URI in HTML.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameFullHTML(fontSize: number = DEFAULT_FONT_SIZE): string {
@@ -190,8 +180,8 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
+     * Returns HTML-ish string that is the display name with custom emoji <img> tags.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {
@@ -199,7 +189,7 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Gets the account's instance info from the API (note some servers don't provide this).
+     * Get this account's Mastodon server (AKA "Instance") info from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     async homeInstanceInfo(): Promise<InstanceResponse> {
@@ -208,11 +198,23 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Builds the webfinger URI for the account.
-     * @private
+     * Returns HTML combining the Account.note property (the user defined account description stuff) with
+     * creation date, followers, and toots count.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * @returns {Promise<InstanceResponse>}
      */
-    private buildWebfingerURI(): string {
-        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
+    noteWithAccountInfo(fontSize: number = DEFAULT_FONT_SIZE): string {
+        const txt = this.note.replace(NBSP_REGEX, " ");  // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ]
+
+        const noteHTML = `${txt}<br /><p style="font-weight: bold; font-size: ${fontSize}px;">`
+        return noteHTML + `[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
 
     ////////////////////////////
