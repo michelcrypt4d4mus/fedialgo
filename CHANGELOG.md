@@ -1,7 +1,7 @@
 # NEXT RELEASE
 
 ### v1.1.1
-* Update masto.js to 7.2.0
+* Update `masto.js` to 7.2.0
 
 ## v1.1.0
 * Add `allowMultiSelect` argument to `BooleanFilter.updateOption()` method
