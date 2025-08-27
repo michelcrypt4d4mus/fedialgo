@@ -99,7 +99,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
-    followedTags?: Hashtag[];            // Array of tags that the user follows that exist in this toot
+    followedTags?: Hashtag[];                // Array of tags that the user follows that exist in this toot
     numTimesShown?: number;                  // Managed in client app. # of times the Toot has been shown to the user.
     participatedTags?: TagWithUsageCounts[]; // Tags that the user has participated in that exist in this toot
     reblog?: SerializableToot | null,        // The toot that was retooted (if any)
@@ -280,6 +280,7 @@ export default class Toot implements TootObj {
         }
     }
 
+    // TODO: should this take a fontSize argument like contentParagraphs()?
     get contentTagsParagraph(): string | undefined {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;

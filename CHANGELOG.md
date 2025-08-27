@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Export `DEFAULT_FONT_SIZE`
+* (Demo App) Add `defaultFontSize` property to `Config` object
 
 ### v1.1.2
 * More `tagOnlyStrings`

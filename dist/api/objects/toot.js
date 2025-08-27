@@ -204,6 +204,7 @@ class Toot {
             return enums_1.MediaCategory.AUDIO;
         }
     }
+    // TODO: should this take a fontSize argument like contentParagraphs()?
     get contentTagsParagraph() {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;
