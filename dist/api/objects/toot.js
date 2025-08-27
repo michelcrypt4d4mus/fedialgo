@@ -51,12 +51,6 @@ var TootCacheKey;
     TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
 })(TootCacheKey || (TootCacheKey = {}));
 ;
-class TootCacheObj {
-    [TootCacheKey.CONTENT_STRIPPED];
-    [TootCacheKey.CONTENT_WITH_EMOJIS];
-    [TootCacheKey.CONTENT_WITH_CARD];
-    tagNames; // Cache of tag names for faster access
-}
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
