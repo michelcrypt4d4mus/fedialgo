@@ -174,7 +174,7 @@ export default class Account implements AccountObj {
 
     /**
      * Returns the display name with emojis <img> tags and webfinger URI in HTML.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
      * @returns {string}
      */
     displayNameFullHTML(fontSize: number = DEFAULT_FONT_SIZE): string {
@@ -183,7 +183,7 @@ export default class Account implements AccountObj {
 
     /**
      * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
      * @returns {string}
      */
     displayNameWithEmojis(fontSize: number = DEFAULT_FONT_SIZE): string {

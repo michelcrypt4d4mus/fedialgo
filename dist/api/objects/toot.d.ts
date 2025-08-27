@@ -204,13 +204,13 @@ export default class Toot implements TootObj {
     containsUserMention(): boolean;
     /**
      * Return all but the last paragraph if that last paragraph is just hashtag links.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
      * @returns {string}
      */
     contentNonTagsParagraphs(fontSize?: number): string;
     /**
      * Break up the content into paragraphs and add <img> tags for custom emojis.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emojis as <img> tags. Should match surrounding txt..
      * @returns {string[]}
      */
     contentParagraphs(fontSize?: number): string[];
@@ -222,7 +222,7 @@ export default class Toot implements TootObj {
     contentShortened(maxChars?: number): string;
     /**
      * Replace custom emoji shortcodes (e.g. ":myemoji:") with image tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render any emojis. Should match surrounding text.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels to render emoji imgs. Should match surrounding text.
      * @returns {string}
      */
     contentWithEmojis(fontSize?: number): string;
