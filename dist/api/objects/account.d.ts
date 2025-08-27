@@ -27,10 +27,10 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
- * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
@@ -59,8 +59,8 @@ export default class Account implements AccountObj {
     suspended?: boolean | null;
     emojis: mastodon.v1.CustomEmoji[];
     fields: mastodon.v1.AccountField[];
-    moved?: Account | null;
     roles: mastodon.v1.Account["roles"];
+    moved?: Account | null;
     isFollowed?: boolean;
     isFollower?: boolean;
     webfingerURI: string;

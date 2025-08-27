@@ -57,10 +57,10 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
- * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
@@ -94,8 +94,9 @@ export default class Account implements AccountObj {
     // Arrays and optional fields
     emojis!: mastodon.v1.CustomEmoji[];
     fields!: mastodon.v1.AccountField[];
-    @Type(() => Account) moved?: Account | null;
     roles: mastodon.v1.Account["roles"] = [];  // TODO: not sure default is a good idea
+    // Optional fields
+    @Type(() => Account) moved?: Account | null;
     // Fedialgo extension fields
     isFollowed?: boolean;  // Is this account followed by the user?
     isFollower?: boolean;  // Is this account following the user?
@@ -165,10 +166,11 @@ export default class Account implements AccountObj {
         accountObj.locked = account.locked || false;
         accountObj.noindex = account.noindex || false;
         accountObj.suspended = account.suspended || false;
-        accountObj.roles = account.roles || [];
         // Arrays and optional fields
         accountObj.emojis = account.emojis || [];
         accountObj.fields = account.fields || [];
+        accountObj.roles = account.roles || [];
+        // Optional fields
         accountObj.moved = account.moved ? Account.build(account.moved) : null;
         // Fedialgo extension fields
         accountObj.isFollowed = false;  // Must be set later, in Toot.complete() or manually get getFollowedAccounts()

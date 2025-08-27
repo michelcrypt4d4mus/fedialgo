@@ -37,10 +37,10 @@ const logger = new logger_1.Logger("Account");
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
- * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
  * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
@@ -74,8 +74,9 @@ class Account {
     // Arrays and optional fields
     emojis;
     fields;
-    moved;
     roles = []; // TODO: not sure default is a good idea
+    // Optional fields
+    moved;
     // Fedialgo extension fields
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
@@ -143,10 +144,11 @@ class Account {
         accountObj.locked = account.locked || false;
         accountObj.noindex = account.noindex || false;
         accountObj.suspended = account.suspended || false;
-        accountObj.roles = account.roles || [];
         // Arrays and optional fields
         accountObj.emojis = account.emojis || [];
         accountObj.fields = account.fields || [];
+        accountObj.roles = account.roles || [];
+        // Optional fields
         accountObj.moved = account.moved ? Account.build(account.moved) : null;
         // Fedialgo extension fields
         accountObj.isFollowed = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
