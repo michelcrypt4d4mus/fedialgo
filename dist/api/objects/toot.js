@@ -35,6 +35,13 @@ const enums_1 = require("../../enums");
 const logger_1 = require("../../helpers/logger");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
+var TootCacheKey;
+(function (TootCacheKey) {
+    TootCacheKey["CONTENT_STRIPPED"] = "contentStripped";
+    TootCacheKey["CONTENT_WITH_EMOJIS"] = "contentWithEmojis";
+    TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
+})(TootCacheKey || (TootCacheKey = {}));
+;
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -43,13 +50,6 @@ var TootVisibility;
     TootVisibility["PRIVATE"] = "private";
     TootVisibility["UNLISTED"] = "unlisted";
 })(TootVisibility || (TootVisibility = {}));
-;
-var TootCacheKey;
-(function (TootCacheKey) {
-    TootCacheKey["CONTENT_STRIPPED"] = "contentStripped";
-    TootCacheKey["CONTENT_WITH_EMOJIS"] = "contentWithEmojis";
-    TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
-})(TootCacheKey || (TootCacheKey = {}));
 ;
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';

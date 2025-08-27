@@ -3,11 +3,10 @@
  */
 import { isNil, isNull } from 'lodash';
 
-import { ageString } from './time_helpers';
+import { ageString, quotedISOFmt } from './time_helpers';
 import { isDebugMode, isDeepDebug } from './environment_helpers';
 import { sortKeysByValue, split } from './collection_helpers';
 import { TELEMETRY, arrowed, bracketed, createRandomString, isEmptyStr, optionalSuffix, quoted } from './string_helpers';
-import { quotedISOFmt } from './time_helpers';
 import { type OptionalString, type StringNumberDict } from '../types';
 
 type ErrorArgs = {args: unknown[], error?: Error};

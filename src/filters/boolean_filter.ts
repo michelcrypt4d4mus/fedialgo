@@ -3,15 +3,15 @@
  * can be filtered inclusively or exclusively based on an array of strings
  * (e.g. language, hashtag, type of toot).
  */
-import { isNil } from 'lodash';
+import { isNil } from "lodash";
 
 import TootFilter, { type FilterArgs } from "./toot_filter";
-import type Toot from '../api/objects/toot';
-import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from '../enums';
-import { BooleanFilterOptionList } from '../api/counted_list';
+import type Toot from "../api/objects/toot";
+import { BooleanFilterName, TypeFilterName, isValueInStringEnum } from "../enums";
+import { BooleanFilterOptionList } from "../api/counted_list";
 import { buildTag } from "../api/objects/tag";
-import { compareStr, isEmptyStr } from '../helpers/string_helpers';
-import { config } from '../config';
+import { compareStr, isEmptyStr } from "../helpers/string_helpers";
+import { config } from "../config";
 import { type BooleanFilterOption } from "../types";
 
 type TootMatcher = (toot: Toot, selectedOptions: string[]) => boolean;

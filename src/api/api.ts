@@ -17,9 +17,7 @@ import { extractDomain } from '../helpers/string_helpers';
 import { lockExecution } from '../helpers/mutex_helpers';
 import { Logger } from '../helpers/logger';
 import { repairTag } from "./objects/tag";
-import { sleep } from "../helpers/time_helpers";
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked } from "./errors";
-import { WaitTime, ageString, mostRecent, quotedISOFmt, subtractSeconds, timelineCutoffAt } from "../helpers/time_helpers";
 import {
     CacheKey,
     TrendingType,
@@ -38,6 +36,15 @@ import {
     truncateToLength,
     uniquifyApiObjs,
 } from "../helpers/collection_helpers";
+import {
+    WaitTime,
+    ageString,
+    mostRecent,
+    quotedISOFmt,
+    sleep,
+    subtractSeconds,
+    timelineCutoffAt
+} from "../helpers/time_helpers";
 import {
     type AccountLike,
     type ApiObj,

@@ -22,6 +22,7 @@ import {
     TOOT_SOURCES,
 } from './enums';
 
+
 // Records
 export type AccountNames = Record<mastodon.v1.Account["acct"], Account>;
 export type MastodonInstances = Record<string, MastodonInstance>;
@@ -47,6 +48,7 @@ export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type TootSource = (typeof TOOT_SOURCES)[number];
+
 
 ////////////////////
 //    Filters     //
@@ -86,7 +88,6 @@ export interface FeedFilterSettings extends FeedFilterSettingsSerialized {
     booleanFilters: BooleanFilters;
     numericFilters: NumericFilters;
 };
-
 
 /**
  * Utility type to extract the keys of T whose values are an extension of TypeCondition
@@ -177,10 +178,6 @@ export type ScoreStats = {
 
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
-
-// export interface ServerSideFilter extends mastodon.v2.Filter {
-//     regex?: RegExp;
-// };
 
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;

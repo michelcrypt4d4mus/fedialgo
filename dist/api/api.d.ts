@@ -3,8 +3,8 @@ import Account from "./objects/account";
 import Toot from './objects/toot';
 import UserData from "./user_data";
 import { Logger } from '../helpers/logger';
-import { WaitTime } from "../helpers/time_helpers";
 import { type ApiCacheKey } from "../enums";
+import { WaitTime } from "../helpers/time_helpers";
 import { type ConcurrencyLockRelease, type Hashtag, type Optional, type TootLike } from "../types";
 /**
  * Generic parameters for MastoApi methods that support backfilling via the "moar" flag.

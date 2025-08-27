@@ -8,9 +8,14 @@ import { Type } from "class-transformer";
 import MastoApi from "../api";
 import MastodonServer from '../mastodon_server';
 import { config } from "../../config";
-import { DEFAULT_FONT_SIZE, bracketed, extractDomain, replaceEmojiShortcodesWithImgTags } from "../../helpers/string_helpers";
 import { keyByProperty } from "../../helpers/collection_helpers";
 import { Logger } from "../../helpers/logger";
+import {
+    DEFAULT_FONT_SIZE,
+    bracketed,
+    extractDomain,
+    replaceEmojiShortcodesWithImgTags
+} from "../../helpers/string_helpers";
 import {
     type AccountLike,
     type AccountNames,

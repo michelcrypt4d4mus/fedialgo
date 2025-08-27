@@ -65,18 +65,18 @@ import {
     type TrendingLink,
 } from "../../types";
 
+enum TootCacheKey {
+    CONTENT_STRIPPED = "contentStripped",
+    CONTENT_WITH_EMOJIS = "contentWithEmojis",
+    CONTENT_WITH_CARD = "contentWithCard",
+};
+
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
     DIRECT_MSG = "direct",
     PUBLIC = "public",
     PRIVATE = "private",
     UNLISTED = "unlisted",
-};
-
-enum TootCacheKey {
-    CONTENT_STRIPPED = "contentStripped",
-    CONTENT_WITH_EMOJIS = "contentWithEmojis",
-    CONTENT_WITH_CARD = "contentWithCard",
 };
 
 // Cache for methods that build strings from the toot content.
@@ -1114,6 +1114,7 @@ export default class Toot implements TootObj {
         return uniquifyByProp(mapped, uniqFxn);
     }
 };
+
 
 /**
  * Get the Date the toot was created.

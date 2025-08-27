@@ -1,7 +1,7 @@
 import TootFilter, { type FilterArgs } from "./toot_filter";
-import type Toot from '../api/objects/toot';
-import { BooleanFilterName, TypeFilterName } from '../enums';
-import { BooleanFilterOptionList } from '../api/counted_list';
+import type Toot from "../api/objects/toot";
+import { BooleanFilterName, TypeFilterName } from "../enums";
+import { BooleanFilterOptionList } from "../api/counted_list";
 type TypeFilter = (toot: Toot) => boolean;
 export declare const TYPE_FILTERS: Record<TypeFilterName, TypeFilter>;
 export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {

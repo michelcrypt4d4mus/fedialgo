@@ -13,7 +13,6 @@ import Toot, { mostRecentTootedAt } from "./objects/toot";
 import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { buildMutedRegex, extractMutedKeywords } from "./objects/filter";
 import { config } from "../config";
-import { isDebugMode } from "../helpers/environment_helpers";
 import { keyById, resolvePromiseDict } from "../helpers/collection_helpers";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
