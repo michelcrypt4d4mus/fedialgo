@@ -93,9 +93,8 @@ export default class Account implements AccountObj {
      */
     homeInstanceInfo(): Promise<InstanceResponse>;
     /**
-     * Returns HTML combining the Account.note property (the user defined account description stuff) with
-     * creation date, followers, and toots count.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * HTML combining account's bio (AKA the "note" property) with creation date, followers, and toots count.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
      * @returns {Promise<InstanceResponse>}
      */
     noteWithAccountInfo(fontSize?: number): string;
