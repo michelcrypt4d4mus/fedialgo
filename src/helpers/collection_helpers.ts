@@ -16,7 +16,6 @@ import {
     type ApiObj,
     type ApiObjWithID,
     type CountKey,
-    type KeysOfValueType,
     type MinMax,
     type MinMaxID,
     type Optional,

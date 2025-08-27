@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.sleep = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCategory = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = void 0;
+exports.timeString = exports.sortKeysByValue = exports.sleep = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCategory = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -73,12 +73,10 @@ const trending_tags_scorer_1 = __importDefault(require("./scorer/toot/trending_t
 const trending_toots_scorer_1 = __importDefault(require("./scorer/toot/trending_toots_scorer"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/toot/video_attachment_scorer"));
-const time_helpers_1 = require("./helpers/time_helpers");
-Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return time_helpers_1.sleep; } });
-Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
+Object.defineProperty(exports, "DEFAULT_FONT_SIZE", { enumerable: true, get: function () { return string_helpers_1.DEFAULT_FONT_SIZE; } });
 Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () { return string_helpers_1.FEDIALGO; } });
 Object.defineProperty(exports, "GIFV", { enumerable: true, get: function () { return string_helpers_1.GIFV; } });
 Object.defineProperty(exports, "VIDEO_TYPES", { enumerable: true, get: function () { return string_helpers_1.VIDEO_TYPES; } });
@@ -92,6 +90,9 @@ const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const weight_presets_1 = require("./scorer/weight_presets");
+const time_helpers_1 = require("./helpers/time_helpers");
+Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return time_helpers_1.sleep; } });
+Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
 Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return enums_1.BooleanFilterName; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_1.MediaCategory; } });

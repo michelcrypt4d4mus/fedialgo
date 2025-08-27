@@ -9,7 +9,6 @@ const time_helpers_1 = require("./time_helpers");
 const environment_helpers_1 = require("./environment_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const string_helpers_1 = require("./string_helpers");
-const time_helpers_2 = require("./time_helpers");
 const PREFIXERS = [
     string_helpers_1.bracketed,
     string_helpers_1.arrowed,
@@ -146,7 +145,7 @@ class Logger {
                 v = (0, lodash_1.isNull)(v) ? 'null' : 'undefined';
             }
             else if (v instanceof Date) {
-                v = (0, time_helpers_2.quotedISOFmt)(v);
+                v = (0, time_helpers_1.quotedISOFmt)(v);
             }
             propStrs.push(`${k}=${v}`);
             return propStrs;

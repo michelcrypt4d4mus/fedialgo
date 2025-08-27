@@ -35,6 +35,13 @@ const enums_1 = require("../../enums");
 const logger_1 = require("../../helpers/logger");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const string_helpers_1 = require("../../helpers/string_helpers");
+var TootCacheKey;
+(function (TootCacheKey) {
+    TootCacheKey["CONTENT_STRIPPED"] = "contentStripped";
+    TootCacheKey["CONTENT_WITH_EMOJIS"] = "contentWithEmojis";
+    TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
+})(TootCacheKey || (TootCacheKey = {}));
+;
 // https://docs.joinmastodon.org/entities/Status/#visibility
 var TootVisibility;
 (function (TootVisibility) {
@@ -44,19 +51,6 @@ var TootVisibility;
     TootVisibility["UNLISTED"] = "unlisted";
 })(TootVisibility || (TootVisibility = {}));
 ;
-var TootCacheKey;
-(function (TootCacheKey) {
-    TootCacheKey["CONTENT_STRIPPED"] = "contentStripped";
-    TootCacheKey["CONTENT_WITH_EMOJIS"] = "contentWithEmojis";
-    TootCacheKey["CONTENT_WITH_CARD"] = "contentWithCard";
-})(TootCacheKey || (TootCacheKey = {}));
-;
-class TootCacheObj {
-    [TootCacheKey.CONTENT_STRIPPED];
-    [TootCacheKey.CONTENT_WITH_EMOJIS];
-    [TootCacheKey.CONTENT_WITH_CARD];
-    tagNames; // Cache of tag names for faster access
-}
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
 const HASHTAG_LINK_REGEX = /<a href="https:\/\/[\w.]+\/tags\/[\w]+" class="[-\w_ ]*hashtag[-\w_ ]*" rel="[a-z ]+"( target="_blank")?>#<span>[\w]+<\/span><\/a>/i;
@@ -79,7 +73,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
  * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp when a full deep inspection of the toot was last completed.
- * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
+ * @property {string} [contentTagsParagraph] - If the last paragraph is 100% hashtag this is the HTML for that paragraph.
  * @property {string} description - A string describing the toot, including author, content, and createdAt.
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot.
  * @property {string} homeserver - The homeserver of the author of the toot.
@@ -210,6 +204,7 @@ class Toot {
             return enums_1.MediaCategory.AUDIO;
         }
     }
+    // TODO: should this take a fontSize argument like contentParagraphs()?
     get contentTagsParagraph() {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;

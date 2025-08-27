@@ -13,14 +13,13 @@ import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
 import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
-import { BytesDict, sizeFromTextEncoder } from "./helpers/math_helper";
-import { byteString, FEDIALGO, toLocaleInt } from "./helpers/string_helpers";
+import { BytesDict, sizeOf, sizeFromTextEncoder } from "./helpers/math_helper";
 import { checkUniqueRows, zipPromiseCalls } from "./helpers/collection_helpers";
 import { config } from "./config";
 import { DEFAULT_WEIGHTS } from "./scorer/weight_presets";
+import { FEDIALGO, byteString, toLocaleInt } from "./helpers/string_helpers";
 import { isDebugMode, isDeepDebug } from "./helpers/environment_helpers";
 import { Logger } from './helpers/logger';
-import { sizeOf } from "./helpers/math_helper";
 import {
     AlgorithmStorageKey,
     CacheKey,
@@ -29,9 +28,9 @@ import {
     TrendingType,
     STORAGE_KEYS_WITH_ACCOUNTS,
     STORAGE_KEYS_WITH_TOOTS,
+    isApiCacheKey,
     type ApiCacheKey,
     type StorageKey,
-    isApiCacheKey,
 } from "./enums";
 import {
     type ApiObj,

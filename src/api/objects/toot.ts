@@ -65,6 +65,12 @@ import {
     type TrendingLink,
 } from "../../types";
 
+enum TootCacheKey {
+    CONTENT_STRIPPED = "contentStripped",
+    CONTENT_WITH_EMOJIS = "contentWithEmojis",
+    CONTENT_WITH_CARD = "contentWithCard",
+};
+
 // https://docs.joinmastodon.org/entities/Status/#visibility
 enum TootVisibility {
     DIRECT_MSG = "direct",
@@ -73,22 +79,9 @@ enum TootVisibility {
     UNLISTED = "unlisted",
 };
 
-enum TootCacheKey {
-    CONTENT_STRIPPED = "contentStripped",
-    CONTENT_WITH_EMOJIS = "contentWithEmojis",
-    CONTENT_WITH_CARD = "contentWithCard",
-};
-
 // Cache for methods that build strings from the toot content.
 type TootCacheStrings = {[key in TootCacheKey]?: string};
 type TootCache = TootCacheStrings & {tagNames?: Set<string>};
-
-class TootCacheObj implements TootCache {
-    [TootCacheKey.CONTENT_STRIPPED]?: string;
-    [TootCacheKey.CONTENT_WITH_EMOJIS]?: string;
-    [TootCacheKey.CONTENT_WITH_CARD]?: string;
-    tagNames?: Set<string>;  // Cache of tag names for faster access
-}
 
 const UNKNOWN = "unknown";
 const BSKY_BRIDGY = 'bsky.brid.gy';
@@ -106,7 +99,7 @@ const repairLogger = tootLogger.tempLogger("repairToot");
  */
 export interface SerializableToot extends mastodon.v1.Status {
     completedAt?: string;                    // Timestamp a full deep inspection of the toot was completed
-    followedTags?: Hashtag[];            // Array of tags that the user follows that exist in this toot
+    followedTags?: Hashtag[];                // Array of tags that the user follows that exist in this toot
     numTimesShown?: number;                  // Managed in client app. # of times the Toot has been shown to the user.
     participatedTags?: TagWithUsageCounts[]; // Tags that the user has participated in that exist in this toot
     reblog?: SerializableToot | null,        // The toot that was retooted (if any)
@@ -173,7 +166,7 @@ interface TootObj extends SerializableToot {
  * @property {MediaAttachmentType} [attachmentType] - The type of media in the toot (image, video, audio, etc.).
  * @property {Account} author - The account that posted this toot, not the account that reblogged it.
  * @property {string} [completedAt] - Timestamp when a full deep inspection of the toot was last completed.
- * @property {string} [contentTagsParagraph] - The content of last paragraph in the Toot but only if it's just hashtags links.
+ * @property {string} [contentTagsParagraph] - If the last paragraph is 100% hashtag this is the HTML for that paragraph.
  * @property {string} description - A string describing the toot, including author, content, and createdAt.
  * @property {MastodonTag[]} [followedTags] - Array of tags that the user follows that exist in this toot.
  * @property {string} homeserver - The homeserver of the author of the toot.
@@ -287,6 +280,7 @@ export default class Toot implements TootObj {
         }
     }
 
+    // TODO: should this take a fontSize argument like contentParagraphs()?
     get contentTagsParagraph(): string | undefined {
         const finalParagraph = this.contentParagraphs().slice(-1)[0];
         return HASHTAG_PARAGRAPH_REGEX.test(finalParagraph) ? finalParagraph : undefined;
@@ -1121,6 +1115,7 @@ export default class Toot implements TootObj {
         return uniquifyByProp(mapped, uniqFxn);
     }
 };
+
 
 /**
  * Get the Date the toot was created.

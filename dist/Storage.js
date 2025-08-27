@@ -40,13 +40,12 @@ const user_data_1 = __importDefault(require("./api/user_data"));
 const time_helpers_1 = require("./helpers/time_helpers");
 const feed_filters_1 = require("./filters/feed_filters");
 const math_helper_1 = require("./helpers/math_helper");
-const string_helpers_1 = require("./helpers/string_helpers");
 const collection_helpers_1 = require("./helpers/collection_helpers");
 const config_1 = require("./config");
 const weight_presets_1 = require("./scorer/weight_presets");
+const string_helpers_1 = require("./helpers/string_helpers");
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const logger_1 = require("./helpers/logger");
-const math_helper_2 = require("./helpers/math_helper");
 const enums_1 = require("./enums");
 // Configure localForage to use WebSQL as the driver
 localforage_1.default.config({
@@ -273,7 +272,7 @@ class Storage {
             if (obj) {
                 const value = key == enums_1.AlgorithmStorageKey.USER ? obj : obj.value;
                 const sizes = new math_helper_1.BytesDict();
-                const sizeInBytes = (0, math_helper_2.sizeOf)(value, sizes);
+                const sizeInBytes = (0, math_helper_1.sizeOf)(value, sizes);
                 totalBytes += sizeInBytes;
                 info[key] = {
                     bytes: sizeInBytes,
