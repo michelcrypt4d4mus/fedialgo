@@ -1,6 +1,8 @@
 # NEXT RELEASE
+
+### v1.1.3
 * Export `DEFAULT_FONT_SIZE`
-* (Demo App) Add `defaultFontSize` property to `Config` object
+* (Demo App) Add `defaultFontSize` and `retooterFontSize` properties to `config.theme` and pass them to appropriate fxns
 
 ### v1.1.2
 * More `tagOnlyStrings`
