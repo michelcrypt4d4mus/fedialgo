@@ -46,16 +46,6 @@ interface AlgorithmArgs {
  * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
 export default class TheAlgorithm {
-    /**
-     * True if FEDIALGO_DEBUG environment var was set at compile time.
-     * @returns {boolean}
-     */
-    static get isDebugMode(): boolean;
-    /**
-     * Dictionary of preset weight configurations for scoring.
-     * @returns {WeightPresets}
-     */
-    static get weightPresets(): WeightPresets;
     filters: FeedFilterSettings;
     lastLoadTimeInSeconds?: number;
     loadingStatus: string | null;
@@ -214,6 +204,19 @@ export default class TheAlgorithm {
     private scoreAndFilterFeed;
     private startAction;
     private statusDict;
+    /** True if FEDIALGO_DEBUG environment var was set at run time. */
+    static get isDebugMode(): boolean;
+    /** True if FEDIALGO_DEEP_DEBUG environment var was set at run time. */
+    static get isDeepDebug(): boolean;
+    /** True if LOAD_TEST environment var was set at run time. */
+    static get isLoadTest(): boolean;
+    /** True if QUICK_MODE environment var was set at run time. */
+    static get isQuickMode(): boolean;
+    /**
+     * Dictionary of preset weight configurations for scoring.
+     * @returns {WeightPresets}
+     */
+    static get weightPresets(): WeightPresets;
 }
 declare const GET_FEED_BUSY_MSG: string;
 declare const READY_TO_LOAD_MSG: string;

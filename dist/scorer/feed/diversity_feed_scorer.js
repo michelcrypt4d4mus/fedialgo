@@ -15,17 +15,24 @@ const toot_1 = require("../../api/objects/toot");
 ;
 /**
  * Scores based on how many times each author or trending tag appears in the feed.
- * @class
+ * @memberof module:toot_scorers
+ * @augments Scorer
  */
 class DiversityFeedScorer extends feed_scorer_1.default {
     description = "Favour accounts that are tooting a lot right now";
     constructor() {
         super(enums_1.ScoreName.DIVERSITY);
     }
-    // Compute a score for each toot in the feed based on how many times the account has tooted
-    // and which trending tags it contains.
+    /**
+     * Compute a score for each toot in the feed based on how many times the account has tooted
+     * and which trending tags it contains.
+     *
+     * @param {Toot[]} feed - The feed of toots to score.
+     * @returns {StringNumberDict} Dictionary mapping toot URIs to their diversity scores.
+     */
     extractScoringData(feed) {
         const sortedToots = (0, toot_1.sortByCreatedAt)(feed);
+        // Initialize empty CountedLists for accounts and trending tags
         const accountsInFeed = new counted_list_1.default([], enums_1.ScoreName.DIVERSITY);
         const trendingTagsInFeed = new counted_list_1.default([], enums_1.ScoreName.DIVERSITY);
         // Count how many times each account and each trending tag are seen in the feed
@@ -40,7 +47,8 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 penalizedTag.numToPenalize = penalizedTag.numToots - config_1.config.scoring.diversityScorerMinTrendingTagTootsForPenalty;
             });
         });
-        this.logger.deep(`tagsEncountered:`, trendingTagsInFeed);
+        this.logger.trace(`accountsInFeed:`, accountsInFeed);
+        this.logger.trace(`trendingTagsInFeed:`, trendingTagsInFeed);
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
         return sortedToots.reduce((tootScores, toot) => {
@@ -51,7 +59,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
             // Additional penalties for trending tags
             (toot.realToot.trendingTags || []).forEach((tag) => {
                 const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
-                // Don't apply penalty to followed accounts/tags
+                // Don't apply trending tag penalty to followed accounts/tags
                 if (!toot.isFollowed) {
                     (0, collection_helpers_1.incrementCount)(tootScores, toot.uri, penalty);
                 }
@@ -67,7 +75,7 @@ class DiversityFeedScorer extends feed_scorer_1.default {
                 this.scoreData[toot.uri] = 0;
             }
             else {
-                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.description}:`, toot);
+                console.warn(`Ngative diversity score of ${score.toFixed(2)} for toot: ${toot.description}:`, toot);
             }
             return 0;
         }

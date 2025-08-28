@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add static getters for `isDeepDebug`, `isLoadTest`, and `isQuickMode` to `TheAlgorithmm`
 
 ### v1.1.7
 * (Demo App) Make DMs in the timeline have a slightly different background color so they stand out
@@ -12,7 +13,7 @@
 ### v1.1.4
 * **(BREAKING CHANGE)** Add `fontSize` argument to `Account.noteWithAccountInfo()`, which is now a fxn not a getter
 * (Demo App) Add `accountBioFontSize`, `footerHashtagsFontSize`, and `errorFontSize` properties to `config.theme`
-* (Demo App) Add `config.timeline.loadTootsButtons` section to make "load tootls" link labels and tooltips configurable
+* (Demo App) Add `config.timeline.loadTootsButtons` section to make "load toots" link labels and tooltips configurable
 * (Demo App) Adjust monospace font slightly
 * (Demo App) Make switch box labels CamelCase (remove spaces)
 
