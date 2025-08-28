@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.8
 * Add static getters for `isDeepDebug`, `isLoadTest`, and `isQuickMode` to `TheAlgorithmm`
 
 ### v1.1.7
