@@ -1,10 +1,13 @@
 # NEXT RELEASE
 
+### v1.1.7
+* (Demo App) Make DMs in the timeline have a slightly different background color so they stand out
+
 ### v1.1.6
 * (Demo App) Adjust `fontSize` for switch labels
 
 ### v1.1.5
-* Put back switch label spaces; make it just "Stick To Top"
+* (Demo App) Put back switch label spaces; make it just "Stick To Top"
 
 ### v1.1.4
 * **(BREAKING CHANGE)** Add `fontSize` argument to `Account.noteWithAccountInfo()`, which is now a fxn not a getter
