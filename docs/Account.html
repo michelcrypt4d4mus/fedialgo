@@ -181,64 +181,6 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
         <tr>
             
-                <td class="name"><code>isLocal</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">True if this account is on the same Mastodon server as the Fedialgo user.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>localServerUrl</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The account's URL on the user's home server.</td>
-        </tr>
-
-    
-
-        <tr>
-            
                 <td class="name"><code>isFollowed</code></td>
             
 
@@ -294,14 +236,43 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
             
 
-            <td class="description last">True if this account is following the Fedialgo user.</td>
+            <td class="description last">True if this account is following the Fedialgo user.*</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>noteWithAccountInfo</code></td>
+                <td class="name"><code>isLocal</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">True if this account is on the same Mastodon server as the Fedialgo user.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>localServerUrl</code></td>
             
 
             <td class="type">
@@ -323,7 +294,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
             
 
-            <td class="description last">HTML with note, creation date, followers, and toots count.</td>
+            <td class="description last">The account's URL on the user's home server.</td>
         </tr>
 
     
@@ -470,7 +441,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
 
 <div class="description">
-    Returns the display name with emojis <img> tags and webfinger URI in HTML.
+    Returns HTML-ish string combining the displayName (with custom emojis as <img> tags) and the webfingerURI.
 </div>
 
 
@@ -542,7 +513,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">Size in pixels of any emoji <img> tags. Should match surrounding txt.</td>
         </tr>
 
     
@@ -714,7 +685,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
                 </td>
             
 
-            <td class="description last"></td>
+            <td class="description last">Size in pixels of any emoji <img> tags. Should match surrounding txt.</td>
         </tr>
 
     
@@ -814,7 +785,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
 
 <div class="description">
-    Gets the account's instance info from the API (note some servers don't provide this).
+    Get this account's Mastodon server (AKA "Instance") from API. Note that not all servers provide this!
 </div>
 
 
@@ -823,6 +794,178 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
 
 
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;InstanceResponse></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="noteWithAccountInfo"><span class="type-signature"></span>noteWithAccountInfo<span class="signature">(fontSize<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Promise.&lt;InstanceResponse>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    HTML combining the account bio (AKA the "note" property) with createdAt, follower count, and toots count.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>fontSize</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    DEFAULT_FONT_SIZE
+                
+                </td>
+            
+
+            <td class="description last">Size of returned HTML text (not just emoji <img> tags).</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -969,7 +1112,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
             
 
-            <td class="description last">The account data to build from.</td>
+            <td class="description last">The Mastodon Account (or similar) to build from.</td>
         </tr>
 
     
@@ -1034,7 +1177,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
         
 <div class="param-desc">
-    The constructed Account instance.
+    Constructed Account instance with extra methods and properties.
 </div>
 
 
@@ -1346,7 +1489,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 
         
 <div class="param-desc">
-    Dictionary from webfingerURI to count.
+    Dictionary from webfingerURI to count of appearances.
 </div>
 
 
@@ -1738,7 +1881,7 @@ see <a href="https://docs.joinmastodon.org/entities/Account/">the official docs<
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Aug 27 2025 04:02:06 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Aug 27 2025 22:13:40 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
