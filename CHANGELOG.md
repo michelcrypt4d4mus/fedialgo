@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.6
+* (Demo App) Adjust `fontSize` for switch labels
+
 ### v1.1.5
 * Put back switch label spaces; make it just "Stick To Top"
 
