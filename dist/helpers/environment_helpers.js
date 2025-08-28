@@ -8,9 +8,9 @@ console.log(`[FediAlgo] NODE_ENV="${process.env.NODE_ENV}"`, `\n          FEDIAL
 exports.isDevelopment = process.env.NODE_ENV === "development";
 exports.isProduction = process.env.NODE_ENV === "production";
 exports.isTest = process.env.NODE_ENV === "test";
-// Set for a whole lot more logging
+// Set for a lot more logging
 exports.isDeepDebug = process.env.FEDIALGO_DEEP_DEBUG === "true";
-// More logging, some configuration changes
+// Even logging, some configuration changes
 exports.isDebugMode = exports.isDeepDebug || process.env.FEDIALGO_DEBUG === "true";
 // Set for long stress tests, pulling tons of data from the mastodon API
 exports.isLoadTest = process.env.LOAD_TEST === "true";
