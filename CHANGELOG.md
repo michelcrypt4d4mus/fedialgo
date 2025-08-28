@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.5
+* Put back switch label spaces; make it just "Stick To Top"
+
 ### v1.1.4
 * **(BREAKING CHANGE)** Add `fontSize` argument to `Account.noteWithAccountInfo()`, which is now a fxn not a getter
 * (Demo App) Add `accountBioFontSize`, `footerHashtagsFontSize`, and `errorFontSize` properties to `config.theme`
