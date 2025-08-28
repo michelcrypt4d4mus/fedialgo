@@ -1,6 +1,8 @@
 # NEXT RELEASE
 * **(BREAKING CHANGE)** Add `fontSize` argument to `Account.noteWithAccountInfo()`, which is now a fxn not a getter
-* (Demo App) Add `accountBioFontSize` and `errorFontSize` properties to `config.theme`
+* (Demo App) Add `accountBioFontSize`, `footerHashtagsFontSize`, and `errorFontSize` properties to `config.theme`
+* (Demo App) Add `config.timeline.loadTootsButtons` section to make "load tootls" link labels and tooltips configurable
+* (Demo App) Adjust monospace font slightly
 
 ### v1.1.3
 * Export `DEFAULT_FONT_SIZE`
