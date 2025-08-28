@@ -4,18 +4,18 @@ type AccountCount = Record<string, {
     account: Account;
     count: number;
 }>;
-/** nterface for mastodon.v1.Account object extending with additional helper methods and properties. */
+/** Interface for mastodon.v1.Account object extending with additional helper methods and properties. */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;
     homeInstanceInfo: () => Promise<InstanceResponse>;
+    noteWithAccountInfo: (fontSize?: number) => string;
     asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
     localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
-    noteWithAccountInfo: string;
     webfingerURI: string;
 }
 /**
@@ -27,40 +27,39 @@ interface AccountObj extends mastodon.v1.Account {
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
- * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
- * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 export default class Account implements AccountObj {
+    acct: string;
     id: string;
     username: string;
-    acct: string;
-    bot: boolean;
     createdAt: string;
-    discoverable: boolean;
     displayName: string;
     followersCount: number;
     followingCount: number;
-    group: boolean;
     lastStatusAt: string;
-    locked: boolean;
     note: string;
     statusesCount: number;
     url: string;
-    emojis: mastodon.v1.CustomEmoji[];
-    fields: mastodon.v1.AccountField[];
     avatar: string;
     avatarStatic: string;
     header: string;
     headerStatic: string;
+    bot: boolean;
+    discoverable: boolean;
+    group: boolean;
     limited?: boolean | null;
-    moved?: Account | null;
+    locked: boolean;
     noindex?: boolean;
-    roles: mastodon.v1.Account["roles"];
     suspended?: boolean | null;
+    emojis: mastodon.v1.CustomEmoji[];
+    fields: mastodon.v1.AccountField[];
+    roles: mastodon.v1.Account["roles"];
+    moved?: Account | null;
     isFollowed?: boolean;
     isFollower?: boolean;
     webfingerURI: string;
@@ -69,35 +68,36 @@ export default class Account implements AccountObj {
     get homeserver(): string;
     get isLocal(): boolean;
     get localServerUrl(): string;
-    get noteWithAccountInfo(): string;
+    private get buildWebfingerURI();
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
-     * @param {AccountLike} account - The account data to build from.
-     * @returns {Account} The constructed Account instance.
+     * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
+     * @returns {Account} Constructed Account instance with extra methods and properties.
      */
     static build(account: AccountLike): Account;
     /**
-     * Returns the display name with emojis <img> tags and webfinger URI in HTML.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * Returns HTML-ish string combining the displayName (with custom emojis as <img> tags) and the webfingerURI.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameFullHTML(fontSize?: number): string;
     /**
      * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize?: number): string;
     /**
-     * Gets the account's instance info from the API (note some servers don't provide this).
+     * Get this account's Mastodon server (AKA "Instance") from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     homeInstanceInfo(): Promise<InstanceResponse>;
     /**
-     * Builds the webfinger URI for the account.
-     * @private
+     * HTML combining the account bio (AKA the "note" property) with createdAt, follower count, and toots count.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
+     * @returns {Promise<InstanceResponse>}
      */
-    private buildWebfingerURI;
+    noteWithAccountInfo(fontSize?: number): string;
     /**
      * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.
      * @param {Account[]} accounts - Array of Account objects.
@@ -107,7 +107,7 @@ export default class Account implements AccountObj {
     /**
      * Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument.
      * @param {Account[]} accounts - Array of Account objects.
-     * @returns {StringNumberDict} Dictionary from webfingerURI to count.
+     * @returns {StringNumberDict} Dictionary from webfingerURI to count of appearances.
      */
     static countAccounts(accounts: Account[]): StringNumberDict;
     /**

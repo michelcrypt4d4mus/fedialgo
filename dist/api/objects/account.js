@@ -37,48 +37,50 @@ const logger = new logger_1.Logger("Account");
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
  * @property {string} description - A string describing the account (displayName + webfingerURI).
  * @property {string} homeserver - The account's home server domain.
+ * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
+ * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.*
  * @property {boolean} isLocal - True if this account is on the same Mastodon server as the Fedialgo user.
  * @property {string} localServerUrl - The account's URL on the user's home server.
- * @property {boolean} [isFollowed] - True if this account is followed by the Fedialgo user.
- * @property {boolean} [isFollower] - True if this account is following the Fedialgo user.
- * @property {string} noteWithAccountInfo - HTML with note, creation date, followers, and toots count.
  * @property {string} webfingerURI - The webfinger URI for the account.
  */
 class Account {
+    // Identifying properties
+    acct;
     id;
     username;
-    acct;
-    bot; // isBot
+    // Other poperties
     createdAt;
-    discoverable;
     displayName;
     followersCount;
     followingCount;
-    group;
     lastStatusAt;
-    locked;
     note; // Profile bio, in plain-text instead of in HTML.
     statusesCount;
     url;
-    // Arrays
-    emojis;
-    fields;
-    // Images
+    // Image URLs
     avatar;
     avatarStatic;
     header;
     headerStatic;
-    // Optional
+    // Boolean flags
+    bot; // Would have been better to be named "isBot"
+    discoverable;
+    group;
     limited;
-    moved;
+    locked;
     noindex; // Don't index this account in search engines
-    roles = []; // TODO: not sure default is a good idea
     suspended;
+    // Arrays and optional fields
+    emojis;
+    fields;
+    roles = []; // TODO: not sure default is a good idea
+    // Optional fields
+    moved;
     // Fedialgo extension fields
     isFollowed; // Is this account followed by the user?
     isFollower; // Is this account following the user?
     webfingerURI;
-    // Returns the account properties used in BooleanFilter.
+    // Returns this account's properties that can be used by the BooleanFilter class.
     get asBooleanFilterOption() {
         return {
             name: this.webfingerURI,
@@ -95,63 +97,60 @@ class Account {
     ;
     get localServerUrl() { return api_1.default.instance.accountUrl(this); }
     ;
-    // Returns HTML combining the note property with creation date, followers, and toots count
-    get noteWithAccountInfo() {
-        const txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
-        const createdAt = new Date(this.createdAt);
-        const accountStats = [
-            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
-            `${this.followersCount.toLocaleString()} Followers`,
-            `${this.statusesCount.toLocaleString()} Toots`,
-        ];
-        return `${txt}<br /><p style="font-weight: bold; font-size: 13px;">[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
+    // Build the full webfinger URI for this account by appending the homeserver if necessary.
+    get buildWebfingerURI() {
+        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
     }
     /**
      * Alternate constructor because class-transformer doesn't work with constructor arguments.
-     * @param {AccountLike} account - The account data to build from.
-     * @returns {Account} The constructed Account instance.
+     * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
+     * @returns {Account} Constructed Account instance with extra methods and properties.
      */
     static build(account) {
         if (account instanceof Account)
             return account; // Already an Account instance so return it
         const accountObj = new Account();
+        // Identifying properties
+        accountObj.acct = account.acct;
         accountObj.id = account.id;
         accountObj.username = account.username;
-        accountObj.acct = account.acct;
-        accountObj.displayName = account.displayName;
-        accountObj.locked = account.locked;
-        accountObj.bot = account.bot;
+        // Other properties
         accountObj.createdAt = account.createdAt;
+        accountObj.displayName = account.displayName;
+        accountObj.followersCount = account.followersCount;
+        accountObj.followingCount = account.followingCount;
         accountObj.group = account.group;
         accountObj.note = account.note;
+        accountObj.statusesCount = account.statusesCount;
+        accountObj.lastStatusAt = account.lastStatusAt;
         accountObj.url = account.url;
+        // Image URLs
         accountObj.avatar = account.avatar;
         accountObj.avatarStatic = account.avatarStatic;
         accountObj.header = account.header;
         accountObj.headerStatic = account.headerStatic;
-        accountObj.followersCount = account.followersCount;
-        accountObj.followingCount = account.followingCount;
-        accountObj.statusesCount = account.statusesCount;
-        accountObj.lastStatusAt = account.lastStatusAt;
-        // Arrays and optional fields
-        accountObj.moved = account.moved ? Account.build(account.moved) : null;
-        accountObj.emojis = account.emojis || [];
-        accountObj.fields = account.fields || [];
-        // boolean flags
+        // Boolean flags
+        accountObj.bot = account.bot || false;
         accountObj.discoverable = account.discoverable || false;
         accountObj.limited = account.limited || false;
+        accountObj.locked = account.locked || false;
         accountObj.noindex = account.noindex || false;
         accountObj.suspended = account.suspended || false;
+        // Arrays and optional fields
+        accountObj.emojis = account.emojis || [];
+        accountObj.fields = account.fields || [];
         accountObj.roles = account.roles || [];
+        // Optional fields
+        accountObj.moved = account.moved ? Account.build(account.moved) : null;
         // Fedialgo extension fields
         accountObj.isFollowed = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
         accountObj.isFollower = false; // Must be set later, in Toot.complete() or manually get getFollowedAccounts()
-        accountObj.webfingerURI = accountObj.buildWebfingerURI();
+        accountObj.webfingerURI = accountObj.buildWebfingerURI; // Memoized for future use
         return accountObj;
     }
     /**
-     * Returns the display name with emojis <img> tags and webfinger URI in HTML.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * Returns HTML-ish string combining the displayName (with custom emojis as <img> tags) and the webfingerURI.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameFullHTML(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -159,14 +158,14 @@ class Account {
     }
     /**
      * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE]
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(this.displayName, this.emojis || [], fontSize);
     }
     /**
-     * Gets the account's instance info from the API (note some servers don't provide this).
+     * Get this account's Mastodon server (AKA "Instance") from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     async homeInstanceInfo() {
@@ -174,11 +173,20 @@ class Account {
         return await server.fetchServerInfo();
     }
     /**
-     * Builds the webfinger URI for the account.
-     * @private
+     * HTML combining the account bio (AKA the "note" property) with createdAt, follower count, and toots count.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
+     * @returns {Promise<InstanceResponse>}
      */
-    buildWebfingerURI() {
-        return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
+    noteWithAccountInfo(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
+        const txt = this.note.replace(NBSP_REGEX, " "); // Remove non-breaking spaces so we can wrap the text
+        const createdAt = new Date(this.createdAt);
+        const accountStats = [
+            `Created ${createdAt.toLocaleDateString(config_1.config.locale.locale, ACCOUNT_CREATION_FMT)}`,
+            `${this.followersCount.toLocaleString()} Followers`,
+            `${this.statusesCount.toLocaleString()} Toots`,
+        ];
+        const noteHTML = `${txt}<br /><p style="font-weight: bold; font-size: ${fontSize}px;">`;
+        return noteHTML + `[${accountStats.join(ACCOUNT_JOINER)}]</p>`;
     }
     ////////////////////////////
     //     Static Methods     //
@@ -194,7 +202,7 @@ class Account {
     /**
      * Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument.
      * @param {Account[]} accounts - Array of Account objects.
-     * @returns {StringNumberDict} Dictionary from webfingerURI to count.
+     * @returns {StringNumberDict} Dictionary from webfingerURI to count of appearances.
      */
     static countAccounts(accounts) {
         return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
