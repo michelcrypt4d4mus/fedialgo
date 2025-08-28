@@ -146,18 +146,6 @@ const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key)
  * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
 class TheAlgorithm {
-    /**
-     * True if FEDIALGO_DEBUG environment var was set at compile time.
-     * @returns {boolean}
-     */
-    static get isDebugMode() { return environment_helpers_1.isDebugMode; }
-    ;
-    /**
-     * Dictionary of preset weight configurations for scoring.
-     * @returns {WeightPresets}
-     */
-    static get weightPresets() { return weight_presets_1.WEIGHT_PRESETS; }
-    ;
     filters = (0, feed_filters_1.buildNewFilterSettings)();
     lastLoadTimeInSeconds;
     loadingStatus = config_1.config.locale.messages[enums_1.LogAction.INITIAL_LOADING_STATUS];
@@ -740,6 +728,27 @@ class TheAlgorithm {
             minMaxScores: (0, collection_helpers_1.computeMinMax)(this.feed, (toot) => toot.score),
         };
     }
+    ///////////////////////////////
+    //      Static Methods       //
+    ///////////////////////////////
+    /** True if FEDIALGO_DEBUG environment var was set at run time. */
+    static get isDebugMode() { return environment_helpers_1.isDebugMode; }
+    ;
+    /** True if FEDIALGO_DEEP_DEBUG environment var was set at run time. */
+    static get isDeepDebug() { return environment_helpers_1.isDeepDebug; }
+    ;
+    /** True if LOAD_TEST environment var was set at run time. */
+    static get isLoadTest() { return environment_helpers_1.isLoadTest; }
+    ;
+    /** True if QUICK_MODE environment var was set at run time. */
+    static get isQuickMode() { return environment_helpers_1.isQuickMode; }
+    ;
+    /**
+     * Dictionary of preset weight configurations for scoring.
+     * @returns {WeightPresets}
+     */
+    static get weightPresets() { return weight_presets_1.WEIGHT_PRESETS; }
+    ;
 }
 exports.default = TheAlgorithm;
 ;

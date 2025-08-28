@@ -14,9 +14,9 @@ export const isDevelopment = process.env.NODE_ENV === "development";
 export const isProduction = process.env.NODE_ENV === "production";
 export const isTest = process.env.NODE_ENV === "test";
 
-// Set for a whole lot more logging
+// Set for a lot more logging
 export const isDeepDebug = process.env.FEDIALGO_DEEP_DEBUG === "true";
-// More logging, some configuration changes
+// Even logging, some configuration changes
 export const isDebugMode = isDeepDebug || process.env.FEDIALGO_DEBUG === "true";
 
 // Set for long stress tests, pulling tons of data from the mastodon API

@@ -48,7 +48,7 @@ import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/fe
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { DEFAULT_FONT_SIZE, FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRateLimitError } from './api/errors';
-import { isDebugMode, isQuickMode } from './helpers/environment_helpers';
+import { isDebugMode, isDeepDebug, isLoadTest, isQuickMode } from './helpers/environment_helpers';
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
@@ -166,17 +166,6 @@ interface AlgorithmArgs {
  * @property {WeightInfoDict} weightsInfo - Info about all scoring weights
  */
 export default class TheAlgorithm {
-    /**
-     * True if FEDIALGO_DEBUG environment var was set at compile time.
-     * @returns {boolean}
-     */
-    static get isDebugMode(): boolean { return isDebugMode };
-    /**
-     * Dictionary of preset weight configurations for scoring.
-     * @returns {WeightPresets}
-     */
-    static get weightPresets(): WeightPresets { return WEIGHT_PRESETS };
-
     filters: FeedFilterSettings = buildNewFilterSettings();
     lastLoadTimeInSeconds?: number;
     loadingStatus: string | null = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
@@ -826,6 +815,26 @@ export default class TheAlgorithm {
             minMaxScores: computeMinMax(this.feed, (toot) => toot.score),
         };
     }
+
+
+    ///////////////////////////////
+    //      Static Methods       //
+    ///////////////////////////////
+
+    /** True if FEDIALGO_DEBUG environment var was set at run time. */
+    static get isDebugMode(): boolean { return isDebugMode };
+    /** True if FEDIALGO_DEEP_DEBUG environment var was set at run time. */
+    static get isDeepDebug(): boolean { return isDeepDebug };
+    /** True if LOAD_TEST environment var was set at run time. */
+    static get isLoadTest(): boolean { return isLoadTest };
+    /** True if QUICK_MODE environment var was set at run time. */
+    static get isQuickMode(): boolean { return isQuickMode };
+
+    /**
+     * Dictionary of preset weight configurations for scoring.
+     * @returns {WeightPresets}
+     */
+    static get weightPresets(): WeightPresets { return WEIGHT_PRESETS };
 };
 
 

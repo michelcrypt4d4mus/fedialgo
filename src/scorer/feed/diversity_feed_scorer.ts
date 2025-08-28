@@ -20,7 +20,8 @@ interface PenalizedObj extends NamedTootCount {
 
 /**
  * Scores based on how many times each author or trending tag appears in the feed.
- * @class
+ * @memberof module:toot_scorers
+ * @augments Scorer
  */
 export default class DiversityFeedScorer extends FeedScorer {
     description = "Favour accounts that are tooting a lot right now";
@@ -29,10 +30,16 @@ export default class DiversityFeedScorer extends FeedScorer {
         super(ScoreName.DIVERSITY);
     }
 
-    // Compute a score for each toot in the feed based on how many times the account has tooted
-    // and which trending tags it contains.
+    /**
+     * Compute a score for each toot in the feed based on how many times the account has tooted
+     * and which trending tags it contains.
+     *
+     * @param {Toot[]} feed - The feed of toots to score.
+     * @returns {StringNumberDict} Dictionary mapping toot URIs to their diversity scores.
+     */
     extractScoringData(feed: Toot[]): StringNumberDict {
         const sortedToots = sortByCreatedAt(feed) as Toot[];
+        // Initialize empty CountedLists for accounts and trending tags
         const accountsInFeed = new CountedList<PenalizedObj>([], ScoreName.DIVERSITY);
         const trendingTagsInFeed = new CountedList<PenalizedObj>([], ScoreName.DIVERSITY);
 
@@ -50,7 +57,8 @@ export default class DiversityFeedScorer extends FeedScorer {
             });
         });
 
-        this.logger.deep(`tagsEncountered:`, trendingTagsInFeed);
+        this.logger.trace(`accountsInFeed:`, accountsInFeed);
+        this.logger.trace(`trendingTagsInFeed:`, trendingTagsInFeed);
 
         // Create a dict with a score for each toot, keyed by uri (mutates accountScores in the process)
         // The biggest penalties are applied to toots encountered first. We want to penalize the oldest toots the most.
@@ -65,7 +73,7 @@ export default class DiversityFeedScorer extends FeedScorer {
                 (toot.realToot.trendingTags || []).forEach((tag) => {
                     const penalty = this.computePenalty(trendingTagsInFeed, tag.name);
 
-                    // Don't apply penalty to followed accounts/tags
+                    // Don't apply trending tag penalty to followed accounts/tags
                     if (!toot.isFollowed) {
                         incrementCount(tootScores, toot.uri, penalty);
                     }
@@ -81,11 +89,10 @@ export default class DiversityFeedScorer extends FeedScorer {
         const score = this.scoreData[toot.uri] || 0;
 
         if (score < 0) {
-            // Deal with floating point noise resulting in mildly posivitive scores
             if (score > -0.2) {
-                this.scoreData[toot.uri] = 0;
+                this.scoreData[toot.uri] = 0;  // Handle floating point noise yielding mildly negative score
             } else {
-                console.warn(`Got negative diversity score of ${score.toFixed(2)} for toot: ${toot.description}:`, toot);
+                console.warn(`Negative diversity score of ${score.toFixed(2)} for toot: ${toot.description}:`, toot);
             }
 
             return 0;
