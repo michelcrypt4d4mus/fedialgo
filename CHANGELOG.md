@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.10
 * More `tagOnlyStrings`
 
 ### v1.1.9
