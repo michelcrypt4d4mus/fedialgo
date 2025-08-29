@@ -878,9 +878,12 @@ export default class MastoApi {
                     break;
                 } else if (waitTime.ageInSeconds() > config.api.maxSecondsPerPage) {
                     logger.logAndThrowError(`Request took too long! (${waitTime.ageInSeconds()}s), ${resultsMsg}`)
-                } else {
-                    (pageNumber % 5 == 0) ? logger.debug(resultsMsg) : logger.trace(resultsMsg);
+                } else if (waitTime.ageInSeconds() > (config.api.maxSecondsPerPage / 2)) {
+                    logger.warn(`Request took a long time (${waitTime.ageInSeconds()}s)`);
                 }
+
+                // Log every 5th page of results at info level, trace the others
+                (pageNumber % 5 == 0) ? logger.debug(resultsMsg) : logger.trace(resultsMsg);
 
                 if (isBackgroundFetch) {
                     const sleepMS = config.api.backgroundLoadSleepBetweenRequestsMS * Math.random();  // Jitter spaces out requests

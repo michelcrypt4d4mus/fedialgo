@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.9
+* Double `config.api.maxSecondsPerPage` to 60 seconds wait before throwing an error and halting; just log warning and continue if request took between 30-60 seconds
+
 ### v1.1.8
 * Add static getters for `isDeepDebug`, `isLoadTest`, and `isQuickMode` to `TheAlgorithmm`
 

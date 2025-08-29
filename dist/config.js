@@ -62,7 +62,7 @@ class Config {
         },
         maxConcurrentHashtagRequests: 15,
         maxRecordsForFeatureScoring: 1500,
-        maxSecondsPerPage: 30,
+        maxSecondsPerPage: 60,
         minutesUntilStaleDefault: 10,
         mutexWarnSeconds: 5,
         timeoutMS: 2500,

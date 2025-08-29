@@ -194,7 +194,7 @@ class Config implements ConfigType {
         },
         maxConcurrentHashtagRequests: 15,       // How many toot requests to make in parallel to the search and hashtag timeline endpoints
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
-        maxSecondsPerPage: 30,                  // If loading a single page of results takes longer than this, just give up
+        maxSecondsPerPage: 60,                  // If loading a single page of results takes longer than this, just give up
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
         mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
         timeoutMS: 2_500,                       // Timeout for API calls
