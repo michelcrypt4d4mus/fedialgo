@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More `tagOnlyStrings`
 
 ### v1.1.9
 * Double `config.api.maxSecondsPerPage` to 60 seconds wait before throwing an error and halting; just log warning and continue if request took between 30-60 seconds
