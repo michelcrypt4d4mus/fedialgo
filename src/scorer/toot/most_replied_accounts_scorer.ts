@@ -23,7 +23,7 @@ export default class MostRepliedAccountsScorer extends TootScorer {
     // unique across all servers.
     async prepareScoreData(): Promise<StringNumberDict> {
         const recentToots = await MastoApi.instance.getRecentUserToots();
-        const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
+        const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId && !toot.isDM);
         return countValues<Toot>(recentReplies, (toot) => toot?.inReplyToAccountId);
     };
 

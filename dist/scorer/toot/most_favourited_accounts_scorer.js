@@ -19,7 +19,8 @@ class MostFavouritedAccountsScorer extends acccount_scorer_1.default {
     }
     ;
     async prepareScoreData() {
-        const favouritedToots = await api_1.default.instance.getFavouritedToots();
+        let favouritedToots = await api_1.default.instance.getFavouritedToots();
+        favouritedToots = favouritedToots.filter(toot => !toot.isDM); // Ignore DMs
         return account_1.default.countAccounts(favouritedToots.map(toot => toot.account));
     }
     ;
