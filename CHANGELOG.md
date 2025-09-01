@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.13
+* (Demo App) Rename `Colored Filter Highlights` switch
+
 ### v1.1.12
 * Include cause of the error in `TheAlgorithm.apiErrorMsgs` for `Error` objects with non-null `cause` property
 
