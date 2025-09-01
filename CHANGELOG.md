@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Ignore DMs in `MostRepliedAccountsScorer` and `MostFavouritedAccountsScorer`
 * More `tagOnlyStrings`
 
 ### v1.1.10
