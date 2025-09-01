@@ -22,7 +22,7 @@ class MostRepliedAccountsScorer extends toot_scorer_1.default {
     // unique across all servers.
     async prepareScoreData() {
         const recentToots = await api_1.default.instance.getRecentUserToots();
-        const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId);
+        const recentReplies = recentToots.filter(toot => toot?.inReplyToAccountId && !toot.isDM);
         return (0, collection_helpers_1.countValues)(recentReplies, (toot) => toot?.inReplyToAccountId);
     }
     ;

@@ -18,7 +18,8 @@ export default class MostFavouritedAccountsScorer extends AccountScorer {
     };
 
     async prepareScoreData(): Promise<StringNumberDict> {
-        const favouritedToots = await MastoApi.instance.getFavouritedToots();
+        let favouritedToots = await MastoApi.instance.getFavouritedToots();
+        favouritedToots = favouritedToots.filter(toot => !toot.isDM);  // Ignore DMs
         return Account.countAccounts(favouritedToots.map(toot => toot.account));
     };
 };
