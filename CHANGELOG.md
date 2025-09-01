@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.12
+* Include cause of the error in `TheAlgorithm.apiErrorMsgs` for `Error` objects with non-null `cause` property
+
 ### v1.1.11
 * Ignore DMs in `MostRepliedAccountsScorer` and `MostFavouritedAccountsScorer`
 * More `tagOnlyStrings`
@@ -12,6 +15,7 @@
 
 ### v1.1.8
 * Add static getters for `isDeepDebug`, `isLoadTest`, and `isQuickMode` to `TheAlgorithmm`
+* (Demo App) Debug panel shows current state of environment variables when `NODE_ENV=development`
 
 ### v1.1.7
 * (Demo App) Make DMs in the timeline have a slightly different background color so they stand out

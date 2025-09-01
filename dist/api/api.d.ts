@@ -90,6 +90,11 @@ export default class MastoApi {
      */
     private constructor();
     /**
+     * Returns array of error messages encountered while using the API.
+     * @returns {string[]} Array of error messages from the apiErrors array.
+     */
+    apiErrorMsgs(): string[];
+    /**
      * Get the value of some MastoApi object's properties. For debugging/presentation only.
      * @returns {Record<string, object|string>}
      */

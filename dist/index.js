@@ -150,7 +150,7 @@ class TheAlgorithm {
     lastLoadTimeInSeconds;
     loadingStatus = config_1.config.locale.messages[enums_1.LogAction.INITIAL_LOADING_STATUS];
     trendingData = EMPTY_TRENDING_DATA;
-    get apiErrorMsgs() { return api_1.default.instance.apiErrors.map(e => e.message); }
+    get apiErrorMsgs() { return api_1.default.instance.apiErrorMsgs(); }
     ;
     get isLoading() { return this.loadingMutex.isLocked(); }
     ;
