@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.12
 * Include cause of the error in `TheAlgorithm.apiErrorMsgs` for `Error` objects with non-null `cause` property
 
 ### v1.1.11
