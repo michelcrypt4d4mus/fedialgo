@@ -171,7 +171,7 @@ export default class TheAlgorithm {
     loadingStatus: string | null = config.locale.messages[LogAction.INITIAL_LOADING_STATUS];
     trendingData: TrendingData = EMPTY_TRENDING_DATA;
 
-    get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrors.map(e => e.message) };
+    get apiErrorMsgs(): string[] { return MastoApi.instance.apiErrorMsgs() };
     get isLoading(): boolean { return this.loadingMutex.isLocked() };
     get timeline(): Toot[] { return [...this.feed] };
     get userData(): UserData { return MastoApi.instance.userData || new UserData() };

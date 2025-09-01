@@ -272,6 +272,14 @@ export default class MastoApi {
     }
 
     /**
+     * Returns array of error messages encountered while using the API.
+     * @returns {string[]} Array of error messages from the apiErrors array.
+     */
+    apiErrorMsgs(): string[] {
+        return this.apiErrors.map(e => e.message + (e.cause ? ` (cause: "${e.cause}")` : ''));
+    };
+
+    /**
      * Get the value of some MastoApi object's properties. For debugging/presentation only.
      * @returns {Record<string, object|string>}
      */
