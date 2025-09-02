@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Adjust switchbar checkbox labels
 
 ### v1.1.14
 * (Demo App) Move filter related switch checkboxes into the "Feed Filters" accordion section
