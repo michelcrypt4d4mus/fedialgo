@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.15
 * (Demo App) Adjust switchbar checkbox labels
 
 ### v1.1.14
