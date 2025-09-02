@@ -2060,6 +2060,7 @@ class Config {
             "winning",
             "winter",
             "wird",
+            "wirtschaft",
             "with",
             "within",
             "without",
