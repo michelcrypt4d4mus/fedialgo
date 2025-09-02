@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.15
+* (Demo App) Adjust switchbar checkbox labels
+
 ### v1.1.14
 * (Demo App) Move filter related switch checkboxes into the "Feed Filters" accordion section
 * More `tagOnlyStrings`
