@@ -2196,7 +2196,8 @@ class Config implements ConfigType {
             "win",
             "winning",
             "winter",
-            "wird",    // German
+            "wird",         // German
+            "wirtschaft",   // German
             "with",
             "within",
             "without",
