@@ -1,5 +1,8 @@
 # NEXT RELEASE
+
+### v1.1.14
 * (Demo App) Move filter related switch checkboxes into the "Feed Filters" accordion section
+* More `tagOnlyStrings`
 
 ### v1.1.13
 * (Demo App) Rename `Colored Filter Highlights` switch
