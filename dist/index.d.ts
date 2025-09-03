@@ -190,19 +190,97 @@ export default class TheAlgorithm {
      * @returns {Promise<Toot[]>} The filtered and rescored feed.
      */
     updateUserWeightsToPreset(presetName: WeightPresetLabel | string): Promise<Toot[]>;
-    private shouldSkip;
+    /**
+     * Merge a new batch of toots into the feed. Mutates this.feed and returns whatever
+     * 'newToots' are retrieved by 'tootFetcher()' argument.
+     * @private
+     * @param {Promise<Toot[]>} tootFetcher - Promise that resolves to an array of Toots.
+     * @param {Logger} logger Logger to use.
+     * @returns {Promise<Toot[]>} The new toots that were fetched and merged.
+     */
     private fetchAndMergeToots;
+    /**
+     * Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp()
+     * callback (if it exists) to send the client using this library the filtered subset of Toots
+     * (this.feed will always maintain the master unfiltered set of Toots).
+     * @private
+     * @returns {Toot[]} The filtered feed.
+     */
     private filterFeedAndSetInApp;
+    /**
+     * Do some final cleanup and scoring operations on the feed.
+     * @private
+     * @returns {Promise<void>}
+     */
     private finishFeedUpdate;
+    /**
+     * Simple wrapper for triggering fetchHomeFeed().
+     * @private
+     * @returns {Promise<Toot[]>}
+     */
     private getHomeTimeline;
+    /**
+     * Kick off the MOAR data poller to collect more user history data if it doesn't already exist
+     * as well as the cache updater that saves the current state of the timeline toots' alreadyShown
+     * to storage.
+     * @private
+     */
     private launchBackgroundPollers;
+    /**
+     * Load cached data from Storage. Called when the app is first opened and when reset() is invoked.
+     * @private
+     * @returns {Promise<void>}
+     */
     private loadCachedData;
     private lockedMergeToFeed;
+    /**
+     * Merge newToots into this.feed, score, and filter the feed.
+     * NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
+     * @private
+     * @param {Toot[]} newToots - New toots to merge into this.feed
+     * @param {Logger} inLogger - Logger to use
+     * @returns {Promise<void>}
+     */
     private mergeTootsToFeed;
+    /**
+     * Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed.
+     * @private
+     * @returns {Promise<void>}
+     */
     private recomputeScores;
+    /**
+     * Release the loading mutex and reset the loading state variables.
+     * @private
+     * @param {LoadAction} logPrefix - Action for logging context.
+     */
     private releaseLoadingMutex;
+    /**
+     * Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app.
+     * @private
+     * @returns {Promise<Toot[]>} The filtered set of Toots (NOT the entire feed).
+     */
     private scoreAndFilterFeed;
+    /**
+     * Return true if we're in QUICK_MODE and the feed is fresh enough that we don't
+     * need to retrieve any new data. Useful for testing UI changes without waiting
+     * for the full feed load every time.
+     * @private
+     * @returns {boolean} True if we should skip the feed update.
+     */
+    private shouldSkip;
+    /**
+     * Lock the mutex and set the loadStartedAt timestamp.
+     * @private
+     * @param {LoadAction} logPrefix - Action for logging context.
+     * @returns {Promise<void>}
+     * @throws {Error} If a load is already in progress.
+     */
     private startAction;
+    /**
+     * Returns info about the state of this TheAlgorithm instance.
+     * @private
+     * @returns {Record<string, unknown>} Status dictionary.
+     */
     private statusDict;
     /** True if FEDIALGO_DEBUG environment var was set at run time. */
     static get isDebugMode(): boolean;
@@ -213,7 +291,7 @@ export default class TheAlgorithm {
     /** True if QUICK_MODE environment var was set at run time. */
     static get isQuickMode(): boolean;
     /**
-     * Dictionary of preset weight configurations for scoring.
+     * Dictionary of preset weight configurations that can be selected from to set weights.
      * @returns {WeightPresets}
      */
     static get weightPresets(): WeightPresets;

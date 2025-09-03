@@ -12,6 +12,8 @@ import { type OptionalString, type StringNumberDict } from '../types';
 type ErrorArgs = {args: unknown[], error?: Error};
 type LoggerArg = OptionalString | boolean;  // boolean so we can filter out optional args that are falsey
 
+const TRACE_MSG = '[objs only logged in debug mode]';
+
 const PREFIXERS = [
     bracketed,
     arrowed,
@@ -90,8 +92,10 @@ export class Logger {
     info =  (msg: string, ...args: unknown[]) => console.info(this.line(msg), ...args);
     /** console.debug() with the logger's prefix. */
     debug = (msg: string, ...args: unknown[]) => console.debug(this.line(msg), ...args);
+    /** Logs 'msg' at debug level but only appends 'args' if isDebugMode is true. */
+    debugWithTraceObjs = (msg: string, ...args: unknown[]) => {this.debug(msg, ...(isDebugMode ? args : [TRACE_MSG]))};
     /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
-    trace = (msg: string, ...args: unknown[]) => {(isDebugMode || isDeepDebug) && this.debug(msg, ...args)};
+    trace = (msg: string, ...args: unknown[]) => {isDebugMode && this.debug(msg, ...args)};
     /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
     deep =  (msg: string, ...args: unknown[]) => {isDeepDebug && this.debug(msg, ...args)};
     /** Logs a warning message with a warn colored prefix (not a real warning level). */

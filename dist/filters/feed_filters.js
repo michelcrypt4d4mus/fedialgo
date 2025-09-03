@@ -40,7 +40,6 @@ const enums_1 = require("../enums");
 const counted_list_1 = require("../api/counted_list");
 const config_1 = require("../config");
 const collection_helpers_1 = require("../helpers/collection_helpers");
-const environment_helpers_1 = require("../helpers/environment_helpers");
 const tag_1 = require("../api/objects/tag");
 const language_helper_1 = require("../helpers/language_helper");
 const logger_1 = require("../helpers/logger");
@@ -181,8 +180,7 @@ async function updateBooleanFilterOptions(filters, toots, scanForTags = false) {
     });
     suppressed_hashtags_1.suppressedHashtags.log(logger);
     await Storage_1.default.setFilters(filters);
-    const msg = `Updated all filters ${timer.ageString()}`;
-    environment_helpers_1.isDebugMode ? logger.trace(msg, filters) : logger.debug(msg);
+    logger.debugWithTraceObjs(`Updated all filters ${timer.ageString()}`, filters);
 }
 exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed

@@ -4,8 +4,8 @@
  */
 import MastoApi from "../../api/api";
 import { config } from "../../config";
-import { detectForeignScriptLanguage } from "../../helpers/language_helper";
 import { createRandomString, optionalSuffix, removeDiacritics, wordRegex } from "../../helpers/string_helpers";
+import { detectForeignScriptLanguage } from "../../helpers/language_helper";
 import { type TagWithUsageCounts } from "../../types";
 
 const BROKEN_TAG = "<<BROKEN_TAG>>";

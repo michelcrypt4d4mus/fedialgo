@@ -15,6 +15,14 @@ import { type StringNumberDict } from "../types";
  */
 export default abstract class TootScorer extends Scorer {
     constructor(scoreName: ScoreName);
+    /**
+     * Calls this.prepareScoreData() to get any data required for scoring Toots later.
+     * NOTE: Don't overload this - overload prepareScoreData() instead.
+     */
     fetchRequiredData(): Promise<void>;
+    /**
+     * Can be overloaded in subclasses to set up any data required for scoring Toots.
+     * @returns {StringNumberDict} Dictionary of data required for scoring Toots.
+     */
     prepareScoreData(): Promise<StringNumberDict>;
 }

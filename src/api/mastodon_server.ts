@@ -352,18 +352,16 @@ export default class MastodonServer {
         const startedAt = new Date();
 
         try {
-            let records = await Storage.getIfNotStale<T[]>(key);
+            let objs = await Storage.getIfNotStale<T[]>(key);
 
-            if (!records?.length) {
+            if (!objs?.length) {
                 const serverObjs = await this.callForTopServers<T[]>(serverFxn);
-                // logger.trace(`result from all servers:`, serverObjs);
-                const flatObjs = Object.values(serverObjs).flat();
-                records = await processingFxn(flatObjs);
-                logger.debug(`fetched ${records.length} unique records ${ageString(startedAt)}`, records);
-                await Storage.set(key, records);
+                objs = await processingFxn(Object.values(serverObjs).flat());
+                logger.debugWithTraceObjs(`fetched ${objs.length} objs ${ageString(startedAt)}`, objs);
+                await Storage.set(key, objs);
             }
 
-            return records;
+            return objs;
         } finally {
             releaseMutex();
         }

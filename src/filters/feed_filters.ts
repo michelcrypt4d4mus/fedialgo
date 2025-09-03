@@ -14,7 +14,6 @@ import { BooleanFilterName, ScoreName, TagTootsCategory } from '../enums';
 import { BooleanFilterOptionList } from "../api/counted_list";
 import { config } from "../config";
 import { incrementCount, sortedDictString, sumValues } from "../helpers/collection_helpers";
-import { isDebugMode } from "../helpers/environment_helpers";
 import { isValidForSubstringSearch } from "../api/objects/tag";
 import { languageName } from "../helpers/language_helper";
 import { Logger } from '../helpers/logger';
@@ -199,8 +198,7 @@ export async function updateBooleanFilterOptions(
 
     suppressedHashtags.log(logger);
     await Storage.setFilters(filters);
-    const msg = `Updated all filters ${timer.ageString()}`
-    isDebugMode ? logger.trace(msg, filters) : logger.debug(msg);
+    logger.debugWithTraceObjs(`Updated all filters ${timer.ageString()}`, filters);
 }
 
 

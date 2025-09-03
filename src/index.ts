@@ -584,26 +584,14 @@ export default class TheAlgorithm {
     //      Private Methods      //
     ///////////////////////////////
 
-    // Return true if we're in QUICK_MODE and the feed is fresh enough that we don't need to update it (for dev)
-    private shouldSkip(): boolean {
-        const hereLogger = loggers[LoadAction.FEED_UPDATE];
-        hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
-        let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
-        if (feedAgeInMinutes) feedAgeInMinutes /= 60;
-        const maxAgeMinutes = config.minTrendingMinutesUntilStale();
-
-        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
-            hereLogger.debug(`QUICK_MODE Feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
-            // Needs to be called to update the feed in the app
-            ScorerCache.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Merge a new batch of toots into the feed.
-    // Mutates this.feed and returns whatever newToots are retrieve by tooFetcher()
+    /**
+     * Merge a new batch of toots into the feed. Mutates this.feed and returns whatever
+     * 'newToots' are retrieved by 'tootFetcher()' argument.
+     * @private
+     * @param {Promise<Toot[]>} tootFetcher - Promise that resolves to an array of Toots.
+     * @param {Logger} logger Logger to use.
+     * @returns {Promise<Toot[]>} The new toots that were fetched and merged.
+     */
     private async fetchAndMergeToots(tootFetcher: Promise<Toot[]>, logger: Logger): Promise<Toot[]> {
         const startedAt = new Date();
         let newToots: Toot[] = [];
@@ -619,9 +607,13 @@ export default class TheAlgorithm {
         return newToots;
     }
 
-    // Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp() callback
-    // that will send the client using this library the filtered subset of Toots (this.feed will always maintain
-    // the master timeline).
+    /**
+     * Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp()
+     * callback (if it exists) to send the client using this library the filtered subset of Toots
+     * (this.feed will always maintain the master unfiltered set of Toots).
+     * @private
+     * @returns {Toot[]} The filtered feed.
+     */
     private filterFeedAndSetInApp(): Toot[] {
         const filteredFeed = this.feed.filter(toot => toot.isInTimeline(this.filters));
         this.setTimelineInApp(filteredFeed);
@@ -634,7 +626,11 @@ export default class TheAlgorithm {
         return filteredFeed;
     }
 
-    // Do some final cleanup and scoring operations on the feed.
+    /**
+     * Do some final cleanup and scoring operations on the feed.
+     * @private
+     * @returns {Promise<void>}
+     */
     private async finishFeedUpdate(): Promise<void> {
         const action = LogAction.FINISH_FEED_UPDATE;
         const hereLogger = loggers[action];
@@ -659,7 +655,11 @@ export default class TheAlgorithm {
         this.launchBackgroundPollers();
     }
 
-    // Simple wrapper for triggering fetchHomeFeed()
+    /**
+     * Simple wrapper for triggering fetchHomeFeed().
+     * @private
+     * @returns {Promise<Toot[]>}
+     */
     private async getHomeTimeline(moreOldToots?: boolean): Promise<Toot[]> {
         return await MastoApi.instance.fetchHomeFeed({
             mergeTootsToFeed: this.lockedMergeToFeed.bind(this),
@@ -667,8 +667,12 @@ export default class TheAlgorithm {
         });
     }
 
-    // Kick off the MOAR data poller to collect more user history data if it doesn't already exist
-    // as well as the cache updater that saves the current state of the timeline toots' alreadyShown to storage
+    /**
+     * Kick off the MOAR data poller to collect more user history data if it doesn't already exist
+     * as well as the cache updater that saves the current state of the timeline toots' alreadyShown
+     * to storage.
+     * @private
+     */
     private launchBackgroundPollers(): void {
         this.dataPoller.start();
 
@@ -684,7 +688,11 @@ export default class TheAlgorithm {
         }
     }
 
-    // Load cached data from Storage. This is called when the app is first opened and when reset() is invoked.
+    /**
+     * Load cached data from Storage. Called when the app is first opened and when reset() is invoked.
+     * @private
+     * @returns {Promise<void>}
+     */
     private async loadCachedData(): Promise<void> {
         this.homeFeed = await Storage.getCoerced<Toot>(CacheKey.HOME_TIMELINE_TOOTS);
         this.feed = await Storage.getCoerced<Toot>(AlgorithmStorageKey.TIMELINE_TOOTS);
@@ -718,8 +726,14 @@ export default class TheAlgorithm {
         }
     };
 
-    // Merge newToots into this.feed, score, and filter the feed.
-    // NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
+    /**
+     * Merge newToots into this.feed, score, and filter the feed.
+     * NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
+     * @private
+     * @param {Toot[]} newToots - New toots to merge into this.feed
+     * @param {Logger} inLogger - Logger to use
+     * @returns {Promise<void>}
+     */
     private async mergeTootsToFeed(newToots: Toot[], inLogger: Logger): Promise<void> {
         const hereLogger = inLogger.tempLogger('mergeTootsToFeed');
         const numTootsBefore = this.feed.length;
@@ -744,13 +758,21 @@ export default class TheAlgorithm {
         hereLogger.logTelemetry(`Merged ${newToots.length} new toots into ${numTootsBefore} timeline toots`, startedAt);
     }
 
-    // Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed
+    /**
+     * Recompute the scorers' computations based on user history etc. and trigger a rescore of the feed.
+     * @private
+     * @returns {Promise<void>}
+     */
     private async recomputeScores(): Promise<void> {
         await ScorerCache.prepareScorers(true);
         await this.scoreAndFilterFeed();
     }
 
-    // Release the loading mutex and reset the loading state variables.
+    /**
+     * Release the loading mutex and reset the loading state variables.
+     * @private
+     * @param {LoadAction} logPrefix - Action for logging context.
+     */
     private releaseLoadingMutex(logPrefix: LoadAction): void {
         this.loadingStatus = null;
 
@@ -762,8 +784,11 @@ export default class TheAlgorithm {
         }
     }
 
-    // Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app
-    // Returns the FILTERED set of toots (NOT the entire feed!)
+    /**
+     * Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app.
+     * @private
+     * @returns {Promise<Toot[]>} The filtered set of Toots (NOT the entire feed).
+     */
     private async scoreAndFilterFeed(): Promise<Toot[]> {
         this.feed = await Scorer.scoreToots(this.feed, true);
 
@@ -777,7 +802,37 @@ export default class TheAlgorithm {
         return this.filterFeedAndSetInApp();
     }
 
-    // Throws an error if the feed is loading, otherwise lock the mutex and set the loadStartedAt timestamp.
+    /**
+     * Return true if we're in QUICK_MODE and the feed is fresh enough that we don't
+     * need to retrieve any new data. Useful for testing UI changes without waiting
+     * for the full feed load every time.
+     * @private
+     * @returns {boolean} True if we should skip the feed update.
+     */
+    private shouldSkip(): boolean {
+        const hereLogger = loggers[LoadAction.FEED_UPDATE];
+        hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
+        if (feedAgeInMinutes) feedAgeInMinutes /= 60;
+        const maxAgeMinutes = config.minTrendingMinutesUntilStale();
+
+        if (isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
+            hereLogger.debug(`QUICK_MODE Feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
+            // Needs to be called to update the feed in the app
+            ScorerCache.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Lock the mutex and set the loadStartedAt timestamp.
+     * @private
+     * @param {LoadAction} logPrefix - Action for logging context.
+     * @returns {Promise<void>}
+     * @throws {Error} If a load is already in progress.
+     */
     private async startAction(logPrefix: LoadAction): Promise<void> {
         const hereLogger = loggers[logPrefix];
         const status = config.locale.messages[logPrefix];
@@ -793,7 +848,11 @@ export default class TheAlgorithm {
         this.loadingStatus = (typeof status === 'string') ? status : status(this.feed, this.mostRecentHomeTootAt());
     }
 
-    // Info about the state of this TheAlgorithm instance
+    /**
+     * Returns info about the state of this TheAlgorithm instance.
+     * @private
+     * @returns {Record<string, unknown>} Status dictionary.
+     */
     private statusDict(): Record<string, unknown> {
         const mostRecentTootAt = this.mostRecentHomeTootAt();
         const oldestTootAt = earliestTootedAt(this.homeFeed);
@@ -816,7 +875,6 @@ export default class TheAlgorithm {
         };
     }
 
-
     ///////////////////////////////
     //      Static Methods       //
     ///////////////////////////////
@@ -831,7 +889,7 @@ export default class TheAlgorithm {
     static get isQuickMode(): boolean { return isQuickMode };
 
     /**
-     * Dictionary of preset weight configurations for scoring.
+     * Dictionary of preset weight configurations that can be selected from to set weights.
      * @returns {WeightPresets}
      */
     static get weightPresets(): WeightPresets { return WEIGHT_PRESETS };

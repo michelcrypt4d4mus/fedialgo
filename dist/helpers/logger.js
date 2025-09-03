@@ -9,6 +9,7 @@ const time_helpers_1 = require("./time_helpers");
 const environment_helpers_1 = require("./environment_helpers");
 const collection_helpers_1 = require("./collection_helpers");
 const string_helpers_1 = require("./string_helpers");
+const TRACE_MSG = '[objs only logged in debug mode]';
 const PREFIXERS = [
     string_helpers_1.bracketed,
     string_helpers_1.arrowed,
@@ -80,8 +81,10 @@ class Logger {
     info = (msg, ...args) => console.info(this.line(msg), ...args);
     /** console.debug() with the logger's prefix. */
     debug = (msg, ...args) => console.debug(this.line(msg), ...args);
+    /** Logs 'msg' at debug level but only appends 'args' if isDebugMode is true. */
+    debugWithTraceObjs = (msg, ...args) => { this.debug(msg, ...(environment_helpers_1.isDebugMode ? args : [TRACE_MSG])); };
     /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
-    trace = (msg, ...args) => { (environment_helpers_1.isDebugMode || environment_helpers_1.isDeepDebug) && this.debug(msg, ...args); };
+    trace = (msg, ...args) => { environment_helpers_1.isDebugMode && this.debug(msg, ...args); };
     /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
     deep = (msg, ...args) => { environment_helpers_1.isDeepDebug && this.debug(msg, ...args); };
     /** Logs a warning message with a warn colored prefix (not a real warning level). */
