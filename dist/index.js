@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.timeString = exports.sortKeysByValue = exports.sleep = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCategory = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = exports.DEFAULT_FONT_SIZE = void 0;
+exports.timeString = exports.sortKeysByValue = exports.sleep = exports.optionalSuffix = exports.makePercentileChunks = exports.makeChunks = exports.isValueInStringEnum = exports.isAccessTokenRevokedError = exports.extractDomain = exports.AgeIn = exports.TypeFilterName = exports.TrendingType = exports.TagTootsCategory = exports.ScoreName = exports.NonScoreWeightName = exports.MediaCategory = exports.BooleanFilterName = exports.Toot = exports.TagList = exports.NumericFilter = exports.Logger = exports.BooleanFilter = exports.Account = exports.VIDEO_TYPES = exports.READY_TO_LOAD_MSG = exports.GIFV = exports.GET_FEED_BUSY_MSG = exports.FEDIALGO = exports.FILTER_OPTION_DATA_SOURCES = exports.DEFAULT_FONT_SIZE = void 0;
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
@@ -73,6 +73,10 @@ const trending_tags_scorer_1 = __importDefault(require("./scorer/toot/trending_t
 const trending_toots_scorer_1 = __importDefault(require("./scorer/toot/trending_toots_scorer"));
 const user_data_1 = __importDefault(require("./api/user_data"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/toot/video_attachment_scorer"));
+const time_helpers_1 = require("./helpers/time_helpers");
+Object.defineProperty(exports, "AgeIn", { enumerable: true, get: function () { return time_helpers_1.AgeIn; } });
+Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return time_helpers_1.sleep; } });
+Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
 const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
@@ -90,9 +94,6 @@ const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
 const stats_helper_1 = require("./helpers/stats_helper");
 const weight_presets_1 = require("./scorer/weight_presets");
-const time_helpers_1 = require("./helpers/time_helpers");
-Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return time_helpers_1.sleep; } });
-Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const enums_1 = require("./enums");
 Object.defineProperty(exports, "BooleanFilterName", { enumerable: true, get: function () { return enums_1.BooleanFilterName; } });
 Object.defineProperty(exports, "MediaCategory", { enumerable: true, get: function () { return enums_1.MediaCategory; } });
@@ -116,6 +117,7 @@ const EMPTY_TRENDING_DATA = {
 };
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const logger = new logger_1.Logger(`TheAlgorithm`);
+const saveTimelineToCacheLogger = logger.tempLogger(`saveTimelineToCache`);
 const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key), enums_1.ALL_ACTIONS.reduce((_loggers, action) => {
     _loggers[action] = logger.tempLogger(action);
     return _loggers;
@@ -390,8 +392,8 @@ class TheAlgorithm {
         const mostRecentAt = this.mostRecentHomeTootAt();
         if (!mostRecentAt)
             return null;
-        logger.trace(`feed is ${(0, time_helpers_1.ageInMinutes)(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
-        return (0, time_helpers_1.ageInSeconds)(mostRecentAt);
+        logger.trace(`feed is ${time_helpers_1.AgeIn.minutes(mostRecentAt).toFixed(2)} min old, most recent home toot: ${(0, time_helpers_1.timeString)(mostRecentAt)}`);
+        return time_helpers_1.AgeIn.seconds(mostRecentAt);
     }
     /**
      * Pull the latest list of muted accounts from the server and use that to filter any newly muted accounts
@@ -449,17 +451,16 @@ class TheAlgorithm {
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.isLoading || (this.totalNumTimesShown == newTotalNumTimesShown))
             return;
-        const hereLogger = logger.tempLogger(`saveTimelineToCache`);
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown` +
                 ` on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
-            hereLogger.debug(msg);
+            saveTimelineToCacheLogger.debug(msg);
             await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         }
         catch (error) {
-            hereLogger.error(`Error saving toots:`, error);
+            saveTimelineToCacheLogger.error(`Error saving toots:`, error);
         }
     }
     /**
@@ -584,7 +585,7 @@ class TheAlgorithm {
         await this.scoreAndFilterFeed();
         if (this.loadStartedAt) {
             hereLogger.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
-            this.lastLoadTimeInSeconds = (0, time_helpers_1.ageInSeconds)(this.loadStartedAt);
+            this.lastLoadTimeInSeconds = time_helpers_1.AgeIn.seconds(this.loadStartedAt);
         }
         else {
             hereLogger.warn(`finished but loadStartedAt is null!`);
@@ -773,7 +774,7 @@ class TheAlgorithm {
         const oldestTootAt = (0, toot_1.earliestTootedAt)(this.homeFeed);
         let numHoursInHomeFeed = null;
         if (mostRecentTootAt && oldestTootAt) {
-            numHoursInHomeFeed = (0, time_helpers_1.ageInHours)(oldestTootAt, mostRecentTootAt);
+            numHoursInHomeFeed = time_helpers_1.AgeIn.hours(oldestTootAt, mostRecentTootAt);
         }
         return {
             feedNumToots: this.feed.length,

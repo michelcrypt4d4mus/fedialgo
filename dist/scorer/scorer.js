@@ -168,8 +168,8 @@ class Scorer {
             scoreLogger.warn(`Outlier dampener is ${outlierDampener} but should not be less than 0! Using 1 instead.`);
             outlierDampener = 1; // Prevent division by zero
         }
-        // Compute a weighted score a toot based by multiplying the value of each numerical property
-        // by the user's chosen weighting for that property (the one configured with the GUI sliders).
+        // Compute a weighted score for a toot by multiplying the value of each scorable property's numeric
+        // score by the user's chosen weighting (the one configured with the GUI sliders) for that property.
         const scores = scorers.reduce((scoreDict, scorer, i) => {
             const rawScore = rawestScores[i] || 0;
             const outlierExponent = 1 / outlierDampener;
@@ -185,10 +185,7 @@ class Scorer {
             else {
                 weightedScore = -1 * Math.pow(-1 * weightedScore, outlierExponent);
             }
-            scoreDict[scorer.name] = {
-                raw: rawScore,
-                weighted: weightedScore,
-            };
+            scoreDict[scorer.name] = { raw: rawScore, weighted: weightedScore };
             return scoreDict;
         }, {});
         // Multiple weighted score by time decay penalty to get a final weightedScore

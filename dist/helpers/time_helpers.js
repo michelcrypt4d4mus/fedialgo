@@ -4,35 +4,42 @@
  * @module time_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.ageInMS = exports.ageInSeconds = exports.ageInMinutes = exports.ageInHours = void 0;
+exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.AgeIn = void 0;
 const lodash_1 = require("lodash");
 const config_1 = require("../config");
 const enums_1 = require("../enums");
 const string_helpers_1 = require("./string_helpers");
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
-// Compute the difference from 'date' to now in hours
-const ageInHours = (date, endTime) => (0, exports.ageInMinutes)(date, endTime) / 60.0;
-exports.ageInHours = ageInHours;
-const ageInMinutes = (date, endTime) => (0, exports.ageInSeconds)(date, endTime) / 60.0;
-exports.ageInMinutes = ageInMinutes;
-const ageInSeconds = (date, endTime) => ageInMS(date, endTime) / 1000.0;
-exports.ageInSeconds = ageInSeconds;
-/**
- * Compute the age in milliseconds from a date to now or an optional end time.
- * @param {DateArg} startTime - The time to calculate the age from.
- * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
- * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
- */
-function ageInMS(startTime, endTime) {
-    if (!startTime) {
-        console.warn("Invalid date passed to ageInSeconds():", startTime);
-        return -1;
+/** Helper class for computing age differences in various units. */
+class AgeIn {
+    /**
+     * Compute the age in milliseconds from a date to now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
+     */
+    static ms(startTime, endTime) {
+        if (!startTime) {
+            console.warn("Invalid date passed to AgeIn.ms():", startTime);
+            return -1;
+        }
+        endTime = coerceDate(endTime || new Date());
+        return endTime.getTime() - coerceDate(startTime).getTime();
     }
-    endTime = coerceDate(endTime || new Date());
-    return endTime.getTime() - coerceDate(startTime).getTime();
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in hours. */
+    static hours(startTime, endTime) {
+        return this.minutes(startTime, endTime) / 60.0;
+    }
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in minutes. */
+    static minutes(startTime, endTime) {
+        return this.seconds(startTime, endTime) / 60.0;
+    }
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in seconds. */
+    static seconds(startTime, endTime) {
+        return this.ms(startTime, endTime) / 1000.0;
+    }
 }
-exports.ageInMS = ageInMS;
-;
+exports.AgeIn = AgeIn;
 /**
  * Make a nice string like "in 2.5 minutes" representing time from a date to now.
  * @param {DateArg} date - The date to calculate the age from.
@@ -41,7 +48,7 @@ exports.ageInMS = ageInMS;
 function ageString(date) {
     if (!date)
         return string_helpers_1.NULL;
-    const seconds = (0, exports.ageInSeconds)(date);
+    const seconds = AgeIn.seconds(date);
     const secondsStr = seconds < 0.1 ? seconds.toFixed(3) : seconds.toFixed(1);
     return `in ${secondsStr} seconds`;
 }
@@ -133,7 +140,7 @@ const timeString = (_timestamp, locale) => {
     ;
     const timestamp = coerceDate(_timestamp);
     const isToday = timestamp.getDate() == new Date().getDate();
-    const seconds = (0, exports.ageInSeconds)(timestamp);
+    const seconds = AgeIn.seconds(timestamp);
     let str;
     if (isToday) {
         str = "today";
@@ -182,14 +189,14 @@ function toISOFormatIfExists(date, withMilliseconds) {
 }
 exports.toISOFormatIfExists = toISOFormatIfExists;
 ;
-/** Helper class for telemetry.  */
+/** Helper class for telemetry. */
 class WaitTime {
     avgMsPerRequest = 0;
     milliseconds = 0;
     numRequests = 0;
     startedAt = new Date();
     ageInSeconds() {
-        return (0, exports.ageInSeconds)(this.startedAt);
+        return AgeIn.seconds(this.startedAt);
     }
     ageString() {
         return ageString(this.startedAt);
@@ -199,7 +206,7 @@ class WaitTime {
     }
     markEnd() {
         this.numRequests++;
-        this.milliseconds += ageInMS(this.startedAt);
+        this.milliseconds += AgeIn.ms(this.startedAt);
         this.avgMsPerRequest = this.milliseconds / this.numRequests;
     }
 }

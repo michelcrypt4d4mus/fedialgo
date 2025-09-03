@@ -44,6 +44,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
 import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
+import { AgeIn, ageString, sleep, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { DEFAULT_FONT_SIZE, FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
@@ -52,16 +53,8 @@ import { isDebugMode, isDeepDebug, isLoadTest, isQuickMode } from './helpers/env
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
-import { WeightPresetLabel, WEIGHT_PRESETS, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
-import {
-    ageInHours,
-    ageInSeconds,
-    ageInMinutes,
-    ageString,
-    sleep,
-    timeString,
-    toISOFormatIfExists
-} from './helpers/time_helpers';
+import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
+import { type ObjList } from "./api/counted_list";
 import {
     AlgorithmStorageKey,
     BooleanFilterName,
@@ -88,7 +81,6 @@ import {
     sortKeysByValue,
     truncateToLength,
 } from "./helpers/collection_helpers";
-import { type ObjList } from "./api/counted_list";
 import {
     FILTER_OPTION_DATA_SOURCES,
     type BooleanFilterOption,
@@ -121,6 +113,7 @@ const EMPTY_TRENDING_DATA: Readonly<TrendingData> = {
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed: Toot[]) => console.debug(`Default setTimelineInApp() called`);
 
 const logger = new Logger(`TheAlgorithm`);
+const saveTimelineToCacheLogger = logger.tempLogger(`saveTimelineToCache`);
 
 const loggers: Record<Action | ApiCacheKey, Logger> = buildCacheKeyDict<Action, Logger, Record<Action, Logger>>(
     (key) => new Logger(key as string),
@@ -430,8 +423,8 @@ export default class TheAlgorithm {
     mostRecentHomeTootAgeInSeconds(): number | null {
         const mostRecentAt = this.mostRecentHomeTootAt();
         if (!mostRecentAt) return null;
-        logger.trace(`feed is ${ageInMinutes(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${timeString(mostRecentAt)}`);
-        return ageInSeconds(mostRecentAt);
+        logger.trace(`feed is ${AgeIn.minutes(mostRecentAt).toFixed(2)} min old, most recent home toot: ${timeString(mostRecentAt)}`);
+        return AgeIn.seconds(mostRecentAt);
     }
 
     /**
@@ -492,17 +485,16 @@ export default class TheAlgorithm {
     async saveTimelineToCache(): Promise<void> {
         const newTotalNumTimesShown = this.feed.reduce((sum, toot) => sum + (toot.numTimesShown ?? 0), 0);
         if (this.isLoading || (this.totalNumTimesShown == newTotalNumTimesShown)) return;
-        const hereLogger = logger.tempLogger(`saveTimelineToCache`);
 
         try {
             const numShownToots = this.feed.filter(toot => toot.numTimesShown).length;
             const msg = `Saving ${this.feed.length} toots with ${newTotalNumTimesShown} times shown` +
                 ` on ${numShownToots} toots (previous totalNumTimesShown: ${this.totalNumTimesShown})`;
-            hereLogger.debug(msg);
+            saveTimelineToCacheLogger.debug(msg);
             await Storage.set(AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
             this.totalNumTimesShown = newTotalNumTimesShown;
         } catch (error) {
-            hereLogger.error(`Error saving toots:`, error);
+            saveTimelineToCacheLogger.error(`Error saving toots:`, error);
         }
     }
 
@@ -645,7 +637,7 @@ export default class TheAlgorithm {
 
         if (this.loadStartedAt) {
             hereLogger.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
-            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
+            this.lastLoadTimeInSeconds = AgeIn.seconds(this.loadStartedAt);
         } else {
             hereLogger.warn(`finished but loadStartedAt is null!`);
         }
@@ -859,7 +851,7 @@ export default class TheAlgorithm {
         let numHoursInHomeFeed: number | null = null;
 
         if (mostRecentTootAt && oldestTootAt) {
-            numHoursInHomeFeed = ageInHours(oldestTootAt, mostRecentTootAt);
+            numHoursInHomeFeed = AgeIn.hours(oldestTootAt, mostRecentTootAt);
         }
 
         return {
@@ -927,6 +919,7 @@ export {
     TypeFilterName,
     WeightName,
     // Helpers
+    AgeIn,
     extractDomain,
     isAccessTokenRevokedError,
     isValueInStringEnum,

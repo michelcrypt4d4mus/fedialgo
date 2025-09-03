@@ -15,27 +15,39 @@ type DateArg = Date | OptionalString | number;
 const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 
 
-// Compute the difference from 'date' to now in hours
-export const ageInHours = (date: DateArg, endTime?: DateArg) => ageInMinutes(date, endTime) / 60.0;
-export const ageInMinutes = (date: DateArg, endTime?: DateArg) => ageInSeconds(date, endTime) / 60.0;
-export const ageInSeconds = (date: DateArg, endTime?: DateArg) => ageInMS(date, endTime) / 1000.0;
+/** Helper class for computing age differences in various units. */
+export class AgeIn {
+    /**
+     * Compute the age in milliseconds from a date to now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
+     */
+    static ms(startTime: DateArg, endTime?: DateArg): number {
+        if (!startTime) {
+            console.warn("Invalid date passed to AgeIn.ms():", startTime);
+            return -1;
+        }
 
-
-/**
- * Compute the age in milliseconds from a date to now or an optional end time.
- * @param {DateArg} startTime - The time to calculate the age from.
- * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
- * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
- */
-export function ageInMS(startTime: DateArg, endTime?: DateArg): number {
-    if (!startTime) {
-        console.warn("Invalid date passed to ageInSeconds():", startTime);
-        return -1;
+        endTime = coerceDate(endTime || new Date());
+        return endTime!.getTime() - coerceDate(startTime)!.getTime();
     }
 
-    endTime = coerceDate(endTime || new Date());
-    return endTime!.getTime() - coerceDate(startTime)!.getTime();
-};
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in hours. */
+    static hours(startTime: DateArg, endTime?: DateArg) {
+        return this.minutes(startTime, endTime) / 60.0;
+    }
+
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in minutes. */
+    static minutes(startTime: DateArg, endTime?: DateArg) {
+        return this.seconds(startTime, endTime) / 60.0;
+    }
+
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in seconds. */
+    static seconds(startTime: DateArg, endTime?: DateArg) {
+        return this.ms(startTime, endTime) / 1000.0;
+    }
+}
 
 
 /**
@@ -45,7 +57,7 @@ export function ageInMS(startTime: DateArg, endTime?: DateArg): number {
  */
 export function ageString(date: DateArg): string {
     if (!date) return NULL;
-    const seconds = ageInSeconds(date);
+    const seconds = AgeIn.seconds(date);
     const secondsStr = seconds < 0.1 ? seconds.toFixed(3) : seconds.toFixed(1);
     return `in ${secondsStr} seconds`;
 };
@@ -136,7 +148,7 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
     locale ||= config.locale.locale;;
     const timestamp = coerceDate(_timestamp);
     const isToday = timestamp!.getDate() == new Date().getDate();
-    const seconds = ageInSeconds(timestamp);
+    const seconds = AgeIn.seconds(timestamp);
     let str: string;
 
     if (isToday) {
@@ -184,7 +196,7 @@ export function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): 
 };
 
 
-/** Helper class for telemetry.  */
+/** Helper class for telemetry. */
 export class WaitTime {
     avgMsPerRequest: number = 0;
     milliseconds: number = 0;
@@ -192,7 +204,7 @@ export class WaitTime {
     startedAt: Date = new Date();
 
     ageInSeconds(): number {
-        return ageInSeconds(this.startedAt);
+        return AgeIn.seconds(this.startedAt);
     }
 
     ageString(): string {
@@ -205,7 +217,7 @@ export class WaitTime {
 
     markEnd(): void {
         this.numRequests++;
-        this.milliseconds += ageInMS(this.startedAt);
+        this.milliseconds += AgeIn.ms(this.startedAt);
         this.avgMsPerRequest = this.milliseconds / this.numRequests;
     }
 };

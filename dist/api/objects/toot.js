@@ -157,7 +157,7 @@ class Toot {
     // See JSDoc comment for explanations of the various getters
     get accounts() { return this.withRetoot.map((toot) => toot.account); }
     ;
-    get ageInHours() { return (0, time_helpers_1.ageInHours)(this.createdAt); }
+    get ageInHours() { return time_helpers_1.AgeIn.hours(this.createdAt); }
     ;
     get allEmojis() { return (this.emojis || []).concat(this.account.emojis || []); }
     ;
@@ -680,9 +680,9 @@ class Toot {
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
         // Check if toot was completed long enough ago that we might want to re-evaluate it
-        (0, time_helpers_1.ageInMinutes)(this.completedAt) < config_1.config.minTrendingMinutesUntilStale()
+        time_helpers_1.AgeIn.minutes(this.completedAt) < config_1.config.minTrendingMinutesUntilStale()
             // But not tooted so long ago that there's little chance of new data
-            || (0, time_helpers_1.ageInMinutes)(this.createdAt) > config_1.config.toots.completeAfterMinutes);
+            || time_helpers_1.AgeIn.minutes(this.createdAt) > config_1.config.toots.completeAfterMinutes);
     }
     // Returns true if this toot is by the fedialgo user
     isUsersOwnToot() {

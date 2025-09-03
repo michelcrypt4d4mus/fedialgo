@@ -26,7 +26,7 @@ async function lockExecution(locker, logger) {
         releaseLock = acquireLock;
     }
     logMsg += ` lock acquired ${(0, time_helpers_1.ageString)(startedAt)}`;
-    const waitSeconds = (0, time_helpers_1.ageInSeconds)(startedAt);
+    const waitSeconds = time_helpers_1.AgeIn.seconds(startedAt);
     if (waitSeconds > config_1.config.api.mutexWarnSeconds) {
         logger.debug(logMsg);
     }

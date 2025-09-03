@@ -4,16 +4,22 @@
  */
 import { type Optional, type OptionalString } from "../types";
 type DateArg = Date | OptionalString | number;
-export declare const ageInHours: (date: DateArg, endTime?: DateArg) => number;
-export declare const ageInMinutes: (date: DateArg, endTime?: DateArg) => number;
-export declare const ageInSeconds: (date: DateArg, endTime?: DateArg) => number;
-/**
- * Compute the age in milliseconds from a date to now or an optional end time.
- * @param {DateArg} startTime - The time to calculate the age from.
- * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
- * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
- */
-export declare function ageInMS(startTime: DateArg, endTime?: DateArg): number;
+/** Helper class for computing age differences in various units. */
+export declare class AgeIn {
+    /**
+     * Compute the age in milliseconds from a date to now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
+     */
+    static ms(startTime: DateArg, endTime?: DateArg): number;
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in hours. */
+    static hours(startTime: DateArg, endTime?: DateArg): number;
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in minutes. */
+    static minutes(startTime: DateArg, endTime?: DateArg): number;
+    /** Compute the difference from 'startTime' to 'endTime' (or now) in seconds. */
+    static seconds(startTime: DateArg, endTime?: DateArg): number;
+}
 /**
  * Make a nice string like "in 2.5 minutes" representing time from a date to now.
  * @param {DateArg} date - The date to calculate the age from.
@@ -80,7 +86,7 @@ export declare function timelineCutoffAt(): Date;
 export declare function toISOFormat(date: DateArg, withMilliseconds?: boolean): string;
 /** Like toISOFormat() but returns null if the date is undefined or null. */
 export declare function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null;
-/** Helper class for telemetry.  */
+/** Helper class for telemetry. */
 export declare class WaitTime {
     avgMsPerRequest: number;
     milliseconds: number;

@@ -11,7 +11,7 @@ import MastoApi from "./api/api";
 import TagList from "./api/tag_list";
 import Toot, { mostRecentTootedAt } from './api/objects/toot';
 import UserData from "./api/user_data";
-import { ageInMinutes, ageInSeconds } from "./helpers/time_helpers";
+import { AgeIn } from "./helpers/time_helpers";
 import { buildFiltersFromArgs, repairFilterSettings } from "./filters/feed_filters";
 import { BytesDict, sizeOf, sizeFromTextEncoder } from "./helpers/math_helper";
 import { checkUniqueRows, zipPromiseCalls } from "./helpers/collection_helpers";
@@ -199,7 +199,7 @@ export default class Storage {
             return null;
         };
 
-        const dataAgeInMinutes = ageInMinutes(withTimestamp.updatedAt);
+        const dataAgeInMinutes = AgeIn.minutes(withTimestamp.updatedAt);
         const staleAfterMinutes = config.api.data[key]?.minutesUntilStale || config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${toLocaleInt(dataAgeInMinutes)}`;
         minutesMsg += `, staleAfterMinutes: ${toLocaleInt(staleAfterMinutes)})`;
@@ -408,7 +408,7 @@ export default class Storage {
     // Return the seconds from the updatedAt stored at 'key' and now
     private static async secondsSinceLastUpdated(key: StorageKey): Promise<number | null> {
         const updatedAt = await this.updatedAt(key);
-        return updatedAt ? ageInSeconds(updatedAt) : null;
+        return updatedAt ? AgeIn.seconds(updatedAt) : null;
     }
 
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
@@ -418,7 +418,7 @@ export default class Storage {
         const mostRecent = mostRecentTootedAt(timelineToots as Toot[]);
 
         if (mostRecent) {
-            return ageInSeconds(mostRecent.getTime());
+            return AgeIn.seconds(mostRecent.getTime());
         } else {
             logger.debug(`No most recent toot found`);
             return null;
