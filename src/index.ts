@@ -889,7 +889,7 @@ export default class TheAlgorithm {
     static get isQuickMode(): boolean { return isQuickMode };
 
     /**
-     * Dictionary of preset weight configurations for scoring.
+     * Dictionary of preset weight configurations that can be selected from to set weights.
      * @returns {WeightPresets}
      */
     static get weightPresets(): WeightPresets { return WEIGHT_PRESETS };

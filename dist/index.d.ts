@@ -291,7 +291,7 @@ export default class TheAlgorithm {
     /** True if QUICK_MODE environment var was set at run time. */
     static get isQuickMode(): boolean;
     /**
-     * Dictionary of preset weight configurations for scoring.
+     * Dictionary of preset weight configurations that can be selected from to set weights.
      * @returns {WeightPresets}
      */
     static get weightPresets(): WeightPresets;

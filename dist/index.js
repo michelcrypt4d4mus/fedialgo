@@ -803,7 +803,7 @@ class TheAlgorithm {
     static get isQuickMode() { return environment_helpers_1.isQuickMode; }
     ;
     /**
-     * Dictionary of preset weight configurations for scoring.
+     * Dictionary of preset weight configurations that can be selected from to set weights.
      * @returns {WeightPresets}
      */
     static get weightPresets() { return weight_presets_1.WEIGHT_PRESETS; }
