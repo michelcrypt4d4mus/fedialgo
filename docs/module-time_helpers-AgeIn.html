@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FediAlgo Module: server_side_filters</title>
+    <title>FediAlgo Class: AgeIn</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: server_side_filters</h1>
+    <h1 class="page-title">Class: AgeIn</h1>
 
     
 
@@ -28,8 +28,10 @@
 
 <header>
     
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-time_helpers.html">time_helpers</a>~</span>AgeIn<span class="signature">()</span><span class="type-signature"></span></h2>
         
-            
+            <div class="class-description">Helper class for computing age differences in various units.</div>
         
     
 </header>
@@ -38,11 +40,16 @@
     <div class="container-overview">
     
         
-            <div class="description">Helpers for Mastodon API's server side filters.</div>
-        
 
-        
-            
+    
+    <h2>Constructor</h2>
+    
+
+    
+    <h4 class="name" id="AgeIn"><span class="type-signature"></span>new AgeIn<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
 
 
 
@@ -114,7 +121,6 @@
 
 <hr align="left" class="methodSeparator" />
 
-        
     
     </div>
 
@@ -141,7 +147,7 @@
     
 
     
-    <h4 class="name" id=".buildMutedRegex"><span class="type-signature">(static) </span>buildMutedRegex<span class="signature">(serverSideFilters)</span><span class="type-signature"> &rarr; {RegExp}</span></h4>
+    <h4 class="name" id=".hours"><span class="type-signature">(static) </span>hours<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -149,7 +155,177 @@
 
 
 <div class="description">
-    Build a regex that matches any of the muted keywords from server-side filters.
+    Compute the difference from 'startTime' to 'endTime' (or now) in hours.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".minutes"><span class="type-signature">(static) </span>minutes<span class="signature">()</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Compute the difference from 'startTime' to 'endTime' (or now) in minutes.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr align="left" class="methodSeparator" />
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".ms"><span class="type-signature">(static) </span>ms<span class="signature">(startTime, endTime<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Compute the age in milliseconds from a date to now or an optional end time.
 </div>
 
 
@@ -173,6 +349,8 @@
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -185,23 +363,64 @@
 
         <tr>
             
-                <td class="name"><code>serverSideFilters</code></td>
+                <td class="name"><code>startTime</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;mastodon.v2.Filter></span>
+<span class="param-type">DateArg</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last"></td>
+            <td class="description last">The time to calculate the age from.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>endTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">DateArg</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Optional end time to calculate the age to (defaults to now)</td>
         </tr>
 
     
@@ -265,6 +484,10 @@
 <h5>Returns:</h5>
 
         
+<div class="param-desc">
+    The age in milliseconds, or -1 if the start time is invalid.
+</div>
+
 
 
 <dl>
@@ -273,7 +496,7 @@
     </dt>
     <dd>
         
-<span class="param-type">RegExp</span>
+<span class="param-type">number</span>
 
 
     </dd>
@@ -293,7 +516,7 @@
     
 
     
-    <h4 class="name" id=".extractMutedKeywords"><span class="type-signature">(static) </span>extractMutedKeywords<span class="signature">(serverSideFilters)</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    <h4 class="name" id=".seconds"><span class="type-signature">(static) </span>seconds<span class="signature">()</span><span class="type-signature"></span></h4>
     
 
     
@@ -301,7 +524,7 @@
 
 
 <div class="description">
-    Extract all the muted keywords from server-side filters.
+    Compute the difference from 'startTime' to 'endTime' (or now) in seconds.
 </div>
 
 
@@ -310,55 +533,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>serverSideFilters</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;mastodon.v2.Filter></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -414,24 +588,6 @@
 
 
 
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array.&lt;string></span>
-
-
-    </dd>
-</dl>
-
-    
 
 
 
