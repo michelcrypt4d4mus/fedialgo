@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.18
 * Refactor `AgeIn` helper class to replace `ageInSeconds()`, `ageInHours()`, etc. and export it
 
 ### v1.1.17
