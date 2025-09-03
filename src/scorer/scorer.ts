@@ -199,8 +199,8 @@ export default abstract class Scorer {
             outlierDampener = 1;  // Prevent division by zero
         }
 
-        // Compute a weighted score a toot based by multiplying the value of each numerical property
-        // by the user's chosen weighting for that property (the one configured with the GUI sliders).
+        // Compute a weighted score for a toot by multiplying the value of each scorable property's numeric
+        // score by the user's chosen weighting (the one configured with the GUI sliders) for that property.
         const scores: TootScores = scorers.reduce(
             (scoreDict, scorer, i) => {
                 const rawScore = rawestScores[i] || 0;
@@ -219,11 +219,7 @@ export default abstract class Scorer {
                     weightedScore = -1 * Math.pow(-1 * weightedScore, outlierExponent);
                 }
 
-                scoreDict[scorer.name] = {
-                    raw: rawScore,
-                    weighted: weightedScore,
-                }
-
+                scoreDict[scorer.name] = {raw: rawScore, weighted: weightedScore};
                 return scoreDict;
             },
             {} as TootScores

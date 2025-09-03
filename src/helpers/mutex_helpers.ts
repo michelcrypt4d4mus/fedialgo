@@ -3,7 +3,7 @@
  */
 import { Mutex, Semaphore } from 'async-mutex';
 
-import { ageInSeconds, ageString } from './time_helpers';
+import { AgeIn, ageString } from './time_helpers';
 import { config } from '../config';
 import { Logger } from './logger';
 import { type ConcurrencyLockRelease } from '../types';
@@ -32,7 +32,7 @@ export async function lockExecution(locker: Mutex | Semaphore, logger?: Logger):
     }
 
     logMsg += ` lock acquired ${ageString(startedAt)}`;
-    const waitSeconds = ageInSeconds(startedAt);
+    const waitSeconds = AgeIn.seconds(startedAt);
 
     if (waitSeconds > config.api.mutexWarnSeconds) {
         logger.debug(logMsg);

@@ -177,7 +177,7 @@ class Storage {
             return null;
         }
         ;
-        const dataAgeInMinutes = (0, time_helpers_1.ageInMinutes)(withTimestamp.updatedAt);
+        const dataAgeInMinutes = time_helpers_1.AgeIn.minutes(withTimestamp.updatedAt);
         const staleAfterMinutes = config_1.config.api.data[key]?.minutesUntilStale || config_1.config.api.minutesUntilStaleDefault;
         let minutesMsg = `(dataAgeInMinutes: ${(0, string_helpers_1.toLocaleInt)(dataAgeInMinutes)}`;
         minutesMsg += `, staleAfterMinutes: ${(0, string_helpers_1.toLocaleInt)(staleAfterMinutes)})`;
@@ -355,7 +355,7 @@ class Storage {
     // Return the seconds from the updatedAt stored at 'key' and now
     static async secondsSinceLastUpdated(key) {
         const updatedAt = await this.updatedAt(key);
-        return updatedAt ? (0, time_helpers_1.ageInSeconds)(updatedAt) : null;
+        return updatedAt ? time_helpers_1.AgeIn.seconds(updatedAt) : null;
     }
     // Return the number of seconds since the most recent toot in the stored timeline   // TODO: unused
     static async secondsSinceMostRecentToot() {
@@ -364,7 +364,7 @@ class Storage {
             return null;
         const mostRecent = (0, toot_1.mostRecentTootedAt)(timelineToots);
         if (mostRecent) {
-            return (0, time_helpers_1.ageInSeconds)(mostRecent.getTime());
+            return time_helpers_1.AgeIn.seconds(mostRecent.getTime());
         }
         else {
             logger.debug(`No most recent toot found`);

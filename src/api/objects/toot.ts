@@ -12,7 +12,7 @@ import MastoApi from "../api";
 import MastodonServer from "../mastodon_server";
 import Scorer from "../../scorer/scorer";
 import UserData from "../user_data";
-import { ageInHours, ageInMinutes, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
+import { AgeIn, ageString, timelineCutoffAt, toISOFormat } from "../../helpers/time_helpers";
 import { config } from "../../config";
 import { FILTERABLE_SCORES } from "../../filters/numeric_filter";
 import { FOREIGN_SCRIPTS, LANGUAGE_NAMES, detectForeignScriptLanguage, detectLanguage } from "../../helpers/language_helper";
@@ -251,7 +251,7 @@ export default class Toot implements TootObj {
 
     // See JSDoc comment for explanations of the various getters
     get accounts(): Account[] { return this.withRetoot.map((toot) => toot.account)};
-    get ageInHours(): number { return ageInHours(this.createdAt) };
+    get ageInHours(): number { return AgeIn.hours(this.createdAt) };
     get allEmojis(): mastodon.v1.CustomEmoji[] { return (this.emojis || []).concat(this.account.emojis || []) };
     get author(): Account { return this.realToot.account };
     get homeserver(): string { return this.author.homeserver };
@@ -804,9 +804,9 @@ export default class Toot implements TootObj {
         // If we have completed it, check if we need to re-evaluate for newer trending tags, links, etc.
         return (
                // Check if toot was completed long enough ago that we might want to re-evaluate it
-               ageInMinutes(this.completedAt) < config.minTrendingMinutesUntilStale()
+               AgeIn.minutes(this.completedAt) < config.minTrendingMinutesUntilStale()
                // But not tooted so long ago that there's little chance of new data
-            || ageInMinutes(this.createdAt) > config.toots.completeAfterMinutes
+            || AgeIn.minutes(this.createdAt) > config.toots.completeAfterMinutes
         );
     }
 

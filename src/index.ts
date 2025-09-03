@@ -44,6 +44,7 @@ import UserData from "./api/user_data";
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
 import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
+import { AgeIn, ageString, sleep, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
 import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { DEFAULT_FONT_SIZE, FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
@@ -53,15 +54,7 @@ import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
-import {
-    ageInHours,
-    ageInMinutes,
-    ageInSeconds,
-    ageString,
-    sleep,
-    timeString,
-    toISOFormatIfExists
-} from './helpers/time_helpers';
+import { type ObjList } from "./api/counted_list";
 import {
     AlgorithmStorageKey,
     BooleanFilterName,
@@ -88,7 +81,6 @@ import {
     sortKeysByValue,
     truncateToLength,
 } from "./helpers/collection_helpers";
-import { type ObjList } from "./api/counted_list";
 import {
     FILTER_OPTION_DATA_SOURCES,
     type BooleanFilterOption,
@@ -431,8 +423,8 @@ export default class TheAlgorithm {
     mostRecentHomeTootAgeInSeconds(): number | null {
         const mostRecentAt = this.mostRecentHomeTootAt();
         if (!mostRecentAt) return null;
-        logger.trace(`feed is ${ageInMinutes(mostRecentAt).toFixed(2)} mins old, most recent home toot: ${timeString(mostRecentAt)}`);
-        return ageInSeconds(mostRecentAt);
+        logger.trace(`feed is ${AgeIn.minutes(mostRecentAt).toFixed(2)} min old, most recent home toot: ${timeString(mostRecentAt)}`);
+        return AgeIn.seconds(mostRecentAt);
     }
 
     /**
@@ -645,7 +637,7 @@ export default class TheAlgorithm {
 
         if (this.loadStartedAt) {
             hereLogger.logTelemetry(`finished home TL load w/ ${this.feed.length} toots`, this.loadStartedAt);
-            this.lastLoadTimeInSeconds = ageInSeconds(this.loadStartedAt);
+            this.lastLoadTimeInSeconds = AgeIn.seconds(this.loadStartedAt);
         } else {
             hereLogger.warn(`finished but loadStartedAt is null!`);
         }
@@ -859,7 +851,7 @@ export default class TheAlgorithm {
         let numHoursInHomeFeed: number | null = null;
 
         if (mostRecentTootAt && oldestTootAt) {
-            numHoursInHomeFeed = ageInHours(oldestTootAt, mostRecentTootAt);
+            numHoursInHomeFeed = AgeIn.hours(oldestTootAt, mostRecentTootAt);
         }
 
         return {
@@ -927,6 +919,7 @@ export {
     TypeFilterName,
     WeightName,
     // Helpers
+    AgeIn,
     extractDomain,
     isAccessTokenRevokedError,
     isValueInStringEnum,
