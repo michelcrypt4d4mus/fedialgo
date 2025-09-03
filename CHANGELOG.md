@@ -1,6 +1,5 @@
 # NEXT RELEASE
-
-### v1.1.16
+* Add `debugWithTraceObjs()` method to `Logger` class
 
 ### v1.1.15
 * (Demo App) Adjust switchbar checkbox labels

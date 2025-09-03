@@ -10,8 +10,8 @@ exports.tagInfoStr = exports.repairTag = exports.isValidForSubstringSearch = exp
  */
 const api_1 = __importDefault(require("../../api/api"));
 const config_1 = require("../../config");
-const language_helper_1 = require("../../helpers/language_helper");
 const string_helpers_1 = require("../../helpers/string_helpers");
+const language_helper_1 = require("../../helpers/language_helper");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 /**
  * Build a synthetic TagWithUsageCounts for a given string.

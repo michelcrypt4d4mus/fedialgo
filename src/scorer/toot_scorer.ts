@@ -5,7 +5,6 @@
 
 import Scorer from "./scorer";
 import { ageString } from "../helpers/time_helpers";
-import { isDebugMode } from "../helpers/environment_helpers";
 import { ScoreName } from '../enums';
 import { type StringNumberDict } from "../types";
 
@@ -23,8 +22,10 @@ export default abstract class TootScorer extends Scorer {
         super(scoreName);
     }
 
-    // Calls this.prepareScoreData() to get any data required for scoring Toots later.
-    // Don't overload this - overload prepareScoreData() instead.
+    /**
+     * Calls this.prepareScoreData() to get any data required for scoring Toots later.
+     * NOTE: Don't overload this - overload prepareScoreData() instead.
+     */
     async fetchRequiredData(): Promise<void> {
         const startTime = Date.now();
 
@@ -36,14 +37,16 @@ export default abstract class TootScorer extends Scorer {
         }
 
         if (Object.values(this.scoreData).length > 0) {
-            const msg = `prepareScoreData() finished ${ageString(startTime)}`;
-            this.logger.debug(`${msg}, returned:`, isDebugMode ? this.scoreData : `[enable debug mode to see]`);
+            this.logger.debugWithTraceObjs(`prepareScoreData() finished ${ageString(startTime)}`, this.scoreData);
         }
 
         this.isReady = true;
     }
 
-    // Can be overloaded in subclasses to set up any data required for scoring Toots
+    /**
+     * Can be overloaded in subclasses to set up any data required for scoring Toots.
+     * @returns {StringNumberDict} Dictionary of data required for scoring Toots.
+     */
     async prepareScoreData(): Promise<StringNumberDict> {
         return {};
     }

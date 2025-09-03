@@ -46,6 +46,8 @@ export declare class Logger {
     info: (msg: string, ...args: unknown[]) => void;
     /** console.debug() with the logger's prefix. */
     debug: (msg: string, ...args: unknown[]) => void;
+    /** Logs 'msg' at debug level but only appends 'args' if isDebugMode is true. */
+    debugWithTraceObjs: (msg: string, ...args: unknown[]) => void;
     /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
     trace: (msg: string, ...args: unknown[]) => void;
     /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */

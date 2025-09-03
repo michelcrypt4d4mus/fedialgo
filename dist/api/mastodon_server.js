@@ -292,16 +292,14 @@ class MastodonServer {
         const releaseMutex = await (0, mutex_helpers_1.lockExecution)(mutexes[key], logger);
         const startedAt = new Date();
         try {
-            let records = await Storage_1.default.getIfNotStale(key);
-            if (!records?.length) {
+            let objs = await Storage_1.default.getIfNotStale(key);
+            if (!objs?.length) {
                 const serverObjs = await this.callForTopServers(serverFxn);
-                // logger.trace(`result from all servers:`, serverObjs);
-                const flatObjs = Object.values(serverObjs).flat();
-                records = await processingFxn(flatObjs);
-                logger.debug(`fetched ${records.length} unique records ${(0, time_helpers_1.ageString)(startedAt)}`, records);
-                await Storage_1.default.set(key, records);
+                objs = await processingFxn(Object.values(serverObjs).flat());
+                logger.debugWithTraceObjs(`fetched ${objs.length} objs ${(0, time_helpers_1.ageString)(startedAt)}`, objs);
+                await Storage_1.default.set(key, objs);
             }
-            return records;
+            return objs;
         }
         finally {
             releaseMutex();

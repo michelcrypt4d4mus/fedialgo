@@ -9,7 +9,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const scorer_1 = __importDefault(require("./scorer"));
 const time_helpers_1 = require("../helpers/time_helpers");
-const environment_helpers_1 = require("../helpers/environment_helpers");
 /**
  * Base class for a Scorer that can score a toot based solely on the properties of that
  * toot, optionally coupled with the fedialgo user's account data. Most importantly a
@@ -22,8 +21,10 @@ class TootScorer extends scorer_1.default {
     constructor(scoreName) {
         super(scoreName);
     }
-    // Calls this.prepareScoreData() to get any data required for scoring Toots later.
-    // Don't overload this - overload prepareScoreData() instead.
+    /**
+     * Calls this.prepareScoreData() to get any data required for scoring Toots later.
+     * NOTE: Don't overload this - overload prepareScoreData() instead.
+     */
     async fetchRequiredData() {
         const startTime = Date.now();
         try {
@@ -34,12 +35,14 @@ class TootScorer extends scorer_1.default {
             this.scoreData = {};
         }
         if (Object.values(this.scoreData).length > 0) {
-            const msg = `prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`;
-            this.logger.debug(`${msg}, returned:`, environment_helpers_1.isDebugMode ? this.scoreData : `[enable debug mode to see]`);
+            this.logger.debugWithTraceObjs(`prepareScoreData() finished ${(0, time_helpers_1.ageString)(startTime)}`, this.scoreData);
         }
         this.isReady = true;
     }
-    // Can be overloaded in subclasses to set up any data required for scoring Toots
+    /**
+     * Can be overloaded in subclasses to set up any data required for scoring Toots.
+     * @returns {StringNumberDict} Dictionary of data required for scoring Toots.
+     */
     async prepareScoreData() {
         return {};
     }
