@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.17
 * Add `debugWithTraceObjs()` method to `Logger` class
 
 ### v1.1.15
