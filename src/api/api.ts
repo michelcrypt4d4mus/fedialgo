@@ -205,7 +205,6 @@ export const apiLogger = getLogger();
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
  * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
- * @property {Error[]} apiErrors - Array of errors encountered while using the API.
  * @property {string} homeDomain - The Fedialgo user's home server domain.
  * @property {Logger} logger - API logger instance.
  * @property {Account} user - The Fedialgo user's Account object.
@@ -216,13 +215,13 @@ export default class MastoApi {
     static #instance: MastoApi;
 
     api: mastodon.rest.Client;
-    apiErrors: Error[] = [];
     homeDomain: string;
     logger: Logger = getLogger();
     user: Account;
     userData?: UserData;
     waitTimes = simpleCacheKeyDict(() => new WaitTime());
 
+    private apiErrors: Error[] = [];
     private apiMutexes = simpleCacheKeyDict(() => new Mutex());   // For locking data fetching for an API endpoint
     private cacheMutexes = simpleCacheKeyDict(() => new Mutex()); // For locking checking the cache for an API endpoint
     private isHomeserverGoToSocial: Optional<boolean> = undefined;
@@ -582,9 +581,7 @@ export default class MastoApi {
 
             return filters;
         } catch (err) {
-            const msg = `Failed to get server-side filters`;
-            logger.error(msg, err);
-            this.apiErrors.push(new Error(msg, {cause: err}));
+            this.recordApiError(`Failed to fetch user's server-side filters`, err, logger);
             return [];
         } finally {
             releaseMutex();
@@ -613,8 +610,7 @@ export default class MastoApi {
             if (accessRevokedError) {
                 throw accessRevokedError;
             } else {
-                const err = new Error(`Error getting toots for tag: "#${tagName}"`, {cause: results.rejectedReasons});
-                this.apiErrors.push(err);
+                this.recordApiError(`Error getting toots for tag: "#${tagName}"`, results.rejectedReasons, logger);
             }
         }
 
@@ -788,6 +784,17 @@ export default class MastoApi {
         } finally {
             releaseSemaphore();
         }
+    }
+
+    /**
+     * Records an API error by logging it and adding it to the apiErrors array.
+     * @param {string} msg - Message to log
+     * @param {Error} [causedByError] - The underlying Error object that caused this error, if any.
+     * @param {Logger} [logger] - Logger instance to use (defaults to this.logger)
+     */
+    recordApiError(msg: string, causedByError?: Error | unknown, logger?: Logger): void {
+        (logger ?? this.logger).error(msg, causedByError);
+        this.apiErrors.push(new Error(msg, {cause: causedByError}));
     }
 
     /**
@@ -997,9 +1004,7 @@ export default class MastoApi {
             if (!skipCache) await Storage.set(cacheKey, objs);
             return objs;
         } catch (err) {
-            const msg = `Error fetching API records for ${cacheKey} where there really shouldn't be!`;
-            logger.error(msg, err);
-            this.apiErrors.push(new Error(msg, {cause: err}));
+            this.recordApiError(`Error fetching ${cacheKey} API data where there really shouldn't be!`, err, logger);
             return [];
         } finally {
             releaseMutex?.();
@@ -1149,14 +1154,12 @@ export default class MastoApi {
 
         if (!newRows?.length && requestDefaults.canBeDisabledOnGoToSocial && await this.isGoToSocialUser()) {
             const goToSocialWarning = config.api.errorMsgs.goToSocialHashtagTimeline(cacheKey);
-            const goToSocialError = logger.line(`Failed to fetch data. ${goToSocialWarning}`);
-            this.logger.warn(goToSocialError, err);
-            this.apiErrors.push(new Error(goToSocialError, {cause: err}));
+            this.recordApiError(logger.line(`Failed to fetch data. ${goToSocialWarning}`), err, logger);
             return cachedRows;
         }
 
         let msg = `"${err}" after pulling ${newRows.length} rows (cache: ${cachedRows.length} rows).`;
-        this.apiErrors.push(new Error(logger.line(msg), {cause: err}));
+        this.recordApiError(logger.line(msg), err, logger);
         throwIfAccessTokenRevoked(logger, err, `Failed ${waitTime.ageString()}. ${msg}`);
         const rows = newRows as ResponseRow<T>[];  // buildFromApiObjects() will sort out the types later
 

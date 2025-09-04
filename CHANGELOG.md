@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Push `MastodonServer` scraping errors into `MastoApi.apiErrors` array for display to user
+* Consolidate API error logging to new `MastoApi.recordApiError()` method
 
 ### v1.1.19
 * More `tagOnlyStrings`

@@ -48,7 +48,6 @@ export declare const apiLogger: Logger;
  * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
  * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
- * @property {Error[]} apiErrors - Array of errors encountered while using the API.
  * @property {string} homeDomain - The Fedialgo user's home server domain.
  * @property {Logger} logger - API logger instance.
  * @property {Account} user - The Fedialgo user's Account object.
@@ -58,12 +57,12 @@ export declare const apiLogger: Logger;
 export default class MastoApi {
     #private;
     api: mastodon.rest.Client;
-    apiErrors: Error[];
     homeDomain: string;
     logger: Logger;
     user: Account;
     userData?: UserData;
     waitTimes: Record<ApiCacheKey, WaitTime>;
+    private apiErrors;
     private apiMutexes;
     private cacheMutexes;
     private isHomeserverGoToSocial;
@@ -234,6 +233,13 @@ export default class MastoApi {
      * @returns {Promise<mastodon.v1.Status[]>} Array of status objects.
      */
     searchForToots(searchStr: string, logger: Logger, maxRecords?: number): Promise<mastodon.v1.Status[]>;
+    /**
+     * Records an API error by logging it and adding it to the apiErrors array.
+     * @param {string} msg - Message to log
+     * @param {Error} [causedByError] - The underlying Error object that caused this error, if any.
+     * @param {Logger} [logger] - Logger instance to use (defaults to this.logger)
+     */
+    recordApiError(msg: string, causedByError?: Error | unknown, logger?: Logger): void;
     /**
      * Resets the API state, clearing errors and user data, and resetting concurrency.
      */
