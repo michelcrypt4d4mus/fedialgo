@@ -202,11 +202,8 @@ function populateMissingFilters(filters) {
 }
 /**
  * Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
- * Currently used to update followed hashtags only because otherwise it's too slow.
- *
- * NOTE: Scanning all elements of hashtagOptions against all Toots takes 75 seconds for a feed with 1,500 toots
- * which is why we only currently do it for followed tags. Even scanning for just followed tags takes
- * 3-4 seconds for a list of 138 followed tags against 3,000 toots.
+ * Used to search the home timeline for Toots that contain discussion of a given tag even if
+ * it's not actually tagged with it (e.g. toot mentions "AI" in the text but doesn't contain "#AI").
  *
  * @private
  * @param {BooleanFilterOptionList} options - Options list to update with additional hashtag matches.
