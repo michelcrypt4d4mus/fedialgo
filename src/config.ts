@@ -514,11 +514,12 @@ class Config implements ConfigType {
             "act",
             "action",
             "actions",
+            "activities",
             "activity",
             "activitypub",
-            "actu",                // french
+            "actu",                // French
             "actual",
-            "actualites",          // french
+            "actualites",          // French
             "add",
             "address",
             "administration",
@@ -546,6 +547,7 @@ class Config implements ConfigType {
             "ahead",
             "aid",
             "air",
+            "aktuel",             // German
             "alienvault",
             "all",
             "also",
@@ -564,8 +566,8 @@ class Config implements ConfigType {
             "analysis",
             "and",
             "angeles",
-            "ano",                // spanish
-            "anos",               // spanish
+            "ano",                // Spanish
+            "anos",               // Spanish
             "another",
             "anti",
             "app",
@@ -608,6 +610,7 @@ class Config implements ConfigType {
             "bars",
             "base",
             "based",
+            "basic",
             "bay",
             "beat",
             "beats",
@@ -751,7 +754,7 @@ class Config implements ConfigType {
             "complicit",
             "component",
             "components",
-            "con",            // spanish
+            "con",            // Spanish
             "concern",
             "concerns",
             "conflict",
@@ -778,6 +781,7 @@ class Config implements ConfigType {
             "coverage",
             "covered",
             "covers",
+            "cr",             // TLD (Costa Rica)
             "craft",
             "crafts",
             "create",
@@ -788,7 +792,7 @@ class Config implements ConfigType {
             "creative",
             "critical",
             "cross",
-            "cu",             // tagalog
+            "cu",             // Tagalog
             "cup",
             "cut",
             "culture",
@@ -799,15 +803,16 @@ class Config implements ConfigType {
             "cz",             // TLD
             "daily",
             "dark",
-            "das",            // german
+            "das",            // German
             "data",
             "date",
             "dated",
-            "daten",          // german
+            "daten",          // German
             "dates",
+            "dati",           // French
             "david",
             "day",
-            "de",             // german
+            "de",             // German
             "deal",
             "dealing",
             "deals",
@@ -824,19 +829,19 @@ class Config implements ConfigType {
             "defence",
             "defense",
             "degree",
-            "deja",          // french
+            "deja",          // French
             "deliver",
             "delivered",
             "deliveries",
             "delivering",
             "delivery",
-            "dem",           // german
-            "den",           // german
+            "dem",           // German
+            "den",           // German
             "density",
             "depart",
             "department",
             "departments",
-            "der",           // german
+            "der",           // German
             "design",
             "designs",
             "detail",
@@ -845,7 +850,7 @@ class Config implements ConfigType {
             "did",
             "diego",
             "digital",
-            "dir",           // german
+            "dir",           // German
             "direct",
             "direction",
             "discover",
@@ -867,7 +872,7 @@ class Config implements ConfigType {
             "done",
             "door",
             "doors",
-            "dos",           // spanish
+            "dos",           // Spanish
             "dot",
             "double",
             "doubled",
@@ -879,7 +884,11 @@ class Config implements ConfigType {
             "down",
             "downtown",
             "draw",
+            "drift",
+            "drifted",
+            "drifts",
             "drive",
+            "driven",
             "driver",
             "drivers",
             "drove",
@@ -981,7 +990,14 @@ class Config implements ConfigType {
             "factor",
             "factors",
             "facts",
+            "fail",
+            "failed",
+            "failing",
+            "fails",
             "fair",
+            "fairer",
+            "fairest",
+            "fairly",
             "fall",
             "failure",
             "false",
@@ -1051,7 +1067,7 @@ class Config implements ConfigType {
             "fr",          // TLD
             "frank",
             "free",
-            "french",
+            "French",
             "from",
             "front",
             "full",
@@ -1131,6 +1147,7 @@ class Config implements ConfigType {
             "his",
             "hit",
             "home",
+            "homepage",
             "homes",
             "hot",
             "how",
@@ -1210,6 +1227,7 @@ class Config implements ConfigType {
             "know",
             "knowing",
             "knowledge",
+            "kultur",         // German
             "la",             // French
             "lack",
             "lacked",
@@ -1328,8 +1346,9 @@ class Config implements ConfigType {
             "meaningless",
             "means",
             "meant",
-            "media",     // TLD
+            "media",      // TLD
             "medias",
+            "medien",     // German
             "medium",
             "meduza",
             "meet",
@@ -1343,6 +1362,7 @@ class Config implements ConfigType {
             "messages",
             "messaging",
             "met",
+            "middle",
             "million",
             "millions",
             "min",
@@ -1355,7 +1375,7 @@ class Config implements ConfigType {
             "model",
             "models",
             "modern",
-            "monde",      // French
+            "monde",       // French
             "more",
             "morning",
             "most",
@@ -1367,10 +1387,11 @@ class Config implements ConfigType {
             "ms",
             "mstdn",
             "much",
-            "mucho",     // Spanish
-            "mundo",     // Spanish
+            "mucho",      // Spanish
+            "mundo",      // Spanish
             "must",
             "my",
+            "na",         // Spanish
             "nation",
             "national",
             "nationality",
@@ -1479,6 +1500,7 @@ class Config implements ConfigType {
             "packed",
             "packs",
             "paid",
+            "pan",
             "panel",
             "paper",
             "papier",      // French
@@ -1851,13 +1873,14 @@ class Config implements ConfigType {
             "short",
             "shorter",
             "shortest",
+            "shorts",      // YouTube shorts
             "should",
             "show",
             "showed",
             "showing",
             "shown",
             "shows",
-            "si",     // Spanish
+            "si",         // Spanish
             "side",
             "sides",
             "similar",
@@ -2191,6 +2214,7 @@ class Config implements ConfigType {
             "weirdly",
             "weirdness",
             "well",
+            "welt",          // German
             "wenn",          // German
             "went",
             "were",
