@@ -117,6 +117,7 @@ const EMPTY_TRENDING_DATA = {
 };
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const logger = new logger_1.Logger(`TheAlgorithm`);
+const loadCacheLogger = logger.tempLogger(`loadCachedData()`);
 const saveTimelineToCacheLogger = logger.tempLogger(`saveTimelineToCache`);
 const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key), enums_1.ALL_ACTIONS.reduce((_loggers, action) => {
     _loggers[action] = logger.tempLogger(action);
@@ -631,7 +632,7 @@ class TheAlgorithm {
         this.feed = await Storage_1.default.getCoerced(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS);
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
             const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
-            logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
+            loadCacheLogger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
             this.feed = (0, collection_helpers_1.truncateToLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, logger);
             await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         }
@@ -639,11 +640,17 @@ class TheAlgorithm {
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
-        logger.log(`<loadCachedData()> loaded ${this.feed.length} timeline toots from cache, trendingData`);
+        loadCacheLogger.debugWithTraceObjs(`Loaded ${this.feed.length} cached toots + trendingData`, this.trendingData);
     }
-    // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
-    // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
-    // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+    /**
+     * Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
+     * which can result in toots getting lost as threads try to merge newToots into different this.feed states.
+     * Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+     * @private
+     * @param {Toot[]} newToots - New toots to merge into this.feed
+     * @param {Logger} logger - Logger to use
+     * @returns {Promise<void>}
+     */
     async lockedMergeToFeed(newToots, logger) {
         const hereLogger = logger.tempLogger('lockedMergeToFeed');
         const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.mergeMutex, hereLogger);
@@ -698,6 +705,7 @@ class TheAlgorithm {
      * Release the loading mutex and reset the loading state variables.
      * @private
      * @param {LoadAction} logPrefix - Action for logging context.
+     * @returns {void}
      */
     releaseLoadingMutex(logPrefix) {
         this.loadingStatus = null;
@@ -729,13 +737,13 @@ class TheAlgorithm {
      */
     shouldSkip() {
         const hereLogger = loggers[enums_1.LoadAction.FEED_UPDATE];
-        hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        hereLogger.debugWithTraceObjs(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
             feedAgeInMinutes /= 60;
         const maxAgeMinutes = config_1.config.minTrendingMinutesUntilStale();
         if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
-            hereLogger.debug(`QUICK_MODE Feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
+            hereLogger.debug(`isQuickMode=${environment_helpers_1.isQuickMode}, feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
             // Needs to be called to update the feed in the app
             scorer_cache_1.default.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
@@ -754,7 +762,7 @@ class TheAlgorithm {
     async startAction(logPrefix) {
         const hereLogger = loggers[logPrefix];
         const status = config_1.config.locale.messages[logPrefix];
-        hereLogger.log(`called, state:`, this.statusDict());
+        hereLogger.debugWithTraceObjs(`called`, this.statusDict());
         if (this.isLoading) {
             hereLogger.warn(`Load in progress already!`, this.statusDict());
             throw new Error(config_1.config.locale.messages.isBusy);
