@@ -169,7 +169,9 @@ export default class MastodonServer {
                 logger.warn(`Empty array of ${label} found (but no actual error)`);
             }
         } catch (e) {
-            logger.warn(`Failed to get ${label} data! Error:`, e);
+            const msg = `Failed to scrape ${label} data from ${this.domain}, skipping...`;
+            logger.warn(msg, e);
+            MastoApi.instance.apiErrors.push(new Error(msg, {cause: e}));
             list = [];
         }
 

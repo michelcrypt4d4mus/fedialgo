@@ -138,7 +138,9 @@ class MastodonServer {
             }
         }
         catch (e) {
-            logger.warn(`Failed to get ${label} data! Error:`, e);
+            const msg = `Failed to scrape ${label} data from ${this.domain}, skipping...`;
+            logger.warn(msg, e);
+            api_1.default.instance.apiErrors.push(new Error(msg, { cause: e }));
             list = [];
         }
         return list;
