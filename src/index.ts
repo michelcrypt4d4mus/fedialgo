@@ -22,7 +22,6 @@ import InteractionsScorer from "./scorer/toot/interactions_scorer";
 import MastoApi, { FULL_HISTORY_PARAMS } from "./api/api";
 import MastodonServer from './api/mastodon_server';
 import MentionsFollowedScorer from './scorer/toot/mentions_followed_scorer';
-import MoarDataPoller from './api/moar_data_poller';
 import MostFavouritedAccountsScorer from "./scorer/toot/most_favourited_accounts_scorer";
 import MostRepliedAccountsScorer from "./scorer/toot/most_replied_accounts_scorer";
 import MostRetootedAccountsScorer from "./scorer/toot/most_retooted_accounts_scorer";
@@ -41,6 +40,7 @@ import TrendingLinksScorer from './scorer/toot/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
 import UserData from "./api/user_data";
+import UserDataPoller from './api/moar_data_poller';
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
 import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
@@ -185,7 +185,7 @@ export default class TheAlgorithm {
     private _releaseLoadingMutex?: ConcurrencyLockRelease;  // Mutex release function for loading state
     // Background tasks
     private cacheUpdater?: ReturnType<typeof setInterval>;
-    private dataPoller = new MoarDataPoller();
+    private userDataPoller = new UserDataPoller();
 
     // These scorers require the complete feed to work properly
     private feedScorers: FeedScorer[] = [
@@ -326,16 +326,16 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData(): Promise<void> {
-        const shouldReenablePoller = this.dataPoller.stop();
+        const shouldReenablePoller = this.userDataPoller.stop();
         await this.startAction(LoadAction.GET_MOAR_DATA);
 
         try {
-            await this.dataPoller.getMoarData();
+            await this.userDataPoller.getMoarData();
             await this.recomputeScores();
         } catch (error) {
             throwSanitizedRateLimitError(error, `triggerMoarData() Error pulling user data:`);
         } finally {
-            if (shouldReenablePoller) this.dataPoller.start();
+            if (shouldReenablePoller) this.userDataPoller.start();
             this.releaseLoadingMutex(LoadAction.GET_MOAR_DATA);
         }
     }
@@ -351,7 +351,7 @@ export default class TheAlgorithm {
         this.startAction(action);
 
         try {
-            this.dataPoller.stop();   // Stop the dataPoller if it's running
+            this.userDataPoller.stop();   // Stop the dataPoller if it's running
 
             const _allResults = await Promise.allSettled([
                 MastoApi.instance.getFavouritedToots(FULL_HISTORY_PARAMS),
@@ -452,7 +452,7 @@ export default class TheAlgorithm {
         await this.startAction(LoadAction.RESET);
 
         try {
-            this.dataPoller.stop();
+            this.userDataPoller.stop();
             this.cacheUpdater && clearInterval(this.cacheUpdater!);
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
@@ -666,7 +666,7 @@ export default class TheAlgorithm {
      * @private
      */
     private launchBackgroundPollers(): void {
-        this.dataPoller.start();
+        this.userDataPoller.start();
 
         // The cache updater writes the current state of the feed to storage every few seconds
         // to capture changes to the alreadyShown state of toots.

@@ -18,18 +18,17 @@ type Poller = (params?: ApiParams) => Promise<ApiObj[]>;
 const MOAR_MUTEX = new Mutex();
 
 
-// TODO: Rename to UserDataPoller
-export default class MoarDataPoller {
+export default class UserDataPoller {
     private intervalRunner?: ReturnType<typeof setInterval>;
-    private logger = new Logger('MoarDataPoller');
+    private logger = new Logger('UserDataPoller');
 
     start(): void {
         if (this.intervalRunner) {
-            this.logger.trace(`Data poller already exists, not starting another one`);
+            this.logger.trace(`User data poller already exists, not starting another one`);
             return;
         }
 
-        this.logger.info(`Starting data poller on ${config.api.backgroundLoadIntervalMinutes} minute interval...`);
+        this.logger.info(`Starting UserDataPoller on ${config.api.backgroundLoadIntervalMinutes} minute interval...`);
 
         this.intervalRunner = setInterval(
             async () => {
@@ -51,7 +50,7 @@ export default class MoarDataPoller {
      */
     stop(): boolean {
         if (MOAR_MUTEX.isLocked()) {
-            this.logger.log(`Cancelling in-progress data fetch...`);
+            this.logger.info(`Cancelling in-progress data fetch...`);
             MOAR_MUTEX.cancel();
         }
 
@@ -62,7 +61,7 @@ export default class MoarDataPoller {
 
         clearInterval(this.intervalRunner);
         this.intervalRunner = undefined;
-        this.logger.log(`Stopped data poller.`);
+        this.logger.info(`Stopped data poller.`);
         return true;
     }
 

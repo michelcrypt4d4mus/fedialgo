@@ -66,7 +66,7 @@ export default class TheAlgorithm {
     private numTriggers;
     private _releaseLoadingMutex?;
     private cacheUpdater?;
-    private dataPoller;
+    private userDataPoller;
     private feedScorers;
     private tootScorers;
     private weightedScorers;

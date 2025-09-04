@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Rename `MoarDataPoller` to `UserDataPoller`
 
 ### v1.1.22
 * More `tagOnlyStrings`
