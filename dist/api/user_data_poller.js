@@ -15,22 +15,21 @@ const config_1 = require("../config");
 const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
 const enums_1 = require("../enums");
-const GET_MOAR_DATA = "getMoarData()";
 const MOAR_MUTEX = new async_mutex_1.Mutex();
-class MoarDataPoller {
+class UserDataPoller {
     intervalRunner;
-    logger = new logger_1.Logger(GET_MOAR_DATA);
+    logger = new logger_1.Logger('UserDataPoller');
     start() {
         if (this.intervalRunner) {
-            this.logger.trace(`Data poller already exists, not starting another one`);
+            this.logger.trace(`User data poller already running, not starting another one`);
             return;
         }
-        this.logger.info(`Starting data poller on ${config_1.config.api.backgroundLoadIntervalMinutes} minute interval...`);
+        this.logger.info(`Starting UserDataPoller on ${config_1.config.api.backgroundLoadIntervalMinutes} minute interval...`);
         this.intervalRunner = setInterval(async () => {
             const shouldContinue = await this.getMoarData();
-            await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
+            await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore to avoid shuffling feed
             if (!shouldContinue) {
-                this.logger.log(`Stopping data poller because shouldContinue:`, shouldContinue);
+                this.logger.info(`Finishing up data poller (shouldContinue=${shouldContinue})`);
                 this.intervalRunner && clearInterval(this.intervalRunner);
             }
         }, config_1.config.api.backgroundLoadIntervalMinutes * enums_1.SECONDS_IN_MINUTE * 1000);
@@ -41,7 +40,7 @@ class MoarDataPoller {
      */
     stop() {
         if (MOAR_MUTEX.isLocked()) {
-            this.logger.log(`Cancelling in-progress data fetch...`);
+            this.logger.info(`Cancelling in-progress data fetch...`);
             MOAR_MUTEX.cancel();
         }
         if (!this.intervalRunner) {
@@ -50,7 +49,7 @@ class MoarDataPoller {
         }
         clearInterval(this.intervalRunner);
         this.intervalRunner = undefined;
-        this.logger.log(`Stopped data poller.`);
+        this.logger.info(`Stopped data poller.`);
         return true;
     }
     /**
@@ -99,5 +98,5 @@ class MoarDataPoller {
         }
     }
 }
-exports.default = MoarDataPoller;
-//# sourceMappingURL=moar_data_poller.js.map
+exports.default = UserDataPoller;
+//# sourceMappingURL=user_data_poller.js.map

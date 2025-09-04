@@ -50,7 +50,6 @@ const interactions_scorer_1 = __importDefault(require("./scorer/toot/interaction
 const api_1 = __importStar(require("./api/api"));
 const mastodon_server_1 = __importDefault(require("./api/mastodon_server"));
 const mentions_followed_scorer_1 = __importDefault(require("./scorer/toot/mentions_followed_scorer"));
-const moar_data_poller_1 = __importDefault(require("./api/moar_data_poller"));
 const most_favourited_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_favourited_accounts_scorer"));
 const most_replied_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_replied_accounts_scorer"));
 const most_retooted_accounts_scorer_1 = __importDefault(require("./scorer/toot/most_retooted_accounts_scorer"));
@@ -72,13 +71,13 @@ const trending_links_scorer_1 = __importDefault(require("./scorer/toot/trending_
 const trending_tags_scorer_1 = __importDefault(require("./scorer/toot/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/toot/trending_toots_scorer"));
 const user_data_1 = __importDefault(require("./api/user_data"));
+const user_data_poller_1 = __importDefault(require("./api/user_data_poller"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/toot/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "AgeIn", { enumerable: true, get: function () { return time_helpers_1.AgeIn; } });
 Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return time_helpers_1.sleep; } });
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
-const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "DEFAULT_FONT_SIZE", { enumerable: true, get: function () { return string_helpers_1.DEFAULT_FONT_SIZE; } });
 Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () { return string_helpers_1.FEDIALGO; } });
@@ -92,6 +91,7 @@ const environment_helpers_1 = require("./helpers/environment_helpers");
 const mutex_helpers_1 = require("./helpers/mutex_helpers");
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
+const config_1 = require("./config");
 const stats_helper_1 = require("./helpers/stats_helper");
 const weight_presets_1 = require("./scorer/weight_presets");
 const enums_1 = require("./enums");
@@ -176,7 +176,7 @@ class TheAlgorithm {
     _releaseLoadingMutex; // Mutex release function for loading state
     // Background tasks
     cacheUpdater;
-    dataPoller = new moar_data_poller_1.default();
+    userDataPoller = new user_data_poller_1.default();
     // These scorers require the complete feed to work properly
     feedScorers = [
         new diversity_feed_scorer_1.default(),
@@ -300,10 +300,10 @@ class TheAlgorithm {
      * @returns {Promise<void>}
      */
     async triggerMoarData() {
-        const shouldReenablePoller = this.dataPoller.stop();
+        const shouldReenablePoller = this.userDataPoller.stop();
         await this.startAction(enums_1.LoadAction.GET_MOAR_DATA);
         try {
-            await this.dataPoller.getMoarData();
+            await this.userDataPoller.getMoarData();
             await this.recomputeScores();
         }
         catch (error) {
@@ -311,7 +311,7 @@ class TheAlgorithm {
         }
         finally {
             if (shouldReenablePoller)
-                this.dataPoller.start();
+                this.userDataPoller.start();
             this.releaseLoadingMutex(enums_1.LoadAction.GET_MOAR_DATA);
         }
     }
@@ -325,7 +325,7 @@ class TheAlgorithm {
         const hereLogger = loggers[action];
         this.startAction(action);
         try {
-            this.dataPoller.stop(); // Stop the dataPoller if it's running
+            this.userDataPoller.stop(); // Stop the dataPoller if it's running
             const _allResults = await Promise.allSettled([
                 api_1.default.instance.getFavouritedToots(api_1.FULL_HISTORY_PARAMS),
                 // TODO: there's just too many notifications to pull all of them
@@ -418,7 +418,7 @@ class TheAlgorithm {
     async reset(complete = false) {
         await this.startAction(enums_1.LoadAction.RESET);
         try {
-            this.dataPoller.stop();
+            this.userDataPoller.stop();
             this.cacheUpdater && clearInterval(this.cacheUpdater);
             this.cacheUpdater = undefined;
             this.hasProvidedAnyTootsToClient = false;
@@ -464,7 +464,7 @@ class TheAlgorithm {
         }
     }
     /**
-     * True if fedialgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
+     * True if FediAlgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
      * @returns {boolean}
      */
     async isGoToSocialUser() {
@@ -475,8 +475,7 @@ class TheAlgorithm {
      * @returns {Promise<TrendingData>}
      */
     async refreshTrendingData() {
-        const trendingData = await mastodon_server_1.default.getTrendingData();
-        this.trendingData = trendingData;
+        this.trendingData = await mastodon_server_1.default.getTrendingData();
         return this.trendingData;
     }
     /**
@@ -612,7 +611,7 @@ class TheAlgorithm {
      * @private
      */
     launchBackgroundPollers() {
-        this.dataPoller.start();
+        this.userDataPoller.start();
         // The cache updater writes the current state of the feed to storage every few seconds
         // to capture changes to the alreadyShown state of toots.
         if (this.cacheUpdater) {

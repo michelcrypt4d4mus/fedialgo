@@ -1,4 +1,4 @@
-export default class MoarDataPoller {
+export default class UserDataPoller {
     private intervalRunner?;
     private logger;
     start(): void;
