@@ -16,16 +16,11 @@ import {
     DAYS_SHORT,
     MONTHS,
     MONTHS_SHORT,
-    type ApiCacheKey
+    MINUTES_IN_DAY,
+    MINUTES_IN_HOUR,
+    SECONDS_IN_HOUR,
+    type ApiCacheKey,
 } from "./enums";
-
-// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
-export const SECONDS_IN_MINUTE = 60;
-export const MINUTES_IN_HOUR = 60;
-export const MINUTES_IN_DAY = 24 * MINUTES_IN_HOUR;
-export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
-export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
-export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;
 
 // Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
 export const MIN_RECORDS_FOR_FEATURE_SCORING = 320;

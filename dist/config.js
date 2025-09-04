@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = void 0;
+exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = void 0;
 /*
  * Centralized location for non-user configurable settings.
  */
@@ -8,13 +8,6 @@ const environment_helpers_1 = require("./helpers/environment_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
 const time_helpers_1 = require("./helpers/time_helpers");
 const enums_1 = require("./enums");
-// Importing this const from time_helpers.ts yielded undefined, maybe bc of circular dependency?
-exports.SECONDS_IN_MINUTE = 60;
-exports.MINUTES_IN_HOUR = 60;
-exports.MINUTES_IN_DAY = 24 * exports.MINUTES_IN_HOUR;
-exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * exports.MINUTES_IN_HOUR;
-exports.SECONDS_IN_DAY = 24 * exports.SECONDS_IN_HOUR;
-exports.SECONDS_IN_WEEK = 7 * exports.SECONDS_IN_DAY;
 // Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
 exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
@@ -69,31 +62,31 @@ class Config {
         data: {
             [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.BLOCKED_DOMAINS]: {
                 canBeDisabledOnGoToSocial: true,
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-                minutesUntilStale: exports.MINUTES_IN_DAY,
+                minutesUntilStale: enums_1.MINUTES_IN_DAY,
             },
             [enums_1.CacheKey.FAVOURITED_TOOTS]: {
                 initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
-                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
                 initialMaxRecords: 1600,
                 limit: 80,
-                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWED_TAGS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
                 limit: 100,
-                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWERS]: {
                 initialMaxRecords: 1600,
                 limit: 80,
-                minutesUntilStale: 24 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 24 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.HASHTAG_TOOTS]: {
                 // hashtag timeline toots are not cached as a group, they're pulled in small amounts and used
@@ -110,39 +103,39 @@ class Config {
                 minutesUntilStale: 10,
             },
             [enums_1.CacheKey.INSTANCE_INFO]: {
-                minutesUntilStale: 30 * exports.MINUTES_IN_DAY,
+                minutesUntilStale: 30 * enums_1.MINUTES_IN_DAY,
             },
             [enums_1.CacheKey.MUTED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-                minutesUntilStale: 12 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
                 maxCacheRecords: 10000,
-                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 6 * enums_1.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
             [enums_1.CacheKey.RECENT_USER_TOOTS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
-                minutesUntilStale: 2 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 2 * enums_1.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
             [enums_1.CacheKey.SERVER_SIDE_FILTERS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 4 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.FediverseCacheKey.POPULAR_SERVERS]: {
-                minutesUntilStale: 5 * exports.MINUTES_IN_DAY,
+                minutesUntilStale: 5 * enums_1.MINUTES_IN_DAY,
             },
             [enums_1.FediverseCacheKey.TRENDING_LINKS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 4 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.FediverseCacheKey.TRENDING_TAGS]: {
-                minutesUntilStale: 6 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 6 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.FediverseCacheKey.TRENDING_TOOTS]: {
-                minutesUntilStale: 4 * exports.MINUTES_IN_HOUR,
+                minutesUntilStale: 4 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.TagTootsCategory.FAVOURITED]: {
                 minutesUntilStale: 60,
@@ -351,7 +344,7 @@ class Config {
     toots = {
         batchCompleteSize: 25,
         batchCompleteSleepBetweenMS: 150,
-        completeAfterMinutes: exports.MINUTES_IN_DAY,
+        completeAfterMinutes: enums_1.MINUTES_IN_DAY,
         filterUpdateBatchSize: 240,
         maxAgeInDays: 7,
         maxContentPreviewChars: 110,
@@ -2247,7 +2240,7 @@ if (environment_helpers_1.isQuickMode) {
     console.debug(`${LOG_PREFIX} QUICK_MODE enabled, applying debug settings...`);
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 240;
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
-    config.api.backgroundLoadIntervalMinutes = exports.SECONDS_IN_HOUR;
+    config.api.backgroundLoadIntervalMinutes = enums_1.SECONDS_IN_HOUR;
     config.favouritedTags.numTags = 5;
     config.toots.maxTimelineLength = 1500;
     config.participatedTags.numTags = 10;

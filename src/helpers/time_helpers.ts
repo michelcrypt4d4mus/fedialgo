@@ -5,8 +5,8 @@
 
 import { isNil } from "lodash";
 
-import { config, SECONDS_IN_DAY } from "../config";
-import { DAY_NAMES } from "../enums";
+import { config } from "../config";
+import { DAY_NAMES, SECONDS_IN_DAY } from "../enums";
 import { NULL, quoted } from "./string_helpers";
 import { type Optional, type OptionalString } from "../types";
 
@@ -18,7 +18,7 @@ const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 /** Helper class for computing age differences in various units. */
 export class AgeIn {
     /**
-     * Compute the age in milliseconds from a date to now or an optional end time.
+     * Milliseconds of difference between a given time and either now or an optional end time.
      * @param {DateArg} startTime - The time to calculate the age from.
      * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
      * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
@@ -33,17 +33,32 @@ export class AgeIn {
         return endTime!.getTime() - coerceDate(startTime)!.getTime();
     }
 
-    /** Compute the difference from 'startTime' to 'endTime' (or now) in hours. */
+    /**
+     * Hours of difference between a given time and either now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in hours, or a negative number if the start time is invalid.
+     */
     static hours(startTime: DateArg, endTime?: DateArg) {
         return this.minutes(startTime, endTime) / 60.0;
     }
 
-    /** Compute the difference from 'startTime' to 'endTime' (or now) in minutes. */
+    /**
+     * Minutes of difference between a given time and either now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in milliseconds, or a negative number if the start time is invalid.
+     */
     static minutes(startTime: DateArg, endTime?: DateArg) {
         return this.seconds(startTime, endTime) / 60.0;
     }
 
-    /** Compute the difference from 'startTime' to 'endTime' (or now) in seconds. */
+    /**
+     * Seconds of difference between a given time and either now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in seconds, or a negative number if the start time is invalid.
+     */
     static seconds(startTime: DateArg, endTime?: DateArg) {
         return this.ms(startTime, endTime) / 1000.0;
     }
@@ -107,7 +122,7 @@ export function nowString(): string {
  * Returns the ISO format of a date, wrapped in quotes.
  * @param {DateArg} date - The date to format.
  * @param {boolean} [withMilliseconds] - Whether to include milliseconds in the output.
- * @returns {string} The quoted ISO format string, or NULL if date is null.
+ * @returns {string} The quoted ISO format string, or the string "NULL" if date is null.
  */
 export function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string {
     return date ? quoted(toISOFormat(date, withMilliseconds)) : NULL;
@@ -154,9 +169,9 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
     if (isToday) {
         str = "today";
     } else if (seconds < 0 && seconds > (-1 * 7 * SECONDS_IN_DAY)) {
-        str = `this coming ${DAY_NAMES[timestamp!.getDay()]}`;  // TODO: use the formatting functions, don't do date lookup manually
+        str = `this coming ${DAY_NAMES[timestamp!.getDay()]}`;  // TODO: use formatting functions, don't do date lookup manually
     } else if (seconds < (SECONDS_IN_DAY * 6)) {
-        str = DAY_NAMES[timestamp!.getDay()];  // TODO: use the formatting functions, don't do date lookup manually
+        str = DAY_NAMES[timestamp!.getDay()];  // TODO: use formatting functions, don't do date lookup manually
     } else {
         str = timestamp!.toLocaleDateString(locale);
     }
@@ -181,7 +196,7 @@ export function timelineCutoffAt(): Date {
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.
  * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
- * @returns {string} The date in ISO format, or NULL if the date is invalid.
+ * @returns {string} The date in ISO format.
  */
 export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
     if (!date) return NULL;
@@ -190,7 +205,12 @@ export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
 };
 
 
-/** Like toISOFormat() but returns null if the date is undefined or null. */
+/**
+ * Like toISOFormat() but returns null if the date is undefined or null.
+ * @param {DateArg} date - The date to convert to ISO format.
+ * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
+ * @returns {string} The date in ISO format, or NULL if the date is invalid.
+ */
 export function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null {
     return date ? toISOFormat(date, withMilliseconds) : null;
 };

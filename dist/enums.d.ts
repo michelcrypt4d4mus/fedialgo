@@ -1,5 +1,5 @@
 /**
- * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
+ * Enums (and a few enum related helper methods and constants) used by FediAlgo.
  * @module enums
  */
 import { type Optional } from './types';
@@ -230,4 +230,10 @@ export declare const isScoreName: (str: string) => boolean;
 export declare const isTypeFilterName: (str: string) => boolean;
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export declare const isWeightName: (str: string) => boolean;
+export declare const SECONDS_IN_MINUTE = 60;
+export declare const MINUTES_IN_HOUR = 60;
+export declare const MINUTES_IN_DAY: number;
+export declare const SECONDS_IN_HOUR: number;
+export declare const SECONDS_IN_DAY: number;
+export declare const SECONDS_IN_WEEK: number;
 export {};
