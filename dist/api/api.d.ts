@@ -208,7 +208,8 @@ export default class MastoApi {
      */
     instanceInfo(): Promise<mastodon.v2.Instance>;
     /**
-     * Return true if the user's home server is a GoToSocial server.
+     * Return true if the user's home server is a GoToSocial server. Has side effect of setting
+     * the isHomeserverGoToSocial property on this MastoApi object.
      * @returns {Promise<boolean>}
      */
     isGoToSocialUser(): Promise<boolean>;

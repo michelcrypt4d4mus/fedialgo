@@ -708,23 +708,27 @@ export default class MastoApi {
     }
 
     /**
-     * Return true if the user's home server is a GoToSocial server.
+     * Return true if the user's home server is a GoToSocial server. Has side effect of setting
+     * the isHomeserverGoToSocial property on this MastoApi object.
      * @returns {Promise<boolean>}
      */
     async isGoToSocialUser(): Promise<boolean> {
         if (isNil(this.isHomeserverGoToSocial)) {
-            this.logger.debug(`Checking if user's home server is GoToSocial...`);
             const instance = await this.instanceInfo();
-            this.isHomeserverGoToSocial = instance?.sourceUrl?.endsWith('gotosocial')
+            this.isHomeserverGoToSocial = instance?.sourceUrl?.endsWith('gotosocial');
 
             if (typeof this.isHomeserverGoToSocial !== 'boolean') {
-                this.logger.warn(`Failed to set isHomeserverGoToSocial to bool, sourceUrl: "${instance?.sourceUrl}", instance`, instance);
+                this.logger.warn(`Failed to set isHomeserverGoToSocial from sourceUrl "${instance?.sourceUrl}", instance`, instance);
+            } else if (this.isHomeserverGoToSocial) {
+                this.logger.debug(`GoToSocial server detected based on instance:`, instance);
             } else {
-                this.logger.debug(`Set isHomeserverGoToSocial to ${this.isHomeserverGoToSocial} based on instance:`, instance);
+                this.logger.trace(`Not a GoToSocial server based on instance:`, instance);
             }
+
+            this.isHomeserverGoToSocial = !!this.isHomeserverGoToSocial;
         }
 
-        return !!this.isHomeserverGoToSocial;
+        return this.isHomeserverGoToSocial;
     }
 
     /**
