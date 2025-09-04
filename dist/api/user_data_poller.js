@@ -99,4 +99,4 @@ class UserDataPoller {
     }
 }
 exports.default = UserDataPoller;
-//# sourceMappingURL=moar_data_poller.js.map
+//# sourceMappingURL=user_data_poller.js.map

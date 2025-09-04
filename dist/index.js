@@ -71,7 +71,7 @@ const trending_links_scorer_1 = __importDefault(require("./scorer/toot/trending_
 const trending_tags_scorer_1 = __importDefault(require("./scorer/toot/trending_tags_scorer"));
 const trending_toots_scorer_1 = __importDefault(require("./scorer/toot/trending_toots_scorer"));
 const user_data_1 = __importDefault(require("./api/user_data"));
-const moar_data_poller_1 = __importDefault(require("./api/moar_data_poller"));
+const user_data_poller_1 = __importDefault(require("./api/user_data_poller"));
 const video_attachment_scorer_1 = __importDefault(require("./scorer/toot/video_attachment_scorer"));
 const time_helpers_1 = require("./helpers/time_helpers");
 Object.defineProperty(exports, "AgeIn", { enumerable: true, get: function () { return time_helpers_1.AgeIn; } });
@@ -176,7 +176,7 @@ class TheAlgorithm {
     _releaseLoadingMutex; // Mutex release function for loading state
     // Background tasks
     cacheUpdater;
-    userDataPoller = new moar_data_poller_1.default();
+    userDataPoller = new user_data_poller_1.default();
     // These scorers require the complete feed to work properly
     feedScorers = [
         new diversity_feed_scorer_1.default(),

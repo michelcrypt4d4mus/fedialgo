@@ -40,7 +40,7 @@ import TrendingLinksScorer from './scorer/toot/trending_links_scorer';
 import TrendingTagsScorer from "./scorer/toot/trending_tags_scorer";
 import TrendingTootScorer from "./scorer/toot/trending_toots_scorer";
 import UserData from "./api/user_data";
-import UserDataPoller from './api/moar_data_poller';
+import UserDataPoller from './api/user_data_poller';
 import VideoAttachmentScorer from "./scorer/toot/video_attachment_scorer";
 import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
