@@ -5,8 +5,8 @@
 
 import { isNil } from "lodash";
 
-import { config, SECONDS_IN_DAY } from "../config";
-import { DAY_NAMES } from "../enums";
+import { config } from "../config";
+import { DAY_NAMES, SECONDS_IN_DAY } from "../enums";
 import { NULL, quoted } from "./string_helpers";
 import { type Optional, type OptionalString } from "../types";
 
@@ -122,7 +122,7 @@ export function nowString(): string {
  * Returns the ISO format of a date, wrapped in quotes.
  * @param {DateArg} date - The date to format.
  * @param {boolean} [withMilliseconds] - Whether to include milliseconds in the output.
- * @returns {string} The quoted ISO format string, or NULL if date is null.
+ * @returns {string} The quoted ISO format string, or the string "NULL" if date is null.
  */
 export function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string {
     return date ? quoted(toISOFormat(date, withMilliseconds)) : NULL;
@@ -169,9 +169,9 @@ export const timeString = (_timestamp: DateArg, locale?: string): string => {
     if (isToday) {
         str = "today";
     } else if (seconds < 0 && seconds > (-1 * 7 * SECONDS_IN_DAY)) {
-        str = `this coming ${DAY_NAMES[timestamp!.getDay()]}`;  // TODO: use the formatting functions, don't do date lookup manually
+        str = `this coming ${DAY_NAMES[timestamp!.getDay()]}`;  // TODO: use formatting functions, don't do date lookup manually
     } else if (seconds < (SECONDS_IN_DAY * 6)) {
-        str = DAY_NAMES[timestamp!.getDay()];  // TODO: use the formatting functions, don't do date lookup manually
+        str = DAY_NAMES[timestamp!.getDay()];  // TODO: use formatting functions, don't do date lookup manually
     } else {
         str = timestamp!.toLocaleDateString(locale);
     }

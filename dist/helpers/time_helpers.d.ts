@@ -62,7 +62,7 @@ export declare function nowString(): string;
  * Returns the ISO format of a date, wrapped in quotes.
  * @param {DateArg} date - The date to format.
  * @param {boolean} [withMilliseconds] - Whether to include milliseconds in the output.
- * @returns {string} The quoted ISO format string, or NULL if date is null.
+ * @returns {string} The quoted ISO format string, or the string "NULL" if date is null.
  */
 export declare function quotedISOFmt(date: DateArg, withMilliseconds?: boolean): string;
 /**

@@ -1,11 +1,5 @@
 import { type NonScoreWeightInfoDict, type Optional } from "./types";
 import { LoadAction, type ApiCacheKey } from "./enums";
-export declare const SECONDS_IN_MINUTE = 60;
-export declare const MINUTES_IN_HOUR = 60;
-export declare const MINUTES_IN_DAY: number;
-export declare const SECONDS_IN_HOUR: number;
-export declare const SECONDS_IN_DAY: number;
-export declare const SECONDS_IN_WEEK: number;
 export declare const MIN_RECORDS_FOR_FEATURE_SCORING = 320;
 export declare const MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
 type ApiRequestDefaults = {

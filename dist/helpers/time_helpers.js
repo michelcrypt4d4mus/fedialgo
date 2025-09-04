@@ -112,7 +112,7 @@ exports.nowString = nowString;
  * Returns the ISO format of a date, wrapped in quotes.
  * @param {DateArg} date - The date to format.
  * @param {boolean} [withMilliseconds] - Whether to include milliseconds in the output.
- * @returns {string} The quoted ISO format string, or NULL if date is null.
+ * @returns {string} The quoted ISO format string, or the string "NULL" if date is null.
  */
 function quotedISOFmt(date, withMilliseconds) {
     return date ? (0, string_helpers_1.quoted)(toISOFormat(date, withMilliseconds)) : string_helpers_1.NULL;
@@ -160,11 +160,11 @@ const timeString = (_timestamp, locale) => {
     if (isToday) {
         str = "today";
     }
-    else if (seconds < 0 && seconds > (-1 * 7 * config_1.SECONDS_IN_DAY)) {
-        str = `this coming ${enums_1.DAY_NAMES[timestamp.getDay()]}`; // TODO: use the formatting functions, don't do date lookup manually
+    else if (seconds < 0 && seconds > (-1 * 7 * enums_1.SECONDS_IN_DAY)) {
+        str = `this coming ${enums_1.DAY_NAMES[timestamp.getDay()]}`; // TODO: use formatting functions, don't do date lookup manually
     }
-    else if (seconds < (config_1.SECONDS_IN_DAY * 6)) {
-        str = enums_1.DAY_NAMES[timestamp.getDay()]; // TODO: use the formatting functions, don't do date lookup manually
+    else if (seconds < (enums_1.SECONDS_IN_DAY * 6)) {
+        str = enums_1.DAY_NAMES[timestamp.getDay()]; // TODO: use formatting functions, don't do date lookup manually
     }
     else {
         str = timestamp.toLocaleDateString(locale);
@@ -179,7 +179,7 @@ exports.timeString = timeString;
  * @returns {Date} The cutoff date for timeline toots.
  */
 function timelineCutoffAt() {
-    const timelineLookBackSeconds = config_1.config.toots.maxAgeInDays * config_1.SECONDS_IN_DAY;
+    const timelineLookBackSeconds = config_1.config.toots.maxAgeInDays * enums_1.SECONDS_IN_DAY;
     return subtractSeconds(new Date(), timelineLookBackSeconds);
 }
 exports.timelineCutoffAt = timelineCutoffAt;

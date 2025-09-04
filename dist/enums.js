@@ -1,10 +1,10 @@
 "use strict";
 /**
- * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
+ * Enums (and a few enum related helper methods and constants) used by FediAlgo.
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isApiCacheKey = exports.isFediverseCacheKey = exports.isTagTootsCategory = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isApiCacheKey = exports.isFediverseCacheKey = exports.isTagTootsCategory = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
  * Actions that TheAlgorithm can take.
  * @enum {string}
@@ -308,4 +308,11 @@ exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 const isWeightName = (str) => (0, exports.isScoreName)(str) || (0, exports.isNonScoreWeightName)(str);
 exports.isWeightName = isWeightName;
+// Importing these consts to config from time_helpers yielded undefined, maybe bc of circular dependency?
+exports.SECONDS_IN_MINUTE = 60;
+exports.MINUTES_IN_HOUR = 60;
+exports.MINUTES_IN_DAY = 24 * exports.MINUTES_IN_HOUR;
+exports.SECONDS_IN_HOUR = exports.SECONDS_IN_MINUTE * exports.MINUTES_IN_HOUR;
+exports.SECONDS_IN_DAY = 24 * exports.SECONDS_IN_HOUR;
+exports.SECONDS_IN_WEEK = 7 * exports.SECONDS_IN_DAY;
 //# sourceMappingURL=enums.js.map

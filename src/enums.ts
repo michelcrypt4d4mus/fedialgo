@@ -1,5 +1,5 @@
 /**
- * Enums (and a few enum related helper methods and constsants) used by FediAlgo.
+ * Enums (and a few enum related helper methods and constants) used by FediAlgo.
  * @module enums
  */
 
@@ -357,3 +357,12 @@ export const isScoreName = isValueInStringEnum(ScoreName);
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
 /** True if argument is a member of ScoreName or NonScoreWeightName enums. */
 export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);
+
+
+// Importing these consts to config from time_helpers yielded undefined, maybe bc of circular dependency?
+export const SECONDS_IN_MINUTE = 60;
+export const MINUTES_IN_HOUR = 60;
+export const MINUTES_IN_DAY = 24 * MINUTES_IN_HOUR;
+export const SECONDS_IN_HOUR = SECONDS_IN_MINUTE * MINUTES_IN_HOUR;
+export const SECONDS_IN_DAY = 24 * SECONDS_IN_HOUR;
+export const SECONDS_IN_WEEK = 7 * SECONDS_IN_DAY;

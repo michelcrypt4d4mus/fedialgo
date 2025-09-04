@@ -14,6 +14,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 const config_1 = require("../config");
 const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
+const enums_1 = require("../enums");
 const GET_MOAR_DATA = "getMoarData()";
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 class MoarDataPoller {
@@ -32,7 +33,7 @@ class MoarDataPoller {
                 this.logger.log(`Stopping data poller because shouldContinue:`, shouldContinue);
                 this.intervalRunner && clearInterval(this.intervalRunner);
             }
-        }, config_1.config.api.backgroundLoadIntervalMinutes * config_1.SECONDS_IN_MINUTE * 1000);
+        }, config_1.config.api.backgroundLoadIntervalMinutes * enums_1.SECONDS_IN_MINUTE * 1000);
     }
     /**
      * Stop the pollers. Returns true if there was anything to stop.
