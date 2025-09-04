@@ -737,13 +737,13 @@ class TheAlgorithm {
      */
     shouldSkip() {
         const hereLogger = loggers[enums_1.LoadAction.FEED_UPDATE];
-        hereLogger.info(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
+        hereLogger.debugWithTraceObjs(`${++this.numTriggers} triggers so far, state:`, this.statusDict());
         let feedAgeInMinutes = this.mostRecentHomeTootAgeInSeconds();
         if (feedAgeInMinutes)
             feedAgeInMinutes /= 60;
         const maxAgeMinutes = config_1.config.minTrendingMinutesUntilStale();
         if (environment_helpers_1.isQuickMode && feedAgeInMinutes && feedAgeInMinutes < maxAgeMinutes && this.numTriggers <= 1) {
-            hereLogger.debug(`QUICK_MODE Feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
+            hereLogger.debug(`isQuickMode=${environment_helpers_1.isQuickMode}, feed's ${feedAgeInMinutes.toFixed(0)}s old, skipping`);
             // Needs to be called to update the feed in the app
             scorer_cache_1.default.prepareScorers().then((_t) => this.filterFeedAndSetInApp());
             return true;
@@ -762,7 +762,7 @@ class TheAlgorithm {
     async startAction(logPrefix) {
         const hereLogger = loggers[logPrefix];
         const status = config_1.config.locale.messages[logPrefix];
-        hereLogger.log(`called, state:`, this.statusDict());
+        hereLogger.debugWithTraceObjs(`called`, this.statusDict());
         if (this.isLoading) {
             hereLogger.warn(`Load in progress already!`, this.statusDict());
             throw new Error(config_1.config.locale.messages.isBusy);
