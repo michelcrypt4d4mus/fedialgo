@@ -2,13 +2,21 @@
  * Helpers for environment variables.
  */
 
-console.log(
-    `[FediAlgo] NODE_ENV="${process.env.NODE_ENV}"`,
-    `\n          FEDIALGO_DEBUG="${process.env.FEDIALGO_DEBUG}"`,
-    `\n          FEDIALGO_DEEP_DEBUG="${process.env.FEDIALGO_DEEP_DEBUG}"`,
-    `\n          QUICK_MODE=${process.env.QUICK_MODE}`,
-    `\n          LOAD_TEST=${process.env.LOAD_TEST}`
-);
+import { FEDIALGO, bracketed } from "./string_helpers";
+
+
+const bracketedFedialgo = bracketed(FEDIALGO);
+const logLineJoiner = '\n' + ' '.repeat(bracketedFedialgo.length + 1);
+
+const envVarsToLog = [
+    `${bracketedFedialgo} NODE_ENV="${process.env.NODE_ENV}"`,
+    `FEDIALGO_DEBUG="${process.env.FEDIALGO_DEBUG}"`,
+    `FEDIALGO_DEEP_DEBUG="${process.env.FEDIALGO_DEEP_DEBUG}"`,
+    `QUICK_MODE=${process.env.QUICK_MODE}`,
+    `LOAD_TEST=${process.env.LOAD_TEST}`
+];
+
+console.log(envVarsToLog.join(logLineJoiner));
 
 export const isDevelopment = process.env.NODE_ENV === "development";
 export const isProduction = process.env.NODE_ENV === "production";
