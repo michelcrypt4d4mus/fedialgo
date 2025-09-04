@@ -232,6 +232,15 @@ export default class TheAlgorithm {
      * @returns {Promise<void>}
      */
     private loadCachedData;
+    /**
+     * Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
+     * which can result in toots getting lost as threads try to merge newToots into different this.feed states.
+     * Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+     * @private
+     * @param {Toot[]} newToots - New toots to merge into this.feed
+     * @param {Logger} logger - Logger to use
+     * @returns {Promise<void>}
+     */
     private lockedMergeToFeed;
     /**
      * Merge newToots into this.feed, score, and filter the feed.
@@ -252,6 +261,7 @@ export default class TheAlgorithm {
      * Release the loading mutex and reset the loading state variables.
      * @private
      * @param {LoadAction} logPrefix - Action for logging context.
+     * @returns {void}
      */
     private releaseLoadingMutex;
     /**

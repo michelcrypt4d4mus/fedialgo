@@ -117,6 +117,7 @@ const EMPTY_TRENDING_DATA = {
 };
 const DEFAULT_SET_TIMELINE_IN_APP = (_feed) => console.debug(`Default setTimelineInApp() called`);
 const logger = new logger_1.Logger(`TheAlgorithm`);
+const loadCacheLogger = logger.tempLogger(`loadCachedData()`);
 const saveTimelineToCacheLogger = logger.tempLogger(`saveTimelineToCache`);
 const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key), enums_1.ALL_ACTIONS.reduce((_loggers, action) => {
     _loggers[action] = logger.tempLogger(action);
@@ -631,7 +632,7 @@ class TheAlgorithm {
         this.feed = await Storage_1.default.getCoerced(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS);
         if (this.feed.length == config_1.config.toots.maxTimelineLength) {
             const numToClear = config_1.config.toots.maxTimelineLength - config_1.config.toots.truncateFullTimelineToLength;
-            logger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
+            loadCacheLogger.info(`Timeline cache is full (${this.feed.length}), discarding ${numToClear} old toots`);
             this.feed = (0, collection_helpers_1.truncateToLength)(this.feed, config_1.config.toots.truncateFullTimelineToLength, logger);
             await Storage_1.default.set(enums_1.AlgorithmStorageKey.TIMELINE_TOOTS, this.feed);
         }
@@ -639,11 +640,17 @@ class TheAlgorithm {
         this.filters = await Storage_1.default.getFilters() ?? (0, feed_filters_1.buildNewFilterSettings)();
         await (0, feed_filters_1.updateBooleanFilterOptions)(this.filters, this.feed);
         this.setTimelineInApp(this.feed);
-        logger.log(`<loadCachedData()> loaded ${this.feed.length} timeline toots from cache, trendingData`);
+        loadCacheLogger.debugWithTraceObjs(`Loaded ${this.feed.length} cached toots + trendingData`, this.trendingData);
     }
-    // Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
-    // which can result in toots getting lost as threads try to merge newToots into different this.feed states.
-    // Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+    /**
+     * Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
+     * which can result in toots getting lost as threads try to merge newToots into different this.feed states.
+     * Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
+     * @private
+     * @param {Toot[]} newToots - New toots to merge into this.feed
+     * @param {Logger} logger - Logger to use
+     * @returns {Promise<void>}
+     */
     async lockedMergeToFeed(newToots, logger) {
         const hereLogger = logger.tempLogger('lockedMergeToFeed');
         const releaseMutex = await (0, mutex_helpers_1.lockExecution)(this.mergeMutex, hereLogger);
@@ -698,6 +705,7 @@ class TheAlgorithm {
      * Release the loading mutex and reset the loading state variables.
      * @private
      * @param {LoadAction} logPrefix - Action for logging context.
+     * @returns {void}
      */
     releaseLoadingMutex(logPrefix) {
         this.loadingStatus = null;
