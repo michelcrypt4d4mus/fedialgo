@@ -21,13 +21,13 @@ class UserDataPoller {
     logger = new logger_1.Logger('UserDataPoller');
     start() {
         if (this.intervalRunner) {
-            this.logger.trace(`User data poller already exists, not starting another one`);
+            this.logger.trace(`User data poller already running, not starting another one`);
             return;
         }
         this.logger.info(`Starting UserDataPoller on ${config_1.config.api.backgroundLoadIntervalMinutes} minute interval...`);
         this.intervalRunner = setInterval(async () => {
             const shouldContinue = await this.getMoarData();
-            await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
+            await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore to avoid shuffling feed
             if (!shouldContinue) {
                 this.logger.info(`Finishing up data poller (shouldContinue=${shouldContinue})`);
                 this.intervalRunner && clearInterval(this.intervalRunner);

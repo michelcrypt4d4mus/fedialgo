@@ -78,7 +78,6 @@ Object.defineProperty(exports, "AgeIn", { enumerable: true, get: function () { r
 Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return time_helpers_1.sleep; } });
 Object.defineProperty(exports, "timeString", { enumerable: true, get: function () { return time_helpers_1.timeString; } });
 const feed_filters_1 = require("./filters/feed_filters");
-const config_1 = require("./config");
 const string_helpers_1 = require("./helpers/string_helpers");
 Object.defineProperty(exports, "DEFAULT_FONT_SIZE", { enumerable: true, get: function () { return string_helpers_1.DEFAULT_FONT_SIZE; } });
 Object.defineProperty(exports, "FEDIALGO", { enumerable: true, get: function () { return string_helpers_1.FEDIALGO; } });
@@ -92,6 +91,7 @@ const environment_helpers_1 = require("./helpers/environment_helpers");
 const mutex_helpers_1 = require("./helpers/mutex_helpers");
 const logger_1 = require("./helpers/logger");
 Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { return logger_1.Logger; } });
+const config_1 = require("./config");
 const stats_helper_1 = require("./helpers/stats_helper");
 const weight_presets_1 = require("./scorer/weight_presets");
 const enums_1 = require("./enums");
@@ -464,7 +464,7 @@ class TheAlgorithm {
         }
     }
     /**
-     * True if fedialgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
+     * True if FediAlgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
      * @returns {boolean}
      */
     async isGoToSocialUser() {
@@ -475,8 +475,7 @@ class TheAlgorithm {
      * @returns {Promise<TrendingData>}
      */
     async refreshTrendingData() {
-        const trendingData = await mastodon_server_1.default.getTrendingData();
-        this.trendingData = trendingData;
+        this.trendingData = await mastodon_server_1.default.getTrendingData();
         return this.trendingData;
     }
     /**

@@ -46,12 +46,12 @@ import type FeedScorer from './scorer/feed_scorer';
 import type TootScorer from './scorer/toot_scorer';
 import { AgeIn, ageString, sleep, timeString, toISOFormatIfExists } from './helpers/time_helpers';
 import { buildNewFilterSettings, updateBooleanFilterOptions } from "./filters/feed_filters";
-import { config, MAX_ENDPOINT_RECORDS_TO_PULL } from './config';
 import { DEFAULT_FONT_SIZE, FEDIALGO, GIFV, VIDEO_TYPES, extractDomain, optionalSuffix } from './helpers/string_helpers';
 import { isAccessTokenRevokedError, throwIfAccessTokenRevoked, throwSanitizedRateLimitError } from './api/errors';
 import { isDebugMode, isDeepDebug, isLoadTest, isQuickMode } from './helpers/environment_helpers';
 import { lockExecution } from './helpers/mutex_helpers';
 import { Logger } from './helpers/logger';
+import { MAX_ENDPOINT_RECORDS_TO_PULL, config } from './config';
 import { rechartsDataPoints } from "./helpers/stats_helper";
 import { WEIGHT_PRESETS, WeightPresetLabel, isWeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { type ObjList } from "./api/counted_list";
@@ -499,7 +499,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * True if fedialgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
+     * True if FediAlgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
      * @returns {boolean}
      */
     async isGoToSocialUser(): Promise<boolean> {
@@ -511,8 +511,7 @@ export default class TheAlgorithm {
      * @returns {Promise<TrendingData>}
      */
     async refreshTrendingData(): Promise<TrendingData> {
-        const trendingData = await MastodonServer.getTrendingData();
-        this.trendingData = trendingData;
+        this.trendingData = await MastodonServer.getTrendingData();
         return this.trendingData;
     }
 

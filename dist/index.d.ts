@@ -152,7 +152,7 @@ export default class TheAlgorithm {
      */
     saveTimelineToCache(): Promise<void>;
     /**
-     * True if fedialgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
+     * True if FediAlgo user is on a GoToSocial instance instead of plain vanilla Mastodon.
      * @returns {boolean}
      */
     isGoToSocialUser(): Promise<boolean>;

@@ -24,7 +24,7 @@ export default class UserDataPoller {
 
     start(): void {
         if (this.intervalRunner) {
-            this.logger.trace(`User data poller already exists, not starting another one`);
+            this.logger.trace(`User data poller already running, not starting another one`);
             return;
         }
 
@@ -33,7 +33,7 @@ export default class UserDataPoller {
         this.intervalRunner = setInterval(
             async () => {
                 const shouldContinue = await this.getMoarData();
-                await ScorerCache.prepareScorers(true);  // Update Scorers but don't rescore feed to avoid shuffling feed
+                await ScorerCache.prepareScorers(true);  // Update Scorers but don't rescore to avoid shuffling feed
 
                 if (!shouldContinue) {
                     this.logger.info(`Finishing up data poller (shouldContinue=${shouldContinue})`);
