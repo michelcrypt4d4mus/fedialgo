@@ -15,13 +15,13 @@ import { type ApiObj } from '../types';
 
 type Poller = (params?: ApiParams) => Promise<ApiObj[]>;
 
-const GET_MOAR_DATA = "getMoarData()";
 const MOAR_MUTEX = new Mutex();
 
 
+// TODO: Rename to UserDataPoller
 export default class MoarDataPoller {
     private intervalRunner?: ReturnType<typeof setInterval>;
-    private logger = new Logger(GET_MOAR_DATA);
+    private logger = new Logger('MoarDataPoller');
 
     start(): void {
         if (this.intervalRunner) {
@@ -34,10 +34,10 @@ export default class MoarDataPoller {
         this.intervalRunner = setInterval(
             async () => {
                 const shouldContinue = await this.getMoarData();
-                await ScorerCache.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
+                await ScorerCache.prepareScorers(true);  // Update Scorers but don't rescore feed to avoid shuffling feed
 
                 if (!shouldContinue) {
-                    this.logger.log(`Stopping data poller because shouldContinue:`, shouldContinue);
+                    this.logger.info(`Finishing up data poller (shouldContinue=${shouldContinue})`);
                     this.intervalRunner && clearInterval(this.intervalRunner!);
                 }
             },

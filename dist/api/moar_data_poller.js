@@ -15,11 +15,11 @@ const config_1 = require("../config");
 const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
 const enums_1 = require("../enums");
-const GET_MOAR_DATA = "getMoarData()";
 const MOAR_MUTEX = new async_mutex_1.Mutex();
+// TODO: Rename to UserDataPoller
 class MoarDataPoller {
     intervalRunner;
-    logger = new logger_1.Logger(GET_MOAR_DATA);
+    logger = new logger_1.Logger('MoarDataPoller');
     start() {
         if (this.intervalRunner) {
             this.logger.trace(`Data poller already exists, not starting another one`);
@@ -30,7 +30,7 @@ class MoarDataPoller {
             const shouldContinue = await this.getMoarData();
             await scorer_cache_1.default.prepareScorers(true); // Update Scorers but don't rescore feed to avoid shuffling feed
             if (!shouldContinue) {
-                this.logger.log(`Stopping data poller because shouldContinue:`, shouldContinue);
+                this.logger.info(`Finishing up data poller (shouldContinue=${shouldContinue})`);
                 this.intervalRunner && clearInterval(this.intervalRunner);
             }
         }, config_1.config.api.backgroundLoadIntervalMinutes * enums_1.SECONDS_IN_MINUTE * 1000);
