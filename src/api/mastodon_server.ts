@@ -168,8 +168,9 @@ export default class MastodonServer {
             } else if (list.length === 0) {
                 logger.warn(`Empty array of ${label} found (but no actual error)`);
             }
-        } catch (e) {
-            logger.warn(`Failed to get ${label} data! Error:`, e);
+        } catch (err) {
+            const msg = `Failed to scrape trending ${label} from ${this.domain}, skipping...`;
+            MastoApi.instance.recordApiError(msg, err, logger);
             list = [];
         }
 
