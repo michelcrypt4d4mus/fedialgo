@@ -1,6 +1,9 @@
 # NEXT RELEASE
+
+### v1.1.20
 * Push `MastodonServer` scraping errors into `MastoApi.apiErrors` array for display to user
 * Consolidate API error logging to new `MastoApi.recordApiError()` method
+* (Demo App) Make non-fatal errors and warnings list yellow instead of red and smaller font
 
 ### v1.1.19
 * More `tagOnlyStrings`
