@@ -18,7 +18,7 @@ const PARSEABLE_DATE_TYPES = new Set(["string", "number"]);
 /** Helper class for computing age differences in various units. */
 export class AgeIn {
     /**
-     * Compute the age in milliseconds from a date to now or an optional end time.
+     * Milliseconds of difference between a given time and either now or an optional end time.
      * @param {DateArg} startTime - The time to calculate the age from.
      * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
      * @returns {number} The age in milliseconds, or -1 if the start time is invalid.
@@ -33,17 +33,32 @@ export class AgeIn {
         return endTime!.getTime() - coerceDate(startTime)!.getTime();
     }
 
-    /** Compute the difference from 'startTime' to 'endTime' (or now) in hours. */
+    /**
+     * Hours of difference between a given time and either now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in hours, or a negative number if the start time is invalid.
+     */
     static hours(startTime: DateArg, endTime?: DateArg) {
         return this.minutes(startTime, endTime) / 60.0;
     }
 
-    /** Compute the difference from 'startTime' to 'endTime' (or now) in minutes. */
+    /**
+     * Minutes of difference between a given time and either now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in milliseconds, or a negative number if the start time is invalid.
+     */
     static minutes(startTime: DateArg, endTime?: DateArg) {
         return this.seconds(startTime, endTime) / 60.0;
     }
 
-    /** Compute the difference from 'startTime' to 'endTime' (or now) in seconds. */
+    /**
+     * Seconds of difference between a given time and either now or an optional end time.
+     * @param {DateArg} startTime - The time to calculate the age from.
+     * @param {DateArg} [endTime] - Optional end time to calculate the age to (defaults to now)
+     * @returns {number} The age in seconds, or a negative number if the start time is invalid.
+     */
     static seconds(startTime: DateArg, endTime?: DateArg) {
         return this.ms(startTime, endTime) / 1000.0;
     }
@@ -181,7 +196,7 @@ export function timelineCutoffAt(): Date {
  * Date to the format YYYY-MM-DDTHH:MM:SSZ
  * @param {DateArg} date - The date to convert to ISO format.
  * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
- * @returns {string} The date in ISO format, or NULL if the date is invalid.
+ * @returns {string} The date in ISO format.
  */
 export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
     if (!date) return NULL;
@@ -190,7 +205,12 @@ export function toISOFormat(date: DateArg, withMilliseconds?: boolean): string {
 };
 
 
-/** Like toISOFormat() but returns null if the date is undefined or null. */
+/**
+ * Like toISOFormat() but returns null if the date is undefined or null.
+ * @param {DateArg} date - The date to convert to ISO format.
+ * @param {boolean} [withMilliseconds=false] - If true, includes milliseconds in the output.
+ * @returns {string} The date in ISO format, or NULL if the date is invalid.
+ */
 export function toISOFormatIfExists(date: DateArg, withMilliseconds?: boolean): string | null {
     return date ? toISOFormat(date, withMilliseconds) : null;
 };
