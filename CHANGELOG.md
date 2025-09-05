@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.30
+* (Demo App) `npm run build` now writes `bundle.js` to `process.env.BUILD_DIR`
+
 ### v1.1.29
 * (Demo App) Lock `bootstrap` to version 5.2.3
 
