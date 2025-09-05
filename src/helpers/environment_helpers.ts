@@ -1,11 +1,18 @@
 /*
  * Helpers for environment variables.
+ *
+ * NOTE: in the browser process.env CANNOT be indexed dynamically! For example these work:
+ *      process.env.FEDIALGO_DEBUG
+ *      process.env['FEDIALGO_DEBUG']
+ *
+ * But this does NOT work:
+ *      const fedialgoDebug = 'FEDIALGO_DEBUG'
+ *      process.env[fedialgoDebug]    // NO BUENO!
+ *
+ * This happens because in the browser process.env isn't a true environment - instead webpack manually
+ * replaces references to process.env.VAR_NAME at build time
  */
-
 import { FEDIALGO, bracketed } from "./string_helpers";
-
-const BRACKETED_FEDIALGO = bracketed(FEDIALGO);
-const ENV_VARS_TO_LOG = ['NODE_ENV', 'FEDIALGO_DEBUG', 'FEDIALGO_DEEP_DEBUG', 'QUICK_MODE', 'LOAD_TEST'];
 
 
 export const isDevelopment = process.env.NODE_ENV === "development";
@@ -23,33 +30,15 @@ export const isLoadTest = process.env.LOAD_TEST === "true";
 export const isQuickMode = process.env.QUICK_MODE === "true";
 
 
-/**
- * Read array of environment variables and return them as a dictionary.
- * @param {string[]} varNames - Array of environment variable names to get
- * @returns {Record<string, string | undefined>} Dictionary of env var names to their values (undefined if not set)
- */
-export function getEnvVars(varNames: string[]): Record<string, string | undefined> {
-    return varNames.reduce((dict, v) => {
-        const envVar = process.env[v];
-        const fedialgo_debug = 'FEDIALGO_DEBUG';
-        console.log(`getEnvVars: checking for "${v}" in process.env (value = "${envVar}")
-            process.env.FEDIALGO_DEBUG=${process.env.FEDIALGO_DEBUG}
-            process.env['FEDIALGO_DEBUG']=${process.env['FEDIALGO_DEBUG']}
-            fedialgo_debug="${fedialgo_debug}"
-            process.env[fedialgo_debug]=${process.env[fedialgo_debug]}
-            dict is now:`, dict);
-        return {...dict, [v]: process.env[v]};
-     }, {});
-};
-
-
+// Log the environment variables we care about to the browser console
 const envVars = {
-
+    NODE_ENV: process.env.NODE_ENV,
+    FEDIALGO_DEBUG: process.env.FEDIALGO_DEBUG,
+    FEDIALGO_DEEP_DEBUG: process.env.FEDIALGO_DEEP_DEBUG,
+    LOAD_TEST: process.env.LOAD_TEST,
+    QUICK_MODE: process.env.QUICK_MODE,
 };
 
 const envVarLogLines = Object.entries(envVars).map(([k, v]) => `${k}="${v}"`);
-console.log(BRACKETED_FEDIALGO + ' ' + envVarLogLines.join('\n' + ' '.repeat(BRACKETED_FEDIALGO.length + 1)));
-console.log("process.env.NODE_ENV =", process.env.NODE_ENV);
-console.log("process.env['NODE_ENV'] =", process.env["NODE_ENV"]);
-console.log(`envVars: `, envVars);
-console.log(`process.env: `, process.env);
+const bracketedFediAlgo = bracketed(FEDIALGO);
+console.debug(bracketedFediAlgo + ' ' + envVarLogLines.join('\n' + ' '.repeat(bracketedFediAlgo.length + 1)));
