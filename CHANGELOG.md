@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.31
+* Logging of env vars
+
 ### v1.1.30
 * (Demo App) `npm run build` now writes `bundle.js` to `process.env.BUILD_DIR`
 
