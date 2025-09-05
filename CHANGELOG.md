@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.26
+* Use smaller `Showcase.jpg` image on landing screen instead of larger `Showcase.png` version
+
 ### v1.1.25
 * Logging changes
 
