@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v1.1.27
+* (Demo App) Use CDN to deliver `bootstrap.min.css`
+
 ### v1.1.26
-* Use smaller `Showcase.jpg` image on landing screen instead of larger `Showcase.png` version
+* (Demo App) Use smaller `Showcase.jpg` image on landing screen instead of larger `Showcase.png` version
 
 ### v1.1.25
 * Logging changes
