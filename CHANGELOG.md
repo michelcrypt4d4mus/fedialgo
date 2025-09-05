@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.28
+* (Demo App) Use `PurgeCSS` webpack plugin to shrink bundle.js output
+
 ### v1.1.27
 * (Demo App) Use CDN to deliver `bootstrap.min.css`
 
