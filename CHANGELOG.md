@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.1.29
 * (Demo App) Lock `bootstrap` to version 5.2.3
 
 ### v1.1.28
