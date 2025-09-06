@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.35
+* (Demo App) Use an `Accordion` for non-fatal error warnings; refactor `ApiErrorsPanel` component
+
 ### v1.1.34
 * More `tagOnlyStrings`
 
