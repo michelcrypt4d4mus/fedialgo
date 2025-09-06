@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More `tagOnlyStrings`
 
 ### v1.1.33
 * (Demo App) Set webpack's `devtool` option to `undefined` for production builds to remove source map from `bundle.js` (shrinks from 15 MB to under 3MB

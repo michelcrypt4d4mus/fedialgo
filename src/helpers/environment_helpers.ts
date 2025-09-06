@@ -1,13 +1,13 @@
 /*
  * Helpers for environment variables.
  *
- * NOTE: in the browser process.env CANNOT be indexed dynamically! For example these work:
- *      process.env.FEDIALGO_DEBUG
- *      process.env['FEDIALGO_DEBUG']
+ * NOTE: In the browser process.env CANNOT be indexed dynamically! For example these work:
+ *       process.env.FEDIALGO_DEBUG;
+ *       process.env['FEDIALGO_DEBUG'];
  *
- * But this does NOT work:
- *      const fedialgoDebug = 'FEDIALGO_DEBUG'
- *      process.env[fedialgoDebug]    // NO BUENO!
+ * But this DOES NOT work:
+ *       const fedialgoDebug = 'FEDIALGO_DEBUG';
+ *       process.env[fedialgoDebug];
  *
  * This happens because in the browser process.env isn't a true environment - instead webpack manually
  * replaces references to process.env.VAR_NAME at build time
