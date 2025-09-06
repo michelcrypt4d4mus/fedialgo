@@ -5,8 +5,9 @@ import { type StringNumberDict, type WeightInfo, type Weights } from "../types";
 /**
  * Abstract base class for scoring Mastodon Toots.
  *
- * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and filtering feeds.
- * This class manages scorer state, logging, and provides a public API for scoring, as well as static utilities for scoring arrays of toots.
+ * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and
+ * filtering feeds. This class manages scorer state, logging, and provides a public API for scoring, as
+ * well as static utilities for scoring arrays of toots.
  *
  * @abstract
  * @property {string} description - Description of the scoring algorithm.
