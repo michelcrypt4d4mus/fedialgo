@@ -1,6 +1,10 @@
 # NEXT RELEASE
 
+### v1.1.32
+(Demo App) Revert PurgeCSS introduction because it's causing layout weirdness
+
 ### v1.1.31
+* (Demo App) Add `media-gallery` CSS classes to PurgeCSS `safelist` to fix bug with images not displaying
 * Logging of env vars
 
 ### v1.1.30
