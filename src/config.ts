@@ -807,6 +807,10 @@ class Config implements ConfigType {
             "creating",
             "creation",
             "creative",
+            "credit",
+            "credited",
+            "crediting",
+            "credits",
             "critical",
             "cross",
             "cu",             // Tagalog
