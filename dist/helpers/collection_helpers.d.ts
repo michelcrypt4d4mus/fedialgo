@@ -314,7 +314,8 @@ export declare function uniquifyApiObjs<T extends ApiObj>(cacheKey: ApiCacheKey,
  */
 export declare function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[];
 /**
- * Zips two arrays into a dictionary ([ 'a', 'b', 'c' ], [ 1, 2, 3 ] -> { a: 1, b: 2, c: 3 })
+ * Zips two arrays into a dictionary
+ * @example zipArrays([ 'a', 'b', 'c' ], [ 1, 2, 3 ]) -> { a: 1, b: 2, c: 3 }
  * @template T
  * @param {string[]} array1 - Keys array.
  * @param {T[]} array2 - Values array.
