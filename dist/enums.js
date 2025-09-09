@@ -290,22 +290,22 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
-/** True if argument is a member of {@linkcode enums:CacheKey}. */
+/** True if argument is a member of {@linkcode enums.CacheKey}. */
 exports.isCacheKey = isValueInStringEnum(CacheKey);
-/** True if argument is a member of {@linkcode enums:TagTootsCategory}. */
+/** True if argument is a member of {@linkcode enums.TagTootsCategory}. */
 exports.isTagTootsCategory = isValueInStringEnum(TagTootsCategory);
-/** True if argument is a member of {@linkcode enums:FediverseCacheKey}. */
+/** True if argument is a member of {@linkcode enums.FediverseCacheKey}. */
 exports.isFediverseCacheKey = isValueInStringEnum(FediverseCacheKey);
-/** True if argument is an {@linkcode enums:ApiCacheKey}. */
+/** True if argument is an {@linkcode enums.ApiCacheKey}. */
 const isApiCacheKey = (s) => ((0, exports.isCacheKey)(s) || (0, exports.isFediverseCacheKey)(s) || (0, exports.isTagTootsCategory)(s));
 exports.isApiCacheKey = isApiCacheKey;
-/** True if argument is a member of {@linkcode enums:NonScoreWeightName} enum. */
+/** True if argument is a member of {@linkcode enums.NonScoreWeightName} enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
-/** True if argument is a member of {@linkcode enums:ScoreName} enum. */
+/** True if argument is a member of {@linkcode enums.ScoreName} enum. */
 exports.isScoreName = isValueInStringEnum(ScoreName);
-/** True if argument is a member of {@linkcode enums:TypeFilterName} enum. */
+/** True if argument is a member of {@linkcode enums.TypeFilterName} enum. */
 exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
-/** True if argument is a member of {@linkcode enums:ScoreName} or {@linkcode NonScoreWeightName} enums. */
+/** True if argument is a member of {@linkcode enums.ScoreName} or {@linkcode NonScoreWeightName} enums. */
 const isWeightName = (str) => (0, exports.isScoreName)(str) || (0, exports.isNonScoreWeightName)(str);
 exports.isWeightName = isWeightName;
 // Importing these consts to config from time_helpers yielded undefined, maybe bc of circular dependency?
