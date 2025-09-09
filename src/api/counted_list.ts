@@ -40,7 +40,7 @@ export default class CountedList<T extends NamedTootCount> {
     get objs() { return this._objs };
     private _objs: T[] = [];
 
-    /** Has side effect of mutating the 'nameDict' property. */
+    /** Has side effect of mutating the {@linkcode CountedList.nameDict} property. */
     public set objs(objs: T[]) {
         this._objs = objs.map(this.completeObjProperties);
 
@@ -61,7 +61,7 @@ export default class CountedList<T extends NamedTootCount> {
     }
 
     /**
-     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * Add objects we don't already have. This does NOT set the {@linkcode numToots} property on incoming objs!
      * @param {T[]} objs - Array of objects to add to the list.
      */
     addObjs(objs: T[]): void {
