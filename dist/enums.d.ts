@@ -214,21 +214,21 @@ export declare function simpleCacheKeyDict<T>(fxn: () => T, keys?: ApiCacheKey[]
  * @returns {(value: string) => boolean} The checker function.
  */
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
-/** True if argument is a member of {@linkcode enums:CacheKey}. */
+/** True if argument is a member of {@linkcode enums.CacheKey}. */
 export declare const isCacheKey: (str: string) => boolean;
-/** True if argument is a member of {@linkcode enums:TagTootsCategory}. */
+/** True if argument is a member of {@linkcode enums.TagTootsCategory}. */
 export declare const isTagTootsCategory: (str: string) => boolean;
-/** True if argument is a member of {@linkcode enums:FediverseCacheKey}. */
+/** True if argument is a member of {@linkcode enums.FediverseCacheKey}. */
 export declare const isFediverseCacheKey: (str: string) => boolean;
-/** True if argument is an {@linkcode enums:ApiCacheKey}. */
+/** True if argument is an {@linkcode enums.ApiCacheKey}. */
 export declare const isApiCacheKey: (s: string) => boolean;
-/** True if argument is a member of {@linkcode enums:NonScoreWeightName} enum. */
+/** True if argument is a member of {@linkcode enums.NonScoreWeightName} enum. */
 export declare const isNonScoreWeightName: (str: string) => boolean;
-/** True if argument is a member of {@linkcode enums:ScoreName} enum. */
+/** True if argument is a member of {@linkcode enums.ScoreName} enum. */
 export declare const isScoreName: (str: string) => boolean;
-/** True if argument is a member of {@linkcode enums:TypeFilterName} enum. */
+/** True if argument is a member of {@linkcode enums.TypeFilterName} enum. */
 export declare const isTypeFilterName: (str: string) => boolean;
-/** True if argument is a member of {@linkcode enums:ScoreName} or {@linkcode NonScoreWeightName} enums. */
+/** True if argument is a member of {@linkcode enums.ScoreName} or {@linkcode NonScoreWeightName} enums. */
 export declare const isWeightName: (str: string) => boolean;
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;
