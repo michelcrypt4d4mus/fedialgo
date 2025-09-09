@@ -48,31 +48,31 @@ exports.MEDIA_TYPES = [
 /** Alphabetize an array of strings */
 const alphabetize = (arr) => arr.sort(exports.compareStr);
 exports.alphabetize = alphabetize;
-/** for use with sort() */
+/** For use with {@linkcode sort()} */
 const compareStr = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
 exports.compareStr = compareStr;
-/** Check if it's empty (all whitespace or null or undefined) */
+/** Check if it's empty (all whitespace or {@linkcode null} or {@linkcode undefined}) */
 const isEmptyStr = (s) => (0, lodash_1.isNil)(s) || (0, lodash_1.isEmpty)(s.trim());
 exports.isEmptyStr = isEmptyStr;
-/** "string" => "@string" */
+/** @example "string" => "@string" */
 const at = (str) => str.startsWith('@') ? str : `@${str}`;
 exports.at = at;
-/** "foo" => "<foo>" */
+/** @example "foo" => "<foo>" */
 const arrowed = (str) => str.startsWith('<') ? str : `<${str}>`;
 exports.arrowed = arrowed;
-/** "string" => "[string]" */
+/** @example "string" => "[string]" */
 const bracketed = (str) => str.startsWith('[') ? str : `[${str}]`;
 exports.bracketed = bracketed;
-/** 'string' => '"string"' */
+/** @example 'string' => '"string"' */
 const quoted = (str) => (0, lodash_1.isNil)(str) ? exports.NULL : `"${str}"`;
 exports.quoted = quoted;
-/** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
+/** @example 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 const suffixedInt = (n) => `${n}${(0, exports.ordinalSuffix)(n)}`;
 exports.suffixedInt = suffixedInt;
 /** Collapse all whitespace in a string to single spaces. */
 const collapseWhitespace = (str) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g, ",").trim();
 exports.collapseWhitespace = collapseWhitespace;
-/** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
+/** @example ("ó" => "o", "é" => "e", etc.) */
 const removeDiacritics = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 exports.removeDiacritics = removeDiacritics;
 /** Remove any emojis from string. */

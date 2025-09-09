@@ -54,25 +54,25 @@ export const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[] = [
 
 /** Alphabetize an array of strings */
 export const alphabetize = (arr: string[]) => arr.sort(compareStr);
-/** for use with sort() */
+/** For use with {@linkcode sort()} */
 export const compareStr = (a: string, b: string) => a.toLowerCase().localeCompare(b.toLowerCase());
-/** Check if it's empty (all whitespace or null or undefined) */
+/** Check if it's empty (all whitespace or {@linkcode null} or {@linkcode undefined}) */
 export const isEmptyStr = (s: OptionalString) => isNil(s) || isEmpty(s!.trim());
 
-/** "string" => "@string" */
+/** @example "string" => "@string" */
 export const at = (str: string): string => str.startsWith('@') ? str : `@${str}`;
-/** "foo" => "<foo>" */
+/** @example "foo" => "<foo>" */
 export const arrowed = (str: string): string => str.startsWith('<') ? str : `<${str}>`;
-/** "string" => "[string]" */
+/** @example "string" => "[string]" */
 export const bracketed = (str: string): string => str.startsWith('[') ? str : `[${str}]`;
-/** 'string' => '"string"' */
+/** @example 'string' => '"string"' */
 export const quoted = (str: string | null): string => isNil(str) ? NULL : `"${str}"`;
-/** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
+/** @example 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 export const suffixedInt = (n: number): string => `${n}${ordinalSuffix(n)}`;
 
 /** Collapse all whitespace in a string to single spaces. */
 export const collapseWhitespace = (str: string) => str.replace(WHITESPACE_REGEX, " ").replace(/\s,/g,  ",").trim();
-/** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
+/** @example ("ó" => "o", "é" => "e", etc.) */
 export const removeDiacritics = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 /** Remove any emojis from string. */
 export const removeEmojis = (str: string) => str.replace(EMOJI_REGEX, " ");

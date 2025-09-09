@@ -17,23 +17,23 @@ export declare const VIDEO_TYPES: mastodon.v1.MediaAttachmentType[];
 export declare const MEDIA_TYPES: mastodon.v1.MediaAttachmentType[];
 /** Alphabetize an array of strings */
 export declare const alphabetize: (arr: string[]) => string[];
-/** for use with sort() */
+/** For use with {@linkcode sort()} */
 export declare const compareStr: (a: string, b: string) => number;
-/** Check if it's empty (all whitespace or null or undefined) */
+/** Check if it's empty (all whitespace or {@linkcode null} or {@linkcode undefined}) */
 export declare const isEmptyStr: (s: OptionalString) => boolean;
-/** "string" => "@string" */
+/** @example "string" => "@string" */
 export declare const at: (str: string) => string;
-/** "foo" => "<foo>" */
+/** @example "foo" => "<foo>" */
 export declare const arrowed: (str: string) => string;
-/** "string" => "[string]" */
+/** @example "string" => "[string]" */
 export declare const bracketed: (str: string) => string;
-/** 'string' => '"string"' */
+/** @example 'string' => '"string"' */
 export declare const quoted: (str: string | null) => string;
-/** 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
+/** @example 1 => "1st", 2 => "2nd", 3 => "3rd", 4 => "4th", etc. */
 export declare const suffixedInt: (n: number) => string;
 /** Collapse all whitespace in a string to single spaces. */
 export declare const collapseWhitespace: (str: string) => string;
-/** Remove diacritics ("ó" => "o", "é" => "e", etc.) */
+/** @example ("ó" => "o", "é" => "e", etc.) */
 export declare const removeDiacritics: (str: string) => string;
 /** Remove any emojis from string. */
 export declare const removeEmojis: (str: string) => string;
