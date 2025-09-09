@@ -84,7 +84,6 @@ export default class MastoApi {
     static get instance(): MastoApi;
     /**
      * Private constructor for MastoApi. Instantiate with MastoApi.init().
-     * @private
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */
