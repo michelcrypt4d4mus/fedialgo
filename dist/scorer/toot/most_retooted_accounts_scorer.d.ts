@@ -1,7 +1,8 @@
 import AccountScorer from "./acccount_scorer";
 import { type StringNumberDict } from "../../types";
 /**
- * Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot).
+ * Score a {@linkcode Toot} based on how many times the user has retooted the author and retooter
+ * (if it's a retoot).
  * @memberof module:toot_scorers
  * @augments Scorer
  */

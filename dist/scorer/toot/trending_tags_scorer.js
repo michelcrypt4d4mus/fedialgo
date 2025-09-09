@@ -8,7 +8,7 @@ const config_1 = require("../../config");
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
- * Scores with the number of accounts that have posted a toot with the trending tag
+ * Scores with the number of accounts that have posted a {@linkcode Toot} with the trending tag
  * across the Fediverse.
  * @memberof module:toot_scorers
  * @augments Scorer

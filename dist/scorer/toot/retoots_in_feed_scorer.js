@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
- * Score how many times a toot has been retooted by other accounts in the feed.
+ * Score how many times a {@linkcode Toot} has been retooted by other accounts in the feed.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

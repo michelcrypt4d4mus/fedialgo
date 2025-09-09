@@ -4,7 +4,7 @@ import { ScoreName } from '../../enums';
 
 
 /**
- * Score how many times the toot has been retooted.
+ * Score how many times the {@linkcode Toot} has been retooted.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

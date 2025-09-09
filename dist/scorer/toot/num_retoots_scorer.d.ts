@@ -1,7 +1,7 @@
 import TootScorer from '../toot_scorer';
 import type Toot from '../../api/objects/toot';
 /**
- * Score how many times the toot has been retooted.
+ * Score how many times the {@linkcode Toot} has been retooted.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

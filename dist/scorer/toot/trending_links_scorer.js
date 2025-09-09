@@ -8,7 +8,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
- * Score toots based on the numAccounts of any trending links they contain.
+ * Score {@linkcode Toot}s based on the {@linkcode numAccounts} of any trending links they contain.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

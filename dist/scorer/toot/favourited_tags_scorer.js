@@ -8,7 +8,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 /**
- * Score how many times the current user has favourited the toot's hashtags in the past.
+ * Score how many times the current user has favourited the {@linkcode Toot}'s hashtags in the past.
  * @class FavouritedTagsScorer
  * @memberof module:toot_scorers
  * @augments Scorer

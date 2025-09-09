@@ -9,7 +9,8 @@ const api_1 = __importDefault(require("../../api/api"));
 const toot_1 = __importDefault(require("../../api/objects/toot"));
 const enums_1 = require("../../enums");
 /**
- * Score a toot based on how many times the user has retooted the author and retooter (if it's a retoot).
+ * Score a {@linkcode Toot} based on how many times the user has retooted the author and retooter
+ * (if it's a retoot).
  * @memberof module:toot_scorers
  * @augments Scorer
  */

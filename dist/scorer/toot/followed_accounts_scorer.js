@@ -8,7 +8,7 @@ const api_1 = __importDefault(require("../../api/api"));
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
- * One point if you follow the author (followed retoots are picked up by the RetootsInFeedScorer).
+ * One point if you follow the author (followed retoots are picked up by the {@linkcode RetootsInFeedScorer}).
  * @memberof module:toot_scorers
  * @augments Scorer
  */

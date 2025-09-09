@@ -6,7 +6,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isApiCacheKey = exports.isFediverseCacheKey = exports.isTagTootsCategory = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
 /**
- * Actions that TheAlgorithm can take.
+ * Actions that {@linkcode TheAlgorithm} can take.
  * @enum {string}
  * @private
  */
@@ -45,7 +45,7 @@ var AlgorithmStorageKey;
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
- * Used for Storage and cache management.
+ * Used for {@linkcode Storage} and cache management.
  * @private
  * @enum {string}
  */
@@ -146,7 +146,7 @@ var MediaCategory;
 })(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 ;
 /**
- * Enum of trending data types that can be fetched from the API. *
+ * Enum of trending data types that can be fetched from the API.
  * @enum {string}
  */
 var TrendingType;
@@ -158,7 +158,7 @@ var TrendingType;
 })(TrendingType || (exports.TrendingType = TrendingType = {}));
 ;
 /**
- * Enum of boolean filter names for filtering toots by property.
+ * Enum of boolean filter names for filtering {@linkcode Toot}s by property.
  * @enum {string}
  */
 var BooleanFilterName;
@@ -172,7 +172,7 @@ var BooleanFilterName;
 })(BooleanFilterName || (exports.BooleanFilterName = BooleanFilterName = {}));
 ;
 /**
- * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
+ * Enum of type filter names for filtering {@linkcode Toot}s by type (e.g., audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
  * @enum {string}
  */
@@ -255,7 +255,7 @@ exports.MONTHS_SHORT = exports.MONTHS.map(month => month.slice(0, 3));
 exports.DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 exports.DAYS_SHORT = exports.DAY_NAMES.map(day => day.slice(0, day.startsWith("T") ? 4 : 3));
 /**
- * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * Build a dictionary of values for each {@linkcode ApiCacheKey} using the provided function.
  * @private
  * @template K
  * @template T
@@ -272,7 +272,7 @@ function buildCacheKeyDict(fxn, initialDict, keys) {
 }
 exports.buildCacheKeyDict = buildCacheKeyDict;
 ;
-// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+// Generate a dict with all {@linkcode ApiCacheKey}s as keys and a whatever fxn() returns as values.
 function simpleCacheKeyDict(fxn, keys) {
     return buildCacheKeyDict(fxn, null, keys);
 }
@@ -290,22 +290,22 @@ function isValueInStringEnum(strEnum) {
 }
 exports.isValueInStringEnum = isValueInStringEnum;
 ;
-/** True if argument is a member of CacheKey. */
+/** True if argument is a member of {@linkcode CacheKey}. */
 exports.isCacheKey = isValueInStringEnum(CacheKey);
-/** True if argument is a member of TagTootsCacheKey. */
+/** True if argument is a member of {@linkcode TagTootsCategory}. */
 exports.isTagTootsCategory = isValueInStringEnum(TagTootsCategory);
-/** True if argument is a member of FediverseCacheKey. */
+/** True if argument is a member of {@linkcode FediverseCacheKey}. */
 exports.isFediverseCacheKey = isValueInStringEnum(FediverseCacheKey);
-/** True if argument is an ApiCacheKey. */
+/** True if argument is an {@linkcode ApiCacheKey}. */
 const isApiCacheKey = (s) => ((0, exports.isCacheKey)(s) || (0, exports.isFediverseCacheKey)(s) || (0, exports.isTagTootsCategory)(s));
 exports.isApiCacheKey = isApiCacheKey;
-/** True if argument is a member of NonScoreWeightName enum. */
+/** True if argument is a member of {@linkcode NonScoreWeightName} enum. */
 exports.isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
-/** True if argument is a member of ScoreName enum. */
+/** True if argument is a member of {@linkcode ScoreName} enum. */
 exports.isScoreName = isValueInStringEnum(ScoreName);
-/** True if argument is a member of TypeFilterName enum. */
+/** True if argument is a member of {@linkcode TypeFilterName} enum. */
 exports.isTypeFilterName = isValueInStringEnum(TypeFilterName);
-/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
+/** True if argument is a member of {@linkcode ScoreName} or {@linkcode NonScoreWeightName} enums. */
 const isWeightName = (str) => (0, exports.isScoreName)(str) || (0, exports.isNonScoreWeightName)(str);
 exports.isWeightName = isWeightName;
 // Importing these consts to config from time_helpers yielded undefined, maybe bc of circular dependency?

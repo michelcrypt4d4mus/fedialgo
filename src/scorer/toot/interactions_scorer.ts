@@ -6,7 +6,7 @@ import { type StringNumberDict } from "../../types";
 
 
 /**
- * Gives higher weight to posts from users that have often interacted with your posts.
+ * Gives higher weight to posts from users that have often interacted with your toots.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

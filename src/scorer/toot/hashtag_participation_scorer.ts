@@ -7,7 +7,7 @@ import { type StringNumberDict } from "../../types";
 
 
 /**
- * Score toots containing hashtags the user posts about a lot.
+ * Score {@linkcode Toot}s containing hashtags the user posts about a lot.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

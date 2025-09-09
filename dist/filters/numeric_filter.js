@@ -18,7 +18,7 @@ exports.FILTERABLE_SCORES = [
 ;
 /**
  * Filter for numeric properties of a {@linkcode Toot} (e.g., replies, reblogs, favourites).
- * Allows filtering toots based on a minimum value for a given property.
+ * Allows filtering {@linkcode Toot}s based on a minimum value for a given property.
  * @augments TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
@@ -45,7 +45,7 @@ class NumericFilter extends toot_filter_1.default {
         this.value = value ?? 0;
     }
     /**
-     * Check if the toot meets the filter criterion.
+     * Check if the {@linkcode Toot} meets the filter criterion.
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot should appear in the timeline feed.
      */
@@ -70,7 +70,7 @@ class NumericFilter extends toot_filter_1.default {
         return filterArgs;
     }
     /**
-     * Updates the filter's 'value' property.
+     * Updates the filter's {@linkcode value} property.
      * @param {number} newValue - The new minimum value for the filter.
      */
     updateValue(newValue) {

@@ -4,7 +4,7 @@
 import TootScorer from "../toot_scorer";
 import type Toot from "../../api/objects/toot";
 /**
- * Score a toot based on how many followers the author has.
+ * Score a {@linkcode Toot} based on how many followers the author has.
  * @class AuthorFollowersScorer
  * @memberof module:toot_scorers
  * @augments Scorer

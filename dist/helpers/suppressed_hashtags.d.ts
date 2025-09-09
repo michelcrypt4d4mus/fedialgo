@@ -8,11 +8,11 @@ declare class SuppressedHashtags {
     lastLoggedCount: number;
     increment(tag: TagWithUsageCounts, toot: Toot): void;
     log(logger: Logger): void;
-    /** Set of all toot URIs that had a suppressed tag. */
+    /** Set of all {@linkcode Toot} URIs that had a suppressed tag. */
     private allTootURIs;
-    /** Count of tag toots per language. */
+    /** Count of tag {@linkcode Toot}s per language. */
     private languageCounts;
-    /** Count of tag toots per language / tag. */
+    /** Count of tag {@linkcode Toot}s per language / tag. */
     private tagLanguageCounts;
     /** Convert a TagTootUris object to a StringNumberDict w/length of each URI string Set. */
     private uriCounts;
