@@ -50,13 +50,13 @@ export default class UserData {
     serverSideFilters: mastodon.v2.Filter[];
     private lastUpdatedAt?;
     /**
-     * Alternate constructor for the UserData object to build itself from the API (or cache).
+     * Alternate constructor for the {@linkcode UserData} object to build itself from the API (or cache).
      * @static
-     * @returns {Promise<UserData>} UserData instance populated with the user's data.
+     * @returns {Promise<UserData>} {@linkcode UserData} instance populated with the fedialgo user's data.
      */
     static build(): Promise<UserData>;
     /**
-     * Alternate constructor to build UserData from API data.
+     * Alternate constructor to build {@linkcode UserData} from API data.
      * @static
      * @param {UserApiData} data - The raw API data to build the UserData from.
      * @param {string[]} data.blockedDomains - Domains the user has blocked.
@@ -81,7 +81,7 @@ export default class UserData {
      */
     private populateFavouriteAccounts;
     /**
-     * Get an array of keywords the user has muted on the server side
+     * Get an array of keywords the user has muted on the server side.
      * @returns {Promise<string[]>} An array of muted keywords.
      */
     static getMutedKeywords(): Promise<string[]>;
