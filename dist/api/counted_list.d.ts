@@ -22,7 +22,7 @@ export default class CountedList<T extends NamedTootCount> {
     get maxNumToots(): number | undefined;
     get objs(): T[];
     private _objs;
-    /** Has side effect of mutating the 'nameDict' property. */
+    /** Has side effect of mutating the {@linkcode CountedList.nameDict} property. */
     set objs(objs: T[]);
     /**
      * @param objs - Array of objects to initialize the list with.
@@ -30,7 +30,7 @@ export default class CountedList<T extends NamedTootCount> {
      */
     constructor(objs: T[], source: CountedListSource);
     /**
-     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * Add objects we don't already have. This does NOT set the {@linkcode numToots} property on incoming objs!
      * @param {T[]} objs - Array of objects to add to the list.
      */
     addObjs(objs: T[]): void;

@@ -32,7 +32,7 @@ class CountedList {
     get objs() { return this._objs; }
     ;
     _objs = [];
-    /** Has side effect of mutating the 'nameDict' property. */
+    /** Has side effect of mutating the {@linkcode CountedList.nameDict} property. */
     set objs(objs) {
         this._objs = objs.map(this.completeObjProperties);
         this.nameDict = this.objs.reduce((objNames, obj) => {
@@ -50,7 +50,7 @@ class CountedList {
         this.logger = new logger_1.Logger("CountedList", source);
     }
     /**
-     * Add objects we don't already have. This does NOT set the numToots property on incoming objs!
+     * Add objects we don't already have. This does NOT set the {@linkcode numToots} property on incoming objs!
      * @param {T[]} objs - Array of objects to add to the list.
      */
     addObjs(objs) {
