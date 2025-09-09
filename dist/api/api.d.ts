@@ -77,13 +77,14 @@ export default class MastoApi {
      */
     static init(api: mastodon.rest.Client, user: Account): Promise<void>;
     /**
-     * Returns the singleton instance of MastoApi.
+     * Returns the singleton instance of `MastoApi`.
      * @returns {MastoApi}
      * @throws {Error} If the instance has not been initialized.
      */
     static get instance(): MastoApi;
     /**
-     * Private constructor for MastoApi. Instantiate with `MastoApi.init()`.
+     * Private constructor for `MastoApi`. Instantiate with `MastoApi.init()`.
+     * @private
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */
