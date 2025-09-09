@@ -62,7 +62,8 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 ;
 /**
  * Class representing a Mastodon Toot (Status) with helper methods for scoring, filtering, and more.
- * Extends the base Mastodon Status object. The base class's properties are not documented here; see
+ * Extends the base Mastodon {@link https://docs.joinmastodon.org/entities/Status/ Status} object.
+ * The base class's properties are not documented here; see
  * {@link https://docs.joinmastodon.org/entities/Status/ the official Status object docs} for details.
  *
  * @implements {TootObj}
@@ -479,7 +480,8 @@ class Toot {
         return regex.test(this.contentWithCard());
     }
     /**
-     * Get Status obj for toot from user's home server so the property URLs point to the home server.
+     * Get {@link https://docs.joinmastodon.org/entities/Status/ Status} obj for this {@linkcode Toot}
+     * from user's home server so the property URLs point to the home server.
      * @returns {Promise<Toot>}
      */
     async resolve() {
@@ -495,7 +497,8 @@ class Toot {
         }
     }
     /**
-     * Get Status ID for toot from user's home server so the property URLs point to the home server.
+     * Get {@link https://docs.joinmastodon.org/entities/Status/ Status} ID for {@linkcode Toot} from
+     * user's home server so the property URLs point to the home server.
      * @returns {Promise<string>}
      */
     async resolveID() {
@@ -503,7 +506,7 @@ class Toot {
         return this.resolvedID;
     }
     /**
-     * Get the toot's tags as a Set of strings. Caches results for future calls.
+     * Get the {@linkcode Toot}'s tags as a {@linkcode Set} of strings. Caches results for future calls.
      * @returns {Set<string>} Set of the names of the tags in this toot.
      */
     tagNames() {
@@ -690,11 +693,11 @@ class Toot {
     }
     /**
      * Repair toot properties:
-     *   - Set toot.application.name to UNKNOWN if missing
+     *   - Set {@linkcode Toot.application.name} to UNKNOWN if missing
      *   - Call {@linkcode Toot.determineLanguage} to set the language
      *   - Lowercase all tags
-     *   - Repair mediaAttachment types if reparable based on URL file extension
-     *   - Repair StatusMention objects for users on home server
+     *   - Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
+     *   - Repair {@link {@link https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
      * @private
      */
     repair() {
@@ -745,7 +748,8 @@ class Toot {
     //       Static methods       //
     ////////////////////////////////
     /**
-     * Build array of new Toot objects from an array of Status objects (or Toots).
+     * Build array of new {@linkcode Toot} objects from an array of
+     * {@link https://docs.joinmastodon.org/entities/Status/ Status} objects (or {@linkcode Toot}s).
      * Toots returned are sorted by score and should have most of their properties set correctly.
      * @param {TootLike[]} statuses - Array of status objects or Toots.
      * @param {TootSource} source - The source label for logging.
@@ -769,7 +773,8 @@ class Toot {
     }
     /**
      * Fetch all the data we need to set dependent properties and set them on the toots.
-     * If 'source' arg is provided we set it as the Toot.source prop and avoid doing an isDeepInspect completion.
+     * If {@linkcode source} arg is provided we set it as the {@linkcode Toot.source} prop and avoid doing an
+     * {@linkcode Toot.isDeepInspect} completion.
      * @param {TootLike[]} toots - Array of toots to complete.
      * @param {Logger} logger - Logger for logging.
      * @param {string} [source] - Optional source label.
@@ -802,7 +807,7 @@ class Toot {
         return newCompleteToots.concat(completedToots);
     }
     /**
-     * Remove dupes by uniquifying on the toot's URI.
+     * Remove dupes by uniquifying on the {@linkcode Toot}'s URI.
      * @param {Toot[]} toots - Array of toots.
      * @param {Logger} [inLogger] - Logger for logging.
      * @returns {Toot[]} Deduped array of toots.
@@ -886,7 +891,7 @@ class Toot {
         return deduped;
     }
     /**
-     * Get rid of toots we never want to see again.
+     * Get rid of {@linkcode Toot}s we never want to see again.
      * @param {Toot[]} toots - Array of toots.
      * @param {Logger} logger - Logger for logging.
      * @returns {Promise<Toot[]>}
@@ -905,7 +910,7 @@ class Toot {
         return (0, collection_helpers_1.filterWithLog)(toots, toot => toot.isValidForFeed(mutedKeywordsRegex, blockedDomains), logger, 'invalid', 'Toot');
     }
     /**
-     * Get rid of the user's own toots.
+     * Get rid of the user's own {@linkcode Toot}s.
      * @param {Toot[]} toots - Array of toots.
      * @param {Logger} logger - Logger for logging.
      * @returns {Toot[]} Array without user's own toots.
@@ -916,7 +921,7 @@ class Toot {
         return newToots;
     }
     /**
-     * Filter an array of toots down to just the retoots.
+     * Filter an array of {@linkcode Toot}s down to just the retoots.
      * @param {Toot[]} toots - Array of toots.
      * @returns {Toot[]} Array of retoots.
      */
@@ -924,7 +929,7 @@ class Toot {
         return toots.filter(toot => toot.reblog);
     }
     /**
-     * Filter an array of toots down to just the replies.
+     * Filter an array of {@linkcode Toot}s down to just the replies.
      * @param {Toot[]} toots - Array of toots.
      * @returns {Toot[]} Array of replies.
      */
@@ -932,7 +937,7 @@ class Toot {
         return toots.filter(toot => toot.inReplyToAccountId);
     }
     /**
-     * Return a new array of a toot property collected and uniquified from an array of toots.
+     * Return a new array of a {@linkcode Toot} property collected and uniquified from an array of {@linkcode Toot}s.
      * @private
      * @template T
      * @param {Toot[]} toots - Array of toots.
@@ -961,7 +966,7 @@ __decorate([
 ], Toot.prototype, "reblogsBy", void 0);
 ;
 /**
- * Get the Date the toot was created.
+ * Get the Date the {@linkcode Toot} was created.
  * @private
  * @param {TootLike} toot - The toot object.
  * @returns {Date}
@@ -969,7 +974,7 @@ __decorate([
 const tootedAt = (toot) => new Date(toot.createdAt);
 exports.tootedAt = tootedAt;
 /**
- * Get the earliest toot from a list.
+ * Get the earliest {@linkcode Toot} from a list.
  * @private
  * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
@@ -977,7 +982,7 @@ exports.tootedAt = tootedAt;
 const earliestToot = (toots) => sortByCreatedAt(toots)[0];
 exports.earliestToot = earliestToot;
 /**
- * Get the most recent toot from a list.
+ * Get the most recent {@linkcode Toot} from a list.
  * @private
  * @param {TootLike[]} toots - List of toots.
  * @returns {TootLike | null}
@@ -985,7 +990,7 @@ exports.earliestToot = earliestToot;
 const mostRecentToot = (toots) => sortByCreatedAt(toots).slice(-1)[0];
 exports.mostRecentToot = mostRecentToot;
 /**
- * Returns array with oldest toot first.
+ * Returns array with oldest {@linkcode Toot} first.
  * @private
  * @template T extends TootLike
  * @param {T} toots - List of toots.
@@ -997,7 +1002,7 @@ function sortByCreatedAt(toots) {
 exports.sortByCreatedAt = sortByCreatedAt;
 ;
 /**
- * Get the Date of the earliest toot in a list.
+ * Get the Date of the earliest {@linkcode Toot} in a list.
  * @private
  * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
@@ -1008,7 +1013,7 @@ const earliestTootedAt = (toots) => {
 };
 exports.earliestTootedAt = earliestTootedAt;
 /**
- * Get the Date of the most recent toot in a list.
+ * Get the Date of the most recent {@linkcode Toot} in a list.
  * @private
  * @param {TootLike[]} toots - List of toots.
  * @returns {Date | null}
