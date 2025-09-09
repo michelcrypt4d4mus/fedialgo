@@ -116,7 +116,7 @@ export default class MastoApi {
      */
     getBlockedDomains(): Promise<string[]>;
     /**
-     * Generic data getter for cacheable Toots with custom fetch logic.
+     * Generic data getter for cacheable {@linkcode Toot}s with custom fetch logic.
      * Used for various hashtag feeds (participated, trending, favourited).
      * @param {() => Promise<TootLike[]>} fetchStatuses - Function to fetch statuses.
      * @param {ApiCacheKey} cacheKey - Cache key for storage.
@@ -179,7 +179,9 @@ export default class MastoApi {
      */
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
     /**
-     * Get the latest toots for a given tag using both the Search API and tag timeline API.
+     * Get the latest {@linkcode Toot}s for a given tag using both the
+     * {@link https://docs.joinmastodon.org/methods/search/ search API} and the
+     * {@link https://docs.joinmastodon.org/methods/v1/timelines/#tag tag timeline API}
      * The two APIs give results with surprisingly little overlap (~80% of toots are unique).
      * @param {string} tagName - The tag to search for.
      * @param {Logger} logger - Logger instance for logging.
@@ -194,8 +196,9 @@ export default class MastoApi {
      */
     getUserData(force?: boolean): Promise<UserData>;
     /**
-     * Fetches toots from the tag timeline API (different from the search API).
-     * Concurrency is managed by a semaphore. See https://docs.joinmastodon.org/methods/v1/timelines/#tag
+     * Fetch {@linkcode Toot}s from the
+     * {@link https://docs.joinmastodon.org/methods/v1/timelines/#tag tag timeline API}
+     * Concurrency is managed by a semaphore.
      * TODO: Could maybe use min_id and max_id to avoid re-fetching the same data
      * @param {string} tagName - The tag to fetch toots for.
      * @param {Logger} logger - Logger instance for logging.
@@ -204,7 +207,8 @@ export default class MastoApi {
      */
     hashtagTimelineToots(tagName: string, logger: Logger, maxRecords?: number): Promise<Toot[]>;
     /**
-     * Retrieve the user's home instance (mastodon server) configuration from the API.
+     * Retrieve the user's home {@link https://docs.joinmastodon.org/entities/Instance/ Instance}
+     * (AKA "server") configuration from the API.
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */
     instanceInfo(): Promise<mastodon.v2.Instance>;
