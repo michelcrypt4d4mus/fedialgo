@@ -72,7 +72,7 @@ export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
 
 
 /**
- * BooleanFilter for filtering toots by boolean criteria (e.g. language, hashtag, type).
+ * Handles filtering {@linkcode Toot}s by boolean criteria (e.g. language, hashtag, type).
  * @augments TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
@@ -88,7 +88,7 @@ export default class BooleanFilter extends TootFilter {
     private _options: BooleanFilterOptionList;
 
     /**
-     * Set the options list and remove invalid selected options.
+     * Set the {@linkcode BooleanFilter._options} list and remove invalid {@linkcode BooleanFilter.selectedOptions}.
      * @param {BooleanFilterOptionList} optionList
      */
     public set options(optionList: BooleanFilterOptionList) {
@@ -121,7 +121,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return true if the toot matches the filter.
+     * Return true if the {@linkcode Toot} matches the filter.
      * @param {Toot} toot - The toot to check.
      * @returns {boolean}
      */
@@ -132,7 +132,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return true if the option is in selectedOptions.
+     * Return true if the option is in {@linkcode this.selectedOptions}.
      * @param {string} optionName - The option name.
      * @returns {boolean}
      */
@@ -141,7 +141,8 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return options with numToots >= minToots sorted by name (selected options are always included).
+     * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by name
+     * ({@linkcode BooleanFilter.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -154,7 +155,8 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return options with numToots >= minToots sorted by numToots (selected options are always included).
+     * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}
+     * ({@linkcode BooleanFilter.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
