@@ -8,7 +8,7 @@ const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const enums_1 = require("../../enums");
 /**
- * Score how many times the user has replied to the creator of the toot.
+ * Score how many times the user has replied to the creator of the {@linkcode Toot}.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

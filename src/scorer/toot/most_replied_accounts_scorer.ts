@@ -7,7 +7,7 @@ import { type StringNumberDict } from '../../types';
 
 
 /**
- * Score how many times the user has replied to the creator of the toot.
+ * Score how many times the user has replied to the creator of the {@linkcode Toot}.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

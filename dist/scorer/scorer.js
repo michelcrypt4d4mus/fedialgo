@@ -28,9 +28,9 @@ const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
 /**
  * Abstract base class for scoring {@linkcode Toot} objects.
  *
- * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and
- * filtering feeds. This class manages scorer state, logging, and provides a public API for scoring, as
- * well as static utilities for scoring arrays of toots.
+ * {@linkcode Scorer} implementations provide algorithms for assigning scores to {@linkcode Toot}s,
+ * which are used for ranking and filtering feeds. This class manages scorer state, logging, and
+ * provides a public API for scoring, as well as static utilities for scoring arrays of {@linkcode Toot}s.
  *
  * @abstract
  * @property {string} description - Description of the scoring algorithm.
@@ -65,7 +65,7 @@ class Scorer {
         this.logger.debug(`Reset scorer`);
     }
     /**
-     * Public API for scoring a toot. Returns the score, or 0 if not ready.
+     * Public API for scoring a {@linkcode Toot}. Returns the score, or 0 if not ready.
      * @param {Toot} toot - The toot to score.
      * @returns {Promise<number>} The computed score for the toot.
      */
@@ -87,8 +87,8 @@ class Scorer {
     //   Static class methods   //
     //////////////////////////////
     /**
-     * Scores and returns an array of toots sorted by score (descending). Does NOT mutate the input array!
-     * If you need the sorted array you need to use the return value.
+     * Scores and returns an array of {@linkcode Toot}s sorted by score (descending). Does NOT mutate the input
+     * array! If you need the sorted array you need to use the return value.
      * @static
      * @param {Toot[]} toots - Array of toots to score.
      * @param {boolean} [isScoringFeed] - If true, refreshes feed scorer data and locks scoring.
@@ -129,7 +129,7 @@ class Scorer {
         return toots;
     }
     /**
-     * Validates that the weights object contains valid weight names and values.
+     * Validates that the {@linkcode weights} object contains valid weight names and values.
      * Throws an error if any weight is invalid or missing.
      * @static
      * @param {Weights} weights - Weights object to validate.

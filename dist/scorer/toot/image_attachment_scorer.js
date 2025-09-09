@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
- * Score the number of image attachments in the toot.
+ * Score the number of image attachments in the {@linkcode Toot}.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

@@ -2,7 +2,7 @@ import TootScorer from '../toot_scorer';
 import type Toot from '../../api/objects/toot';
 import { type StringNumberDict } from '../../types';
 /**
- * Score how many times the current user has favourited the toot's hashtags in the past.
+ * Score how many times the current user has favourited the {@linkcode Toot}'s hashtags in the past.
  * @class FavouritedTagsScorer
  * @memberof module:toot_scorers
  * @augments Scorer

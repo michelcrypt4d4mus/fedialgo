@@ -7,7 +7,7 @@ import { ScoreName } from '../../enums';
 
 
 /**
- * Score a toot based on how many followers the author has.
+ * Score a {@linkcode Toot} based on how many followers the author has.
  * @class AuthorFollowersScorer
  * @memberof module:toot_scorers
  * @augments Scorer

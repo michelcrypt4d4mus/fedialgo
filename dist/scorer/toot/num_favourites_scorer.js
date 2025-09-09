@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const toot_scorer_1 = __importDefault(require("../toot_scorer"));
 const enums_1 = require("../../enums");
 /**
- * Score how many times the toot has been favourited by other users.
+ * Score how many times the {@linkcode Toot} has been favourited by other users.
  * Note: favorites don't propagate across servers, so this is only useful for the
  * user's home server.
  * @memberof module:toot_scorers

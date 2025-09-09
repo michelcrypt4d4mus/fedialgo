@@ -38,7 +38,7 @@ class SuppressedHashtags {
         this.lastLoggedCount = totalCount;
     }
 
-    /** Set of all toot URIs that had a suppressed tag. */
+    /** Set of all {@linkcode Toot} URIs that had a suppressed tag. */
     private allTootURIs(): Set<string> {
         return Object.values(this.languageTagURIs).reduce(
             (uris, tagTootURIs: TagTootUris) => {
@@ -49,7 +49,7 @@ class SuppressedHashtags {
         );
     }
 
-    /** Count of tag toots per language. */
+    /** Count of tag {@linkcode Toot}s per language. */
     private languageCounts(): StringNumberDict {
         return Object.entries(this.tagLanguageCounts()).reduce(
             (counts, [language, tagCounts]) => {
@@ -60,7 +60,7 @@ class SuppressedHashtags {
         );
     }
 
-    /** Count of tag toots per language / tag. */
+    /** Count of tag {@linkcode Toot}s per language / tag. */
     private tagLanguageCounts(): TagLanguageCounts {
         return Object.entries(this.languageTagURIs).reduce(
             (langTagCounts, [language, tootURIs]) => {

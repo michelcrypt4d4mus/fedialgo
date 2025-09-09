@@ -6,7 +6,7 @@
 import { type Optional } from './types';
 
 /**
- * Actions that TheAlgorithm can take.
+ * Actions that {@linkcode TheAlgorithm} can take.
  * @enum {string}
  * @private
  */
@@ -45,7 +45,7 @@ export enum AlgorithmStorageKey {
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
- * Used for Storage and cache management.
+ * Used for {@linkcode Storage} and cache management.
  * @private
  * @enum {string}
  */
@@ -143,7 +143,7 @@ export enum MediaCategory {
 
 
 /**
- * Enum of trending data types that can be fetched from the API. *
+ * Enum of trending data types that can be fetched from the API.
  * @enum {string}
  */
 export enum TrendingType {
@@ -155,7 +155,7 @@ export enum TrendingType {
 
 
 /**
- * Enum of boolean filter names for filtering toots by property.
+ * Enum of boolean filter names for filtering {@linkcode Toot}s by property.
  * @enum {string}
  */
 export enum BooleanFilterName {
@@ -168,7 +168,7 @@ export enum BooleanFilterName {
 };
 
 /**
- * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
+ * Enum of type filter names for filtering {@linkcode Toot}s by type (e.g., audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
  * @enum {string}
  */
@@ -298,7 +298,7 @@ type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> =
         : Record<ApiCacheKey | K, T>;
 
 /**
- * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * Build a dictionary of values for each {@linkcode ApiCacheKey} using the provided function.
  * @private
  * @template K
  * @template T
@@ -321,7 +321,7 @@ export function buildCacheKeyDict<K extends string, T, D extends Optional<Record
     );
 };
 
-// Generate a dict with all ApiCacheKeys as keys and a whatever fxn() returns as values.
+// Generate a dict with all {@linkcode ApiCacheKey}s as keys and a whatever fxn() returns as values.
 export function simpleCacheKeyDict<T>(fxn: () => T, keys?: ApiCacheKey[]) {
     return buildCacheKeyDict<ApiCacheKey, T, null>(fxn, null, keys);
 };
@@ -339,23 +339,23 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 
-/** True if argument is a member of CacheKey. */
+/** True if argument is a member of {@linkcode CacheKey}. */
 export const isCacheKey = isValueInStringEnum(CacheKey);
-/** True if argument is a member of TagTootsCacheKey. */
+/** True if argument is a member of {@linkcode TagTootsCategory}. */
 export const isTagTootsCategory = isValueInStringEnum(TagTootsCategory);
-/** True if argument is a member of FediverseCacheKey. */
+/** True if argument is a member of {@linkcode FediverseCacheKey}. */
 export const isFediverseCacheKey = isValueInStringEnum(FediverseCacheKey);
-/** True if argument is an ApiCacheKey. */
+/** True if argument is an {@linkcode ApiCacheKey}. */
 export const isApiCacheKey = (s: string) => (isCacheKey(s) || isFediverseCacheKey(s) || isTagTootsCategory(s));
 
 
-/** True if argument is a member of NonScoreWeightName enum. */
+/** True if argument is a member of {@linkcode NonScoreWeightName} enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
-/** True if argument is a member of ScoreName enum. */
+/** True if argument is a member of {@linkcode ScoreName} enum. */
 export const isScoreName = isValueInStringEnum(ScoreName);
-/** True if argument is a member of TypeFilterName enum. */
+/** True if argument is a member of {@linkcode TypeFilterName} enum. */
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
-/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
+/** True if argument is a member of {@linkcode ScoreName} or {@linkcode NonScoreWeightName} enums. */
 export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);
 
 

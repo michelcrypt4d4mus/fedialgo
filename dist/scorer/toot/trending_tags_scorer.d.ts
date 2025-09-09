@@ -1,7 +1,7 @@
 import TootScorer from '../toot_scorer';
 import type Toot from '../../api/objects/toot';
 /**
- * Scores with the number of accounts that have posted a toot with the trending tag
+ * Scores with the number of accounts that have posted a {@linkcode Toot} with the trending tag
  * across the Fediverse.
  * @memberof module:toot_scorers
  * @augments Scorer

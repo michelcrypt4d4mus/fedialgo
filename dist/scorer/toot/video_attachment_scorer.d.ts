@@ -1,7 +1,7 @@
 import TootScorer from '../toot_scorer';
 import type Toot from '../../api/objects/toot';
 /**
- * Score the number of video attachments in the toot.
+ * Score the number of video attachments in the {@linkcode Toot}.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

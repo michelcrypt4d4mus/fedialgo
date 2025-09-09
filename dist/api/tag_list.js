@@ -15,7 +15,7 @@ const tag_1 = require("./objects/tag");
 const enums_1 = require("../enums");
 const logger = new logger_1.Logger("TagList");
 /**
- * Subclass of CountedList for lists of TagWithUsageCounts objects.
+ * Subclass of {@linkcode CountedList} for lists of {@linkcode TagWithUsageCounts} objects.
  * @augments CountedList
  */
 class TagList extends counted_list_1.default {
@@ -42,8 +42,8 @@ class TagList extends counted_list_1.default {
         return tagList;
     }
     /**
-     * Alternate constructor that populates this.objs with TagWithUsageCounts objects with
-     * numToots set to the # of times the tag appears in the 'toots' array.
+     * Alternate constructor that populates {@linkcode this.objs} with {@linkcode TagWithUsageCounts} objects
+     * with {@linkcode numToots} set to the # of times the tag appears in the {@linkcode toots} array.
      * Note the special handling of retooters.
      * @param {Toot[]} toots - Array of Toot objects to count tags from.
      * @param {CountedListSource} source - Source of the list (for logging/context).
@@ -63,7 +63,7 @@ class TagList extends counted_list_1.default {
         return new TagList(this.objs.filter(predicate), this.source);
     }
     /**
-     * Like {@linkcode CountedList.getObj} but takes a MastodonTag argument.
+     * Like {@linkcode CountedList.getObj} but takes a {@linkcode MastodonTag} argument.
      * @param {Hashtag} tag - Tag whose name to find an obj for.
      * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
      */

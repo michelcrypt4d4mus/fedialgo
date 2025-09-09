@@ -4,7 +4,7 @@ import { ScoreName } from '../../enums';
 
 
 /**
- * Scores with the trendingRank set by {@linkcode MastodonServer.fediverseTrendingToots}.
+ * Scores with the {@linkcode Toot.trendingRank} set by {@linkcode MastodonServer.fediverseTrendingToots}.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

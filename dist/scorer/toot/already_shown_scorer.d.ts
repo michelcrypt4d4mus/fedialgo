@@ -4,7 +4,7 @@
 import TootScorer from '../toot_scorer';
 import type Toot from '../../api/objects/toot';
 /**
- * Score based on the numTimesShown, which is managed by the client app.
+ * Score based on the {@linkcode numTimesShown}, which is managed by the client app.
  * @class AlreadyShownScorer
  * @memberof module:toot_scorers
  * @augments Scorer

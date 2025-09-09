@@ -4,7 +4,7 @@
  */
 import { type Optional } from './types';
 /**
- * Actions that TheAlgorithm can take.
+ * Actions that {@linkcode TheAlgorithm} can take.
  * @enum {string}
  * @private
  */
@@ -38,7 +38,7 @@ export declare enum AlgorithmStorageKey {
 /**
  * Enum of keys used to cache Mastodon API data in the browser's IndexedDB via localForage.
  * Keys that contain Toots should end with "_TOOTS", likewise for Account objects with "_ACCOUNTS".
- * Used for Storage and cache management.
+ * Used for {@linkcode Storage} and cache management.
  * @private
  * @enum {string}
  */
@@ -127,7 +127,7 @@ export declare enum MediaCategory {
     VIDEO = "video"
 }
 /**
- * Enum of trending data types that can be fetched from the API. *
+ * Enum of trending data types that can be fetched from the API.
  * @enum {string}
  */
 export declare enum TrendingType {
@@ -137,7 +137,7 @@ export declare enum TrendingType {
     TAGS = "tags"
 }
 /**
- * Enum of boolean filter names for filtering toots by property.
+ * Enum of boolean filter names for filtering {@linkcode Toot}s by property.
  * @enum {string}
  */
 export declare enum BooleanFilterName {
@@ -149,7 +149,7 @@ export declare enum BooleanFilterName {
     USER = "user"
 }
 /**
- * Enum of type filter names for filtering toots by type (e.g., audio, bot, images, etc.).
+ * Enum of type filter names for filtering {@linkcode Toot}s by type (e.g., audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
  * @enum {string}
  */
@@ -196,7 +196,7 @@ export declare const DAY_NAMES: readonly ["Sunday", "Monday", "Tuesday", "Wednes
 export declare const DAYS_SHORT: string[];
 type CachedByKey<K extends string, T, U extends Optional<Record<K, T>>> = IsNullOrUndefined<U> extends true ? Record<ApiCacheKey, T> : Record<ApiCacheKey | K, T>;
 /**
- * Build a dictionary of values for each ApiCacheKey using the provided function.
+ * Build a dictionary of values for each {@linkcode ApiCacheKey} using the provided function.
  * @private
  * @template K
  * @template T
@@ -214,21 +214,21 @@ export declare function simpleCacheKeyDict<T>(fxn: () => T, keys?: ApiCacheKey[]
  * @returns {(value: string) => boolean} The checker function.
  */
 export declare function isValueInStringEnum<E extends string>(strEnum: Record<string, E>): ((str: string) => boolean);
-/** True if argument is a member of CacheKey. */
+/** True if argument is a member of {@linkcode CacheKey}. */
 export declare const isCacheKey: (str: string) => boolean;
-/** True if argument is a member of TagTootsCacheKey. */
+/** True if argument is a member of {@linkcode TagTootsCategory}. */
 export declare const isTagTootsCategory: (str: string) => boolean;
-/** True if argument is a member of FediverseCacheKey. */
+/** True if argument is a member of {@linkcode FediverseCacheKey}. */
 export declare const isFediverseCacheKey: (str: string) => boolean;
-/** True if argument is an ApiCacheKey. */
+/** True if argument is an {@linkcode ApiCacheKey}. */
 export declare const isApiCacheKey: (s: string) => boolean;
-/** True if argument is a member of NonScoreWeightName enum. */
+/** True if argument is a member of {@linkcode NonScoreWeightName} enum. */
 export declare const isNonScoreWeightName: (str: string) => boolean;
-/** True if argument is a member of ScoreName enum. */
+/** True if argument is a member of {@linkcode ScoreName} enum. */
 export declare const isScoreName: (str: string) => boolean;
-/** True if argument is a member of TypeFilterName enum. */
+/** True if argument is a member of {@linkcode TypeFilterName} enum. */
 export declare const isTypeFilterName: (str: string) => boolean;
-/** True if argument is a member of ScoreName or NonScoreWeightName enums. */
+/** True if argument is a member of {@linkcode ScoreName} or {@linkcode NonScoreWeightName} enums. */
 export declare const isWeightName: (str: string) => boolean;
 export declare const SECONDS_IN_MINUTE = 60;
 export declare const MINUTES_IN_HOUR = 60;

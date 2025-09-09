@@ -5,9 +5,9 @@ import { type StringNumberDict, type WeightInfo, type Weights } from "../types";
 /**
  * Abstract base class for scoring {@linkcode Toot} objects.
  *
- * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and
- * filtering feeds. This class manages scorer state, logging, and provides a public API for scoring, as
- * well as static utilities for scoring arrays of toots.
+ * {@linkcode Scorer} implementations provide algorithms for assigning scores to {@linkcode Toot}s,
+ * which are used for ranking and filtering feeds. This class manages scorer state, logging, and
+ * provides a public API for scoring, as well as static utilities for scoring arrays of {@linkcode Toot}s.
  *
  * @abstract
  * @property {string} description - Description of the scoring algorithm.
@@ -34,7 +34,7 @@ export default abstract class Scorer {
     /** Resets the scorer's state and score data. */
     reset(): void;
     /**
-     * Public API for scoring a toot. Returns the score, or 0 if not ready.
+     * Public API for scoring a {@linkcode Toot}. Returns the score, or 0 if not ready.
      * @param {Toot} toot - The toot to score.
      * @returns {Promise<number>} The computed score for the toot.
      */
@@ -47,8 +47,8 @@ export default abstract class Scorer {
      */
     abstract _score(_toot: Toot): Promise<number>;
     /**
-     * Scores and returns an array of toots sorted by score (descending). Does NOT mutate the input array!
-     * If you need the sorted array you need to use the return value.
+     * Scores and returns an array of {@linkcode Toot}s sorted by score (descending). Does NOT mutate the input
+     * array! If you need the sorted array you need to use the return value.
      * @static
      * @param {Toot[]} toots - Array of toots to score.
      * @param {boolean} [isScoringFeed] - If true, refreshes feed scorer data and locks scoring.
@@ -56,7 +56,7 @@ export default abstract class Scorer {
      */
     static scoreToots(toots: Toot[], isScoringFeed?: boolean): Promise<Toot[]>;
     /**
-     * Validates that the weights object contains valid weight names and values.
+     * Validates that the {@linkcode weights} object contains valid weight names and values.
      * Throws an error if any weight is invalid or missing.
      * @static
      * @param {Weights} weights - Weights object to validate.
