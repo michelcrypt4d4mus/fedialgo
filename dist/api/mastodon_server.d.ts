@@ -7,19 +7,20 @@ import { type InstanceResponse, type MastodonInstances, type TagWithUsageCounts,
  * Provides methods to fetch trending toots, tags, links, and server info, as well as utilities for
  * aggregating and processing trending data across multiple servers in the fediverse.
  * @class
- * @property {string} domain - The domain of the server this MastodonServer object interacts with.
- * @property {Logger} logger - Logger instance for this server.
+ * @property {string} domain - Domain of the server this {@linkcode MastodonServer} instance interacts with.
+ * @property {Logger} logger - {@linkcode Logger} instance for this server.
  */
 export default class MastodonServer {
     domain: string;
     logger: Logger;
     /**
-     * Constructs a MastodonServer instance for the given domain.
+     * Constructs a {@linkcode MastodonServer} instance for the given domain.
      * @param {string} domain - The domain of the Mastodon server.
      */
     constructor(domain: string);
     /**
-     * Fetch the mastodon.v2.Instance object (MAU, version, languages, rules, etc) for this server.
+     * Fetch the {@link https://docs.joinmastodon.org/entities/Instance/ mastodon.v2.Instance} (MAU,
+     * version, languages, rules, etc) for this server.
      * @returns {Promise<InstanceResponse>} The instance info or null if not available.
      */
     fetchServerInfo(): Promise<InstanceResponse>;
@@ -29,8 +30,8 @@ export default class MastodonServer {
      */
     fetchTrendingLinks(): Promise<TrendingLink[]>;
     /**
-     * Fetch toots that are trending on this server.
-     * Note: Returned toots have not had setDependentProps() called yet.
+     * Fetch {@linkcode Toot}s that are trending on this server.
+     * Note: Returned {@linkcode Toot}s have not had {@linkcode Toot.completeProperties} called yet.
      * @returns {Promise<Toot[]>} Array of trending Toot objects.
      */
     fetchTrendingStatuses(): Promise<Toot[]>;
@@ -94,7 +95,7 @@ export default class MastodonServer {
      */
     static getTrendingData(): Promise<TrendingData>;
     /**
-     * Returns a dict of servers with MAU over the `minServerMAU` threshold
+     * Returns a dict of servers with MAU over the {@linkcode minServerMAU} threshold
      * and the ratio of the number of users followed on a server to the MAU of that server.
      * @private
      * @static

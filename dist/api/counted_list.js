@@ -60,7 +60,7 @@ class CountedList {
         this.logger.trace(`addObjs() added ${addableObjs.length} of ${objs.length} incoming objs to initial ${numObjsBefore}:`, addableObjs);
     }
     /**
-     * Like the standard Array.filter().
+     * Like the standard javascript {@linkcode Array.filter}.
      * @param {function} predicate - Function to test each object in the list.
      * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
      */
@@ -102,7 +102,7 @@ class CountedList {
         return this.objs.map((obj, i) => callback(obj, i));
     }
     /**
-     * Get the maximum value for a given key across the objs array
+     * Get the maximum value for a given key across the {@linkcode CountedList.objs} array.
      * @template T
      * @param {keyof T} propertyName - The property to find the maximum value for.
      * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
@@ -112,7 +112,7 @@ class CountedList {
         return values.length ? Math.max(...values) : undefined;
     }
     /**
-     * Returns a dict of 'obj.name' to 'obj.numToots'.
+     * Returns a dict of {@linkcode obj.name} to {@linkcode obj.numToots}.
      * @returns {StringNumberDict} Dictionary mapping object names to their numToots counts.
      */
     nameToNumTootsDict() {
@@ -123,7 +123,7 @@ class CountedList {
     }
     /**
      * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
-     * Resulting BooleanFilterOptions will be decorated with properties returned by propExtractor().
+     * Resulting {@linkcode BooleanFilterOption}s will be decorated with properties returned by propExtractor().
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
      * @param {(obj: U) => T} propExtractor - Function to extract the decorator properties for the counted objects.
