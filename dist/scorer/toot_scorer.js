@@ -23,7 +23,7 @@ class TootScorer extends scorer_1.default {
     }
     /**
      * Calls {@linkcode TootScorer.prepareScoreData} to get any data required for scoring {@linkcode Toot} later.
-     * NOTE: Don't overload this - overload prepareScoreData() instead.
+     * NOTE: Don't overload this - {@linkcode prepareScoreData()} instead.
      */
     async fetchRequiredData() {
         const startTime = Date.now();
@@ -41,7 +41,7 @@ class TootScorer extends scorer_1.default {
     }
     /**
      * Can be overloaded in subclasses to set up any data required for scoring {@linkcode Toot}s.
-     * @returns {StringNumberDict} Dictionary of data required for scoring Toots.
+     * @returns {StringNumberDict} Dictionary of data required for scoring {@linkcode Toot}s.
      */
     async prepareScoreData() {
         return {};

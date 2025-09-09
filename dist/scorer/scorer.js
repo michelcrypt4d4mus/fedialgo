@@ -150,7 +150,7 @@ class Scorer {
     //   Private static methods   //
     ////////////////////////////////
     /**
-     * Adds all score info to a Toot's scoreInfo property.
+     * Adds all score info to a {@linkcode Toot}'s {@linkcode scoreInfo} property.
      * @private
      * @static
      * @param {Toot} toot - The toot to decorate.

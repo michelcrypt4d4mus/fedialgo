@@ -17,12 +17,12 @@ export default abstract class TootScorer extends Scorer {
     constructor(scoreName: ScoreName);
     /**
      * Calls {@linkcode TootScorer.prepareScoreData} to get any data required for scoring {@linkcode Toot} later.
-     * NOTE: Don't overload this - overload prepareScoreData() instead.
+     * NOTE: Don't overload this - {@linkcode prepareScoreData()} instead.
      */
     fetchRequiredData(): Promise<void>;
     /**
      * Can be overloaded in subclasses to set up any data required for scoring {@linkcode Toot}s.
-     * @returns {StringNumberDict} Dictionary of data required for scoring Toots.
+     * @returns {StringNumberDict} Dictionary of data required for scoring {@linkcode Toot}s.
      */
     prepareScoreData(): Promise<StringNumberDict>;
 }
