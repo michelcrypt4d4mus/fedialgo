@@ -82,7 +82,7 @@ export default class TheAlgorithm {
      */
     static create(params: AlgorithmArgs): Promise<TheAlgorithm>;
     /**
-     * Private constructor for TheAlgorithm. Use TheAlgorithm.create() to instantiate.
+     * Private constructor for TheAlgorithm. Use {@linkcode TheAlgorithm.create} to instantiate.
      * @param {AlgorithmArgs} params - Constructor params (API client, user, and optional timeline callback/locale).
      */
     private constructor();
