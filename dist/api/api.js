@@ -112,7 +112,7 @@ class MastoApi {
         MastoApi.#instance.userData = await Storage_1.default.loadUserData(); // Instantiate userData from the cache
     }
     /**
-     * Returns the singleton instance of MastoApi.
+     * Returns the singleton instance of `MastoApi`.
      * @returns {MastoApi}
      * @throws {Error} If the instance has not been initialized.
      */
@@ -122,7 +122,8 @@ class MastoApi {
         return MastoApi.#instance;
     }
     /**
-     * Private constructor for MastoApi. Instantiate with `MastoApi.init()`.
+     * Private constructor for `MastoApi`. Instantiate with `MastoApi.init()`.
+     * @private
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */
