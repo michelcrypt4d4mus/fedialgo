@@ -29,7 +29,7 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     static fromUsageCounts(toots: Toot[], source: CountedListSource, includeRetoots?: boolean): TagList;
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     /**
-     * Like getObj() but takes a MastodonTag argument.
+     * Like {@linkcode CountedList.getObj} but takes a MastodonTag argument.
      * @param {Hashtag} tag - Tag whose name to find an obj for.
      * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
      */

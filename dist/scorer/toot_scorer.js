@@ -22,7 +22,7 @@ class TootScorer extends scorer_1.default {
         super(scoreName);
     }
     /**
-     * Calls this.prepareScoreData() to get any data required for scoring Toots later.
+     * Calls {@linkcode TootScorer.prepareScoreData} to get any data required for scoring {@linkcode Toot} later.
      * NOTE: Don't overload this - overload prepareScoreData() instead.
      */
     async fetchRequiredData() {
