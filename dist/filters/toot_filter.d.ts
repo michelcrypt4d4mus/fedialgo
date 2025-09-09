@@ -11,8 +11,8 @@ export interface FilterArgs {
 }
 /**
  * Abstract base class representing a filter that can be applied to a {@linkcode Toot} to determine
- * if it should be included in the timeline feed. Subclasses must implement the {@linkcode TootFilter.isAllowed}
- * method.
+ * if it should be included in the timeline feed. Subclasses must implement the
+ * {@linkcode TootFilter.isAllowed} method.
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
@@ -31,7 +31,7 @@ export default abstract class TootFilter {
      */
     constructor(params: FilterArgs);
     /**
-     * Determines if the given toot should appear in the timeline feed.
+     * Determines if the given {@linkcode Toot} should appear in the timeline feed.
      * @abstract
      * @param {Toot} toot - The toot to check.
      * @returns {boolean} True if the toot is allowed, false otherwise.
