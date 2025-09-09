@@ -2454,15 +2454,15 @@ class Config implements ConfigType {
         },
     }
 
-    /** Construct a new Config instance, validate it, and logs the validated config. */
+    /** Construct a new {@linkcode Config} instance, validate it, and logs the validated config. */
     constructor() {
         this.validate(this);
         console.debug(`${LOG_PREFIX} validated:`, this);
     };
 
     /**
-     * Computes the minimum value of minutesUntilStale for all FediverseCacheKey values.
-     * Warns if any required keys are missing a value.
+     * Computes the minimum value of {@linkcode minutesUntilStale} for all {@linkcode enums:FediverseCacheKey}
+     * values. Warns if any required keys are missing a value.
      * @returns {number} The minimum minutes until trending data is considered stale, or 60 if not all keys are configured.
      */
     minTrendingMinutesUntilStale(): number {
