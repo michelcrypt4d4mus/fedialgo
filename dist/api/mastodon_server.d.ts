@@ -39,8 +39,29 @@ export default class MastodonServer {
      * @returns {Promise<TagWithUsageCounts[]>} Array of trending tags with usage counts.
      */
     fetchTrendingTags(): Promise<TagWithUsageCounts[]>;
+    /**
+     * Get data from a public API endpoint on a Mastodon server.
+     * @private
+     * @param {string} endpoint - The API endpoint to fetch data from.
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {Promise<T>} The data fetched from the endpoint, with keys transformed to camelCase.
+     */
     private fetch;
+    /**
+     * Fetch a list of objects of type T from a public API endpoint
+     * @private
+     * @param {string} endpoint - The API endpoint to fetch data from.
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {Promise<T[]>} Array of objects of type T.
+     */
     private fetchList;
+    /**
+     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
+     * @private
+     * @param {string} trendingType - The type of trending data to fetch (e.g., 'statuses', 'tags', 'links').
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {Promise<T[]>} Array of objects of type T.
+     */
     private fetchTrending;
     /**
      * Get the top trending links from all servers in the fediverse.
@@ -72,14 +93,68 @@ export default class MastodonServer {
      * @returns {Promise<TrendingData>} Object containing trending links, tags, toots, and servers.
      */
     static getTrendingData(): Promise<TrendingData>;
+    /**
+     * Returns a dict of servers with MAU over the `minServerMAU` threshold
+     * and the ratio of the number of users followed on a server to the MAU of that server.
+     * @private
+     * @static
+     * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
+     */
     private static fetchMastodonInstances;
+    /**
+     * Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
+     * @private
+     * @static
+     * @param {FetchTrendingProps<T>} props - Properties for fetching and processing trending data.
+     * @returns {Promise<T[]>} Array of unique objects of type T.
+     */
     private static getTrendingObjsFromAllServers;
+    /**
+     * Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+     * @private
+     * @static
+     * @returns {Promise<string[]>} Array of top server domains.
+     */
     private static getTopServerDomains;
+    /**
+     * Call 'fxn' for a list of domains and return a dict keyed by domain.
+     * @private
+     * @static
+     * @template T - The type of the result returned by the function.
+     * @param {string[]} domains - Array of server domains to call the function on.
+     * @param {(server: MastodonServer) => Promise<T>} fxn - The function to call for each server.
+     * @returns {Promise<Record<string, T>>} A promise that resolves to a dictionary with domains as keys and results of type T as values.
+     */
     private static callForServers;
+    /**
+     * Call 'fxn' for all the top servers and return a dict keyed by server domain.
+     * @private
+     * @static
+     * @template T - The type of the result returned by the function.
+     * @param {(server: MastodonServer) => Promise<T>} fxn - The function to call for each server.
+     * @returns {Promise<Record<string, T>>} A promise that resolves to a dictionary with domains as keys and results of type T as values.
+     */
     private static callForTopServers;
+    /**
+     * Build the full URL for a given API endpoint on this server, optionally adding a limit parameter.
+     * @private
+     * @param {string} endpoint - The API endpoint to build the URL for.
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {string} The full URL for the API endpoint.
+     */
     private endpointUrl;
+    /**
+     * Returns true if the domain is known to not provide MAU and trending data via public API
+     * @private
+     * @static
+     * @param {string} domain - The domain to check.
+     * @returns {boolean} True if the domain is in the `noMauServers` list, false otherwise.
+     */
     private static isNoMauServer;
+    /** Build a URL for a trending type (tags, links, toots). */
     private static trendUrl;
+    /** Build a v1 API URL. */
     private static v1Url;
+    /** Build a v2 API URL. */
     private static v2Url;
 }

@@ -138,7 +138,13 @@ export default class MastodonServer {
     //        Private Methods       //
     //////////////////////////////////
 
-    // Get data from a public API endpoint on a Mastodon server.
+    /**
+     * Get data from a public API endpoint on a Mastodon server.
+     * @private
+     * @param {string} endpoint - The API endpoint to fetch data from.
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {Promise<T>} The data fetched from the endpoint, with keys transformed to camelCase.
+     */
     private async fetch<T>(endpoint: string, limit?: number): Promise<T> {
         const url = this.endpointUrl(endpoint, limit);
         this.logger.deep(`Fetching "${url}"...`);
@@ -153,7 +159,13 @@ export default class MastodonServer {
         }
     }
 
-    // Fetch a list of objects of type T from a public API endpoint
+    /**
+     * Fetch a list of objects of type T from a public API endpoint
+     * @private
+     * @param {string} endpoint - The API endpoint to fetch data from.
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {Promise<T[]>} Array of objects of type T.
+     */
     private async fetchList<T>(endpoint: string, limit?: number): Promise<T[]> {
         const label = endpoint.split("/").pop();
         const endpointURI = `'${this.domain}/${endpoint}`;
@@ -177,7 +189,13 @@ export default class MastodonServer {
         return list;
     }
 
-    // Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
+    /**
+     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
+     * @private
+     * @param {string} trendingType - The type of trending data to fetch (e.g., 'statuses', 'tags', 'links').
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {Promise<T[]>} Array of objects of type T.
+     */
     private async fetchTrending<T>(trendingType: TrendingType, limit?: number): Promise<T[]> {
         return this.fetchList<T>(MastodonServer.trendUrl(trendingType), limit);
     }
@@ -283,8 +301,13 @@ export default class MastodonServer {
     //      Private Static Methods       //
     ///////////////////////////////////////
 
-    // Returns a dict of servers with MAU over the minServerMAU threshold
-    // and the ratio of the number of users followed on a server to the MAU of that server.
+    /**
+     * Returns a dict of servers with MAU over the `minServerMAU` threshold
+     * and the ratio of the number of users followed on a server to the MAU of that server.
+     * @private
+     * @static
+     * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
+     */
     private static async fetchMastodonInstances(): Promise<MastodonInstances> {
         const logger = getLogger(FediverseCacheKey.POPULAR_SERVERS, "fetchMastodonInstances");
         logger.trace(`Fetching ${FediverseCacheKey.POPULAR_SERVERS} info...`);
@@ -343,7 +366,13 @@ export default class MastodonServer {
         return servers;
     }
 
-    // Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
+    /**
+     * Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
+     * @private
+     * @static
+     * @param {FetchTrendingProps<T>} props - Properties for fetching and processing trending data.
+     * @returns {Promise<T[]>} Array of unique objects of type T.
+     */
     private static async getTrendingObjsFromAllServers<T extends TrendingObj>(
         props: FetchTrendingProps<T>
     ): Promise<T[]> {
@@ -368,7 +397,12 @@ export default class MastodonServer {
         }
     }
 
-    // Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+    /**
+     * Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+     * @private
+     * @static
+     * @returns {Promise<string[]>} Array of top server domains.
+     */
     private static async getTopServerDomains(): Promise<string[]> {
         const logger = getLogger(FediverseCacheKey.POPULAR_SERVERS, "getTopServerDomains");
         const servers = await this.getMastodonInstances();
@@ -382,7 +416,15 @@ export default class MastodonServer {
         return topServerDomains;
     }
 
-    // Call 'fxn' for a list of domains and return a dict keyed by domain
+    /**
+     * Call 'fxn' for a list of domains and return a dict keyed by domain.
+     * @private
+     * @static
+     * @template T - The type of the result returned by the function.
+     * @param {string[]} domains - Array of server domains to call the function on.
+     * @param {(server: MastodonServer) => Promise<T>} fxn - The function to call for each server.
+     * @returns {Promise<Record<string, T>>} A promise that resolves to a dictionary with domains as keys and results of type T as values.
+     */
     private static async callForServers<T>(
         domains: string[],
         fxn: (server: MastodonServer) => Promise<T>
@@ -390,7 +432,14 @@ export default class MastodonServer {
         return await zipPromiseCalls<T>(domains, async (domain) => fxn(new MastodonServer(domain)), buildLogger());
     }
 
-    // Call 'fxn' for all the top servers and return a dict keyed by server domain
+    /**
+     * Call 'fxn' for all the top servers and return a dict keyed by server domain.
+     * @private
+     * @static
+     * @template T - The type of the result returned by the function.
+     * @param {(server: MastodonServer) => Promise<T>} fxn - The function to call for each server.
+     * @returns {Promise<Record<string, T>>} A promise that resolves to a dictionary with domains as keys and results of type T as values.
+     */
     private static async callForTopServers<T>(
         fxn: (server: MastodonServer) => Promise<T>
     ): Promise<Record<string, T>> {
@@ -398,18 +447,33 @@ export default class MastodonServer {
         return await this.callForServers(domains, fxn);
     }
 
+    /**
+     * Build the full URL for a given API endpoint on this server, optionally adding a limit parameter.
+     * @private
+     * @param {string} endpoint - The API endpoint to build the URL for.
+     * @param {number} [limit] - Optional limit on the number of items to fetch.
+     * @returns {string} The full URL for the API endpoint.
+     */
     private endpointUrl(endpoint: string, limit?: number) {
         return `https://${this.domain}/${endpoint}${optionalSuffix(limit, `?limit=${limit}`, true)}`;
     }
 
-    // Returns true if the domain is known to not provide MAU and trending data via public API
+    /**
+     * Returns true if the domain is known to not provide MAU and trending data via public API
+     * @private
+     * @static
+     * @param {string} domain - The domain to check.
+     * @returns {boolean} True if the domain is in the `noMauServers` list, false otherwise.
+     */
     private static isNoMauServer(domain: string): boolean {
         return config.fediverse.noMauServers.includes(domain);
     }
 
-    // Helper methods for building URLs
+    /** Build a URL for a trending type (tags, links, toots). */
     private static trendUrl = (path: string) => this.v1Url(`trends/${path}`);
+    /** Build a v1 API URL. */
     private static v1Url = (path: string) => `${API_V1}/${path}`;
+    /** Build a v2 API URL. */
     private static v2Url = (path: string) => `${API_V2}/${path}`;
 };
 
