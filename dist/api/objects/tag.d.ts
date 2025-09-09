@@ -1,6 +1,6 @@
 import { type TagWithUsageCounts } from "../../types";
 /**
- * Build a synthetic TagWithUsageCounts for a given string.
+ * Build a synthetic {@linkcode TagWithUsageCounts} for a given string.
  * @param {string} str - The string to turn into a TagWithUsageCounts
  * @returns {TagWithUsageCounts}
  */
