@@ -59,7 +59,7 @@ interface TootObj extends SerializableToot {
     tagNames: () => Set<string>;
 }
 /**
- * Class representing a Mastodon Toot (Status) with helper methods for scoring, filtering, and more.
+ * Class representing a Mastodon {@linkcode Toot} with helper methods for scoring, filtering, and more.
  * Extends the base Mastodon {@link https://docs.joinmastodon.org/entities/Status/ Status} object.
  * The base class's properties are not documented here; see
  * {@link https://docs.joinmastodon.org/entities/Status/ the official Status object docs} for details.
@@ -180,7 +180,7 @@ export default class Toot implements TootObj {
      */
     static build(toot: SerializableToot | Toot): Toot;
     /**
-     * True if toot contains 'str' in the tags, the content, or the link preview card description.
+     * True if toot contains {@linkcode str} in the tags, the content, or the link preview card description.
      * @param {string} str - The string to search for.
      * @returns {boolean}
      */
@@ -228,19 +228,20 @@ export default class Toot implements TootObj {
      */
     contentWithEmojis(fontSize?: number): string;
     /**
-     * Fetch the conversation (context) for this toot (Mastodon API calls this a 'context').
+     * Fetch the conversation for this toot (Mastodon API calls this a
+     * {@link https://docs.joinmastodon.org/entities/Context/ Context}).
      * @returns {Promise<Toot[]>}
      */
     getConversation(): Promise<Toot[]>;
     /**
-     * Get an individual score for this toot.
+     * Get an individual score for this {@linkcode Toot}.
      * @param {ScoreType} scoreType - The score type.
      * @param {ScoreName} name - The score name.
      * @returns {number}
      */
     getIndividualScore(scoreType: ScoreType, name: ScoreName): number;
     /**
-     * Return true if the toot should not be filtered out of the feed by the current filters.
+     * Return true if the {@linkcode Toot} should not be filtered out of the feed by the current filters.
      * @param {FeedFilterSettings} filters - The feed filter settings.
      * @returns {boolean}
      */
@@ -252,14 +253,15 @@ export default class Toot implements TootObj {
      */
     isValidForFeed(mutedKeywordRegex: RegExp, blockedDomains: Set<string>): boolean;
     /**
-     * Make an API call to get this toot's URL on the FediAlgo user's home server instead of on the toot's home server.
+     * Make an API call to get this {@linkcode Toot}'s URL on the FediAlgo user's home server instead of on
+     * the toot's home server. For example:
      *       this: https://fosstodon.org/@kate/114360290341300577
      *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
      * @returns {Promise<string>} The home server URL.
      */
     localServerUrl(): Promise<string>;
     /**
-     * True if toot matches 'regex' in the tags, the content, or the link preview card description.
+     * True if {@linkcode Toot} matches {@linkcode regex} in the tags, the content, or the link preview card description.
      * @param {RegExp} regex - The string to search for.
      * @returns {boolean}
      */
