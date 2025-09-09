@@ -93,8 +93,8 @@ class MastoApi {
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
     /**
      * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
-     * If an instance already exists, logs a warning and does nothing.
-     * Loads user data from storage and assigns it to the instance.
+     * Loads user data from storage and assigns it to the instance. If an instance already exists, logs a
+     * warning and does nothing.
      * @param {mastodon.rest.Client} api - The Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      * @returns {Promise<void>} Resolves when initialization is complete.
@@ -121,6 +121,7 @@ class MastoApi {
             throw new Error("MastoApi wasn't initialized before use!");
         return MastoApi.#instance;
     }
+    // NOTE: if the constructor's JSDocs are marked with @private then no documentation will be generated!
     /**
      * Private constructor for MastoApi. Instantiate with MastoApi.init().
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
@@ -217,7 +218,7 @@ class MastoApi {
         return homeTimelineToots;
     }
     /**
-     * Gets the accounts blocked by the user (does not include muted accounts).
+     * Get the accounts blocked by the user (does not include muted accounts).
      * @returns {Promise<Account[]>} Array of blocked accounts.
      */
     async getBlockedAccounts() {
@@ -229,7 +230,7 @@ class MastoApi {
         return blockedAccounts;
     }
     /**
-     * Gets the Mastodon server domains that the user has blocked
+     * Get the Mastodon server domains that the user has blocked
      * Safe domain for testing: https://universeodon.com/@memes@pl.m0e.space
      * @returns {Promise<string[]>} Set of blocked domains.
      */
@@ -274,7 +275,7 @@ class MastoApi {
         }
     }
     /**
-     * Gets the toots recently favourited by the user.
+     * Get the toots recently favourited by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of favourited Toots.
      */
@@ -286,7 +287,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the accounts followed by the user.
+     * Get the accounts followed by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of followed accounts.
      */
@@ -300,7 +301,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the hashtags followed by the user.
+     * Get the hashtags followed by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Tag[]>} Array of followed tags.
      */
@@ -313,7 +314,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the followers of the Fedialgo user.
+     * Get the followers of the Fedialgo user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of follower accounts.
      */
@@ -340,7 +341,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets all muted accounts (including fully blocked accounts).
+     * Get all muted accounts (including fully blocked accounts).
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of muted and blocked accounts.
      */
@@ -354,7 +355,7 @@ class MastoApi {
         return mutedAccounts.concat(await this.getBlockedAccounts());
     }
     /**
-     * Gets the user's recent notifications.
+     * Get the user's recent notifications.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
@@ -366,7 +367,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the user's recent toots.
+     * Get the user's recent toots.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
@@ -421,7 +422,7 @@ class MastoApi {
     }
     ;
     /**
-     * Gets the latest toots for a given tag using both the Search API and tag timeline API.
+     * Get the latest toots for a given tag using both the Search API and tag timeline API.
      * The two APIs give results with surprisingly little overlap (~80% of toots are unique).
      * @param {string} tagName - The tag to search for.
      * @param {Logger} logger - Logger instance for logging.
@@ -818,7 +819,7 @@ class MastoApi {
         }
     }
     /**
-     * Gets maxRecords, and if not more than minRecords, launches a background fetch.
+     * Get maxRecords, and if not more than minRecords, launches a background fetch.
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
