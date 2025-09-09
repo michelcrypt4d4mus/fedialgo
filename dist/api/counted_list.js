@@ -67,7 +67,7 @@ class CountedList {
     filter(predicate) {
         return new CountedList(this.objs.filter(predicate), this.source);
     }
-    /** Standard Array.forEach() approximation that invokes a callback for each object in the objs array. */
+    /** Standard {@linkcode Array.forEach} approximation that invokes a callback for each object in the objs array. */
     forEach(callback) {
         this.objs.forEach((obj, i) => callback(obj, i));
     }

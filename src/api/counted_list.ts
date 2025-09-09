@@ -80,7 +80,7 @@ export default class CountedList<T extends NamedTootCount> {
         return new CountedList<T>(this.objs.filter(predicate), this.source);
     }
 
-    /** Standard Array.forEach() approximation that invokes a callback for each object in the objs array. */
+    /** Standard {@linkcode Array.forEach} approximation that invokes a callback for each object in the objs array. */
     forEach(callback: (obj: T, i?: number) => void): void {
         this.objs.forEach((obj, i) => callback(obj, i));
     }
