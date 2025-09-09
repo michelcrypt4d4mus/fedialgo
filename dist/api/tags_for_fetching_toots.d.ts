@@ -12,7 +12,7 @@ export default class TagsForFetchingToots {
     /** Alternate async constructor. */
     static create(cacheKey: TagTootsCategory): Promise<TagsForFetchingToots>;
     private constructor();
-    /** Get toots for the list of tags, caching the results. */
+    /** Get {@linkcode Toot}s for the list of tags, caching the results. */
     getToots(): Promise<Toot[]>;
     /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     private removeUnwantedTags;

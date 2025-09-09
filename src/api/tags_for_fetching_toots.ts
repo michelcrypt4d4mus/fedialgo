@@ -61,7 +61,7 @@ export default class TagsForFetchingToots {
         this.logger = new Logger(cacheKey);
     }
 
-    /** Get toots for the list of tags, caching the results. */
+    /** Get {@linkcode Toot}s for the list of tags, caching the results. */
     async getToots(): Promise<Toot[]> {
         return await MastoApi.instance.getCacheableToots(
             async () => {

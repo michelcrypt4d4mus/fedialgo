@@ -13,7 +13,7 @@ const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 /**
  * Build a synthetic {@linkcode TagWithUsageCounts} for a given string.
- * @param {string} str - The string to turn into a TagWithUsageCounts
+ * @param {string} str - The string to turn into a {@linkcode TagWithUsageCounts}
  * @returns {TagWithUsageCounts}
  */
 export function buildTag(str: string): TagWithUsageCounts {

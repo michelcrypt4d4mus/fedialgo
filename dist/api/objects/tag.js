@@ -15,7 +15,7 @@ const language_helper_1 = require("../../helpers/language_helper");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 /**
  * Build a synthetic {@linkcode TagWithUsageCounts} for a given string.
- * @param {string} str - The string to turn into a TagWithUsageCounts
+ * @param {string} str - The string to turn into a {@linkcode TagWithUsageCounts}
  * @returns {TagWithUsageCounts}
  */
 function buildTag(str) {
