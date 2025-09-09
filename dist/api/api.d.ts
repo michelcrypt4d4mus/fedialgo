@@ -83,7 +83,7 @@ export default class MastoApi {
      */
     static get instance(): MastoApi;
     /**
-     * Private constructor for MastoApi. Use {@linkcode MastoApi.init} to construct the singleton instance.
+     * Private constructor for {@linkcode MastoApi}. Use {@linkcode MastoApi.init} to create the singleton instance.
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */
@@ -125,7 +125,7 @@ export default class MastoApi {
      */
     getCacheableToots(fetchStatuses: () => Promise<TootLike[]>, cacheKey: ApiCacheKey, maxRecords: number): Promise<Toot[]>;
     /**
-     * Get the toots recently favourited by the user.
+     * Get the {@linkcode Toot}s recently favourited by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of favourited Toots.
      */
@@ -149,7 +149,7 @@ export default class MastoApi {
      */
     getFollowers(params?: ApiParams): Promise<Account[]>;
     /**
-     * Get the public toots on the user's home server (recent toots from users on the same server).
+     * Get recent public {@linkcode Toot}s on the user's home server.
      * @param {ApiParams} params
      * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
@@ -161,19 +161,20 @@ export default class MastoApi {
      */
     getMutedAccounts(params?: ApiParams): Promise<Account[]>;
     /**
-     * Get the user's recent notifications.
+     * Get the user's recent {@link https://docs.joinmastodon.org/entities/Notification/ Notifications}.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
     getNotifications(params?: ApiParamsWithMaxID): Promise<mastodon.v1.Notification[]>;
     /**
-     * Get the user's recent toots.
+     * Get the user's recent {@linkcode Toot}s.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
     getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]>;
     /**
-     * Retrieve content-based feed filters set up by the user on the server.
+     * Retrieve content-based feed {@link https://docs.joinmastodon.org/entities/Filter/ Filters} set up by
+     * the user on the server.
      * @returns {Promise<mastodon.v2.Filter[]>} Array of server-side filters.
      */
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;

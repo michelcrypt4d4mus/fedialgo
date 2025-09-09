@@ -78,7 +78,7 @@ class BooleanFilter extends toot_filter_1.default {
     ;
     _options;
     /**
-     * Set the {@linkcode BooleanFilter._options} list and remove invalid {@linkcode BooleanFilter.selectedOptions}.
+     * Set {@linkcode this._options} and remove invalid values from {@linkcode this.selectedOptions}.
      * @param {BooleanFilterOptionList} optionList
      */
     set options(optionList) {
@@ -128,7 +128,7 @@ class BooleanFilter extends toot_filter_1.default {
     }
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by name
-     * ({@linkcode BooleanFilter.selectedOptions} are always included).
+     * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */

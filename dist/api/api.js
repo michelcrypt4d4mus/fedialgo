@@ -123,7 +123,7 @@ class MastoApi {
     }
     // NOTE: if the constructor's JSDocs are marked with @private then no documentation will be generated!
     /**
-     * Private constructor for MastoApi. Use {@linkcode MastoApi.init} to construct the singleton instance.
+     * Private constructor for {@linkcode MastoApi}. Use {@linkcode MastoApi.init} to create the singleton instance.
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */
@@ -275,7 +275,7 @@ class MastoApi {
         }
     }
     /**
-     * Get the toots recently favourited by the user.
+     * Get the {@linkcode Toot}s recently favourited by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of favourited Toots.
      */
@@ -328,7 +328,7 @@ class MastoApi {
         });
     }
     /**
-     * Get the public toots on the user's home server (recent toots from users on the same server).
+     * Get recent public {@linkcode Toot}s on the user's home server.
      * @param {ApiParams} params
      * @returns {Promise<Toot[]>} Array of public toots from the home server.
      */
@@ -355,7 +355,7 @@ class MastoApi {
         return mutedAccounts.concat(await this.getBlockedAccounts());
     }
     /**
-     * Get the user's recent notifications.
+     * Get the user's recent {@link https://docs.joinmastodon.org/entities/Notification/ Notifications}.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
@@ -367,7 +367,7 @@ class MastoApi {
         });
     }
     /**
-     * Get the user's recent toots.
+     * Get the user's recent {@linkcode Toot}s.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
@@ -387,7 +387,8 @@ class MastoApi {
         return toots;
     }
     /**
-     * Retrieve content-based feed filters set up by the user on the server.
+     * Retrieve content-based feed {@link https://docs.joinmastodon.org/entities/Filter/ Filters} set up by
+     * the user on the server.
      * @returns {Promise<mastodon.v2.Filter[]>} Array of server-side filters.
      */
     async getServerSideFilters() {
