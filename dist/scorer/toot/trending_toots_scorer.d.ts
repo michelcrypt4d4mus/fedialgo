@@ -1,7 +1,7 @@
 import TootScorer from '../toot_scorer';
 import type Toot from '../../api/objects/toot';
 /**
- * Scores with the trendingRank set by getTrendingToots().
+ * Scores with the trendingRank set by {@linkcode MastodonServer.fediverseTrendingToots}.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

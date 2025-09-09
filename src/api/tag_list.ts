@@ -80,7 +80,7 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     }
 
     /**
-     * Like getObj() but takes a MastodonTag argument.
+     * Like {@linkcode CountedList.getObj} but takes a MastodonTag argument.
      * @param {Hashtag} tag - Tag whose name to find an obj for.
      * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
      */
