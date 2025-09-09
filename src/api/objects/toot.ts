@@ -429,7 +429,7 @@ export default class Toot implements TootObj {
 
     /**
      * Return all but the last paragraph if that last paragraph is just hashtag links.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji {@linkcode <img>} tags. Should match surrounding txt.
      * @returns {string}
      */
     contentNonTagsParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string {
@@ -439,8 +439,8 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Break up the content into paragraphs and add <img> tags for custom emojis.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * Break up the content into paragraphs and add {@linkcode <img>} tags for custom emojis.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji {@linkcode <img>} tags. Should match surrounding txt.
      * @returns {string[]}
      */
     contentParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string[] {
@@ -555,9 +555,8 @@ export default class Toot implements TootObj {
 
     /**
      * Make an API call to get this {@linkcode Toot}'s URL on the FediAlgo user's home server instead of on
-     * the toot's home server. For example:
-     *       this: https://fosstodon.org/@kate/114360290341300577
-     *    becomes: https://universeodon.com/@kate@fosstodon.org/114360290578867339
+     * the {@linkcode Toot}'s home server.
+     * @example "https://fosstodon.org/@kate/114360290341300577" => "https://universeodon.com/@kate@fosstodon.org/114360290578867339"
      * @returns {Promise<string>} The home server URL.
      */
     async localServerUrl(): Promise<string> {

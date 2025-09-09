@@ -75,14 +75,15 @@ export default class Account implements AccountObj {
      */
     static build(account: AccountLike): Account;
     /**
-     * Returns HTML-ish string combining the displayName (with custom emojis as <img> tags) and the webfingerURI.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * Returns HTML-ish string combining the displayName (with custom emojis as {@linkcode <img>} tags)
+     * and the {@linkcode webfingerURI}.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji {@linkcode <img>} tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameFullHTML(fontSize?: number): string;
     /**
-     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * Returns HTML-ish string that is the display name with custom emojis as {@linkcode <img>} tags.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji {@linkcode <img>} tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize?: number): string;
@@ -93,26 +94,27 @@ export default class Account implements AccountObj {
      */
     homeInstanceInfo(): Promise<InstanceResponse>;
     /**
-     * HTML combining the account bio (AKA the {@linkcode Account.note} property) with createdAt, follower count,
-     * and toots count.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
+     * HTML combining the account bio (AKA the {@linkcode Account.note} property) with {@linkcode createdAt},
+     * follower count, and toots count.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji {@linkcode <img>} tags).
      * @returns {Promise<InstanceResponse>}
      */
     noteWithAccountInfo(fontSize?: number): string;
     /**
-     * Build a dictionary from Accounts' webfingerURIs to the {@linkcode Account} object for easy lookup.
+     * Build a dictionary from Accounts' {@linkcode webfingerURI} to the {@linkcode Account} object for easy lookup.
      * @param {Account[]} accounts - Array of Account objects.
      * @returns {AccountNames} Dictionary from webfingerURI to Account.
      */
     static buildAccountNames(accounts: Account[]): AccountNames;
     /**
-     * Dictionary from account's webfingerURI to number of times it appears in 'accounts' argument.
+     * Dictionary from account's {@linkcode webfingerURI} to number of times it appears in the
+     * {@linkcode accounts} argument.
      * @param {Account[]} accounts - Array of Account objects.
      * @returns {StringNumberDict} Dictionary from webfingerURI to count of appearances.
      */
     static countAccounts(accounts: Account[]): StringNumberDict;
     /**
-     * Dictionary from account's webfingerURI to an object with the account and count.
+     * Dictionary from account's {@linkcode webfingerURI} to an object with the account and count.
      * @param {Account[]} accounts - Array of {@linkcode Account} objects.
      * @returns {AccountCount} Dictionary from webfingerURI to {account, count}.
      */
