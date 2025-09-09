@@ -339,23 +339,23 @@ export function isValueInStringEnum<E extends string>(strEnum: Record<string, E>
 };
 
 
-/** True if argument is a member of {@linkcode enums.CacheKey}. */
+/** True if argument is a member of {@linkcode CacheKey}. */
 export const isCacheKey = isValueInStringEnum(CacheKey);
-/** True if argument is a member of {@linkcode enums.TagTootsCategory}. */
+/** True if argument is a member of {@linkcode TagTootsCategory}. */
 export const isTagTootsCategory = isValueInStringEnum(TagTootsCategory);
-/** True if argument is a member of {@linkcode enums.FediverseCacheKey}. */
+/** True if argument is a member of {@linkcode FediverseCacheKey}. */
 export const isFediverseCacheKey = isValueInStringEnum(FediverseCacheKey);
-/** True if argument is an {@linkcode enums.ApiCacheKey}. */
+/** True if argument is an {@linkcode ApiCacheKey}. */
 export const isApiCacheKey = (s: string) => (isCacheKey(s) || isFediverseCacheKey(s) || isTagTootsCategory(s));
 
 
-/** True if argument is a member of {@linkcode enums.NonScoreWeightName} enum. */
+/** True if argument is a member of {@linkcode NonScoreWeightName} enum. */
 export const isNonScoreWeightName = isValueInStringEnum(NonScoreWeightName);
-/** True if argument is a member of {@linkcode enums.ScoreName} enum. */
+/** True if argument is a member of {@linkcode ScoreName} enum. */
 export const isScoreName = isValueInStringEnum(ScoreName);
-/** True if argument is a member of {@linkcode enums.TypeFilterName} enum. */
+/** True if argument is a member of {@linkcode TypeFilterName} enum. */
 export const isTypeFilterName = isValueInStringEnum(TypeFilterName);
-/** True if argument is a member of {@linkcode enums.ScoreName} or {@linkcode NonScoreWeightName} enums. */
+/** True if argument is a member of {@linkcode ScoreName} or {@linkcode NonScoreWeightName} enums. */
 export const isWeightName = (str: string) => isScoreName(str) || isNonScoreWeightName(str);
 
 
