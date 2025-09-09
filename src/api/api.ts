@@ -228,9 +228,9 @@ export default class MastoApi {
     private requestSemphore = new Semaphore(config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
 
     /**
-     * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
-     * Loads user data from storage and assigns it to the instance. If an instance already exists, logs a
-     * warning and does nothing.
+     * Initializes the singleton {@linkcode MastoApi} instance with the provided Mastodon API client and
+     * user account. Loads user data from storage and assigns it to the instance. If an instance already
+     * exists, logs a warning and does nothing.
      * @param {mastodon.rest.Client} api - The Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      * @returns {Promise<void>} Resolves when initialization is complete.
@@ -249,7 +249,7 @@ export default class MastoApi {
     }
 
     /**
-     * Returns the singleton instance of MastoApi.
+     * Returns the singleton instance of {@linkcode MastoApi}.
      * @returns {MastoApi}
      * @throws {Error} If the instance has not been initialized.
      */
@@ -280,7 +280,7 @@ export default class MastoApi {
     };
 
     /**
-     * Get the value of some MastoApi object's properties. For debugging/presentation only.
+     * Get the value of the {@linkcode MastoApi} instance's properties. For debugging/presentation only.
      * @returns {Record<string, object|string>}
      */
     currentState(): Record<string, object | string> {

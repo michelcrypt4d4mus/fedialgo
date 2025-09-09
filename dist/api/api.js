@@ -92,9 +92,9 @@ class MastoApi {
     isHomeserverGoToSocial = undefined;
     requestSemphore = new async_mutex_1.Semaphore(config_1.config.api.maxConcurrentHashtagRequests); // Concurrency of search & hashtag requests
     /**
-     * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
-     * Loads user data from storage and assigns it to the instance. If an instance already exists, logs a
-     * warning and does nothing.
+     * Initializes the singleton {@linkcode MastoApi} instance with the provided Mastodon API client and
+     * user account. Loads user data from storage and assigns it to the instance. If an instance already
+     * exists, logs a warning and does nothing.
      * @param {mastodon.rest.Client} api - The Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      * @returns {Promise<void>} Resolves when initialization is complete.
@@ -112,7 +112,7 @@ class MastoApi {
         MastoApi.#instance.userData = await Storage_1.default.loadUserData(); // Instantiate userData from the cache
     }
     /**
-     * Returns the singleton instance of MastoApi.
+     * Returns the singleton instance of {@linkcode MastoApi}.
      * @returns {MastoApi}
      * @throws {Error} If the instance has not been initialized.
      */
@@ -142,7 +142,7 @@ class MastoApi {
     }
     ;
     /**
-     * Get the value of some MastoApi object's properties. For debugging/presentation only.
+     * Get the value of the {@linkcode MastoApi} instance's properties. For debugging/presentation only.
      * @returns {Record<string, object|string>}
      */
     currentState() {
