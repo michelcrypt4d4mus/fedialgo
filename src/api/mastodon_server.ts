@@ -191,7 +191,7 @@ export default class MastodonServer {
     }
 
     /**
-     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
+     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint.
      * @private
      * @param {string} trendingType - The type of trending data to fetch (e.g., 'statuses', 'tags', 'links').
      * @param {number} [limit] - Optional limit on the number of items to fetch.
@@ -223,7 +223,7 @@ export default class MastodonServer {
     /**
      * Get the top trending tags from all servers, minus any invalid or muted tags.
      * @static
-     * @returns {Promise<TagList>} TagList of trending tags across all servers.
+     * @returns {Promise<TagList>} {@linkcode TagList} of trending tags across all servers.
      */
     static async fediverseTrendingTags(): Promise<TagList> {
         const tags = await this.getTrendingObjsFromAllServers<TagWithUsageCounts>({
@@ -368,7 +368,7 @@ export default class MastodonServer {
     }
 
     /**
-     * Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
+     * Generic wrapper to fetch trending data from all servers and process it into an array of unique objects.
      * @private
      * @static
      * @param {FetchTrendingProps<T>} props - Properties for fetching and processing trending data.
@@ -399,7 +399,7 @@ export default class MastodonServer {
     }
 
     /**
-     * Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+     * Get the server names that are most relevant to the user (appears in follows a lot, mostly).
      * @private
      * @static
      * @returns {Promise<string[]>} Array of top server domains.
@@ -418,7 +418,7 @@ export default class MastodonServer {
     }
 
     /**
-     * Call 'fxn' for a list of domains and return a dict keyed by domain.
+     * Call {@linkcode fxn} for a list of domains and return a dict keyed by domain.
      * @private
      * @static
      * @template T - The type of the result returned by the function.
@@ -434,7 +434,7 @@ export default class MastodonServer {
     }
 
     /**
-     * Call 'fxn' for all the top servers and return a dict keyed by server domain.
+     * Call {@linkcode fxn} for all the top servers and return a dict keyed by server domain.
      * @private
      * @static
      * @template T - The type of the result returned by the function.

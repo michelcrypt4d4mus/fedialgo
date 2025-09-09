@@ -29,9 +29,8 @@ const ACCOUNT_CREATION_FMT = { year: "numeric", month: "short", day: "numeric" }
 const logger = new logger_1.Logger("Account");
 ;
 /**
- * Class representing a Mastodon Account with helper methods and additional properties.
- * Extends base Mastodon Account. The base class's properties are not documented here;
- * see {@link https://docs.joinmastodon.org/entities/Account/ the official docs} for details.
+ * Extends base Mastodon {@link https://docs.joinmastodon.org/entities/Account/ Account} with
+ * additional helper methods and properties. The base class's properties are not documented here;
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
@@ -165,7 +164,8 @@ class Account {
         return (0, string_helpers_1.replaceEmojiShortcodesWithImgTags)(this.displayName, this.emojis || [], fontSize);
     }
     /**
-     * Get this account's Mastodon server (AKA "Instance") from API. Note that not all servers provide this!
+     * Get this account's Mastodon server (AKA {@link https://docs.joinmastodon.org/entities/Instance/ Instance})
+     * from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     async homeInstanceInfo() {
@@ -173,7 +173,8 @@ class Account {
         return await server.fetchServerInfo();
     }
     /**
-     * HTML combining the account bio (AKA the "note" property) with createdAt, follower count, and toots count.
+     * HTML combining the account bio (AKA the {@linkcode Account.note} property) with createdAt, follower count,
+     * and toots count.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
      * @returns {Promise<InstanceResponse>}
      */
@@ -192,7 +193,7 @@ class Account {
     //     Static Methods     //
     ////////////////////////////
     /**
-     * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.
+     * Build a dictionary from Accounts' webfingerURIs to the {@linkcode Account} object for easy lookup.
      * @param {Account[]} accounts - Array of Account objects.
      * @returns {AccountNames} Dictionary from webfingerURI to Account.
      */
@@ -212,7 +213,7 @@ class Account {
     }
     /**
      * Dictionary from account's webfingerURI to an object with the account and count.
-     * @param {Account[]} accounts - Array of Account objects.
+     * @param {Account[]} accounts - Array of {@linkcode Account} objects.
      * @returns {AccountCount} Dictionary from webfingerURI to {account, count}.
      */
     static countAccountsWithObj(accounts) {
@@ -224,7 +225,7 @@ class Account {
     }
     /**
      * Logs all suspended accounts in the provided array.
-     * @param {Account[]} accounts - Array of Account objects.
+     * @param {Account[]} accounts - Array of {@linkcode Account} objects.
      * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
      */
     static logSuspendedAccounts(accounts, logPrefix) {

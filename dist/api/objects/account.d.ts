@@ -19,9 +19,8 @@ interface AccountObj extends mastodon.v1.Account {
     webfingerURI: string;
 }
 /**
- * Class representing a Mastodon Account with helper methods and additional properties.
- * Extends base Mastodon Account. The base class's properties are not documented here;
- * see {@link https://docs.joinmastodon.org/entities/Account/ the official docs} for details.
+ * Extends base Mastodon {@link https://docs.joinmastodon.org/entities/Account/ Account} with
+ * additional helper methods and properties. The base class's properties are not documented here;
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
  * @property {BooleanFilterOption} asBooleanFilterOption - Boolean filter option representation.
@@ -88,18 +87,20 @@ export default class Account implements AccountObj {
      */
     displayNameWithEmojis(fontSize?: number): string;
     /**
-     * Get this account's Mastodon server (AKA "Instance") from API. Note that not all servers provide this!
+     * Get this account's Mastodon server (AKA {@link https://docs.joinmastodon.org/entities/Instance/ Instance})
+     * from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */
     homeInstanceInfo(): Promise<InstanceResponse>;
     /**
-     * HTML combining the account bio (AKA the "note" property) with createdAt, follower count, and toots count.
+     * HTML combining the account bio (AKA the {@linkcode Account.note} property) with createdAt, follower count,
+     * and toots count.
      * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
      * @returns {Promise<InstanceResponse>}
      */
     noteWithAccountInfo(fontSize?: number): string;
     /**
-     * Build a dictionary from Accounts' webfingerURIs to the Account object for easy lookup.
+     * Build a dictionary from Accounts' webfingerURIs to the {@linkcode Account} object for easy lookup.
      * @param {Account[]} accounts - Array of Account objects.
      * @returns {AccountNames} Dictionary from webfingerURI to Account.
      */
@@ -112,13 +113,13 @@ export default class Account implements AccountObj {
     static countAccounts(accounts: Account[]): StringNumberDict;
     /**
      * Dictionary from account's webfingerURI to an object with the account and count.
-     * @param {Account[]} accounts - Array of Account objects.
+     * @param {Account[]} accounts - Array of {@linkcode Account} objects.
      * @returns {AccountCount} Dictionary from webfingerURI to {account, count}.
      */
     static countAccountsWithObj(accounts: Account[]): AccountCount;
     /**
      * Logs all suspended accounts in the provided array.
-     * @param {Account[]} accounts - Array of Account objects.
+     * @param {Account[]} accounts - Array of {@linkcode Account} objects.
      * @param {string} [logPrefix='logSuspendedAccounts()'] - Log prefix.
      */
     static logSuspendedAccounts(accounts: Account[], logPrefix: string): void;

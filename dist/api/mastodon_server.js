@@ -158,7 +158,7 @@ class MastodonServer {
         return list;
     }
     /**
-     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint
+     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint.
      * @private
      * @param {string} trendingType - The type of trending data to fetch (e.g., 'statuses', 'tags', 'links').
      * @param {number} [limit] - Optional limit on the number of items to fetch.
@@ -187,7 +187,7 @@ class MastodonServer {
     /**
      * Get the top trending tags from all servers, minus any invalid or muted tags.
      * @static
-     * @returns {Promise<TagList>} TagList of trending tags across all servers.
+     * @returns {Promise<TagList>} {@linkcode TagList} of trending tags across all servers.
      */
     static async fediverseTrendingTags() {
         const tags = await this.getTrendingObjsFromAllServers({
@@ -311,7 +311,7 @@ class MastodonServer {
         return servers;
     }
     /**
-     * Generic wrapper to fetch trending data from all servers and process it into an array of unique objects
+     * Generic wrapper to fetch trending data from all servers and process it into an array of unique objects.
      * @private
      * @static
      * @param {FetchTrendingProps<T>} props - Properties for fetching and processing trending data.
@@ -337,7 +337,7 @@ class MastodonServer {
         }
     }
     /**
-     * Get the server names that are most relevant to the user (appears in follows a lot, mostly)
+     * Get the server names that are most relevant to the user (appears in follows a lot, mostly).
      * @private
      * @static
      * @returns {Promise<string[]>} Array of top server domains.
@@ -351,7 +351,7 @@ class MastodonServer {
         return topServerDomains;
     }
     /**
-     * Call 'fxn' for a list of domains and return a dict keyed by domain.
+     * Call {@linkcode fxn} for a list of domains and return a dict keyed by domain.
      * @private
      * @static
      * @template T - The type of the result returned by the function.
@@ -363,7 +363,7 @@ class MastodonServer {
         return await (0, collection_helpers_1.zipPromiseCalls)(domains, async (domain) => fxn(new MastodonServer(domain)), buildLogger());
     }
     /**
-     * Call 'fxn' for all the top servers and return a dict keyed by server domain.
+     * Call {@linkcode fxn} for all the top servers and return a dict keyed by server domain.
      * @private
      * @static
      * @template T - The type of the result returned by the function.
