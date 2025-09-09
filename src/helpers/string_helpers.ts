@@ -145,12 +145,11 @@ export function determineMediaCategory(uri: OptionalString): MediaCategory | und
 
 /**
  * Extracts the domain from a URL string.
- * Examples:
- *   "http://www.mast.ai/foobar" => "mast.ai"
- *   "example.com/path" => "example.com"
- *   "localhost:3000" => "localhost"
  * @param {string} inUrl - The URL to extract the domain from.
  * @returns {string} The extracted domain, or an empty string if not found.
+ * @example "http://www.mast.ai/foobar" => "mast.ai"
+ * @example "example.com/path" => "example.com"
+ * @example "localhost:3000" => "localhost"*
  */
 export function extractDomain(inUrl: string): string {
     // Add protocol if missing for URL parsing
@@ -221,9 +220,10 @@ export function optionalSuffix<T>(obj: T, toSuffix?: ((obj: T) => string) | stri
 
 
 /**
- * Returns the ordinal suffix for a given integer (e.g., 1 => "st", 2 => "nd").
+ * Returns the ordinal suffix for a given integer.
  * @param {number} n - The number to get the ordinal suffix for.
  * @returns {string} The ordinal suffix ("st", "nd", "rd", or "th").
+ * @example 1 => "st", 2 => "nd", 3 => "rd", 4 => "th"
  */
 export const ordinalSuffix = (n: number): string => {
     if (n > 3 && n < 21) return "th";
@@ -238,11 +238,11 @@ export const ordinalSuffix = (n: number): string => {
 
 
 /**
- * Replaces custom emoji shortcodes (e.g., :smile:) with <img> tags in an HTML string.
+ * Replaces custom emoji shortcodes (e.g., ":smile:") with {@linkcode <img>} tags in an HTML string.
  * @param {string} html - The HTML string containing emoji shortcodes.
  * @param {mastodon.v1.CustomEmoji[]} emojis - Array of custom emoji objects.
  * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Font size for the emoji images.
- * @returns {string} The HTML string with emoji shortcodes replaced by <img> tags.
+ * @returns {string} The HTML string with emoji shortcodes replaced by {@linkcode <img>} tags.
  */
 export function replaceEmojiShortcodesWithImgTags(
     html: string,
