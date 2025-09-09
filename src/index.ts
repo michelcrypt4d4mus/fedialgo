@@ -138,7 +138,7 @@ interface AlgorithmArgs {
 /**
  * Main class for scoring, sorting, and managing a Mastodon feed made of {@linkcode Toot} objects.
  *
- * TheAlgorithm orchestrates fetching, scoring, filtering, and updating the user's timeline/feed.
+ * {@linkcode TheAlgorithm} orchestrates fetching, scoring, filtering, and updating the user's timeline/feed.
  * It manages feature and feed scorers, trending data, filters, user weights, and background polling.
  *
  * Key responsibilities:
@@ -342,7 +342,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Collect *ALL* the user's history data from the server - past toots, favourites, etc.
+     * Collect **ALL** the user's history data from the server - past toots, favourites, etc.
      * Use with caution!
      * @returns {Promise<void>}
      */
@@ -387,7 +387,8 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc. with Recharts.
+     * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc. with
+     * {@link https://recharts.org/ Recharts}.
      * @param {number} numPercentiles - Number of percentiles for stats.
      * @returns {object[]} Recharts data points.
      */
@@ -480,7 +481,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Save the current timeline to the browser storage. Used to save the state of toots' numTimesShown.
+     * Save the current timeline to the browser storage. Used to save the state of {@linkcode Toot.numTimesShown}.
      * @returns {Promise<void>}
      */
     async saveTimelineToCache(): Promise<void> {
@@ -578,7 +579,7 @@ export default class TheAlgorithm {
 
     /**
      * Merge a new batch of toots into the feed. Mutates this.feed and returns whatever
-     * 'newToots' are retrieved by 'tootFetcher()' argument.
+     * {@linkcode newToots} are retrieved by {@linkcode tootFetcher} argument.
      * @private
      * @param {Promise<Toot[]>} tootFetcher - Promise that resolves to an array of Toots.
      * @param {Logger} logger Logger to use.
@@ -600,9 +601,10 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Filter the feed based on the user's settings. Has the side effect of calling the setTimelineInApp()
-     * callback (if it exists) to send the client using this library the filtered subset of Toots
-     * (this.feed will always maintain the master unfiltered set of Toots).
+     * Filter the feed based on the user's settings. Has the side effect of calling the
+     * {@linkcode TheAlgorithm.setTimelineInApp} callback (if it exists) to send the client
+     * using this library the filtered subset of {@linkcode Toot} objects.
+     * ({@linkcode TheAlgorithm.feed} will always maintain the master unfiltered set of {@linkcode Toot}s).
      * @private
      * @returns {Toot[]} The filtered feed.
      */
@@ -648,7 +650,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Simple wrapper for triggering fetchHomeFeed().
+     * Simple wrapper for triggering {@linkcode MastoApi.fetchHomeFeed}.
      * @private
      * @returns {Promise<Toot[]>}
      */
@@ -681,7 +683,8 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Load cached data from Storage. Called when the app is first opened and when reset() is invoked.
+     * Load cached data from {@linkcode Storage}. Called when the app is first opened and when
+     * {@linkcode TheAlgorithm.reset} is invoked.
      * @private
      * @returns {Promise<void>}
      */
@@ -704,8 +707,9 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Apparently if the mutex lock is inside mergeTootsToFeed() then the state of this.feed is not consistent
-     * which can result in toots getting lost as threads try to merge newToots into different this.feed states.
+     * Apparently if the mutex lock is inside mergeTootsToFeed() then the state of {@linkcode TheAlgorithm.feed}
+     * is not consistent which can result in toots getting lost as threads try to merge {@linkcode newToots}
+     * into different {@linkcode TheAlgorithm.feed} states.
      * Wrapping the entire function in a mutex seems to fix this (though i'm not sure why).
      * @private
      * @param {Toot[]} newToots - New toots to merge into this.feed
@@ -725,8 +729,8 @@ export default class TheAlgorithm {
     };
 
     /**
-     * Merge newToots into this.feed, score, and filter the feed.
-     * NOTE: Don't call this directly! Use lockedMergeTootsToFeed() instead.
+     * Merge newToots into {@linkcode TheAlgorithm.feed}, score, and filter the feed.
+     * NOTE: Don't call this directly! Use {@linkcode TheAlgorithm.lockedMergeTootsToFeed} instead.
      * @private
      * @param {Toot[]} newToots - New toots to merge into this.feed
      * @param {Logger} inLogger - Logger to use
@@ -784,7 +788,8 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Score the feed, sort it, save it to storage, and call filterFeed() to update the feed in the app.
+     * Score the feed, sort it, save it to storage, and call {@linkcode TheAlgorithm.filterFeedAndSetInApp}
+     * to update the feed in the app.
      * @private
      * @returns {Promise<Toot[]>} The filtered set of Toots (NOT the entire feed).
      */
@@ -802,7 +807,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Return true if we're in QUICK_MODE and the feed is fresh enough that we don't
+     * Return true if we're in {@linkcode QUICK_MODE} and the feed is fresh enough that we don't
      * need to retrieve any new data. Useful for testing UI changes without waiting
      * for the full feed load every time.
      * @private
@@ -826,7 +831,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Lock the mutex and set the loadStartedAt timestamp.
+     * Lock the mutex and set the {@linkcode TheAlgorithm.loadStartedAt} timestamp.
      * @private
      * @param {LoadAction} logPrefix - Action for logging context.
      * @returns {Promise<void>}
@@ -848,7 +853,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Returns info about the state of this TheAlgorithm instance.
+     * Returns info about the state of this {@linkcode TheAlgorithm} instance.
      * @private
      * @returns {Record<string, unknown>} Status dictionary.
      */
@@ -878,13 +883,13 @@ export default class TheAlgorithm {
     //      Static Methods       //
     ///////////////////////////////
 
-    /** True if FEDIALGO_DEBUG environment var was set at run time. */
+    /** True if {@linkcode FEDIALGO_DEBUG} environment var was set at run time. */
     static get isDebugMode(): boolean { return isDebugMode };
-    /** True if FEDIALGO_DEEP_DEBUG environment var was set at run time. */
+    /** True if {@linkcode FEDIALGO_DEEP_DEBUG} environment var was set at run time. */
     static get isDeepDebug(): boolean { return isDeepDebug };
-    /** True if LOAD_TEST environment var was set at run time. */
+    /** True if {@linkcode LOAD_TEST} environment var was set at run time. */
     static get isLoadTest(): boolean { return isLoadTest };
-    /** True if QUICK_MODE environment var was set at run time. */
+    /** True if {@linkcode QUICK_MODE} environment var was set at run time. */
     static get isQuickMode(): boolean { return isQuickMode };
 
     /**

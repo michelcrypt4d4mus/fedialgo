@@ -49,8 +49,8 @@ export default class CountedList<T extends NamedTootCount> {
      */
     getObj(name: string): T | undefined;
     /**
-     * Increment numToots for the given 'name'. If no obj with 'name' exists create a new one
-     * and call newObjDecorator() to get its properties.
+     * Increment numToots for the given {@linkcode name}. If no obj with {@linkcode name} exists create a
+     * new one and call {@linkcode newObjDecorator} to get its properties.
      * @param {string} name - The name of the object to increment.
      * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
      * @returns {T} The object with the incremented numToots.
@@ -71,8 +71,9 @@ export default class CountedList<T extends NamedTootCount> {
      */
     nameToNumTootsDict(): StringNumberDict;
     /**
-     * Populate the objs array by counting the number of times each 'name' (given by propExtractor) appears.
-     * Resulting {@linkcode BooleanFilterOption}s will be decorated with properties returned by propExtractor().
+     * Populate the objs array by counting the number of times each 'name' (given by {@linkcode propExtractor})
+     * appears. Resulting {@linkcode BooleanFilterOption}s will be decorated with properties returned by
+     * {@linkcode propExtractor}.
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
      * @param {(obj: U) => T} propExtractor - Function to extract the decorator properties for the counted objects.
