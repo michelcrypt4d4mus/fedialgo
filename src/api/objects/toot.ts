@@ -154,9 +154,9 @@ interface TootObj extends SerializableToot {
 
 
 /**
- * Class representing a Mastodon Toot (status) with helper methods for scoring, filtering, and more.
+ * Class representing a Mastodon Toot (Status) with helper methods for scoring, filtering, and more.
  * Extends the base Mastodon Status object. The base class's properties are not documented here; see
- * {@link https://docs.joinmastodon.org/entities/Status/ the official docs} for details.
+ * {@link https://docs.joinmastodon.org/entities/Status/ the official Status object docs} for details.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
@@ -518,7 +518,7 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Return false if Toot should be discarded from feed altogether and permanently.
+     * Return false if {@linkcode Toot} should be discarded from feed altogether and permanently.
      * @param {mastodon.v2.Filter[]} serverSideFilters - Server-side filters.
      * @returns {boolean}
      */
