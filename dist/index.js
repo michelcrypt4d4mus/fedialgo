@@ -240,7 +240,7 @@ class TheAlgorithm {
         return algo;
     }
     /**
-     * Private constructor for TheAlgorithm. Use {@linkcode TheAlgorithm.create} to instantiate.
+     * Private constructor. Use {@linkcode TheAlgorithm.create} to instantiate.
      * @param {AlgorithmArgs} params - Constructor params (API client, user, and optional timeline callback/locale).
      */
     constructor(params) {
@@ -282,7 +282,7 @@ class TheAlgorithm {
         }
     }
     /**
-     * Trigger the loading of additional toots, farther back on the home timeline.
+     * Trigger the loading of additional {@linkcode Toot}s, farther back on the home timeline.
      * @returns {Promise<void>}
      */
     async triggerHomeTimelineBackFill() {
@@ -359,8 +359,8 @@ class TheAlgorithm {
         };
     }
     /**
-     * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc. with
-     * {@link https://recharts.org/ Recharts}.
+     * Build array of objects suitable for charting timeline scoring data by quintile/decile/etc.
+     * with {@link https://recharts.org/ Recharts}.
      * @param {number} numPercentiles - Number of percentiles for stats.
      * @returns {object[]} Recharts data points.
      */
@@ -387,7 +387,7 @@ class TheAlgorithm {
         return (0, toot_1.mostRecentTootedAt)(this.homeFeed);
     }
     /**
-     * Return the number of seconds since the most recent home timeline toot.
+     * Return the number of seconds since the most recent home timeline {@linkcode Toot}.
      * @returns {number | null} Age in seconds or null.
      */
     mostRecentHomeTootAgeInSeconds() {
@@ -398,8 +398,8 @@ class TheAlgorithm {
         return time_helpers_1.AgeIn.seconds(mostRecentAt);
     }
     /**
-     * Pull the latest list of muted accounts from the server and use that to filter any newly muted accounts
-     * out of the timeline.
+     * Pull the latest list of muted accounts from the server and use that to filter any newly muted
+     * accounts out of the timeline.
      * @returns {Promise<void>}
      */
     async refreshMutedAccounts() {
@@ -533,8 +533,8 @@ class TheAlgorithm {
     //      Private Methods      //
     ///////////////////////////////
     /**
-     * Merge a new batch of toots into the feed. Mutates this.feed and returns whatever
-     * {@linkcode newToots} are retrieved by {@linkcode tootFetcher} argument.
+     * Merge a new batch of {@linkcode Toot}s into the feed. Mutates {@linkcode this.feed}
+     * and returns whatever {@linkcode newToots} are retrieved by {@linkcode tootFetcher} argument.
      * @private
      * @param {Promise<Toot[]>} tootFetcher - Promise that resolves to an array of Toots.
      * @param {Logger} logger Logger to use.
@@ -609,8 +609,8 @@ class TheAlgorithm {
     }
     /**
      * Kick off the MOAR data poller to collect more user history data if it doesn't already exist
-     * as well as the cache updater that saves the current state of the timeline toots' alreadyShown
-     * to storage.
+     * as well as the cache updater that saves the current state of the timeline toots'
+     * {@linkcode alreadyShown} properties to storage.
      * @private
      */
     launchBackgroundPollers() {
