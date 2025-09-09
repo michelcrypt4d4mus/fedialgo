@@ -218,7 +218,7 @@ class MastoApi {
         return homeTimelineToots;
     }
     /**
-     * Gets the accounts blocked by the user (does not include muted accounts).
+     * Get the accounts blocked by the user (does not include muted accounts).
      * @returns {Promise<Account[]>} Array of blocked accounts.
      */
     async getBlockedAccounts() {
@@ -230,7 +230,7 @@ class MastoApi {
         return blockedAccounts;
     }
     /**
-     * Gets the Mastodon server domains that the user has blocked
+     * Get the Mastodon server domains that the user has blocked.
      * Safe domain for testing: https://universeodon.com/@memes@pl.m0e.space
      * @returns {Promise<string[]>} Set of blocked domains.
      */
@@ -275,7 +275,7 @@ class MastoApi {
         }
     }
     /**
-     * Gets the toots recently favourited by the user.
+     * Get the toots recently favourited by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of favourited Toots.
      */
@@ -287,7 +287,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the accounts followed by the user.
+     * Get the accounts followed by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of followed accounts.
      */
@@ -301,7 +301,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the hashtags followed by the user.
+     * Get the hashtags followed by the user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Tag[]>} Array of followed tags.
      */
@@ -314,7 +314,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the followers of the Fedialgo user.
+     * Get the followers of the Fedialgo user.
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of follower accounts.
      */
@@ -341,7 +341,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets all muted accounts (including fully blocked accounts).
+     * Get all muted accounts (including fully blocked accounts).
      * @param {ApiParams} [params] - Optional parameters.
      * @returns {Promise<Account[]>} Array of muted and blocked accounts.
      */
@@ -355,7 +355,7 @@ class MastoApi {
         return mutedAccounts.concat(await this.getBlockedAccounts());
     }
     /**
-     * Gets the user's recent notifications.
+     * Get the user's recent notifications.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
@@ -367,7 +367,7 @@ class MastoApi {
         });
     }
     /**
-     * Gets the user's recent toots.
+     * Get the user's recent toots.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<Toot[]>} Array of recent user Toots.
      */
@@ -422,7 +422,7 @@ class MastoApi {
     }
     ;
     /**
-     * Gets the latest toots for a given tag using both the Search API and tag timeline API.
+     * Get the latest toots for a given tag using both the Search API and tag timeline API.
      * The two APIs give results with surprisingly little overlap (~80% of toots are unique).
      * @param {string} tagName - The tag to search for.
      * @param {Logger} logger - Logger instance for logging.
@@ -819,7 +819,7 @@ class MastoApi {
         }
     }
     /**
-     * Gets maxRecords, and if not more than minRecords, launches a background fetch.
+     * Get maxRecords, and if not more than minRecords, launches a background fetch.
      * @private
      * @template T
      * @param {BackgroundFetchparams<T>} params - Background fetch parameters.
@@ -840,7 +840,7 @@ class MastoApi {
         return objs;
     }
     /**
-     * Builds API request parameters for pagination.
+     * Build API request parameters for pagination.
      * @private
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {PaginationParams} API pagination parameters.
@@ -857,7 +857,7 @@ class MastoApi {
         return apiParams;
     }
     /**
-     * Fills in defaults in params and derives min/maxIdForFetch from cached data if appropriate.
+     * Fill in defaults in params and derives min/maxIdForFetch from cached data if appropriate.
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
@@ -900,7 +900,7 @@ class MastoApi {
         return completedParams;
     }
     /**
-     * Loads rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
+     * Load rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
      * @private
      * @template T
      * @param {FetchParamsComplete<T>} params - Fetch parameters with defaults.
@@ -926,7 +926,7 @@ class MastoApi {
         };
     }
     /**
-     * Handles API errors and decides which rows to keep (cache, new, or both).
+     * Handle API errors and decides which rows to keep (cache, new, or both).
      * TODO: handle rate limiting errors.
      * @private
      * @template T
@@ -975,8 +975,8 @@ class MastoApi {
         }
     }
     /**
-     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
-     * are returned as-is, possibly uniquified by ID.
+     * Builds `Account` or `Toot` objects from the relevant raw API types (`Account` and `Status`).
+     * Other types are returned as-is, possibly uniquified by ID.
      * @private
      * @template T
      * @param {CacheKey} key - The cache key.
