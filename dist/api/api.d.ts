@@ -110,7 +110,7 @@ export default class MastoApi {
      */
     getBlockedAccounts(): Promise<Account[]>;
     /**
-     * Get the Mastodon server domains that the user has blocked
+     * Get the Mastodon server domains that the user has blocked.
      * Safe domain for testing: https://universeodon.com/@memes@pl.m0e.space
      * @returns {Promise<string[]>} Set of blocked domains.
      */
@@ -173,7 +173,7 @@ export default class MastoApi {
      */
     getRecentUserToots(params?: ApiParamsWithMaxID): Promise<Toot[]>;
     /**
-     * Retrieves content-based feed filters set up by the user on the server.
+     * Retrieve content-based feed filters set up by the user on the server.
      * @returns {Promise<mastodon.v2.Filter[]>} Array of server-side filters.
      */
     getServerSideFilters(): Promise<mastodon.v2.Filter[]>;
