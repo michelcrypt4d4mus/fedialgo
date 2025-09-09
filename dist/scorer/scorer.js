@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Base class for Toot scorers.
+/**
+ * @fileoverview Base class for {@linkcode Toot} scorers.
  */
 const async_mutex_1 = require("async-mutex");
 const lodash_1 = require("lodash");
@@ -26,7 +26,7 @@ const TRENDING_WEIGHTS = new Set([
 ]);
 const scoreLogger = new logger_1.Logger(LOG_PREFIX, "scoreToots");
 /**
- * Abstract base class for scoring Mastodon Toots.
+ * Abstract base class for scoring {@linkcode Toot} objects.
  *
  * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and
  * filtering feeds. This class manages scorer state, logging, and provides a public API for scoring, as

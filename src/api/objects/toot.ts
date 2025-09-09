@@ -1,5 +1,5 @@
 /**
- * @fileoverview Toot class and helper methods for dealing with Mastodon Status objects.
+ * @fileoverview {@linkcode Toot} class and helper methods for dealing with Mastodon Status objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
  */
 import { capitalCase } from "change-case";

@@ -125,7 +125,7 @@ const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key)
 }, {}));
 ;
 /**
- * Main class for scoring, sorting, and managing a Mastodon feed made of Toot objects.
+ * Main class for scoring, sorting, and managing a Mastodon feed made of {@linkcode Toot} objects.
  *
  * TheAlgorithm orchestrates fetching, scoring, filtering, and updating the user's timeline/feed.
  * It manages feature and feed scorers, trending data, filters, user weights, and background polling.
