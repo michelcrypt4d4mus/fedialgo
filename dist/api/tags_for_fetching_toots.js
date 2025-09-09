@@ -53,7 +53,7 @@ class TagsForFetchingToots {
         this.tagList = tagList;
         this.logger = new logger_1.Logger(cacheKey);
     }
-    /** Get toots for the list of tags, caching the results. */
+    /** Get {@linkcode Toot}s for the list of tags, caching the results. */
     async getToots() {
         return await api_1.default.instance.getCacheableToots(async () => {
             const tags = this.topTags();
