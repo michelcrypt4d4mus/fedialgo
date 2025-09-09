@@ -4,8 +4,8 @@ import { ScoreName } from '../../enums';
 
 
 /**
- * Populate the 'followedTags' property on Toot object and return the number of tags
- * on the Toot that the user is following.
+ * Populate the {@linkcode Toot.followedTags} property on {@linkcode Toot} object and return
+ * the number of tags on the {@linkcode Toot} that the user is following.
  * @memberof module:toot_scorers
  * @augments Scorer
  */

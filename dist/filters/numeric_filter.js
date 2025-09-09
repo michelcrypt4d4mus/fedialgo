@@ -17,7 +17,7 @@ exports.FILTERABLE_SCORES = [
 ];
 ;
 /**
- * Filter for numeric properties of a Toot (e.g., replies, reblogs, favourites).
+ * Filter for numeric properties of a {@linkcode Toot} (e.g., replies, reblogs, favourites).
  * Allows filtering toots based on a minimum value for a given property.
  * @augments TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.

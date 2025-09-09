@@ -1,5 +1,5 @@
-/*
- * Base class for Toot scorers.
+/**
+ * @fileoverview Base class for {@linkcode Toot} scorers.
  */
 import { E_CANCELED, Mutex, MutexInterface } from 'async-mutex';
 import { isFinite } from 'lodash';
@@ -36,7 +36,7 @@ const TRENDING_WEIGHTS = new Set([
 const scoreLogger = new Logger(LOG_PREFIX, "scoreToots");
 
 /**
- * Abstract base class for scoring Mastodon Toots.
+ * Abstract base class for scoring {@linkcode Toot} objects.
  *
  * Scorer implementations provide algorithms for assigning scores to toots, which are used for ranking and
  * filtering feeds. This class manages scorer state, logging, and provides a public API for scoring, as

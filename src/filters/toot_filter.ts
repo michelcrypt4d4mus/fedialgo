@@ -1,5 +1,5 @@
 /**
- * @fileoverview Abstract class for filtering Toots in or out of the timeline feed.
+ * @fileoverview Abstract class for filtering {@linkcode Toot} objects in or out of the timeline feed.
  */
 import type Toot from '../api/objects/toot';
 import { Logger } from '../helpers/logger';
@@ -14,8 +14,9 @@ export interface FilterArgs {
 
 
 /**
- * Abstract base class representing a filter that can be applied to a Toot to determine
- * if it should be included in the timeline feed. Subclasses must implement the isAllowed method.
+ * Abstract base class representing a filter that can be applied to a {@linkcode Toot} to determine
+ * if it should be included in the timeline feed. Subclasses must implement the {@linkcode TootFilter.isAllowed}
+ * method.
  * @property {string} description - Description of the filter for display or documentation purposes.
  * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
