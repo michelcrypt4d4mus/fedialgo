@@ -229,8 +229,8 @@ export default class MastoApi {
 
     /**
      * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
-     * If an instance already exists, logs a warning and does nothing.
-     * Loads user data from storage and assigns it to the instance.
+     * Loads user data from storage and assigns it to the instance. If an instance already exists, logs a
+     * warning and does nothing.
      * @param {mastodon.rest.Client} api - The Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      * @returns {Promise<void>} Resolves when initialization is complete.
@@ -258,6 +258,7 @@ export default class MastoApi {
         return MastoApi.#instance;
     }
 
+    // NOTE: if the constructor's JSDocs are marked with @private then no documentation will be generated!
     /**
      * Private constructor for MastoApi. Instantiate with MastoApi.init().
      * @param {mastodon.rest.Client} api - Mastodon REST API client.

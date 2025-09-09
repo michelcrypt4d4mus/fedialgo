@@ -69,8 +69,8 @@ export default class MastoApi {
     private requestSemphore;
     /**
      * Initializes the singleton MastoApi instance with the provided Mastodon API client and user account.
-     * If an instance already exists, logs a warning and does nothing.
-     * Loads user data from storage and assigns it to the instance.
+     * Loads user data from storage and assigns it to the instance. If an instance already exists, logs a
+     * warning and does nothing.
      * @param {mastodon.rest.Client} api - The Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      * @returns {Promise<void>} Resolves when initialization is complete.
