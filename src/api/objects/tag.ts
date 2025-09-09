@@ -1,6 +1,6 @@
-/*
- * Helper methods for dealing with Mastodon's Tag objects.
- * API docs: https://docs.joinmastodon.org/entities/Tag/
+/**
+ * @fileoverview Helper methods for dealing with Mastodon's {@link https://docs.joinmastodon.org/entities/Tag/ Tag}
+ * objects.
  */
 import MastoApi from "../../api/api";
 import { config } from "../../config";
@@ -12,7 +12,7 @@ const BROKEN_TAG = "<<BROKEN_TAG>>";
 
 
 /**
- * Build a synthetic TagWithUsageCounts for a given string.
+ * Build a synthetic {@linkcode TagWithUsageCounts} for a given string.
  * @param {string} str - The string to turn into a TagWithUsageCounts
  * @returns {TagWithUsageCounts}
  */

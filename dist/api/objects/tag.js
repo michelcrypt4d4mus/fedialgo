@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tagInfoStr = exports.repairTag = exports.isValidForSubstringSearch = exports.buildTag = void 0;
-/*
- * Helper methods for dealing with Mastodon's Tag objects.
- * API docs: https://docs.joinmastodon.org/entities/Tag/
+/**
+ * @fileoverview Helper methods for dealing with Mastodon's {@link https://docs.joinmastodon.org/entities/Tag/ Tag}
+ * objects.
  */
 const api_1 = __importDefault(require("../../api/api"));
 const config_1 = require("../../config");
@@ -14,7 +14,7 @@ const string_helpers_1 = require("../../helpers/string_helpers");
 const language_helper_1 = require("../../helpers/language_helper");
 const BROKEN_TAG = "<<BROKEN_TAG>>";
 /**
- * Build a synthetic TagWithUsageCounts for a given string.
+ * Build a synthetic {@linkcode TagWithUsageCounts} for a given string.
  * @param {string} str - The string to turn into a TagWithUsageCounts
  * @returns {TagWithUsageCounts}
  */
