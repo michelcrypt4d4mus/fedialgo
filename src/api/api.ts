@@ -1042,7 +1042,7 @@ export default class MastoApi {
     }
 
     /**
-     * Builds API request parameters for pagination.
+     * Build API request parameters for pagination.
      * @private
      * @param {FetchParamsWithCacheData<T>} params - Fetch parameters with cache data.
      * @returns {PaginationParams} API pagination parameters.
@@ -1057,7 +1057,7 @@ export default class MastoApi {
     }
 
     /**
-     * Fills in defaults in params and derives min/maxIdForFetch from cached data if appropriate.
+     * Fill in defaults in params and derives min/maxIdForFetch from cached data if appropriate.
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.
@@ -1105,7 +1105,7 @@ export default class MastoApi {
     }
 
     /**
-     * Loads rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
+     * Load rows from the cache unless skipCache=true. Thin wrapper around Storage.getWithStaleness.
      * @private
      * @template T
      * @param {FetchParamsComplete<T>} params - Fetch parameters with defaults.
@@ -1133,7 +1133,7 @@ export default class MastoApi {
     }
 
     /**
-     * Handles API errors and decides which rows to keep (cache, new, or both).
+     * Handle API errors and decides which rows to keep (cache, new, or both).
      * TODO: handle rate limiting errors.
      * @private
      * @template T
@@ -1189,8 +1189,8 @@ export default class MastoApi {
     }
 
     /**
-     * Builds Account or Toot objects from the relevant raw API types (Account and Status). Other types
-     * are returned as-is, possibly uniquified by ID.
+     * Builds `Account` or `Toot` objects from the relevant raw API types (`Account` and `Status`).
+     * Other types are returned as-is, possibly uniquified by ID.
      * @private
      * @template T
      * @param {CacheKey} key - The cache key.
