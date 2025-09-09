@@ -14,7 +14,7 @@ export interface BooleanFilterArgs extends Omit<FilterArgs, "description"> {
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
  * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
  * @property {BooleanFilterOptionList} options - The BooleanFilterOptions available for this filter.
- * @property {BooleanFilterName} propretyName - The BooleanFilterOptions available for this filter.
+ * @property {enums:BooleanFilterName} propretyName - The BooleanFilterOptions available for this filter.
  * @property {string[]} selectedOptions - The names of the options selected for use in filtering.
  */
 export default class BooleanFilter extends TootFilter {
@@ -31,7 +31,7 @@ export default class BooleanFilter extends TootFilter {
      * @param {BooleanFilterArgs} params - The filter arguments.
      * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
      * @param {string[]} [params.selectedOptions] - The selected options.
-     * @param {BooleanFilterName} params.propertyName - The property the filter is working with (hashtags/toot type/etc).
+     * @param {enums.BooleanFilterName} params.propertyName - The property the filter is working with (hashtags/toot type/etc).
      */
     constructor(params: BooleanFilterArgs);
     /**
