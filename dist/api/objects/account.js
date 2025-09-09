@@ -204,8 +204,8 @@ class Account {
     /**
      * Dictionary from account's {@linkcode webfingerURI} to number of times it appears in the
      * {@linkcode accounts} argument.
-     * @param {Account[]} accounts - Array of Account objects.
-     * @returns {StringNumberDict} Dictionary from webfingerURI to count of appearances.
+     * @param {Account[]} accounts - Array of {@linkcode Account} objects.
+     * @returns {StringNumberDict} Dictionary from {@linkcode webfingerURI} to count of appearances.
      */
     static countAccounts(accounts) {
         return Object.values(this.countAccountsWithObj(accounts)).reduce((counts, accountWithCount) => {
@@ -216,7 +216,7 @@ class Account {
     /**
      * Dictionary from account's {@linkcode webfingerURI} to an object with the account and count.
      * @param {Account[]} accounts - Array of {@linkcode Account} objects.
-     * @returns {AccountCount} Dictionary from webfingerURI to {account, count}.
+     * @returns {AccountCount} Dictionary from {@linkcode webfingerURI} to {account, count}.
      */
     static countAccountsWithObj(accounts) {
         return accounts.reduce((counts, account) => {
