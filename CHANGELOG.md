@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.36
+* More `tagOnlyStrings`
+
 ### v1.1.35
 * (Demo App) Use an `Accordion` for non-fatal error warnings; refactor `ApiErrorsPanel` component
 
@@ -7,7 +10,7 @@
 * More `tagOnlyStrings`
 
 ### v1.1.33
-* (Demo App) Set webpack's `devtool` option to `undefined` for production builds to remove source map from `bundle.js` (shrinks from 15 MB to under 3MB
+* (Demo App) Set webpack's `devtool` option to `undefined` for production builds to remove source map from `bundle.js` (shrinks bundle from 15 MB to under 3MB)
 * (Demo App) Reenable PurgeCSS with more `safelist` options
 
 ### v1.1.32
