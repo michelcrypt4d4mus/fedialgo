@@ -128,15 +128,20 @@ const loggers = (0, enums_1.buildCacheKeyDict)((key) => new logger_1.Logger(key)
  * Main class for scoring, sorting, and managing a Mastodon feed made of {@linkcode Toot} objects.
  *
  * {@linkcode TheAlgorithm} orchestrates fetching, scoring, filtering, and updating the user's timeline/feed.
- * It manages feature and feed scorers, trending data, filters, user weights, and background polling.
+ * It manages feature and feed scorers, trending data, filters, user weights, and background polling. Key
+ * responsibilities:
  *
- * Key responsibilities:
- * - Fetches and merges toots from multiple sources (home timeline, trending, hashtags, etc.)
- * - Applies scoring algorithms and user-defined weights to rank toots
- * - Filters the feed based on user settings and filter options
- * - Handles background polling for new data and saving state to storage
- * - Provides methods for updating filters, weights, and retrieving current state
- * - Exposes utility methods for stats, server info, and tag URLs
+ * 1. Fetches and merges toots from multiple sources (home timeline, trending, hashtags, etc.)
+ *
+ * 2. Applies scoring algorithms and user-defined weights to rank toots
+ *
+ * 3. Filters the feed based on user settings and filter options
+ *
+ * 4. Handles background polling for new data and saving state to storage
+ *
+ * 5. Provides methods for updating filters, weights, and retrieving current state
+ *
+ * 6. Exposes utility methods for stats, server info, and tag URLs
  *
  * @property {string[]} apiErrorMsgs - API error messages
  * @property {FeedFilterSettings} filters - Current filter settings for the feed
