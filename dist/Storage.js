@@ -205,7 +205,7 @@ class Storage {
     static async isDataStale(key) {
         return !(await this.getIfNotStale(key));
     }
-    /** Build a UserData object from the user's cached followed accounts, tags, blocks, etc. */
+    /** Build a {@linkcode UserData} object from the user's cached followed accounts, tags, blocks, etc. */
     static async loadUserData() {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced(enums_1.CacheKey.BLOCKED_ACCOUNTS);
@@ -220,7 +220,7 @@ class Storage {
             serverSideFilters: await this.getCoerced(enums_1.CacheKey.SERVER_SIDE_FILTERS),
         });
     }
-    /** Record a new instantiation of TheAlgorithm. Currently more or less unused. */
+    /** Record a new instantiation of {@linkcode TheAlgorithm}. Currently more or less unused. */
     static async logAppOpen(user) {
         await Storage.setIdentity(user);
         const numAppOpens = (await this.getNumAppOpens()) + 1;
@@ -261,7 +261,7 @@ class Storage {
     static async setWeightings(userWeightings) {
         await this.set(enums_1.AlgorithmStorageKey.WEIGHTS, userWeightings);
     }
-    /** Returns metadata about whatever is stored in localForage. */
+    /** Returns metadata about whatever is stored in {@linkcode localForage}. */
     static async storedObjsInfo() {
         const keyStrings = Object.values(enums_1.CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k)));
@@ -338,16 +338,16 @@ class Storage {
             return value;
         }
     }
-    // Get the user identity from storage
+    /** Get the user identity from storage. */
     static async getIdentity() {
         const user = await localforage_1.default.getItem(enums_1.AlgorithmStorageKey.USER);
         return user ? (0, class_transformer_1.plainToInstance)(account_1.default, user) : null;
     }
-    // Get the number of times the app has been opened by this user
+    /** Get the number of times the app has been opened by this user. */
     static async getNumAppOpens() {
         return await this.get(enums_1.AlgorithmStorageKey.APP_OPENS) ?? 0;
     }
-    // Get the raw StorableWithTimestamp object
+    /** Get the the raw StorableWithTimestamp object at {@linkcode key}. */
     static async getStorableWithTimestamp(key) {
         const withTimestamp = await localforage_1.default.getItem(await this.buildKey(key));
         return withTimestamp ?? null;
@@ -371,6 +371,13 @@ class Storage {
             return null;
         }
     }
+    /**
+     * Serialize objects before storing writing them to browser storage via {@linkcode localForage}.
+     * @private
+     * @param {StorageKey} key
+     * @param {StorableObj} value
+     * @returns {StorableObj}
+     */
     static serialize(key, value) {
         if (enums_1.STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return (0, class_transformer_1.instanceToPlain)(value);

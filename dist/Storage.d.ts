@@ -25,9 +25,9 @@ export default class Storage {
     static getWithStaleness(key: ApiCacheKey): Promise<StorableObjWithStaleness | null>;
     /** Return true if the data stored at 'key' either doesn't exist or is stale and should be refetched. */
     static isDataStale(key: CacheKey): Promise<boolean>;
-    /** Build a UserData object from the user's cached followed accounts, tags, blocks, etc. */
+    /** Build a {@linkcode UserData} object from the user's cached followed accounts, tags, blocks, etc. */
     static loadUserData(): Promise<UserData>;
-    /** Record a new instantiation of TheAlgorithm. Currently more or less unused. */
+    /** Record a new instantiation of {@linkcode TheAlgorithm}. Currently more or less unused. */
     static logAppOpen(user: Account): Promise<void>;
     /** Delete the value at the given key (with the user ID as a prefix). */
     static remove(key: StorageKey): Promise<void>;
@@ -37,15 +37,25 @@ export default class Storage {
     static setFilters(filters: FeedFilterSettings): Promise<void>;
     /** Save user's weights. */
     static setWeightings(userWeightings: Weights): Promise<void>;
-    /** Returns metadata about whatever is stored in localForage. */
+    /** Returns metadata about whatever is stored in {@linkcode localForage}. */
     static storedObjsInfo(): Promise<Record<string, unknown>>;
     private static buildKey;
     private static deserialize;
+    /** Get the user identity from storage. */
     private static getIdentity;
+    /** Get the number of times the app has been opened by this user. */
     private static getNumAppOpens;
+    /** Get the the raw StorableWithTimestamp object at {@linkcode key}. */
     private static getStorableWithTimestamp;
     private static secondsSinceLastUpdated;
     private static secondsSinceMostRecentToot;
+    /**
+     * Serialize objects before storing writing them to browser storage via {@linkcode localForage}.
+     * @private
+     * @param {StorageKey} key
+     * @param {StorableObj} value
+     * @returns {StorableObj}
+     */
     private static serialize;
     private static setIdentity;
     private static updatedAt;

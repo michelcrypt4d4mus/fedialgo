@@ -312,7 +312,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Trigger the loading of additional {@linkcode Toot}s, farther back on the home timeline.
+     * Trigger the fetching of additional earlier {@linkcode Toot}s from the server.
      * @returns {Promise<void>}
      */
     async triggerHomeTimelineBackFill(): Promise<void> {
@@ -514,7 +514,8 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Update the local trendingData property. // TODO: this shouldn't be necessary but there's weirdness on initial load
+     * Update {@linkcode this.trendingData} with latest available data.
+     * // TODO: this shouldn't be necessary but there's weirdness on initial load
      * @returns {Promise<TrendingData>}
      */
     async refreshTrendingData(): Promise<TrendingData> {
@@ -523,7 +524,7 @@ export default class TheAlgorithm {
     }
 
     /**
-     * Return info about the Fedialgo user's home mastodon instance.
+     * Returns info about the Fedialgo user's home Mastodon instance.
      * @returns {Promise<mastodon.v2.Instance>} Instance info.
      */
     async serverInfo(): Promise<mastodon.v2.Instance> {
