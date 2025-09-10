@@ -126,9 +126,9 @@ export declare function replaceEmojiShortcodesWithImgTags(html: string, emojis: 
  */
 export declare function replaceHttpsLinks(input: string): string;
 /**
- * Converts a number to a locale-formatted string, or returns NULL if the number is null.
+ * Converts a number to a locale-formatted string.
  * @param {number | null} num - The number to format.
- * @returns {string} The locale-formatted string or NULL.
+ * @returns {string} The locale-formatted string or string "NULL" if {@linkcode num} is {@linkcode null}.
  */
 export declare const toLocaleInt: (num: number | null) => string;
 /**
