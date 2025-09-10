@@ -1,6 +1,7 @@
 # NEXT RELEASE
 * (Demo App) Use `useAccordion()` for custom API error accordion
 * Raise `config.toots.batchCompleteSleepBetweenMS` from 150ms to 210ms because responsiveness is pretty impaired while running
+* More `tagOnlyStrings`
 
 ### v1.1.37
 * More `tagOnlyStrings`
