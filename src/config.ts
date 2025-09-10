@@ -482,7 +482,7 @@ class Config implements ConfigType {
 
     toots = {
         batchCompleteSize: 25,                  // How many toots call completeToot() on at once
-        batchCompleteSleepBetweenMS: 150,       // How long to wait between batches of Toot.completeProperties() calls
+        batchCompleteSleepBetweenMS: 210,       // How long to wait between batches of Toot.completeProperties() calls
         completeAfterMinutes: MINUTES_IN_DAY,   // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
         filterUpdateBatchSize: 240,             // How many new Toots before calling updateFilterOptions()
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
@@ -612,6 +612,8 @@ class Config implements ConfigType {
             "authority",
             "auto",
             "avoid",
+            "aware",
+            "awareness",
             "away",
             "bad",
             "ba",
@@ -670,6 +672,9 @@ class Config implements ConfigType {
             "breach",
             "break",
             "breaking",
+            "bright",
+            "brighter",
+            "brightest",
             "broken",
             "brown",
             "bsky",
@@ -741,6 +746,10 @@ class Config implements ConfigType {
             "colorful",
             "coloring",
             "colors",
+            "colour",
+            "coloured",
+            "colouring",
+            "colours",
             "com",            // TLD
             "come",
             "comment",
@@ -778,6 +787,10 @@ class Config implements ConfigType {
             "conflicts",
             "consider",
             "considered",
+            "consume",
+            "consumed",
+            "consumes",
+            "consuming",
             "contain",
             "contains",
             "content",
@@ -887,6 +900,10 @@ class Config implements ConfigType {
             "discovered",
             "discovering",
             "discovers",
+            "disgust",
+            "disgusted",
+            "disgusting",
+            "disgusts",
             "display",
             "displayed",
             "displaying",
@@ -974,6 +991,8 @@ class Config implements ConfigType {
             "engine",
             "english",
             "enjoy",
+            "enterprise",
+            "enterprising",
             "entertain",
             "entertained",
             "entertains",
@@ -1009,6 +1028,7 @@ class Config implements ConfigType {
             "exclusive",
             "exclusively",
             "executive",
+            "executives",
             "exist",
             "existed",
             "existing",
@@ -1143,6 +1163,7 @@ class Config implements ConfigType {
             "future",
             "fyi",
             "garden",
+            "gardens",
             "gear",
             "gearing",
             "gen",
@@ -1200,21 +1221,24 @@ class Config implements ConfigType {
             "headlines",
             "health",
             "heat",
-            "heise",    // German
-            "heisse",   // German
-            "heiße",    // German
+            "heise",        // German
+            "heisse",       // German
+            "heiße",        // German
             "help",
             "her",
             "here",
             "herself",
-            "hier",     // German
+            "hier",         // German
             "high",
             "him",
             "hip",
+            "histoire",     // French
+            "historia",     // Spanish
             "historic",
             "history",
             "his",
             "hit",
+            "hits",
             "home",
             "homepage",
             "homes",
@@ -1267,6 +1291,7 @@ class Config implements ConfigType {
             "insights",
             "instagram",
             "instance",
+            "integration",
             "interest",
             "interior",
             "internal",
@@ -1563,6 +1588,7 @@ class Config implements ConfigType {
             "opt",
             "options",
             "or",
+            "orange",
             "org",
             "organisation",
             "organisations",
@@ -1621,6 +1647,7 @@ class Config implements ConfigType {
             "parts",
             "party",
             "pas",        // French
+            "pasado",     // Spanish
             "pass",
             "passed",
             "past",
@@ -1677,7 +1704,7 @@ class Config implements ConfigType {
             "plays",
             "please",
             "plot",
-            "pluralistic",  // TODO: the regex should probably exclude @account mentions...
+            "pluralistic",    // TODO: the regex should probably exclude @account mentions...
             "plus",
             "pm",
             "point",
@@ -1686,6 +1713,7 @@ class Config implements ConfigType {
             "pol",
             "policies",
             "policy",
+            "politica",       // Spanish
             "political",
             "politics",
             "politik",
@@ -1693,7 +1721,7 @@ class Config implements ConfigType {
             "poll",
             "popular",
             "popularly",
-            "por",    // Spanish
+            "por",            // Spanish
             "possibility",
             "possibilities",
             "possible",
@@ -1724,6 +1752,7 @@ class Config implements ConfigType {
             "probably",
             "procedure",
             "procedures",
+            "proceso",         // Spanish
             "process",
             "processed",
             "processes",
@@ -1762,6 +1791,7 @@ class Config implements ConfigType {
             "provide",
             "provided",
             "provides",
+            "ps",
             "pub",       // TLD
             "public",
             "publicly",
@@ -1918,6 +1948,10 @@ class Config implements ConfigType {
             "ro",         // Romanian TLD
             "road",
             "rocks",
+            "roll",
+            "rolled",
+            "rolling",
+            "rolls",
             "room",
             "rooms",
             "rose",
@@ -1959,6 +1993,7 @@ class Config implements ConfigType {
             "sections",
             "sector",
             "sectors",
+            "securite",   // French
             "security",
             "see",
             "seen",
@@ -2168,6 +2203,8 @@ class Config implements ConfigType {
             "the",
             "theguardian",
             "them",
+            "theme",
+            "themes",
             "themselves",
             "then",
             "their",
@@ -2246,6 +2283,9 @@ class Config implements ConfigType {
             "transported",
             "transporting",
             "transports",
+            "trap",
+            "trapped",
+            "traps",
             "travel",
             "treat",
             "treats",
@@ -2385,6 +2425,7 @@ class Config implements ConfigType {
             "wip",
             "wird",         // German
             "wirtschaft",   // German
+            "wissen",       // German
             "with",
             "within",
             "without",
@@ -2406,6 +2447,7 @@ class Config implements ConfigType {
             "working",
             "works",
             "world",
+            "worldview",
             "would",
             "wow",
             "write",
