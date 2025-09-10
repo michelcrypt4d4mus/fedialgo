@@ -148,17 +148,17 @@ class Account {
         return accountObj;
     }
     /**
-     * Returns HTML-ish string combining the displayName (with custom emojis as {@linkcode <img>} tags)
+     * Returns HTML-ish string combining the displayName (with custom emojis as <img> tags)
      * and the {@linkcode webfingerURI}.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji {@linkcode <img>} tags. Should match surrounding txt.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameFullHTML(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
         return this.displayNameWithEmojis(fontSize) + (0, html_entities_1.encode)(` (@${this.webfingerURI})`);
     }
     /**
-     * Returns HTML-ish string that is the display name with custom emojis as {@linkcode <img>} tags.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji {@linkcode <img>} tags. Should match surrounding txt.
+     * Returns HTML-ish string that is the display name with custom emojis as <img> tags.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
      * @returns {string}
      */
     displayNameWithEmojis(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -176,7 +176,7 @@ class Account {
     /**
      * HTML combining the account bio (AKA the {@linkcode Account.note} property) with {@linkcode createdAt},
      * follower count, and toots count.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji {@linkcode <img>} tags).
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size of returned HTML text (not just emoji <img> tags).
      * @returns {Promise<InstanceResponse>}
      */
     noteWithAccountInfo(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
