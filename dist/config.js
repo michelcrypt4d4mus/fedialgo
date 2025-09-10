@@ -343,7 +343,7 @@ class Config {
     };
     toots = {
         batchCompleteSize: 25,
-        batchCompleteSleepBetweenMS: 150,
+        batchCompleteSleepBetweenMS: 210,
         completeAfterMinutes: enums_1.MINUTES_IN_DAY,
         filterUpdateBatchSize: 240,
         maxAgeInDays: 7,

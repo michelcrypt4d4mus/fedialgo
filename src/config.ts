@@ -482,7 +482,7 @@ class Config implements ConfigType {
 
     toots = {
         batchCompleteSize: 25,                  // How many toots call completeToot() on at once
-        batchCompleteSleepBetweenMS: 150,       // How long to wait between batches of Toot.completeProperties() calls
+        batchCompleteSleepBetweenMS: 210,       // How long to wait between batches of Toot.completeProperties() calls
         completeAfterMinutes: MINUTES_IN_DAY,   // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
         filterUpdateBatchSize: 240,             // How many new Toots before calling updateFilterOptions()
         maxAgeInDays: 7,                        // How long to keep toots in the cache before removing them
