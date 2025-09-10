@@ -238,11 +238,11 @@ export const ordinalSuffix = (n: number): string => {
 
 
 /**
- * Replaces custom emoji shortcodes (e.g., ":smile:") with {@linkcode <img>} tags in an HTML string.
+ * Replaces custom emoji shortcodes (e.g., ":smile:") with <img> tags in an HTML string.
  * @param {string} html - The HTML string containing emoji shortcodes.
  * @param {mastodon.v1.CustomEmoji[]} emojis - Array of custom emoji objects.
  * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Font size for the emoji images.
- * @returns {string} The HTML string with emoji shortcodes replaced by {@linkcode <img>} tags.
+ * @returns {string} The HTML string with emoji shortcodes replaced by <img> tags.
  */
 export function replaceEmojiShortcodesWithImgTags(
     html: string,
