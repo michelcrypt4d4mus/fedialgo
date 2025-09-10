@@ -2,9 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.suppressedHashtags = void 0;
 const collection_helpers_1 = require("./collection_helpers");
+/**
+ * Helper class to track hashtags that have been suppressed due to non-Latin script language.
+ * @property {TagLanguageToots} languageTagURIs - Mapping of language codes to tag names to sets of Toot URIs.
+ * @property {number} lastLoggedCount - The last total count of suppressed hashtags that was logged.
+ */
 class SuppressedHashtags {
     languageTagURIs = {};
     lastLoggedCount = 0;
+    /**
+     * Increment the count for a given tag and toot.
+     * @param {TagWithUsageCounts} tag
+     * @param {Toot} toot
+     */
     increment(tag, toot) {
         if (!tag.language)
             return;
@@ -12,6 +22,10 @@ class SuppressedHashtags {
         this.languageTagURIs[tag.language][tag.name] ??= new Set();
         this.languageTagURIs[tag.language][tag.name].add(toot.realURI);
     }
+    /**
+     * Log the number of suppressed hashtags by language and tag.
+     * @param {Logger} logger - Logger instance to use for logging.
+     */
     log(logger) {
         const numLanguages = Object.keys(this.languageTagURIs).length;
         const totalCount = (0, collection_helpers_1.sumValues)(this.languageCounts());
@@ -42,7 +56,13 @@ class SuppressedHashtags {
             return langTagCounts;
         }, {});
     }
-    /** Convert a TagTootUris object to a StringNumberDict w/length of each URI string Set. */
+    /**
+     * Convert a {@linkcode TagTootUris} object to a {@linkcode StringNumberDict} w/length
+     * of each URI string {@linkcode Set}.
+     * @private
+     * @param {TagTootUris} tootURIs - Mapping of tag names to sets of Toot URIs.
+     * @returns {StringNumberDict} Mapping of tag names to counts of Toot URIs.
+     */
     uriCounts(tootURIs) {
         return Object.entries(tootURIs).reduce((acc, [tag, uris]) => {
             acc[tag] = uris.size;

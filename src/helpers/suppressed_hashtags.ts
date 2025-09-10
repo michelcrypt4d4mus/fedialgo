@@ -1,6 +1,3 @@
-/*
- * Helper class to track hashtags that have been suppressed due to non-Latin script language.
- */
 import type Toot from "../api/objects/toot";
 import { sumValues } from "./collection_helpers";
 import { type Logger } from "./logger";
@@ -11,10 +8,20 @@ type TagLanguageCounts = Record<string, StringNumberDict>;
 type TagLanguageToots = Record<string, TagTootUris>;
 
 
+/**
+ * Helper class to track hashtags that have been suppressed due to non-Latin script language.
+ * @property {TagLanguageToots} languageTagURIs - Mapping of language codes to tag names to sets of Toot URIs.
+ * @property {number} lastLoggedCount - The last total count of suppressed hashtags that was logged.
+ */
 class SuppressedHashtags {
     languageTagURIs: TagLanguageToots = {};
     lastLoggedCount = 0;
 
+    /**
+     * Increment the count for a given tag and toot.
+     * @param {TagWithUsageCounts} tag
+     * @param {Toot} toot
+     */
     increment(tag: TagWithUsageCounts, toot: Toot): void {
         if (!tag.language) return;
         this.languageTagURIs[tag.language] ??= {};
@@ -22,6 +29,10 @@ class SuppressedHashtags {
         this.languageTagURIs[tag.language][tag.name].add(toot.realURI);
     }
 
+    /**
+     * Log the number of suppressed hashtags by language and tag.
+     * @param {Logger} logger - Logger instance to use for logging.
+     */
     log(logger: Logger): void {
         const numLanguages = Object.keys(this.languageTagURIs).length;
         const totalCount = sumValues(this.languageCounts());
@@ -71,7 +82,13 @@ class SuppressedHashtags {
         );
     }
 
-    /** Convert a TagTootUris object to a StringNumberDict w/length of each URI string Set. */
+    /**
+     * Convert a {@linkcode TagTootUris} object to a {@linkcode StringNumberDict} w/length
+     * of each URI string {@linkcode Set}.
+     * @private
+     * @param {TagTootUris} tootURIs - Mapping of tag names to sets of Toot URIs.
+     * @returns {StringNumberDict} Mapping of tag names to counts of Toot URIs.
+     */
     private uriCounts(tootURIs: TagTootUris): StringNumberDict {
         return Object.entries(tootURIs).reduce((acc, [tag, uris]) => {
             acc[tag] = uris.size;
