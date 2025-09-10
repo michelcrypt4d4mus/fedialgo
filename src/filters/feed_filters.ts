@@ -1,5 +1,5 @@
-/*
- * Helpers for building and serializing a complete set of FeedFilterSettings.
+/**
+ * @fileoverview Helpers for building and serializing a complete set of {@linkcode FeedFilterSettings}.
  */
 import BooleanFilter, { TYPE_FILTERS, type BooleanFilterArgs } from "./boolean_filter";
 import MastoApi from "../api/api";

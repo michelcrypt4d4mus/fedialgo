@@ -199,7 +199,7 @@ export default class Toot implements TootObj {
      */
     containsTagsMsg(): string | undefined;
     /**
-     * Returns true if the fedialgo user is mentioned in the toot.
+     * Returns {@linkcode true} if the fedialgo user is mentioned in this {@linkcode Toot}.
      * @returns {boolean}
      */
     containsUserMention(): boolean;

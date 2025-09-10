@@ -73,7 +73,7 @@ class CountedList {
         this.objs.forEach((obj, i) => callback(obj, i));
     }
     /**
-     * Returns the object in the list with the given name (case-insensitive) if it exists.
+     * Returns the object in the list with the given {@linkcode name} (case-insensitive) if it exists.
      * @param {string} name - The name of the object to retrieve.
      * @returns {T | undefined} The object with the specified name, or undefined if not found.
      */
@@ -81,8 +81,8 @@ class CountedList {
         return this.nameDict[name.toLowerCase()];
     }
     /**
-     * Increment {@linkcode numToots} for the given {@linkcode name}. If no obj with {@linkcode name} exists c
-     * reate a new one and call {@linkcode newObjDecorator()} to get its properties.
+     * Increment {@linkcode numToots} for the given {@linkcode name}. If no obj with {@linkcode name} exists
+     * create a new one and call {@linkcode newObjDecorator()} to fill in its properties.
      * @param {string} name - The name of the object to increment.
      * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
      * @returns {T} The object with the incremented numToots.
@@ -98,12 +98,12 @@ class CountedList {
         obj.numToots = (obj.numToots || 0) + 1;
         return obj;
     }
-    /** Standard map function that applies a callback to each object in the objs array. */
+    /** Standard map function that applies a callback to each object in {@linkcode this.objs}. */
     map(callback) {
         return this.objs.map((obj, i) => callback(obj, i));
     }
     /**
-     * Get the maximum value for a given key across the {@linkcode CountedList.objs} array.
+     * Get the maximum value for a given property across the {@linkcode this.objs} array.
      * @template T
      * @param {keyof T} propertyName - The property to find the maximum value for.
      * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
@@ -167,7 +167,10 @@ class CountedList {
         this.logger.trace(`topObjs() sorted ${this.objs.length} first 100 objs:`, sortedObjs.slice(0, 100));
         return maxObjs ? sortedObjs.slice(0, maxObjs) : sortedObjs;
     }
-    // Lowercase the name and set the regex property if it doesn't exist.
+    /**
+     * Lowercase {@linkcode obj.name} and set the {@linkcode obj.regex} property if it doesn't exist.
+     * @private
+     */
     completeObjProperties(obj) {
         obj.name = obj.name.trim().toLowerCase();
         obj.regex ??= (0, string_helpers_1.wordRegex)(obj.name);
@@ -178,7 +181,7 @@ exports.default = CountedList;
 ;
 // TODO: This has to be here for circular dependency reasons
 /**
- * Subclass of {@linkcode CountedList} for lists of {@linkcode BooleanFilterObject}s.
+ * Subclass of {@linkcode CountedList} for lists of {@linkcode BooleanFilterOption}s.
  * @augments CountedList
  */
 class BooleanFilterOptionList extends CountedList {

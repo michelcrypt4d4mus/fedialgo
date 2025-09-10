@@ -334,7 +334,7 @@ class Toot {
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
     /**
-     * Returns true if the fedialgo user is mentioned in the toot.
+     * Returns {@linkcode true} if the fedialgo user is mentioned in this {@linkcode Toot}.
      * @returns {boolean}
      */
     containsUserMention() {
