@@ -75,7 +75,10 @@ class TagsForFetchingToots {
             this.tagList.removeKeywords(trendingTags.map(t => t.name));
         }
     }
-    /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
+    /**
+     * Return {@linkcode numTags} tags sorted by {@linkcode numToots} then by {@linkcode name}
+     * @param {number} [numTags] - Optional maximum number of tags to return.
+     */
     topTags(numTags) {
         numTags ||= this.config.numTags;
         const tags = (0, collection_helpers_1.truncateToLength)(this.tagList.topObjs(), numTags, this.logger);

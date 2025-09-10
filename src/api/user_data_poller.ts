@@ -1,7 +1,3 @@
-/*
- * Background polling to try to get more user data for the scoring algorithm
- * after things have died down from the intitial load.
- */
 import { Mutex } from 'async-mutex';
 
 import MastoApi, { type ApiParams } from "../api/api";
@@ -18,6 +14,13 @@ type Poller = (params?: ApiParams) => Promise<ApiObj[]>;
 const MOAR_MUTEX = new Mutex();
 
 
+/**
+ * Handle Background polling to try to get more user data for the scoring algorithm
+ * after things have died down from the intitial load.
+ * @class
+ * @property {ReturnType<typeof setInterval>|undefined} intervalRunner - The interval runner for periodic polling.
+ * @property {Logger} logger - {@linkcode Logger} instance to use when polling.
+ */
 export default class UserDataPoller {
     private intervalRunner?: ReturnType<typeof setInterval>;
     private logger = new Logger('UserDataPoller');
@@ -67,7 +70,7 @@ export default class UserDataPoller {
 
     /**
      * Polls the Mastodon API for more data to assist in scoring the feed.
-     * @returns {Promise<boolean>} - Returns true if new data was fetched, false otherwise.
+     * @returns {Promise<boolean>} - True if new data was fetched, false otherwise.
      */
     async getMoarData(): Promise<boolean> {
         this.logger.log(`Triggered by timer...`);

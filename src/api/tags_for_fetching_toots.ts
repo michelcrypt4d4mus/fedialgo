@@ -99,7 +99,10 @@ export default class TagsForFetchingToots {
         }
     }
 
-    /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
+    /**
+     * Return {@linkcode numTags} tags sorted by {@linkcode numToots} then by {@linkcode name}
+     * @param {number} [numTags] - Optional maximum number of tags to return.
+     */
     topTags(numTags?: number): TagWithUsageCounts[] {
         numTags ||= this.config.numTags;
         const tags = truncateToLength(this.tagList.topObjs(), numTags, this.logger);

@@ -27,7 +27,7 @@ export default abstract class Scorer {
      */
     constructor(name: ScoreName);
     /**
-     * Returns a WeightInfo object with the description of the scorer.
+     * Returns a {@linkcode WeightInfo} object with the description of the scorer.
      * @returns {WeightInfo} The weight info for this scorer.
      */
     getInfo(): WeightInfo;

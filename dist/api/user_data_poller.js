@@ -3,10 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Background polling to try to get more user data for the scoring algorithm
- * after things have died down from the intitial load.
- */
 const async_mutex_1 = require("async-mutex");
 const api_1 = __importDefault(require("../api/api"));
 const scorer_cache_1 = __importDefault(require("../scorer/scorer_cache"));
@@ -16,6 +12,13 @@ const mutex_helpers_1 = require("../helpers/mutex_helpers");
 const logger_1 = require("../helpers/logger");
 const enums_1 = require("../enums");
 const MOAR_MUTEX = new async_mutex_1.Mutex();
+/**
+ * Handle Background polling to try to get more user data for the scoring algorithm
+ * after things have died down from the intitial load.
+ * @class
+ * @property {ReturnType<typeof setInterval>|undefined} intervalRunner - The interval runner for periodic polling.
+ * @property {Logger} logger - {@linkcode Logger} instance to use when polling.
+ */
 class UserDataPoller {
     intervalRunner;
     logger = new logger_1.Logger('UserDataPoller');
@@ -54,7 +57,7 @@ class UserDataPoller {
     }
     /**
      * Polls the Mastodon API for more data to assist in scoring the feed.
-     * @returns {Promise<boolean>} - Returns true if new data was fetched, false otherwise.
+     * @returns {Promise<boolean>} - True if new data was fetched, false otherwise.
      */
     async getMoarData() {
         this.logger.log(`Triggered by timer...`);

@@ -130,7 +130,7 @@ class MastodonServer {
         }
     }
     /**
-     * Fetch a list of objects of type T from a public API endpoint
+     * Fetch a list of objects of type {@linkcode T} from a public API endpoint
      * @private
      * @param {string} endpoint - The API endpoint to fetch data from.
      * @param {number} [limit] - Optional limit on the number of items to fetch.
@@ -158,7 +158,7 @@ class MastodonServer {
         return list;
     }
     /**
-     * Generic trending data fetcher: Fetch a list of objects of type T from a public API endpoint.
+     * Generic trending data fetcher: get a list of objects of type {@linkcode T} from a public API endpoint.
      * @private
      * @param {string} trendingType - The type of trending data to fetch (e.g., 'statuses', 'tags', 'links').
      * @param {number} [limit] - Optional limit on the number of items to fetch.
@@ -202,7 +202,8 @@ class MastodonServer {
         return new tag_list_1.default(tags, enums_1.TagTootsCategory.TRENDING);
     }
     /**
-     * Pull public top trending toots on popular mastodon servers including from accounts user doesn't follow.
+     * Pull public top trending {@linkcode Toot}s on popular mastodon servers including
+     * from accounts user doesn't follow.
      * @static
      * @returns {Promise<Toot[]>} Array of trending Toots across all servers.
      */
@@ -219,7 +220,8 @@ class MastodonServer {
         });
     }
     /**
-     * Get the server names that are most relevant to the user (appears in follows a lot, mostly).
+     * Get the server names that are most relevant to the user, meaning servers that a lot of the
+     * accounts the user follows live on.
      * @static
      * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
      */
@@ -239,7 +241,7 @@ class MastodonServer {
         }
     }
     /**
-     * Collect all three kinds of trending data (links, tags, toots) in one call.
+     * Collect all three kinds of trending data (links, tags, {@linkcode Toot}s) in one call.
      * @static
      * @returns {Promise<TrendingData>} Object containing trending links, tags, toots, and servers.
      */
