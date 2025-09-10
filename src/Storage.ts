@@ -231,7 +231,7 @@ export default class Storage {
         return !(await this.getIfNotStale(key));
     }
 
-    /** Build a UserData object from the user's cached followed accounts, tags, blocks, etc. */
+    /** Build a {@linkcode UserData} object from the user's cached followed accounts, tags, blocks, etc. */
     static async loadUserData(): Promise<UserData> {
         // TODO: unify blocked and muted account logic?
         const blockedAccounts = await this.getCoerced<mastodon.v1.Account>(CacheKey.BLOCKED_ACCOUNTS);
@@ -248,7 +248,7 @@ export default class Storage {
         });
     }
 
-    /** Record a new instantiation of TheAlgorithm. Currently more or less unused. */
+    /** Record a new instantiation of {@linkcode TheAlgorithm}. Currently more or less unused. */
     static async logAppOpen(user: Account): Promise<void> {
         await Storage.setIdentity(user);
         const numAppOpens = (await this.getNumAppOpens()) + 1;
@@ -296,7 +296,7 @@ export default class Storage {
         await this.set(AlgorithmStorageKey.WEIGHTS, userWeightings);
     }
 
-    /** Returns metadata about whatever is stored in localForage. */
+    /** Returns metadata about whatever is stored in {@linkcode localForage}. */
     static async storedObjsInfo(): Promise<Record<string, unknown>> {
         const keyStrings = Object.values(CacheKey);
         const keys = await Promise.all(keyStrings.map(k => this.buildKey(k as CacheKey)));
@@ -388,18 +388,18 @@ export default class Storage {
         }
     }
 
-    // Get the user identity from storage
+    /** Get the user identity from storage. */
     private static async getIdentity(): Promise<Account | null> {
         const user = await localForage.getItem(AlgorithmStorageKey.USER);
         return user ? plainToInstance(Account, user) : null;
     }
 
-    // Get the number of times the app has been opened by this user
+    /** Get the number of times the app has been opened by this user. */
     private static async getNumAppOpens(): Promise<number> {
         return (await this.get(AlgorithmStorageKey.APP_OPENS) as number) ?? 0;
     }
 
-    // Get the raw StorableWithTimestamp object
+    /** Get the the raw StorableWithTimestamp object at {@linkcode key}. */
     private static async getStorableWithTimestamp(key: StorageKey): Promise<StorableWithTimestamp | null> {
         const withTimestamp = await localForage.getItem(await this.buildKey(key)) as StorableWithTimestamp;
         return withTimestamp ?? null;
@@ -425,6 +425,13 @@ export default class Storage {
         }
     }
 
+    /**
+     * Serialize objects before storing writing them to browser storage via {@linkcode localForage}.
+     * @private
+     * @param {StorageKey} key
+     * @param {StorableObj} value
+     * @returns {StorableObj}
+     */
     private static serialize(key: StorageKey, value: StorableObj): StorableObj {
         if (STORAGE_KEYS_WITH_ACCOUNTS.includes(key)) {
             return instanceToPlain(value);
