@@ -260,7 +260,7 @@ export default class MastoApi {
 
     // NOTE: if the constructor's JSDocs are marked with @private then no documentation will be generated!
     /**
-     * Private constructor for {@linkcode MastoApi}. Use {@linkcode MastoApi.init} to create the singleton instance.
+     * Private constructor. Use {@linkcode MastoApi.init} to create the singleton instance.
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */

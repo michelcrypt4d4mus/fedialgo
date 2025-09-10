@@ -83,7 +83,7 @@ export default class MastoApi {
      */
     static get instance(): MastoApi;
     /**
-     * Private constructor for {@linkcode MastoApi}. Use {@linkcode MastoApi.init} to create the singleton instance.
+     * Private constructor. Use {@linkcode MastoApi.init} to create the singleton instance.
      * @param {mastodon.rest.Client} api - Mastodon REST API client.
      * @param {Account} user - The authenticated user account.
      */
