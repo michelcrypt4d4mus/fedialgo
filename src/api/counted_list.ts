@@ -19,13 +19,14 @@ export type ObjList = CountedList<NamedTootCount>;
 
 
 /**
- * Generic list-ish class for NamedTootCount objects with 'name' and 'numToots' properties.
- * Supports both dictionary and sorted list operations, and provides utility methods
- * for filtering, mapping, counting, and muting/removing items by keywords or server-side filters.
+ * Generic list-ish class for {@linkcode NamedTootCount} objects with {@linkcode name}
+ * and {@linkcode numToots} properties. Supports both dictionary and sorted list operations
+ * and provides utility methods for filtering, mapping, counting, and muting/removing items
+ * by keywords or server-side filters.
  * @template T extends NamedTootCount
- * @property {number} length - The number of objects in the list.*
+ * @property {number} length - The number of objects in the list.
  * @property {Logger} logger - Logger instance for this list.
- * @property {number | undefined} maxNumToots - The maximum numToots value in the list.*
+ * @property {number | undefined} maxNumToots - Current maximum {@linkcode numToots} value in the list.
  * @property {Record<string, T>} nameDict - Dictionary mapping object names to objects.
  * @property {T[]} objs - The array of objects in the list.
  * @property {ListSource} source - The source of the list (for logging/context).
@@ -80,7 +81,7 @@ export default class CountedList<T extends NamedTootCount> {
         return new CountedList<T>(this.objs.filter(predicate), this.source);
     }
 
-    /** Standard {@linkcode Array.forEach} approximation that invokes a callback for each object in the objs array. */
+    /** Standard {@linkcode Array.forEach()} approximation that invokes a callback for each object in the objs array. */
     forEach(callback: (obj: T, i?: number) => void): void {
         this.objs.forEach((obj, i) => callback(obj, i));
     }
