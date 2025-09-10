@@ -69,7 +69,8 @@ const PARAMS_TO_NOT_LOG_IF_FALSE = ["skipCache", "skipMutex", "moar"];
 const getLogger = logger_1.Logger.logBuilder('API');
 exports.apiLogger = getLogger();
 /**
- * Singleton class for interacting with the authenticated Mastodon API for the user's home server.
+ * Singleton class for interacting with the authenticated
+ * {@link https://docs.joinmastodon.org/client/intro/ Mastodon API} on the FediAlgo user's home server.
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
  * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
  * @property {string} homeDomain - The Fedialgo user's home server domain.

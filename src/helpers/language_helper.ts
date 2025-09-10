@@ -280,11 +280,15 @@ type LanguageDetectInfo = {
     tinyLD: DetectLangLibraryResult;
 };
 
-/** Convert a language code like 'jp' into a language name like 'Japanese'. */
+/** Convert a language code like "jp" into a language name like "Japanese". */
 export const languageName = (code: string) => LANGUAGE_CODES[code] ? capitalCase(LANGUAGE_CODES[code]) : code;
 
 
-// Use the two different language detectors to guess a language
+/**
+ * Use the two different language detectors to guess a language.
+ * @param {string} text - The text to detect the language of.
+ * @returns {LanguageDetectInfo} The detected language information.
+ */
 export function detectLanguage(text: string): LanguageDetectInfo {
     const langInfoFromLangDetector = detectLangWithLangDetector(text);
     const langInfoFromTinyLD = detectLangWithTinyLD(text);
@@ -358,8 +362,12 @@ export function detectLanguage(text: string): LanguageDetectInfo {
 };
 
 
-// Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
-// meant for non Latin scripts like japanese, korean, etc.
+/**
+ * Returns the language code of the matched regex (if any). Not as thorough as {@linkcode detectLanguage}
+ * and only meant for non Latin scripts like japanese, korean, etc.
+ * @param {string} str - The string to check.
+ * @returns {string|undefined} The language code if detected, otherwise undefined.
+ */
 export function detectForeignScriptLanguage(str: string): string | undefined {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
         if (regex.test(str) && !isNumberOrNumberString(str)) {
@@ -383,7 +391,11 @@ function buildLangDetectResult(minAccuracy: number, langAccuracies?: LanguageAcc
 };
 
 
-// Use LanguageDetector library to detect language
+/**
+ * Use {@linkcode https://www.npmjs.com/package/languagedetect LanguageDetect} library to detect language.
+ * @param {string} text - The text to detect the language of.
+ * @returns {DetectLangLibraryResult} The detected language information.
+ */
 function detectLangWithLangDetector(text: string): DetectLangLibraryResult {
     // Reshape LanguageDetector return value to look like tinyLD return value
     const langsFromLangDetector = LANG_DETECTOR.detect(text)?.map(([language, accuracy], i) => {
@@ -401,7 +413,11 @@ function detectLangWithLangDetector(text: string): DetectLangLibraryResult {
 };
 
 
-// Use tinyLD library to detect language
+/**
+ * Use {@linkcode https://www.npmjs.com/package/tinyLD tinyLD} library to detect language.
+ * @param {string} text - The text to detect the language of.
+ * @returns {DetectLangLibraryResult} The detected language information.
+ */
 function detectLangWithTinyLD(text: string): DetectLangLibraryResult {
     return buildLangDetectResult(MIN_TINYLD_ACCURACY, detectAll(text));
 };
