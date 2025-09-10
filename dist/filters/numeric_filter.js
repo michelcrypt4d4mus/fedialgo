@@ -17,11 +17,11 @@ exports.FILTERABLE_SCORES = [
 ];
 ;
 /**
- * Filter for numeric properties of a {@linkcode Toot} (e.g., replies, reblogs, favourites).
+ * Filter for numeric properties of a {@linkcode Toot} (e.g. replies, reblogs, favourites).
  * Allows filtering {@linkcode Toot}s based on a minimum value for a given property.
  * @augments TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
- * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g. exclude instead of include).
  * @property {TootNumberProp} propertyName - The property of the toot to filter on (e.g. {@linkcode repliesCount}).
  * @property {number} value - Minimum value a toot must have in the {@linkcode propertyName} field to be included in the timeline.
  */

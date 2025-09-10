@@ -66,7 +66,7 @@ const TOOT_MATCHERS = {
  * Handles filtering {@linkcode Toot}s by boolean criteria (e.g. language, hashtag, type).
  * @augments TootFilter
  * @property {string} [description] - Optional description of the filter for display or documentation purposes.
- * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+ * @property {boolean} [invertSelection] - If true, the filter logic is inverted (e.g. exclude instead of include).
  * @property {BooleanFilterOptionList} options - The BooleanFilterOptions available for this filter.
  * @property {BooleanFilterName} propretyName - The BooleanFilterOptions available for this filter.
  * @property {string[]} selectedOptions - The names of the options selected for use in filtering.
@@ -87,7 +87,7 @@ class BooleanFilter extends toot_filter_1.default {
     }
     /**
      * @param {BooleanFilterArgs} params - The filter arguments.
-     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g. exclude instead of include).
      * @param {string[]} [params.selectedOptions] - The selected options.
      * @param {BooleanFilterName} params.propertyName - The property the filter is working with (hashtags/toot type/etc).
      */

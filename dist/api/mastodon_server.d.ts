@@ -59,7 +59,7 @@ export default class MastodonServer {
     /**
      * Generic trending data fetcher: get a list of objects of type {@linkcode T} from a public API endpoint.
      * @private
-     * @param {string} trendingType - The type of trending data to fetch (e.g., 'statuses', 'tags', 'links').
+     * @param {string} trendingType - The type of trending data to fetch (e.g. 'statuses', 'tags', 'links').
      * @param {number} [limit] - Optional limit on the number of items to fetch.
      * @returns {Promise<T[]>} Array of objects of type T.
      */
