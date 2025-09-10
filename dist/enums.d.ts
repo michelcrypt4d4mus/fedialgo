@@ -89,7 +89,7 @@ export declare enum NonScoreWeightName {
     OUTLIER_DAMPENER = "OutlierDampener"
 }
 /**
- * Enum of all scoring categories for which there is a scorer. Also Used for UI display and filtering.
+ * Enum of all scoring categories for which there is a scorer. Also used for UI display and filtering.
  * @enum {string}
  */
 export declare enum ScoreName {

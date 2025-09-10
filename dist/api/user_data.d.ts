@@ -33,7 +33,7 @@ interface UserApiData {
  * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
- * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side filters set by the user.
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters}s set by the user.
  */
 export default class UserData {
     blockedDomains: Set<string>;

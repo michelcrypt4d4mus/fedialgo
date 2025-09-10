@@ -4,8 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.detectForeignScriptLanguage = exports.detectLanguage = exports.languageName = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
-/*
- * Detecting language etc.
+/**
+ * @fileoverview Helpers to try to guess the language text is written in.
+ * @module language_helper
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
 const change_case_1 = require("change-case");
@@ -257,10 +258,14 @@ const LANG_DETECTOR_OVERCONFIDENT_LANGS = new Set([
     "da",
     "fr",
 ]);
-/** Convert a language code like 'jp' into a language name like 'Japanese'. */
+/** Convert a language code like "jp" into a language name like "Japanese". */
 const languageName = (code) => exports.LANGUAGE_CODES[code] ? (0, change_case_1.capitalCase)(exports.LANGUAGE_CODES[code]) : code;
 exports.languageName = languageName;
-// Use the two different language detectors to guess a language
+/**
+ * Use the two different language detectors to guess a language.
+ * @param {string} text - The text to detect the language of.
+ * @returns {LanguageDetectInfo} The detected language information.
+ */
 function detectLanguage(text) {
     const langInfoFromLangDetector = detectLangWithLangDetector(text);
     const langInfoFromTinyLD = detectLangWithTinyLD(text);
@@ -323,8 +328,12 @@ function detectLanguage(text) {
 }
 exports.detectLanguage = detectLanguage;
 ;
-// Returns the language code of the matched regex (if any). Not as thorough as detectLanguage() and only
-// meant for non Latin scripts like japanese, korean, etc.
+/**
+ * Returns the language code of the matched regex (if any). Not as thorough as {@linkcode detectLanguage}
+ * and only meant for non Latin scripts like japanese, korean, etc.
+ * @param {string} str - The string to check.
+ * @returns {string|undefined} The language code if detected, otherwise undefined.
+ */
 function detectForeignScriptLanguage(str) {
     for (const [language, regex] of Object.entries(LANGUAGE_REGEXES)) {
         if (regex.test(str) && !(0, math_helper_1.isNumberOrNumberString)(str)) {
@@ -347,7 +356,11 @@ function buildLangDetectResult(minAccuracy, langAccuracies) {
     };
 }
 ;
-// Use LanguageDetector library to detect language
+/**
+ * Use {@linkcode https://www.npmjs.com/package/languagedetect LanguageDetect} library to detect language.
+ * @param {string} text - The text to detect the language of.
+ * @returns {DetectLangLibraryResult} The detected language information.
+ */
 function detectLangWithLangDetector(text) {
     // Reshape LanguageDetector return value to look like tinyLD return value
     const langsFromLangDetector = LANG_DETECTOR.detect(text)?.map(([language, accuracy], i) => {
@@ -362,7 +375,11 @@ function detectLangWithLangDetector(text) {
     return buildLangDetectResult(MIN_LANG_DETECTOR_ACCURACY, langsFromLangDetector);
 }
 ;
-// Use tinyLD library to detect language
+/**
+ * Use {@linkcode https://www.npmjs.com/package/tinyLD tinyLD} library to detect language.
+ * @param {string} text - The text to detect the language of.
+ * @returns {DetectLangLibraryResult} The detected language information.
+ */
 function detectLangWithTinyLD(text) {
     return buildLangDetectResult(MIN_TINYLD_ACCURACY, (0, tinyld_1.detectAll)(text));
 }

@@ -44,7 +44,7 @@ export declare function average(values: number[]): number;
  * @param {number} [options.batchSize] - Batch size.
  * @param {Logger} [options.logger] - Logger instance.
  * @param {number} [options.sleepBetweenMS] - Sleep between batches in ms.
- * @returns {Promise<any[]>} The results of mapping items with fxn().
+ * @returns {Promise<any[]>} The results of mapping items with {@linkcode fxn()} argument.
  */
 export declare function batchMap<T, U>(array: T[], fxn: (e: T) => Promise<U>, options?: {
     batchSize?: number;
@@ -87,8 +87,7 @@ export declare function countValues<T>(items: T[], getKey?: (item: T) => Optiona
 export declare function filterWithLog<T>(array: T[], filterFxn: (value: T) => boolean, logger: Logger, reason: string, // Describe why things were filtered
 objType?: string): T[];
 /**
- * Finds the minimum and maximum 'id' property in an array of objects that have an 'id' property.
- * Find the minimum 'id' property in an array of objects that have an 'id' property.
+ * Finds the minimum and maximum {@linkcode id} property in an array of objects.
  * TODO: Note that this isn't always safe to use - there can be outliers in the data that result in
  * the minimum ID in a set of toots being wildly out of step with the rest of the IDs.
  * If that happens trying to use the min ID as the maxId param for a fetch will fail (no results).
@@ -105,7 +104,7 @@ objType?: string): T[];
 export declare function findMinMaxId(array: ApiObjWithID[]): MinMaxID | null;
 /**
  * Collates the fulfilled and rejected results from
- * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled Promise.allSettled()}
+ * {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled Promise.allSettled()}
  * into an easier to handle format.
  * @template T
  * @param {Promise<T>[]} promises - Array of promises.
@@ -195,7 +194,7 @@ export declare function reduceToCounts<T>(objs: T[], updateCounts: (accumulator:
  */
 export declare function removeKeys<T extends object, K extends keyof T>(obj: T, keysToRemove?: K[], keysToRemoveIfFalse?: K[]): Partial<T>;
 /**
- * Use {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled Promise.allSettled()}
+ * Use {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled Promise.allSettled()}
  * to resolve a dictionary of promises in parallel.
  * @param {PromiseDict} dict - Dictionary of promises to resolve.
  * @param {Logger} logger - Logger instance for logging errors.
@@ -254,13 +253,13 @@ export declare function split<T>(array: T[], condition: (element: T) => boolean)
  */
 export declare function subtractConstant(dict: StringNumberDict, constant: number): StringNumberDict;
 /**
- * Sums the elements of an array, treating null/undefined as 0.
+ * Sums the elements of an array. {@linkcode null} and {@linkcode undefined} count as 0.
  * @param {OptionalNumber[]} array - The array to sum.
  * @returns {number} The sum (0 if empty)
  */
 export declare function sumArray(array: OptionalNumber[]): number;
 /**
- * Sums the values of a dictionary.
+ * Sums the values of a dictionary. {@linkcode null} and {@linkcode undefined} count as 0.
  * @param {StringNumberDict | Weights} obj - The dictionary.
  * @returns {number} The sum.
  */
@@ -273,7 +272,7 @@ export declare function sumValues(obj: StringNumberDict | Weights): number;
  */
 export declare function swapKeysAndValues<T extends StringDict>(dict: T): StringDict;
 /**
- * Recursively applies a transform function to all keys in a nested object.
+ * Recursively applies a {@linkcode transform()} function to all keys in a nested object.
  * @template T
  * @param {T} data - The data to transform.
  * @param {(key: string) => string} transform - The transform function.
@@ -315,11 +314,11 @@ export declare function uniquifyApiObjs<T extends ApiObj>(cacheKey: ApiCacheKey,
 export declare function uniquifyByProp<T>(rows: T[], transform: (obj: T) => string, logPrefix?: string): T[];
 /**
  * Zips two arrays into a dictionary
- * @example zipArrays([ 'a', 'b', 'c' ], [ 1, 2, 3 ]) -> { a: 1, b: 2, c: 3 }
  * @template T
  * @param {string[]} array1 - Keys array.
  * @param {T[]} array2 - Values array.
  * @returns {Record<string, T>} The zipped dictionary.
+ * @example zipArrays([ 'a', 'b', 'c' ], [ 1, 2, 3 ]) -> { a: 1, b: 2, c: 3 }
  */
 export declare function zipArrays<T>(array1: string[], array2: T[]): Record<string, T>;
 /**
