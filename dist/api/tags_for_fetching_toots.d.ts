@@ -16,7 +16,10 @@ export default class TagsForFetchingToots {
     getToots(): Promise<Toot[]>;
     /** Strip out tags we don't want to fetch toots for, e.g. followed, muted, invalid, or trending tags. */
     private removeUnwantedTags;
-    /** Return numTags tags sorted by numToots then by name (return all if numTags is not set). */
+    /**
+     * Return {@linkcode numTags} tags sorted by {@linkcode numToots} then by {@linkcode name}
+     * @param {number} [numTags] - Optional maximum number of tags to return.
+     */
     topTags(numTags?: number): TagWithUsageCounts[];
     /** Return the tag lists used to search for toots (participated/trending/etc) in their raw unfiltered form. */
     static rawTagLists(): Promise<Record<TagTootsCategory, TagList>>;

@@ -52,7 +52,7 @@ class Scorer {
         this.logger = new logger_1.Logger(LOG_PREFIX, name);
     }
     /**
-     * Returns a WeightInfo object with the description of the scorer.
+     * Returns a {@linkcode WeightInfo} object with the description of the scorer.
      * @returns {WeightInfo} The weight info for this scorer.
      */
     getInfo() {

@@ -72,7 +72,7 @@ export default class CountedList<T extends NamedTootCount> {
     }
 
     /**
-     * Like the standard javascript {@linkcode Array.filter}.
+     * Like the standard javascript {@linkcode Array.filter()}.
      * @param {function} predicate - Function to test each object in the list.
      * @returns {CountedList<T>} A new CountedList containing only the objects that match the predicate.
      */
@@ -95,8 +95,8 @@ export default class CountedList<T extends NamedTootCount> {
     }
 
     /**
-     * Increment numToots for the given {@linkcode name}. If no obj with {@linkcode name} exists create a
-     * new one and call {@linkcode newObjDecorator} to get its properties.
+     * Increment {@linkcode numToots} for the given {@linkcode name}. If no obj with {@linkcode name} exists c
+     * reate a new one and call {@linkcode newObjDecorator()} to get its properties.
      * @param {string} name - The name of the object to increment.
      * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
      * @returns {T} The object with the incremented numToots.
@@ -145,7 +145,7 @@ export default class CountedList<T extends NamedTootCount> {
     /**
      * Populate the objs array by counting the number of times each 'name' (given by {@linkcode propExtractor})
      * appears. Resulting {@linkcode BooleanFilterOption}s will be decorated with properties returned by
-     * {@linkcode propExtractor}.
+     * {@linkcode propExtractor()}.
      * @template U - Type of the objects in the input array.*
      * @param {U[]} objs - Array of objects to count properties from.
      * @param {(obj: U) => T} propExtractor - Function to extract the decorator properties for the counted objects.
@@ -167,7 +167,7 @@ export default class CountedList<T extends NamedTootCount> {
     }
 
     /**
-     * Remove any obj whose 'name' is watches any of 'keywords'.
+     * Remove any obj whose {@linkcode name} matches any of the {@linkcode keywords}.
      * @param {string[]} keywords - Array of keywords to match against the object's name.
      */
     removeKeywords(keywords: string[]): void {
@@ -178,10 +178,11 @@ export default class CountedList<T extends NamedTootCount> {
     };
 
     /**
-     * Returns the objs in the list sorted by numAccounts if it exists, otherwise by numToots,
-     * and then by name. If maxObjs is provided, returns only the top maxObjs objects.
+     * Returns the objs in the list sorted by {@linkcode numAccounts} if it exists, otherwise
+     * by {@linkcode numToots}, and then by name. If {@linkcode maxObjs} is provided, returns
+     * only the top {@linkcode maxObjs} objects.
      * @param {number} [maxObjs] - Optional maximum number of objects to return.
-     * @returns {T[]} Objects sorted by numAccounts if it exists, otherwise numToots, then by name
+     * @returns {T[]} Objects sorted by {@linkcode numAccounts} if it exists, otherwise {@linkcode numToots}, then by name
      */
     topObjs(maxObjs?: number): T[] {
         const sortBy: keyof T = this.objs.every(t => !isNil(t.numAccounts)) ? "numAccounts" : "numToots";
@@ -204,7 +205,7 @@ export default class CountedList<T extends NamedTootCount> {
 
 // TODO: This has to be here for circular dependency reasons
 /**
- * Subclass of CountedList for lists of BooleanFilterObject objects.
+ * Subclass of {@linkcode CountedList} for lists of {@linkcode BooleanFilterObject}s.
  * @augments CountedList
  */
 export class BooleanFilterOptionList extends CountedList<BooleanFilterOption> {};
