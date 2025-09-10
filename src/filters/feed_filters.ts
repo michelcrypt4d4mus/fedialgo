@@ -40,8 +40,11 @@ const DEFAULT_FILTERS: FeedFilterSettings = {
 const logger = new Logger('feed_filters.ts');
 
 
-// Build a new FeedFilterSettings object with DEFAULT_FILTERS as the base.
-// Start with numeric & type filters. Other BooleanFilters depend on what's in the toots.
+/**
+ * Build a new {@linkcode FeedFilterSettings} object with {@linkcode DEFAULT_FILTERS} as the base.
+ * Start with numeric & type filters. Other {@linkcode BooleanFilter}s depend on what's in the toots.
+ * @returns {FeedFilterSettings}
+ */
 export function buildNewFilterSettings(): FeedFilterSettings {
     const filters: FeedFilterSettings = JSON.parse(JSON.stringify(DEFAULT_FILTERS)); // Deep copy
     populateMissingFilters(filters);
@@ -49,8 +52,12 @@ export function buildNewFilterSettings(): FeedFilterSettings {
 }
 
 
-// For building a FeedFilterSettings object from the serialized version.
-// NOTE: Mutates object.
+/**
+ * Build a {@linkcode FeedFilterSettings} object from the serialized version.
+ * NOTE: Mutates object.
+ * @param {FeedFilterSettings} filterArgs - The serialized filter settings.
+ * @returns {FeedFilterSettings} The reconstructed filter settings with instantiated filter objects.
+ */
 export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings {
     filterArgs.booleanFilters = filterArgs.booleanFilterArgs.reduce((filters, args) => {
         filters[args.propertyName as BooleanFilterName] = new BooleanFilter(args);
@@ -68,8 +75,12 @@ export function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilter
 }
 
 
-// Remove filter args with invalid propertyName to upgrade existing users w/invalid args in browser Storage.
-// Returns true if the filter settings were changed.
+/**
+ * Remove filter args with invalid {@linkcode propertyName}s. Used to upgrade
+ * existing users who may have obsolete args in browser Storage.
+ * @param {FeedFilterSettings} filters - The filter settings to check and repair.
+ * @returns {boolean} True if any repairs were made, false otherwise.
+ */
 export function repairFilterSettings(filters: FeedFilterSettings): boolean {
     let wasChanged = false;
 
@@ -224,10 +235,10 @@ function populateMissingFilters(filters: FeedFilterSettings): void {
 
 
 /**
- * Scan a list of Toots for a set of hashtags and update their counts in the provided hashtagOptions.
- * Used to search the home timeline for Toots that contain discussion of a given tag even if
- * it's not actually tagged with it (e.g. toot mentions "AI" in the text but doesn't contain "#AI").
- *
+ * Scan a list of {@linkcode Toot}s for a set of hashtags and update their counts in the provided
+ * hashtagOptions. Used to search the home timeline for Toots that contain discussion of a given
+ * tag even if it's not actually tagged with it (e.g. toot mentions "AI" in the text but doesn't
+ * contain "#AI").
  * @private
  * @param {BooleanFilterOptionList} options - Options list to update with additional hashtag matches.
  * @param {TagList} followedTags - List of followed tags to check against.
