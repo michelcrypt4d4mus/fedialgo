@@ -49,7 +49,7 @@ interface AccountObj extends mastodon.v1.Account {
 
 
 /**
- * Extends base Mastodon {@link https://docs.joinmastodon.org/entities/Account/ Account} with
+ * Extends base Mastodon {@linkcode https://docs.joinmastodon.org/entities/Account/ Account} with
  * additional helper methods and properties. The base class's properties are not documented here;
  * @implements {AccountObj}
  * @extends {mastodon.v1.Account}
@@ -189,7 +189,7 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Get this account's Mastodon server (AKA {@link https://docs.joinmastodon.org/entities/Instance/ Instance})
+     * Get this account's Mastodon server (AKA {@linkcode https://docs.joinmastodon.org/entities/Instance/ Instance})
      * from API. Note that not all servers provide this!
      * @returns {Promise<InstanceResponse>}
      */

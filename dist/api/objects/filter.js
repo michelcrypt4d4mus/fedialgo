@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Helpers for Mastodon API's server side {@link https://docs.joinmastodon.org/entities/Filter/ Filters}.
+ * Helpers for Mastodon API's server side {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters}.
  * @module server_side_filters
  */
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -8,7 +8,7 @@ exports.extractMutedKeywords = exports.buildMutedRegex = void 0;
 const string_helpers_1 = require("../../helpers/string_helpers");
 /**
  * Build a regex that matches any of the muted keywords from server-side
- * {@link https://docs.joinmastodon.org/entities/Filter/ Filters}.
+ * {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters}.
  * @memberof module:server_side_filters
  * @param {mastodon.v2.Filter[]} serverSideFilters
  * @returns {RegExp}
@@ -19,7 +19,8 @@ function buildMutedRegex(serverSideFilters) {
 exports.buildMutedRegex = buildMutedRegex;
 ;
 /**
- * Extract all the muted keywords from server-side {@link https://docs.joinmastodon.org/entities/Filter/ Filters}.
+ * Extract all the muted keywords from server-side
+ * {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters}.
  * @memberof module:server_side_filters
  * @param {mastodon.v2.Filter[]} serverSideFilters
  * @returns {string[]}
