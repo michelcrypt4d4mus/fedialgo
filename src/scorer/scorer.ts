@@ -81,9 +81,9 @@ export default abstract class Scorer {
     }
 
     /**
-     * Public API for scoring a {@linkcode Toot}. Returns the score, or 0 if not ready.
+     * Public API for scoring a {@linkcode Toot}.
      * @param {Toot} toot - The toot to score.
-     * @returns {Promise<number>} The computed score for the toot.
+     * @returns {Promise<number>} The computed score for the toot or 0 if not ready.
      */
     async score(toot: Toot): Promise<number> {
         if (this.isReady) {
@@ -157,7 +157,6 @@ export default abstract class Scorer {
 
     /**
      * Validates that the {@linkcode weights} object contains valid weight names and values.
-     * Throws an error if any weight is invalid or missing.
      * @static
      * @param {Weights} weights - Weights object to validate.
      * @throws {Error} If any weight is invalid or missing.

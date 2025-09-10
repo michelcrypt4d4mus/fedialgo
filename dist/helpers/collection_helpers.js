@@ -17,7 +17,7 @@ const enums_1 = require("../enums");
 ;
 const BATCH_MAP = "batchMap()";
 /**
- * Adds up an arbitrary number of StringNumberDicts, returning a new dict.
+ * Adds up an arbitrary number of {@linkcode StringNumberDict}s, returning a new dict.
  * @param {...StringNumberDict[]} dicts - Dictionaries to sum.
  * @returns {StringNumberDict} The summed dictionary.
  */
@@ -32,7 +32,7 @@ function addDicts(...dicts) {
 exports.addDicts = addDicts;
 ;
 /**
- * Returns a new object with only the key/value pairs that have a value greater than minValue.
+ * Returns a new object with only the key/value pairs that have a value greater than {@linkcode minValue}.
  * @param {StringNumberDict} obj - The input dictionary.
  * @param {number} minValue - The minimum value to include.
  * @returns {StringNumberDict} The filtered dictionary.
@@ -54,7 +54,8 @@ function asOptionalArray(value) {
 exports.asOptionalArray = asOptionalArray;
 ;
 /**
- * Calculates the average of an array of numbers, ignoring null/undefined completely.
+ * Calculates the average of an array of numbers, ignoring {@linkcode null}/{@linkcode undefined}
+ * completely.
  * @param {number[]} values - The array of numbers.
  * @returns {number} The average, or NaN if the array is empty.
  */
@@ -136,7 +137,7 @@ function computeMinMax(array, valueFxn) {
 exports.computeMinMax = computeMinMax;
 ;
 /**
- * Returns a dictionary keyed by the result of getKey() with the count of each key.
+ * Returns a dictionary keyed by the result of {@linkcode getKey()} with the count of each key.
  * @template T
  * @param {T[]} items - The items to count.
  * @param {(item: T) => string | null | undefined} [getKey] - Function to get key.
@@ -249,7 +250,7 @@ function groupBy(array, makeKey) {
 exports.groupBy = groupBy;
 ;
 /**
- * Increments the count for a key in a dictionary by 'increment'.
+ * Increments the count for a key in a dictionary by {@linkcode increment}.
  * @param {StringNumberDict} counts - The counts dictionary.
  * @param {CountKey | null} [k] - The key to increment.
  * @param {number} [increment=1] - The increment amount.
@@ -345,7 +346,7 @@ function makePercentileChunks(array, fxn, numPercentiles) {
 exports.makePercentileChunks = makePercentileChunks;
 ;
 /**
- * Reduces an array to a StringNumberDict using an update function.
+ * Reduces an array to a {@linkcode StringNumberDict} using an update function.
  * @template T
  * @param {T[]} objs - The array to reduce.
  * @param {(accumulator: StringNumberDict, obj: T) => void} updateCounts - Update function.

@@ -167,7 +167,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Add or remove an option from the filter.
+     * Add or remove an option to/remove an option from {@linkcode this.selectedOptions}.
      * @param {string} optionName - The option name.
      * @param {boolean} isSelected - If true, add the option; if false, remove it.
      * @param {boolean} [allowMultiSelect=true] - If false, only one option can be selected at a time.
@@ -198,7 +198,7 @@ export default class BooleanFilter extends TootFilter {
 
     /**
      * Required for serialization of settings to local storage.
-     * @returns {BooleanFilterArgs}
+     * @returns {BooleanFilterArgs} Serialized arguments used to construct this filter.
      */
     toArgs(): BooleanFilterArgs {
         const filterArgs = super.toArgs() as BooleanFilterArgs;
@@ -207,7 +207,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Return only options that have at least minToots or are in selectedOptions.
+     * Return only options that have at least {@linkcode minToots} or are in {@linkcode selectedOptions}.
      * @private
      * @param {BooleanFilterOption[]} options - The options to filter.
      * @param {number} [minToots=0] - Minimum number of toots.

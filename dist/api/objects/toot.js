@@ -334,7 +334,7 @@ class Toot {
         return msgs.length ? `Contains ${msgs.join("; ")}` : undefined;
     }
     /**
-     * Returns true if the fedialgo user is mentioned in the toot.
+     * Returns {@linkcode true} if the fedialgo user is mentioned in this {@linkcode Toot}.
      * @returns {boolean}
      */
     containsUserMention() {
@@ -342,7 +342,7 @@ class Toot {
     }
     /**
      * Return all but the last paragraph if that last paragraph is just hashtag links.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji &lt;img&gt; tags. Should match surrounding txt.
      * @returns {string}
      */
     contentNonTagsParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
@@ -352,8 +352,8 @@ class Toot {
         return paragraphs.join("\n");
     }
     /**
-     * Break up the content into paragraphs and add <img> tags for custom emojis.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * Break up the content into paragraphs and add &lt;img&gt; tags for custom emojis.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji &lt;img&gt; tags. Should match surrounding txt.
      * @returns {string[]}
      */
     contentParagraphs(fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {

@@ -420,7 +420,7 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Returns true if the fedialgo user is mentioned in the toot.
+     * Returns {@linkcode true} if the fedialgo user is mentioned in this {@linkcode Toot}.
      * @returns {boolean}
      */
     containsUserMention(): boolean {
@@ -429,7 +429,7 @@ export default class Toot implements TootObj {
 
     /**
      * Return all but the last paragraph if that last paragraph is just hashtag links.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji &lt;img&gt; tags. Should match surrounding txt.
      * @returns {string}
      */
     contentNonTagsParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string {
@@ -439,8 +439,8 @@ export default class Toot implements TootObj {
     }
 
     /**
-     * Break up the content into paragraphs and add <img> tags for custom emojis.
-     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji <img> tags. Should match surrounding txt.
+     * Break up the content into paragraphs and add &lt;img&gt; tags for custom emojis.
+     * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Size in pixels of any emoji &lt;img&gt; tags. Should match surrounding txt.
      * @returns {string[]}
      */
     contentParagraphs(fontSize: number = DEFAULT_FONT_SIZE): string[] {

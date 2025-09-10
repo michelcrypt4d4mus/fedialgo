@@ -44,23 +44,23 @@ export default class CountedList<T extends NamedTootCount> {
     /** Standard {@linkcode Array.forEach()} approximation that invokes a callback for each object in the objs array. */
     forEach(callback: (obj: T, i?: number) => void): void;
     /**
-     * Returns the object in the list with the given name (case-insensitive) if it exists.
+     * Returns the object in the list with the given {@linkcode name} (case-insensitive) if it exists.
      * @param {string} name - The name of the object to retrieve.
      * @returns {T | undefined} The object with the specified name, or undefined if not found.
      */
     getObj(name: string): T | undefined;
     /**
-     * Increment {@linkcode numToots} for the given {@linkcode name}. If no obj with {@linkcode name} exists c
-     * reate a new one and call {@linkcode newObjDecorator()} to get its properties.
+     * Increment {@linkcode numToots} for the given {@linkcode name}. If no obj with {@linkcode name} exists
+     * create a new one and call {@linkcode newObjDecorator()} to fill in its properties.
      * @param {string} name - The name of the object to increment.
      * @param {(obj: T) => void} [newObjDecorator] - Optional function to decorate the new object with additional properties.
      * @returns {T} The object with the incremented numToots.
      */
     incrementCount(name: string, newObjDecorator?: (obj: T) => void): T;
-    /** Standard map function that applies a callback to each object in the objs array. */
+    /** Standard map function that applies a callback to each object in {@linkcode this.objs}. */
     map<U>(callback: (obj: T, i?: number) => U): U[];
     /**
-     * Get the maximum value for a given key across the {@linkcode CountedList.objs} array.
+     * Get the maximum value for a given property across the {@linkcode this.objs} array.
      * @template T
      * @param {keyof T} propertyName - The property to find the maximum value for.
      * @returns {number | undefined} The maximum value for the specified property, or undefined if none exist.
@@ -93,10 +93,14 @@ export default class CountedList<T extends NamedTootCount> {
      * @returns {T[]} Objects sorted by {@linkcode numAccounts} if it exists, otherwise {@linkcode numToots}, then by name
      */
     topObjs(maxObjs?: number): T[];
+    /**
+     * Lowercase {@linkcode obj.name} and set the {@linkcode obj.regex} property if it doesn't exist.
+     * @private
+     */
     private completeObjProperties;
 }
 /**
- * Subclass of {@linkcode CountedList} for lists of {@linkcode BooleanFilterObject}s.
+ * Subclass of {@linkcode CountedList} for lists of {@linkcode BooleanFilterOption}s.
  * @augments CountedList
  */
 export declare class BooleanFilterOptionList extends CountedList<BooleanFilterOption> {
