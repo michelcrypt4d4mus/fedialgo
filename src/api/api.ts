@@ -517,7 +517,7 @@ export default class MastoApi {
     }
 
     /**
-     * Get the user's recent {@link https://docs.joinmastodon.org/entities/Notification/ Notifications}.
+     * Get the user's recent {@linkcode https://docs.joinmastodon.org/entities/Notification/ Notifications}.
      * @param {ApiParamsWithMaxID} [params] - Optional parameters.
      * @returns {Promise<mastodon.v1.Notification[]>} Array of notifications.
      */
@@ -554,7 +554,7 @@ export default class MastoApi {
     }
 
     /**
-     * Retrieve content-based feed {@link https://docs.joinmastodon.org/entities/Filter/ Filters} set up by
+     * Retrieve content-based feed {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters} set up by
      * the user on the server.
      * @returns {Promise<mastodon.v2.Filter[]>} Array of server-side filters.
      */
@@ -686,7 +686,7 @@ export default class MastoApi {
     }
 
     /**
-     * Retrieve the user's home {@link https://docs.joinmastodon.org/entities/Instance/ Instance}
+     * Retrieve the user's home {@linkcode https://docs.joinmastodon.org/entities/Instance/ Instance}
      * (AKA "server") configuration from the API.
      * @returns {Promise<mastodon.v2.Instance>} The instance configuration.
      */

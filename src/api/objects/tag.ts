@@ -1,6 +1,6 @@
 /**
- * @fileoverview Helper methods for dealing with Mastodon's {@link https://docs.joinmastodon.org/entities/Tag/ Tag}
- * objects.
+ * @fileoverview Helper methods for dealing with Mastodon's
+ * {@linkcode https://docs.joinmastodon.org/entities/Tag/ Tag} objects.
  */
 import MastoApi from "../../api/api";
 import { config } from "../../config";

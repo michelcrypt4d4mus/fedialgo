@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tagInfoStr = exports.repairTag = exports.isValidForSubstringSearch = exports.buildTag = void 0;
 /**
- * @fileoverview Helper methods for dealing with Mastodon's {@link https://docs.joinmastodon.org/entities/Tag/ Tag}
- * objects.
+ * @fileoverview Helper methods for dealing with Mastodon's
+ * {@linkcode https://docs.joinmastodon.org/entities/Tag/ Tag} objects.
  */
 const api_1 = __importDefault(require("../../api/api"));
 const config_1 = require("../../config");

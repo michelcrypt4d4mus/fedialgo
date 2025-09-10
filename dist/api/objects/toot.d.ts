@@ -60,9 +60,9 @@ interface TootObj extends SerializableToot {
 }
 /**
  * Class representing a Mastodon {@linkcode Toot} with helper methods for scoring, filtering, and more.
- * Extends the base Mastodon {@link https://docs.joinmastodon.org/entities/Status/ Status} object.
- * The base class's properties are not documented here; see
- * {@link https://docs.joinmastodon.org/entities/Status/ the official Status object docs} for details.
+ * Extends the base Mastodon {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} object.
+ * Note: the base {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} class's
+ * properties are not documented here.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
@@ -229,7 +229,7 @@ export default class Toot implements TootObj {
     contentWithEmojis(fontSize?: number): string;
     /**
      * Fetch the conversation for this toot (Mastodon API calls this a
-     * {@link https://docs.joinmastodon.org/entities/Context/ Context}).
+     * {@linkcode https://docs.joinmastodon.org/entities/Context/ Context}).
      * @returns {Promise<Toot[]>}
      */
     getConversation(): Promise<Toot[]>;
@@ -266,13 +266,13 @@ export default class Toot implements TootObj {
      */
     matchesRegex(regex: RegExp): boolean;
     /**
-     * Get {@link https://docs.joinmastodon.org/entities/Status/ Status} obj for this {@linkcode Toot}
+     * Get {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} obj for this {@linkcode Toot}
      * from user's home server so the property URLs point to the home server.
      * @returns {Promise<Toot>}
      */
     resolve(): Promise<Toot>;
     /**
-     * Get {@link https://docs.joinmastodon.org/entities/Status/ Status} ID for {@linkcode Toot} from
+     * Get {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} ID for {@linkcode Toot} from
      * user's home server so the property URLs point to the home server.
      * @returns {Promise<string>}
      */
@@ -294,18 +294,23 @@ export default class Toot implements TootObj {
     private isUsersOwnToot;
     /**
      * Repair toot properties:
-     *   - Set {@linkcode Toot.application.name} to UNKNOWN if missing
-     *   - Call {@linkcode Toot.determineLanguage} to set the language
-     *   - Lowercase all tags
-     *   - Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
-     *   - Repair {@link {@link https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
+     *
+     *   1. Set {@linkcode Toot.application.name} to UNKNOWN if missing
+     *
+     *   2. Call {@linkcode Toot.determineLanguage} to set the language
+     *
+     *   3. Lowercase all tags
+     *
+     *   4. Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
+     *
+     *   5. Repair {@linkcode https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
      * @private
      */
     private repair;
     /**
      * Build array of new {@linkcode Toot} objects from an array of
-     * {@link https://docs.joinmastodon.org/entities/Status/ Status} objects (or {@linkcode Toot}s).
-     * Toots returned are sorted by score and should have most of their properties set correctly.
+     * {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} objects (or {@linkcode Toot}s).
+     * {@linkcode Toot}s returned are sorted by score and should have most of their properties set correctly.
      * @param {TootLike[]} statuses - Array of status objects or Toots.
      * @param {TootSource} source - The source label for logging.
      * @returns {Promise<Toot[]>}

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
 /**
  * @fileoverview {@linkcode Toot} class and helper methods for dealing with Mastodon
- * {@link https://docs.joinmastodon.org/entities/Status/ Status} objects.
+ * {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} objects.
  * Includes methods for scoring, filtering, deduplication, and property repair.
  */
 const change_case_1 = require("change-case");
@@ -63,9 +63,9 @@ const repairLogger = tootLogger.tempLogger("repairToot");
 ;
 /**
  * Class representing a Mastodon {@linkcode Toot} with helper methods for scoring, filtering, and more.
- * Extends the base Mastodon {@link https://docs.joinmastodon.org/entities/Status/ Status} object.
- * The base class's properties are not documented here; see
- * {@link https://docs.joinmastodon.org/entities/Status/ the official Status object docs} for details.
+ * Extends the base Mastodon {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} object.
+ * Note: the base {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} class's
+ * properties are not documented here.
  *
  * @implements {TootObj}
  * @extends {mastodon.v1.Status}
@@ -389,7 +389,7 @@ class Toot {
     }
     /**
      * Fetch the conversation for this toot (Mastodon API calls this a
-     * {@link https://docs.joinmastodon.org/entities/Context/ Context}).
+     * {@linkcode https://docs.joinmastodon.org/entities/Context/ Context}).
      * @returns {Promise<Toot[]>}
      */
     async getConversation() {
@@ -482,7 +482,7 @@ class Toot {
         return regex.test(this.contentWithCard());
     }
     /**
-     * Get {@link https://docs.joinmastodon.org/entities/Status/ Status} obj for this {@linkcode Toot}
+     * Get {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} obj for this {@linkcode Toot}
      * from user's home server so the property URLs point to the home server.
      * @returns {Promise<Toot>}
      */
@@ -499,7 +499,7 @@ class Toot {
         }
     }
     /**
-     * Get {@link https://docs.joinmastodon.org/entities/Status/ Status} ID for {@linkcode Toot} from
+     * Get {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} ID for {@linkcode Toot} from
      * user's home server so the property URLs point to the home server.
      * @returns {Promise<string>}
      */
@@ -695,11 +695,16 @@ class Toot {
     }
     /**
      * Repair toot properties:
-     *   - Set {@linkcode Toot.application.name} to UNKNOWN if missing
-     *   - Call {@linkcode Toot.determineLanguage} to set the language
-     *   - Lowercase all tags
-     *   - Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
-     *   - Repair {@link {@link https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
+     *
+     *   1. Set {@linkcode Toot.application.name} to UNKNOWN if missing
+     *
+     *   2. Call {@linkcode Toot.determineLanguage} to set the language
+     *
+     *   3. Lowercase all tags
+     *
+     *   4. Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
+     *
+     *   5. Repair {@linkcode https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
      * @private
      */
     repair() {
@@ -751,8 +756,8 @@ class Toot {
     ////////////////////////////////
     /**
      * Build array of new {@linkcode Toot} objects from an array of
-     * {@link https://docs.joinmastodon.org/entities/Status/ Status} objects (or {@linkcode Toot}s).
-     * Toots returned are sorted by score and should have most of their properties set correctly.
+     * {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} objects (or {@linkcode Toot}s).
+     * {@linkcode Toot}s returned are sorted by score and should have most of their properties set correctly.
      * @param {TootLike[]} statuses - Array of status objects or Toots.
      * @param {TootSource} source - The source label for logging.
      * @returns {Promise<Toot[]>}

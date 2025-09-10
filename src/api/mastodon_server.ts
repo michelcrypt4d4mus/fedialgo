@@ -78,7 +78,7 @@ export default class MastodonServer {
     }
 
     /**
-     * Fetch the {@link https://docs.joinmastodon.org/entities/Instance/ mastodon.v2.Instance} (MAU,
+     * Fetch the {@linkcode https://docs.joinmastodon.org/entities/Instance/ mastodon.v2.Instance} (MAU,
      * version, languages, rules, etc) for this server.
      * @returns {Promise<InstanceResponse>} The instance info or null if not available.
      */
