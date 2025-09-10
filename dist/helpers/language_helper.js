@@ -4,8 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.detectForeignScriptLanguage = exports.detectLanguage = exports.languageName = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
-/*
- * Detecting language etc.
+/**
+ * @fileoverview Helpers to try to guess the language text is written in.
+ * @module language_helper
  */
 const languagedetect_1 = __importDefault(require("languagedetect"));
 const change_case_1 = require("change-case");

@@ -2,7 +2,7 @@
     "plugins": ["jsdoc-plugin-typescript"],
     "source": {
         "include": ["dist"],
-        "includePattern": "(account|api|filter|collection_helpers|config|enums|errors|index|logger|mastodon_server|\\/scorer|(string|time)_helpers|toot|types|user_data|.*_list)\\.[jt]sx?$",
+        "includePattern": "(account|api|filter|collection_helpers|config|enums|errors|index|logger|mastodon_server|\\/scorer|(language|string|time)_helpers?|toot|types|user_data|.*_list)\\.[jt]sx?$",
         "excludePattern": "(^|\\/|\\\\)_"
     },
     "opts": {

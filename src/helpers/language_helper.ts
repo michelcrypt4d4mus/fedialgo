@@ -1,5 +1,6 @@
-/*
- * Detecting language etc.
+/**
+ * @fileoverview Helpers to try to guess the language text is written in.
+ * @module language_helper
  */
 import LanguageDetect from 'languagedetect';
 import { capitalCase } from 'change-case';
