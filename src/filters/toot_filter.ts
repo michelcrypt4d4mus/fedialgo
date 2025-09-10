@@ -46,7 +46,7 @@ export default abstract class TootFilter {
      * Determines if the given {@linkcode Toot} should appear in the timeline feed.
      * @abstract
      * @param {Toot} toot - The toot to check.
-     * @returns {boolean} True if the toot is allowed, false otherwise.
+     * @returns {boolean} True if the toot meets the filter criteria, false otherwise.
      */
     abstract isAllowed(toot: Toot): boolean;
 
@@ -61,12 +61,12 @@ export default abstract class TootFilter {
         };
     }
 
-    /** Must be overridden in subclasses. */
+    /** Abstract method. Must be overridden in subclasses. */
     static isValidFilterProperty(_name: string): boolean {
         throw new Error("isValidFilterProperty() must be implemented in subclasses");
     }
 
-    /** Remove any filter args from the list whose propertyName is invalid */
+    /** Remove any filter args from the list whose {@linkcode propertyName} value is obsolete. */
     static removeInvalidFilterArgs(args: FilterArgs[], logger: Logger): FilterArgs[] {
         const [validArgs, invalidArgs] = split(args, arg => this.isValidFilterProperty(arg.propertyName));
 

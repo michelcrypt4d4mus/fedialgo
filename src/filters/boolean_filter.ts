@@ -156,7 +156,7 @@ export default class BooleanFilter extends TootFilter {
 
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}
-     * ({@linkcode BooleanFilter.selectedOptions} are always included).
+     * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
      * @returns {BooleanFilterOptionList}
      */
@@ -227,7 +227,7 @@ export default class BooleanFilter extends TootFilter {
     }
 
     /**
-     * Checks if a given property name is a valid numeric filter name.
+     * Checks if a given property name is a valid {@linkcode BooleanFilterName}.
      * @param {string} name - The property name to check.
      * @returns {boolean} True if the name is a filterable numeric property.
      */

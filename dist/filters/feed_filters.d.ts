@@ -1,7 +1,24 @@
 import type Toot from "../api/objects/toot";
 import { type FeedFilterSettings } from "../types";
+/**
+ * Build a new {@linkcode FeedFilterSettings} object with {@linkcode DEFAULT_FILTERS} as the base.
+ * Start with numeric & type filters. Other {@linkcode BooleanFilter}s depend on what's in the toots.
+ * @returns {FeedFilterSettings}
+ */
 export declare function buildNewFilterSettings(): FeedFilterSettings;
+/**
+ * Build a {@linkcode FeedFilterSettings} object from the serialized version.
+ * NOTE: Mutates object.
+ * @param {FeedFilterSettings} filterArgs - The serialized filter settings.
+ * @returns {FeedFilterSettings} The reconstructed filter settings with instantiated filter objects.
+ */
 export declare function buildFiltersFromArgs(filterArgs: FeedFilterSettings): FeedFilterSettings;
+/**
+ * Remove filter args with invalid {@linkcode propertyName}s. Used to upgrade
+ * existing users who may have obsolete args in browser Storage.
+ * @param {FeedFilterSettings} filters - The filter settings to check and repair.
+ * @returns {boolean} True if any repairs were made, false otherwise.
+ */
 export declare function repairFilterSettings(filters: FeedFilterSettings): boolean;
 /**
  * Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options.

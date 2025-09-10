@@ -40,11 +40,11 @@ class TootFilter {
             propertyName: this.propertyName,
         };
     }
-    /** Must be overridden in subclasses. */
+    /** Abstract method. Must be overridden in subclasses. */
     static isValidFilterProperty(_name) {
         throw new Error("isValidFilterProperty() must be implemented in subclasses");
     }
-    /** Remove any filter args from the list whose propertyName is invalid */
+    /** Remove any filter args from the list whose {@linkcode propertyName} value is obsolete. */
     static removeInvalidFilterArgs(args, logger) {
         const [validArgs, invalidArgs] = (0, collection_helpers_1.split)(args, arg => this.isValidFilterProperty(arg.propertyName));
         if (invalidArgs.length > 0) {

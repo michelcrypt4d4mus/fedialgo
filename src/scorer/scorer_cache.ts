@@ -1,6 +1,6 @@
-/*
- * Exists to avoid circular dependencies so Scorer can access the weights in TheAlgorithm instance.
- * Note there are many nasty circular dependencies if you try to import stuff into this file.
+/**
+ * @fileoverview Cache of {@linkcode Scorer} objects to avoid circular dependencies.
+ * Note there are many nasty circular dependencies if you try to import stuff into this file.*
  */
 import { Mutex } from "async-mutex";
 
@@ -12,6 +12,10 @@ import { ageString } from "../helpers/time_helpers";
 const SCORERS_MUTEX = new Mutex();
 
 
+/**
+ * Class that exists to avoid circular dependencies so Scorer can access the weights in
+ * {@linkcode TheAlgorithm} instance.
+ */
 export default class ScorerCache {
     // These scorers require the complete feed to work properly
     static feedScorers: FeedScorer[] = [];
@@ -26,7 +30,11 @@ export default class ScorerCache {
         this.weightedScorers = [...tootScorers, ...feedScorers];
     }
 
-    // Prepare the scorers for scoring. If 'force' is true, force recompute of scoringData.
+    /**
+     * Prepare the {@linkcode Scorer}s for scoring. If {@linkcode force} is true force recompute of
+     * all {@linkcode Scorer}'s {@linkcode scoringData} dictionaries.
+     * @param {boolean} [force] - Whether to force recompute of {@linkcode Scorer.scoringData}.
+     */
     static async prepareScorers(force?: boolean): Promise<void> {
         const startedAt = new Date();
         const releaseMutex = await SCORERS_MUTEX.acquire();
@@ -41,6 +49,7 @@ export default class ScorerCache {
         }
     }
 
+    /** Reset all the {@linkcode Scorer}'s internal state. */
     static resetScorers() {
         this.weightedScorers.forEach(scorer => scorer.reset());
     }
