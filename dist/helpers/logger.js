@@ -112,7 +112,7 @@ class Logger {
         throw errorArgs.error ? new Error(msg, { cause: errorArgs.error }) : new Error(msg);
     }
     /**
-     * Logs the reduction in size of an array (e.g., after filtering or deduplication).
+     * Logs the reduction in size of an array (e.g. after filtering or deduplication).
      * @param {T[]} before - The array before reduction.
      * @param {T[]} after - The array after reduction.
      * @param {string} objType - The type of object in the array.

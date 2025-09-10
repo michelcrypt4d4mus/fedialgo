@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = exports.MAX_ENDPOINT_RECORDS_TO_PULL = exports.MIN_RECORDS_FOR_FEATURE_SCORING = void 0;
-/*
- * Centralized location for non-user configurable settings.
+/**
+ * @fileoverview Centralized location for non-user configurable settings.
  */
 const environment_helpers_1 = require("./helpers/environment_helpers");
 const string_helpers_1 = require("./helpers/string_helpers");
@@ -25,7 +25,7 @@ const LOG_PREFIX = '[Config]';
 /**
  * Centralized application configuration class for non-user configurable settings.
  *
- * The Config class provides strongly-typed, centralized access to all core settings for API requests,
+ * Provides strongly-typed, centralized access to all core settings for API requests,
  * locale, scoring, trending, and fediverse-wide data. It includes logic for environment-specific overrides
  * (debug, quick load, load test), validation of config values, and locale/language management.
  *
@@ -2348,7 +2348,7 @@ class Config {
     /**
      * Sets the locale, language, and country for the application if supported.
      * Falls back to defaults if the locale is invalid or unsupported.
-     * @param {string} [locale] - The locale string (e.g., "en-CA").
+     * @param {string} [locale] - The locale string (e.g. "en-CA").
      */
     setLocale(locale) {
         locale ??= DEFAULT_LOCALE;
@@ -2369,10 +2369,10 @@ class Config {
         }
     }
     /**
-     * Validates config values for correctness (e.g., checks for NaN or empty strings).
-     * Throws an error if invalid values are found.
+     * Validates config values for correctness (e.g. checks for NaN or empty strings).
      * @private
      * @param {ConfigType | object} [cfg] - The config object or sub-object to validate.
+     * @throws {Error} If any config value is invalid.
      */
     validate(cfg) {
         if (!cfg) {

@@ -168,7 +168,7 @@ export enum BooleanFilterName {
 };
 
 /**
- * Enum of type filter names for filtering {@linkcode Toot}s by type (e.g., audio, bot, images, etc.).
+ * Enum of type filter names for filtering {@linkcode Toot}s by type (e.g. audio, bot, images, etc.).
  * The values have spaces for better presentation in the demo app.
  * @enum {string}
  */

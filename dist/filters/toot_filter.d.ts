@@ -14,7 +14,7 @@ export interface FilterArgs {
  * if it should be included in the timeline feed. Subclasses must implement the
  * {@linkcode TootFilter.isAllowed} method.
  * @property {string} description - Description of the filter for display or documentation purposes.
- * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g., exclude instead of include).
+ * @property {boolean} invertSelection - If true, the filter logic is inverted (e.g. exclude instead of include).
  * @property {Logger} logger - Logger instance for this filter.
  * @property {FilterProperty} propertyName - The property this filter works on
  */
@@ -26,7 +26,7 @@ export default abstract class TootFilter {
     /**
      * @param {FilterArgs} params - The arguments for configuring the filter.
      * @param {string} [params.description] - Optional description of the filter for display or documentation purposes.
-     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g., exclude instead of include).
+     * @param {boolean} [params.invertSelection] - If true, the filter logic is inverted (e.g. exclude instead of include).
      * @param {FilterProperty} params.propertyName - Key identifying what this filter is filtering on.
      */
     constructor(params: FilterArgs);

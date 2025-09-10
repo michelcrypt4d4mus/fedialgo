@@ -112,7 +112,7 @@ export declare function optionalSuffix<T>(obj: T, toSuffix?: ((obj: T) => string
  */
 export declare const ordinalSuffix: (n: number) => string;
 /**
- * Replaces custom emoji shortcodes (e.g., ":smile:") with &lt;img&gt; tags in an HTML string.
+ * Replaces custom emoji shortcodes (e.g. ":smile:") with &lt;img&gt; tags in an HTML string.
  * @param {string} html - The HTML string containing emoji shortcodes.
  * @param {mastodon.v1.CustomEmoji[]} emojis - Array of custom emoji objects.
  * @param {number} [fontSize=DEFAULT_FONT_SIZE] - Font size for the emoji images.
