@@ -619,19 +619,35 @@ export default class Toot implements TootObj {
     //     Private methods      //
     //////////////////////////////
 
-    // Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string
+    /**
+     * Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string.
+     * @private
+     */
     private addEmojiHtmlTags(str: string, fontSize: number = DEFAULT_FONT_SIZE): string {
         return replaceEmojiShortcodesWithImgTags(str, this.allEmojis, fontSize);
     }
 
-    // return MediaAttachmentType objects with type == attachmentType
+    /**
+     * Return {@linkcode MediaAttachmentType} objects with type == {@linkcode attachmentType}
+     * @private
+     * @param {MediaAttachmentType} attachmentType - The attachment type to filter for.
+     * @returns {mastodon.v1.MediaAttachment[]}
+     */
     private attachmentsOfType(attachmentType: mastodon.v1.MediaAttachmentType): mastodon.v1.MediaAttachment[] {
         return this.realToot.mediaAttachments.filter(attachment => attachment.type == attachmentType);
     }
 
-    // Some properties cannot be repaired and/or set until info about the user is available.
-    // Also some properties are very slow - in particular all the tag and trendingLink calcs.
-    // isDeepInspect argument is used to determine if we should do the slow calculations or quick ones.
+    /**
+     * Some properties cannot be repaired and/or set until info about the user is available.
+     * Also some properties are very slow - in particular all the tag and trendingLink calcs.
+     * {@linkcode isDeepInspect} argument is used to determine if we should do the slow
+     * calculations or quick ones.
+     * @private
+     * @param {UserData} userData - The user data.
+     * @param {TrendingLink[]} trendingLinks - The trending links.
+     * @param {TagWithUsageCounts[]} trendingTags - The trending tags.
+     * @param {TootSource} [source] - The source of the toot (e.g. REFRESH_HOME_TIMELINE).
+     */
     private completeProperties(
         userData: UserData,
         trendingLinks: TrendingLink[],
@@ -800,7 +816,10 @@ export default class Toot implements TootObj {
         }
     }
 
-    // Returns true if the toot needs to be (re-)evaluated for trending tags, links, etc.
+    /**
+     * Returns true if the {@linkcode Toot} needs to be (re-)evaluated for trending tags, links, etc.
+     * @private
+     */
     private isComplete(): boolean {
         if (!this.completedAt || (this.completedAt < this.lastEditedAt) || !this.trendingLinks) {
             return false;
@@ -815,22 +834,20 @@ export default class Toot implements TootObj {
         );
     }
 
-    // Returns true if this toot is by the fedialgo user
+    /**
+     * Returns true if this toot is by the fedialgo user.
+     * @private
+     */
     private isUsersOwnToot(): boolean {
         return this.accounts.some((account) => account.webfingerURI == MastoApi.instance.user.webfingerURI)
     }
 
     /**
      * Repair toot properties:
-     *
      *   1. Set {@linkcode Toot.application.name} to UNKNOWN if missing
-     *
      *   2. Call {@linkcode Toot.determineLanguage} to set the language
-     *
      *   3. Lowercase all tags
-     *
      *   4. Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
-     *
      *   5. Repair {@linkcode https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
      * @private
      */

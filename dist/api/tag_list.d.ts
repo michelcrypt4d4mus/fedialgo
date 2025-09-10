@@ -30,8 +30,8 @@ export default class TagList extends CountedList<TagWithUsageCounts> {
     filter(predicate: (tag: TagWithUsageCounts) => boolean): TagList;
     /**
      * Like {@linkcode CountedList.getObj} but takes a {@linkcode MastodonTag} argument.
-     * @param {Hashtag} tag - Tag whose name to find an obj for.
-     * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
+     * @param {Hashtag} tag - Tag whose name we want to locate the object for.
+     * @returns {NamedTootCount|undefined} The {@linkcode NamedTootCount} obj with the same name (if it exists).
      */
     getTag(tag: Hashtag): NamedTootCount | undefined;
     /** Remove any hashtags that are followed by the FediAlgo user. */

@@ -282,27 +282,51 @@ export default class Toot implements TootObj {
      * @returns {Set<string>} Set of the names of the tags in this toot.
      */
     tagNames(): Set<string>;
+    /**
+     * Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string.
+     * @private
+     */
     private addEmojiHtmlTags;
+    /**
+     * Return {@linkcode MediaAttachmentType} objects with type == {@linkcode attachmentType}
+     * @private
+     * @param {MediaAttachmentType} attachmentType - The attachment type to filter for.
+     * @returns {mastodon.v1.MediaAttachment[]}
+     */
     private attachmentsOfType;
+    /**
+     * Some properties cannot be repaired and/or set until info about the user is available.
+     * Also some properties are very slow - in particular all the tag and trendingLink calcs.
+     * {@linkcode isDeepInspect} argument is used to determine if we should do the slow
+     * calculations or quick ones.
+     * @private
+     * @param {UserData} userData - The user data.
+     * @param {TrendingLink[]} trendingLinks - The trending links.
+     * @param {TagWithUsageCounts[]} trendingTags - The trending tags.
+     * @param {TootSource} [source] - The source of the toot (e.g. REFRESH_HOME_TIMELINE).
+     */
     private completeProperties;
     private containsTagsOfTypeMsg;
     private contentString;
     private contentStripped;
     private contentWithCard;
     private determineLanguage;
+    /**
+     * Returns true if the {@linkcode Toot} needs to be (re-)evaluated for trending tags, links, etc.
+     * @private
+     */
     private isComplete;
+    /**
+     * Returns true if this toot is by the fedialgo user.
+     * @private
+     */
     private isUsersOwnToot;
     /**
      * Repair toot properties:
-     *
      *   1. Set {@linkcode Toot.application.name} to UNKNOWN if missing
-     *
      *   2. Call {@linkcode Toot.determineLanguage} to set the language
-     *
      *   3. Lowercase all tags
-     *
      *   4. Repair {@linkcode mediaAttachment} types if reparable based on URL file extension
-     *
      *   5. Repair {@linkcode https://docs.joinmastodon.org/entities/StatusMention/ StatusMention} objects for users on home server
      * @private
      */

@@ -64,8 +64,8 @@ class TagList extends counted_list_1.default {
     }
     /**
      * Like {@linkcode CountedList.getObj} but takes a {@linkcode MastodonTag} argument.
-     * @param {Hashtag} tag - Tag whose name to find an obj for.
-     * @returns {NamedTootCount|undefined} The NamedTootCount obj with the same name (if it exists).
+     * @param {Hashtag} tag - Tag whose name we want to locate the object for.
+     * @returns {NamedTootCount|undefined} The {@linkcode NamedTootCount} obj with the same name (if it exists).
      */
     getTag(tag) {
         return this.getObj(tag.name);
