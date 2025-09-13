@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More `tagOnlyStrings`
 
 ### v1.1.38
 * (Demo App) Use `useAccordion()` for custom API error accordion
