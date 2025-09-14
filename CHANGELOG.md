@@ -1,6 +1,10 @@
 # NEXT RELEASE
 
+### v1.1.41
+* (Demo App) Move default values for GUI checkboxes into `config.ts`, change default for `allowMultiSelect` to `false`
+
 ### v1.1.40
+* More `tagOnlyStrings`
 
 ### v1.1.39
 * More `tagOnlyStrings`
