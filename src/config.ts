@@ -576,6 +576,11 @@ class Config implements ConfigType {
             "amongst",
             "an",
             "ann",
+            "announce",
+            "announced",
+            "announcement",
+            "announcements",
+            "announcing",
             "analysis",
             "and",
             "angeles",
@@ -590,6 +595,10 @@ class Config implements ConfigType {
             "app",
             "application",
             "applications",
+            "approach",
+            "approached",
+            "approaches",
+            "approaching",
             "apps",
             "ar",
             "archive",            // archive.org links
@@ -630,6 +639,8 @@ class Config implements ConfigType {
             "backs",
             "bad",
             "badly",
+            "bag",
+            "bags",
             "bahn",             // German
             "bar",
             "barred",
@@ -639,14 +650,15 @@ class Config implements ConfigType {
             "based",
             "basic",
             "bay",
+            "be",
             "bear",
             "bearing",
             "beat",
             "beats",
             "beautiful",
             "beauty",
-            "be",
             "before",
+            "behavior",
             "belief",
             "beliefs",
             "believe",
@@ -756,9 +768,14 @@ class Config implements ConfigType {
             "claimed",
             "claiming",
             "claims",
+            "class",
             "classic",
             "cn",             // TLD
             "co",             // TLD
+            "coast",
+            "coasted",
+            "coasting",
+            "coasts",
             "coin",
             "coins",
             "cold",
@@ -833,6 +850,8 @@ class Config implements ConfigType {
             "contrasting",
             "contrasts",
             "control",
+            "controversial",
+            "controversy",
             "conversation",
             "conversations",
             "cook",
@@ -1006,9 +1025,9 @@ class Config implements ConfigType {
             "eat",
             "eats",
             "economic",
-            "economia",    // Spanish
-            "economie",    // French
-            "eeuu",        // Spanish
+            "economia",     // Spanish
+            "economie",     // French
+            "eeuu",         // Spanish
             "edge",
             "effect",
             "effected",
@@ -1022,6 +1041,7 @@ class Config implements ConfigType {
             "edge",
             "edit",
             "edits",
+            "edu",           // TLD
             "eight",
             "else",
             "email",
@@ -1055,6 +1075,7 @@ class Config implements ConfigType {
             "entertains",
             "entertainment",
             "episode",
+            "equipment",
             "era",
             "er",          // German
             "erin",        // name
@@ -1173,6 +1194,8 @@ class Config implements ConfigType {
             "flipboard",      // Fediverse server
             "flight",
             "flights",
+            "floated",
+            "floating",
             "floor",
             "floored",
             "floors",
@@ -1195,6 +1218,7 @@ class Config implements ConfigType {
             "foreigner",
             "foreigners",
             "form",
+            "forth",
             "forum",
             "found",
             "four",
@@ -1243,14 +1267,16 @@ class Config implements ConfigType {
             "girls",
             "globe",
             "global",
+            "glowing",
             "go",
             "goal",
+            "goes",
             "good",
             "goodbye",
             "goods",
             "got",
             "gotten",
-            "gov",         // TLD
+            "gov",          // TLD
             "govern",
             "government",
             "grad",
@@ -1274,10 +1300,11 @@ class Config implements ConfigType {
             "grown",
             "grows",
             "growth",
+            "grune",       // German
             "guardian",
             "guide",
             "guy",
-            "haber",     // Spanish
+            "haber",       // Spanish
             "hackernews",
             "had",
             "hand",
@@ -1316,6 +1343,7 @@ class Config implements ConfigType {
             "his",
             "hit",
             "hits",
+            "hk",           // TLD
             "home",
             "homepage",
             "homes",
@@ -1331,6 +1359,8 @@ class Config implements ConfigType {
             "http",
             "https",
             "human",
+            "humanity",
+            "humans",
             "ia",         // Italian / Romanian
             "id",
             "idea",
@@ -1345,6 +1375,9 @@ class Config implements ConfigType {
             "imagery",
             "images",
             "imagine",
+            "imagined",
+            "imagines",
+            "imagining",
             "immediate",
             "immediately",
             "impact",
@@ -1474,6 +1507,11 @@ class Config implements ConfigType {
             "links",
             "list",
             "listed",
+            "listen",
+            "listened",
+            "listening",
+            "listens",
+            "listing",
             "lists",
             "little",
             "live",
@@ -1523,6 +1561,7 @@ class Config implements ConfigType {
             "man",
             "many",
             "map",
+            "mapping",
             "maps",
             "mark",
             "marked",
@@ -1613,6 +1652,11 @@ class Config implements ConfigType {
             "nearer",
             "nears",
             "nearly",
+            "negative",
+            "negotiate",
+            "negotiated",
+            "negotiates",
+            "negotiating",
             "net",
             "network",
             "networks",
@@ -1803,6 +1847,7 @@ class Config implements ConfigType {
             "pluralistic",    // TODO: the regex should probably exclude @account mentions...
             "plus",
             "pm",
+            "poetic",
             "point",
             "pointed",
             "points",
@@ -1818,6 +1863,12 @@ class Config implements ConfigType {
             "popular",
             "popularly",
             "por",            // Spanish
+            "portfolio",
+            "pose",
+            "posed",
+            "poses",
+            "posing",
+            "positive",
             "possibility",
             "possibilities",
             "possible",
@@ -1838,8 +1889,10 @@ class Config implements ConfigType {
             "prediction",
             "predicts",
             "president",
+            "presidente",    // Spanish
             "presidents",
             "press",
+            "presse",        // German
             "pretty",
             "prevent",
             "preventable",
@@ -1929,6 +1982,8 @@ class Config implements ConfigType {
             "quoted",
             "quotes",
             "quoting",
+            "raced",
+            "racing",
             "raise",
             "raised",
             "raises",
@@ -1984,6 +2039,7 @@ class Config implements ConfigType {
             "reduction",
             "reductions",
             "region",
+            "regional",
             "regions",
             "rejoin",
             "rejoined",
@@ -2018,6 +2074,9 @@ class Config implements ConfigType {
             "report",
             "reporter",
             "reports",
+            "repost",
+            "reposted",
+            "reposting",
             "reputation",
             "reputations",
             "require",
@@ -2202,6 +2261,7 @@ class Config implements ConfigType {
             "snapped",
             "snapping",
             "so",
+            "sobre",        // Spanish
             "social",
             "society",
             "some",
@@ -2229,10 +2289,16 @@ class Config implements ConfigType {
             "specific",
             "specifics",
             "specifically",
+            "spend",
+            "spende",          // German
+            "spending",
+            "spends",
+            "spent",
             "spoke",
             "spotted",
             "spring",
             "st",
+            "stadt",           // German
             "stand",
             "standing",
             "stands",
@@ -2287,6 +2353,8 @@ class Config implements ConfigType {
             "substack",
             "such",
             "success",
+            "successes",
+            "successful",
             "sudden",
             "suddenly",
             "summer",
@@ -2433,6 +2501,7 @@ class Config implements ConfigType {
             "trust",
             "trusted",
             "trusts",
+            "trustworthy",
             "truth",
             "turn",
             "turned",
@@ -2455,8 +2524,9 @@ class Config implements ConfigType {
             "unique",
             "united",
             "unity",
-            "uns",     // German
+            "uns",          // German
             "until",
+            "untrustworthy",
             "unusual",
             "unusually",
             "up",
@@ -2483,9 +2553,9 @@ class Config implements ConfigType {
             "variety",
             "various",
             "variously",
-            "ve",          // French
+            "ve",            // French
             "vehicle",
-            "ver",         // German
+            "ver",           // German
             "verified",
             "verify",
             "version",
@@ -2498,7 +2568,9 @@ class Config implements ConfigType {
             "view",
             "views",
             "viewed",
+            "viewing",
             "voice",
+            "vuelta",        // Spanish
             "vs",
             "wahrun",        // German
             "wait",
@@ -2594,6 +2666,11 @@ class Config implements ConfigType {
             "works",
             "world",
             "worldview",
+            "worried",
+            "worry",
+            "worrying",
+            "worse",
+            "worst",
             "would",
             "wow",
             "write",
@@ -2627,6 +2704,7 @@ class Config implements ConfigType {
             "za",       // South Africa TLD
             "ze",
             "zeit",     // German
+            "zh",       // Chinese
             "zu",       // German
         ]),
     }
