@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.42
+* (Demo App) `persistentCheckbox()` takes a `GuiCheckboxName` argument
+
 ### v1.1.41
 * (Demo App) Move default values for GUI checkboxes into `config.ts`, change default for `allowMultiSelect` to `false`
 
