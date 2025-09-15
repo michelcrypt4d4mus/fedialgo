@@ -191,7 +191,7 @@ class Config implements ConfigType {
         maxRecordsForFeatureScoring: 1_500,     // number of notifications, replies, etc. to pull slowly in background for scoring
         maxSecondsPerPage: 60,                  // If loading a single page of results takes longer than this, just give up
         minutesUntilStaleDefault: 10,           // Default how long to wait before considering data stale
-        mutexWarnSeconds: 5,                    // How long to wait before warning about a mutex lock
+        mutexWarnSeconds: 10,                   // How long to wait before warning about a mutex lock
         timeoutMS: 2_500,                       // Timeout for API calls
         data: {                                 // See comments on ApiDataConfig for explanations of these values
             [CacheKey.BLOCKED_ACCOUNTS]: {

@@ -57,7 +57,7 @@ class Config {
         maxRecordsForFeatureScoring: 1500,
         maxSecondsPerPage: 60,
         minutesUntilStaleDefault: 10,
-        mutexWarnSeconds: 5,
+        mutexWarnSeconds: 10,
         timeoutMS: 2500,
         data: {
             [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
