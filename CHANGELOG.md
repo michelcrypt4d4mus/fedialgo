@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.48
+* More `tagOnlyStrings`
+
 ### v1.1.47
 * Increase `config.api.mutexWarnSeconds` to 10 seconds
 
