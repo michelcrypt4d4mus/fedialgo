@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.44
+* More `tagOnlyStrings`
+
 ### v1.1.43
 * Bump `axios` to 1.12.2 via `npm audit fix`
 
