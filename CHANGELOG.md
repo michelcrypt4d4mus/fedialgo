@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.46
+* (Demo App) Set favicon
+
 ### v1.1.45
 * More `tagOnlyStrings`
 
