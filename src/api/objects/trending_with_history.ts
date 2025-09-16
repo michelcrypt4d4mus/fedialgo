@@ -35,7 +35,12 @@ import {
 } from "../../types";
 
 
-// Decorate a Mastodon TrendLink with computed history data, adding numToots & numAccounts
+/**
+ * Decorate a Mastodon {@linkcode https://docs.joinmastodon.org/entities/PreviewCard/#trends-link TrendLink}
+ * with computed history data, adding {@linkcode numToots} & {@linkcode numAccounts} properties.
+ * @param {mastodon.v1.TrendLink} link - The TrendLink object to decorate.
+ * @returns {TrendingLink} The decorated TrendingLink object.
+ */
 export function decorateLinkHistory(link: mastodon.v1.TrendLink): TrendingLink {
     const newLink = link as TrendingLink;
     newLink.regex = wordRegex(newLink.url);
@@ -43,7 +48,12 @@ export function decorateLinkHistory(link: mastodon.v1.TrendLink): TrendingLink {
 };
 
 
-// Decorate a mastodon tag with computed history data, adding numToots & numAccounts
+/**
+ * Decorate a mastodon {@linkcode https://docs.joinmastodon.org/entities/PreviewCard/#trends-link Tag} with
+ * computed history data, adding {@linkcode numToots} & {@linkcode numAccounts} properties.
+ * @param {Hashtag} tag - The Tag object to decorate.
+ * @returns {TagWithUsageCounts} The decorated Tag object.
+ */
 export function decorateTagHistory(tag: Hashtag): TagWithUsageCounts {
     const newTag = tag as TagWithUsageCounts;
     repairTag(newTag);
@@ -51,8 +61,14 @@ export function decorateTagHistory(tag: Hashtag): TagWithUsageCounts {
 };
 
 
-// Return one of each unique trending object sorted by the number of accounts tooting that object.
-// The numToots & numAccounts props for each trending object are set to the max value encountered.
+/**
+ * Return one of each unique trending object sorted by the number of accounts tooting that object.
+ * The {@linkcode numToots} & {@linkcode numAccounts} props for each trending object are set to
+ * the max value encountered.
+ * @param {T[]} trendingObjs - Array of trending objects to uniquify.
+ * @param {(obj: T) => string} uniqueKey - Function that returns the key to use for uniqueness.
+ * @returns {T[]} Array of unique trending objects sorted by {@linkcode numAccounts}.
+*/
 export function uniquifyTrendingObjs<T extends TrendingWithHistory>(
     trendingObjs: T[],
     uniqueKey: (obj: T) => string
@@ -76,8 +92,11 @@ export function uniquifyTrendingObjs<T extends TrendingWithHistory>(
 };
 
 
-// A toot can trend on multiple servers in which case we set trendingRank for all to the avg
-// TODO: maybe we should add the # of servers to the avg?
+/**
+ * A toot can trend on multiple servers in which case we set trendingRank for all to the avg
+ * // TODO: maybe we should add the # of servers to the avg?
+ * @param {Toot[]} rankedToots - Array of toots with trendingRank set.
+ */
 export function setTrendingRankToAvg(rankedToots: Toot[]): void {
     const tootsByURI = groupBy<Toot>(rankedToots, toot => toot.realURI);
 
@@ -88,7 +107,13 @@ export function setTrendingRankToAvg(rankedToots: Toot[]): void {
 };
 
 
-// Add numToots & numAccounts to the trending object by summing daysToCountTrendingData of 'history'
+/**
+ * Add {@linkcode numToots} & {@linkcode numAccounts} to the trending object by summing
+ * {@linkcode config.trending.daysToCountTrendingData} of 'history'.
+ * @template T
+ * @param {T} obj - The trending object to decorate.
+ * @returns {T} The decorated trending object.
+ */
 function decorateHistoryScores<T extends TrendingWithHistory>(obj: T): T {
     obj.url = obj.url.toLowerCase().trim();  // TODO: not ideal for this to happen here
 
