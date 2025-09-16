@@ -1062,7 +1062,7 @@ export default class MastoApi {
     }
 
     /**
-     * Fills in defaults in params and derives min/maxIdForFetch from cached data if appropriate.
+     * Fills in defaults in params and derives {@linkcode min/maxIdForFetch} from cached data if appropriate.
      * @private
      * @template T
      * @param {FetchParams<T>} inParams - Fetch parameters.

@@ -1,6 +1,7 @@
 /**
  * @fileoverview Helper methods for dealing with Mastodon's
  * {@linkcode https://docs.joinmastodon.org/entities/Tag/ Tag} objects.
+ * @module tags
  */
 import MastoApi from "../../api/api";
 import { config } from "../../config";
@@ -28,7 +29,12 @@ export function buildTag(str: string): TagWithUsageCounts {
 }
 
 
-/** Returns true for hashtags that can count as existing in a Toot even if the "#" character wasn't used. */
+/**
+ * Returns {@linkcode true} for hashtags that are searchable as a string even if the "#" prefix wasn't used,
+ * which is true for most tags except single-letter tags and configured "tag only" strings.
+ * @param {TagWithUsageCounts} tag - The tag to check.
+ * @returns {boolean}
+ */
 export function isValidForSubstringSearch(tag: TagWithUsageCounts): boolean {
     return (tag.name.length > 1 && !config.toots.tagOnlyStrings.has(tag.name))
 }
