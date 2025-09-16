@@ -1,5 +1,5 @@
-/*
- * Standardized logger.
+/**
+ * @fileoverview FediAlgo logger.
  */
 import { isNil, isNull } from 'lodash';
 
@@ -29,8 +29,8 @@ const PREFIXERS = [
 
 
 /**
- * Standardized logger for consistent, prefixed, and optionally colorized logging throughout fedialgo.
- * Supports multiple log levels, custom prefixes, telemetry, and error handling utilities.
+ * Standardized logger for consistent, prefixed, and optionally colorized logging throughout
+ * FediAlgo. Supports multiple log levels, custom prefixes, telemetry, and error handling utilities.
  * @class
  * @property {string} logPrefix - The formatted prefix for all log messages from this logger.
  * @property {string[]} prefixes - The list of prefix strings used to build the logPrefix.
@@ -40,7 +40,7 @@ export class Logger {
     private prefixes: string[];
 
     /**
-     * Constructs a Logger instance with the given name and optional additional prefixes.
+     * Constructs a {@linkcode Logger} instance with the given name and optional additional prefixes.
      * @param {string} name - The main name or component for the logger prefix.
      * @param {...(string|boolean|null|undefined)} args - Additional prefix arguments.
      */
@@ -60,14 +60,16 @@ export class Logger {
      * @param {string} parenthesized - The value to parenthesize in the prefix.
      * @param {...string} args - Additional prefix arguments.
      * @returns {Logger} A new Logger instance with the custom prefix.
+     * @example Logger.withParenthesizedName('a', 'b', 'c').log('Hello');  // Logs: [a (b)] {c} Hello
      */
     static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger {
         return new Logger(`${name} ${arrowed(parenthesized)}`, ...args)
     }
 
     /**
-     * Logs an error message or Error object to the console with the logger's prefix.
-     * Checks whether any element of 'args' is an instance of Error for special handling.
+     * Logs an error message or {@linkcode Error} object to the console with the logger's prefix.
+     * Checks whether any element of {@linkcode args} is an instance of {@linkcode Error} for
+     * special handling.
      * @param {string|Error} msg - The error message or Error object.
      * @param {...unknown} args - Additional arguments to log.
      * @returns {string} The error message string.
@@ -80,7 +82,8 @@ export class Logger {
     }
 
     /**
-     * Call console.warn() with the logger's prefix. Checks for Error objs in args in the same way as `error()`.
+     * Call {@linkcode console.warn()} with the logger's prefix. Checks for {@linkcode Error} objs in
+     * {@linkcode args} in the same way as {@linkcode Logger.error}.
      * @param {string} msg - The warning message.
      * @param {...unknown} args - Additional arguments to log.
      */
@@ -110,7 +113,7 @@ export class Logger {
     }
 
     /**
-     * Logs an error message and throws an Error with the stringified arguments and message.
+     * Logs an error message and throws an {@linkcode Error} with the stringified arguments and message.
      * @param {string} msg - The error message.
      * @param {...unknown} args - Additional arguments to include in the error.
      * @throws {Error} A new Error with the formatted message, optionally including the first Error argument.
@@ -151,9 +154,10 @@ export class Logger {
     }
 
     /**
-     * Log a message with stringified properties ('propX="somestring", propY=5', etc.) from an object.
+     * Log a message with stringified properties from an object.
      * @param {string} msg
      * @param {Record<string, Date | OptionalString | boolean | number>} obj
+     * @example logWithStringifiedProps('End', {a: 'a', count: 5})  // Logs: 'End: a="a", count=5'
      */
     logStringifiedProps(msg: string, obj: Record<string, Date | OptionalString | boolean | number>) {
         const propStrings: string[] = Object.entries(obj).reduce(
@@ -176,7 +180,7 @@ export class Logger {
     }
 
     /**
-     * Logs a message with the elapsed time since startedAt, optionally with additional labels/args.
+     * Logs a message with the elapsed time since {@linkcode startedAt}, optionally with additional labels/args.
      * @param {string} msg - The message to log.
      * @param {Date} [startedAt] - The start time to compute elapsed time.
      * @param {...unknown} args - Additional arguments or labels.
@@ -206,7 +210,7 @@ export class Logger {
     }
 
     /**
-     * Returns a new Logger with additional prefix arguments appended to this.prefixes.
+     * Returns a new {@linkcode Logger} with additional prefix arguments appended to {@linkcode this.prefixes}.
      * @param {string} arg1 - The additional prefix.
      * @param {...LoggerArg} args - More prefix arguments.
      * @returns {Logger} A new Logger instance with the extended prefix.
@@ -217,7 +221,7 @@ export class Logger {
     }
 
     /**
-     * Mutates args array to pop the first Error if it exists.
+     * Mutates {@linkcode args} array to pop the first {@linkcode Error} if it exists.
      * @private
      * @param {...unknown} args - Additional arguments.
      * @returns {string} The formatted error message.
@@ -236,7 +240,7 @@ export class Logger {
     }
 
     /**
-     * Separate the Error type args from the rest of the args.
+     * Separate the {@linkcode Error} type args from the rest of the {@linkcode args}.
      * @private
      * @param {...unknown} args - Additional arguments.
      * @returns {ErrorArgs} Object with `args` containing non-Error args and `error` if an Error was found.
@@ -267,7 +271,7 @@ export class Logger {
     }
 
     /**
-     * Builds a dictionary of Logger instances keyed by the values of a string enum.
+     * Builds a dictionary of {@linkcode Logger} instances keyed by the values of a string enum.
      * @template E - The enum type.
      * @template T - The type of the enum object.
      * @param {T} strEnum The enum that will key the loggers.
@@ -281,7 +285,7 @@ export class Logger {
     }
 
     /**
-     * Returns a function that builds Logger objects with the starting prefixes.
+     * Returns a function that builds {@linkcode Logger} objects with the starting prefixes.
      * @param {string} name - The main name for the logger.
      * @param {...LoggerArg} prefixes - Additional prefixes.
      * @returns {(args: LoggerArg[]) => Logger} A function that creates Logger instances with the given prefixes.
