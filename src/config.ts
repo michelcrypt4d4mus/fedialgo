@@ -526,6 +526,7 @@ class Config implements ConfigType {
             "actualites",          // French
             "add",
             "address",
+            "admin",
             "administration",
             "advance",
             "advanced",
@@ -733,6 +734,7 @@ class Config implements ConfigType {
             "breach",
             "break",
             "breaking",
+            "breaks",
             "bright",
             "brighter",
             "brightest",
@@ -1047,6 +1049,10 @@ class Config implements ConfigType {
             "doubted",
             "doubts",
             "down",
+            "download",
+            "downloaded",
+            "downloading",
+            "downloads",
             "downtown",
             "dr",
             "drank",
@@ -1132,6 +1138,7 @@ class Config implements ConfigType {
             "er",          // German
             "erin",        // name
             "es",          // Spanish
+            "escape",
             "et",          // French
             "ete",         // French
             "essential",
@@ -1179,6 +1186,7 @@ class Config implements ConfigType {
             "ext",          // TLD
             "extreme",
             "extremes",
+            "eye",
             "face",
             "faced",
             "facebook",
@@ -1385,6 +1393,10 @@ class Config implements ConfigType {
             "headline",
             "headlines",
             "health",
+            "hear",
+            "heard",
+            "hearing",
+            "heart",
             "heat",
             "heavier",
             "heaviest",
@@ -1474,7 +1486,7 @@ class Config implements ConfigType {
             "influencing",
             "info",
             "information",
-            "infosec",      // infosec.exchange is a big server
+            "infosec",        // infosec.exchange is a big server
             "insight",
             "insightful",
             "insights",
@@ -1484,6 +1496,10 @@ class Config implements ConfigType {
             "installation",
             "installations",
             "instance",
+            "institute",
+            "institution",
+            "institutional",
+            "institutions",
             "integration",
             "interest",
             "interior",
@@ -1496,6 +1512,10 @@ class Config implements ConfigType {
             "introduced",
             "introducing",
             "introduction",
+            "involve",
+            "involved",
+            "involves",
+            "involving",
             "io",             // TLD
             "is",
             "isolate",
@@ -1840,6 +1860,7 @@ class Config implements ConfigType {
             "origin",
             "origins",
             "original",
+            "originale",      // French
             "originals",
             "originally",
             "other",
@@ -2791,6 +2812,7 @@ class Config implements ConfigType {
             "wears",
             "web",
             "website",
+            "websites",
             "week",
             "weekly",
             "weeks",
