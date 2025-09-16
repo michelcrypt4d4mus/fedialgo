@@ -42,22 +42,22 @@ export declare class Logger {
      * @param {...unknown} args - Additional arguments to log.
      */
     warn: (msg: string, ...args: unknown[]) => void;
-    /** console.log() with the logger's prefix. */
+    /** {@linkcode console.log()} with the logger's prefix. */
     log: (msg: string, ...args: unknown[]) => void;
-    /** console.info() with the logger's prefix. */
+    /** {@linkcode console.info()} with the logger's prefix. */
     info: (msg: string, ...args: unknown[]) => void;
-    /** console.debug() with the logger's prefix. */
+    /** {@linkcode console.debug()} with the logger's prefix. */
     debug: (msg: string, ...args: unknown[]) => void;
-    /** Logs 'msg' at debug level but only appends 'args' if isDebugMode is true. */
+    /** Logs {@linkcode msg} at debug level but only appends {@linkcode args} if {@linkcode isDebugMode}. */
     debugWithTraceObjs: (msg: string, ...args: unknown[]) => void;
-    /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
+    /** Calls {@linkcode Logger.debug} to log but only if {@linkcode isDebugMode}. */
     trace: (msg: string, ...args: unknown[]) => void;
-    /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
+    /** Calls {@linkcode Logger.debug} to log but only if {@linkcode isDeepDebug}. */
     deep: (msg: string, ...args: unknown[]) => void;
-    /** Logs a warning message with a warn colored prefix (not a real warning level). */
+    /** Logs a warning message with a warning colored prefix (not a real warning level). */
     warnWithoutTrace: (msg: string, ...args: unknown[]) => void;
     /**
-     * Concatenates the logger's prefix and the given message.
+     * Concatenates {@linkcode this.logPrefix} and the given {@linkcode msg}.
      * @param {string|undefined} msg - The message to prefix.
      * @returns {string} The prefixed log line.
      */
@@ -142,7 +142,7 @@ export declare class Logger {
      * Returns a function that builds {@linkcode Logger} objects with the starting prefixes.
      * @param {string} name - The main name for the logger.
      * @param {...LoggerArg} prefixes - Additional prefixes.
-     * @returns {(args: LoggerArg[]) => Logger} A function that creates Logger instances with the given prefixes.
+     * @returns {(args: LoggerArg[]) => Logger} A fxn that creates {@linkcode Logger} instances.
      */
     static logBuilder(name: string, ...prefixes: LoggerArg[]): ((...args: LoggerArg[]) => Logger);
 }
