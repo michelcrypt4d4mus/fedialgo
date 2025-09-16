@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.49
+* (Demo App) Avoid endless loop when `Toot.resolve()` fails in `ReplyModal`
+
 ### v1.1.48
 * More `tagOnlyStrings`
 
