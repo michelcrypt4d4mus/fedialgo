@@ -288,7 +288,7 @@ export class Logger {
      * Returns a function that builds {@linkcode Logger} objects with the starting prefixes.
      * @param {string} name - The main name for the logger.
      * @param {...LoggerArg} prefixes - Additional prefixes.
-     * @returns {(args: LoggerArg[]) => Logger} A function that creates Logger instances with the given prefixes.
+     * @returns {(args: LoggerArg[]) => Logger} A fxn that creates {@linkcode Logger} instances.
      */
     static logBuilder(name: string, ...prefixes: LoggerArg[]): ((...args: LoggerArg[]) => Logger) {
         // I think we have to define as const before returning to get the closure to capture the name + prefixes?
