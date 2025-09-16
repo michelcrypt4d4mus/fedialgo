@@ -88,23 +88,23 @@ export class Logger {
      * @param {...unknown} args - Additional arguments to log.
      */
     warn =  (msg: string, ...args: unknown[]) => console.warn(this.line(this.errorStr(...[msg, ...args])));
-    /** console.log() with the logger's prefix. */
+    /** {@linkcode console.log()} with the logger's prefix. */
     log =   (msg: string, ...args: unknown[]) => console.log(this.line(msg), ...args);
-    /** console.info() with the logger's prefix. */
+    /** {@linkcode console.info()} with the logger's prefix. */
     info =  (msg: string, ...args: unknown[]) => console.info(this.line(msg), ...args);
-    /** console.debug() with the logger's prefix. */
+    /** {@linkcode console.debug()} with the logger's prefix. */
     debug = (msg: string, ...args: unknown[]) => console.debug(this.line(msg), ...args);
-    /** Logs 'msg' at debug level but only appends 'args' if isDebugMode is true. */
+    /** Logs {@linkcode msg} at debug level but only appends {@linkcode args} if {@linkcode isDebugMode}. */
     debugWithTraceObjs = (msg: string, ...args: unknown[]) => {this.debug(msg, ...(isDebugMode ? args : [TRACE_MSG]))};
-    /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
+    /** Calls {@linkcode Logger.debug} to log but only if {@linkcode isDebugMode}. */
     trace = (msg: string, ...args: unknown[]) => {isDebugMode && this.debug(msg, ...args)};
-    /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
+    /** Calls {@linkcode Logger.debug} to log but only if {@linkcode isDeepDebug}. */
     deep =  (msg: string, ...args: unknown[]) => {isDeepDebug && this.debug(msg, ...args)};
-    /** Logs a warning message with a warn colored prefix (not a real warning level). */
+    /** Logs a warning message with a warning colored prefix (not a real warning level). */
     warnWithoutTrace = (msg: string, ...args: unknown[]) => console.log(`%cWarning: ${msg}`, 'color: orange;', args);
 
     /**
-     * Concatenates the logger's prefix and the given message.
+     * Concatenates {@linkcode this.logPrefix} and the given {@linkcode msg}.
      * @param {string|undefined} msg - The message to prefix.
      * @returns {string} The prefixed log line.
      */

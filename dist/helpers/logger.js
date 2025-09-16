@@ -77,22 +77,22 @@ class Logger {
      * @param {...unknown} args - Additional arguments to log.
      */
     warn = (msg, ...args) => console.warn(this.line(this.errorStr(...[msg, ...args])));
-    /** console.log() with the logger's prefix. */
+    /** {@linkcode console.log()} with the logger's prefix. */
     log = (msg, ...args) => console.log(this.line(msg), ...args);
-    /** console.info() with the logger's prefix. */
+    /** {@linkcode console.info()} with the logger's prefix. */
     info = (msg, ...args) => console.info(this.line(msg), ...args);
-    /** console.debug() with the logger's prefix. */
+    /** {@linkcode console.debug()} with the logger's prefix. */
     debug = (msg, ...args) => console.debug(this.line(msg), ...args);
-    /** Logs 'msg' at debug level but only appends 'args' if isDebugMode is true. */
+    /** Logs {@linkcode msg} at debug level but only appends {@linkcode args} if {@linkcode isDebugMode}. */
     debugWithTraceObjs = (msg, ...args) => { this.debug(msg, ...(environment_helpers_1.isDebugMode ? args : [TRACE_MSG])); };
-    /** Calls 'debug()' to log but only if FEDIALGO_DEBUG env var is set. */
+    /** Calls {@linkcode Logger.debug} to log but only if {@linkcode isDebugMode}. */
     trace = (msg, ...args) => { environment_helpers_1.isDebugMode && this.debug(msg, ...args); };
-    /** Calls 'debug()' to log but only if FEDIALGO_DEEP_DEBUG env var is set. */
+    /** Calls {@linkcode Logger.debug} to log but only if {@linkcode isDeepDebug}. */
     deep = (msg, ...args) => { environment_helpers_1.isDeepDebug && this.debug(msg, ...args); };
-    /** Logs a warning message with a warn colored prefix (not a real warning level). */
+    /** Logs a warning message with a warning colored prefix (not a real warning level). */
     warnWithoutTrace = (msg, ...args) => console.log(`%cWarning: ${msg}`, 'color: orange;', args);
     /**
-     * Concatenates the logger's prefix and the given message.
+     * Concatenates {@linkcode this.logPrefix} and the given {@linkcode msg}.
      * @param {string|undefined} msg - The message to prefix.
      * @returns {string} The prefixed log line.
      */
