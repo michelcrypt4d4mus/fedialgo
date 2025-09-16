@@ -456,7 +456,7 @@ class MastoApi {
         return toots;
     }
     /**
-     * Retrieves background data about the user for scoring, etc. Caches as an instance variable.
+     * Retrieves background data about the user for scoring, etc. Cached as an instance variable.
      * @param {boolean} [force] - If true, forces a refresh from the API.
      * @returns {Promise<UserData>} The UserData object.
      */
@@ -537,8 +537,8 @@ class MastoApi {
         return instanceInfo;
     }
     /**
-     * Return true if the user's home server is a GoToSocial server. Has side effect of setting
-     * the isHomeserverGoToSocial property on this MastoApi object.
+     * Return {@linkcode true} if the user's home server is a GoToSocial server. Has side effect of setting
+     * {@linkcode this.isHomeserverGoToSocial} property on this {@linkcode MastoApi} instance.
      * @returns {Promise<boolean>}
      */
     async isGoToSocialUser() {
@@ -571,10 +571,9 @@ class MastoApi {
     ;
     /**
      * Resolves a foreign server toot URI to one on the user's local server using the v2 search API.
-     * transforms URLs like this: https://fosstodon.org/@kate/114360290341300577
-     *                   to this: https://universeodon.com/@kate@fosstodon.org/114360290578867339
      * @param {Toot} toot - The toot to resolve.
      * @returns {Promise<Toot>} The resolved toot.
+     * @example "https://fosstodon.org/@kate/114360290341300577" => "https://universeodon.com/@kate@fosstodon.org/114360290578867339"
      */
     async resolveToot(toot) {
         const logger = getLogger('resolveToot()', toot.realURI);
@@ -616,7 +615,7 @@ class MastoApi {
         }
     }
     /**
-     * Records an API error by logging it and adding it to the apiErrors array.
+     * Records an API error by logging it and adding it to the {@linkcode this.apiErrors} array.
      * @param {string} msg - Message to log
      * @param {Error} [causedByError] - The underlying Error object that caused this error, if any.
      * @param {Logger} [logger] - Logger instance to use (defaults to this.logger)
@@ -644,14 +643,14 @@ class MastoApi {
     }
     /**
      * Returns the URL for an account on the Feialgo user's home server.
-     * @param {Hashtag | string} tag - The tag or tag object.
+     * @param {Account} account - The tag or tag object.
      * @returns {string} The tag URL.
      */
     accountUrl(account) {
         return account.homeserver == this.homeDomain ? account.url : this.endpointURL(`@${account.webfingerURI}`);
     }
     /**
-     * Returns true if the URL is a local URL on the Feialgo user's home server.
+     * Returns {@linkcode true} if the URL is a local URL on the Feialgo user's home server.
      * @param {string} url - URL to check
      * @returns {boolean}
      */
