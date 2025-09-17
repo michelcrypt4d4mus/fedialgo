@@ -1,5 +1,10 @@
 # NEXT RELEASE
 
+### v1.1.53
+* Logging of args for calls to `Logger.error()`
+* (Demo App) Use branded mastodon favicon
+* More `tagOnlyStrings`
+
 ### v1.1.52
 * (Demo App) Log calls to `extractText()`
 

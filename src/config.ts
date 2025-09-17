@@ -797,6 +797,7 @@ class Config implements ConfigType {
             "choices",
             "choose",
             "chosen",
+            "cine",          // French
             "circle",
             "citizens",
             "city",
@@ -807,6 +808,9 @@ class Config implements ConfigType {
             "claims",
             "class",
             "classic",
+            "club",
+            "clubs",
+            "cm",             // TLD
             "cn",             // TLD
             "co",             // TLD
             "coast",
@@ -1097,6 +1101,7 @@ class Config implements ConfigType {
             "easy",
             "eat",
             "eats",
+            "eau",          // French
             "economic",
             "economia",     // Spanish
             "economie",     // French
@@ -1222,12 +1227,14 @@ class Config implements ConfigType {
             "failed",
             "failing",
             "fails",
+            "failure",
             "fair",
             "fairer",
             "fairest",
             "fairly",
+            "faith",
             "fall",
-            "failure",
+            "falling",
             "falsas",       // Spanish
             "falsch",       // German
             "false",
@@ -1524,6 +1531,7 @@ class Config implements ConfigType {
             "institutions",
             "integration",
             "intelligence",
+            "intelligent",
             "interest",
             "interior",
             "internal",
@@ -1637,6 +1645,8 @@ class Config implements ConfigType {
             "lined",
             "lines",
             "link",
+            "linked",
+            "linking",
             "links",
             "list",
             "listed",
@@ -1733,6 +1743,9 @@ class Config implements ConfigType {
             "meet",
             "meeting",
             "meetings",
+            "melt",
+            "melted",
+            "melting",
             "member",
             "members",
             "membership",
@@ -1778,7 +1791,9 @@ class Config implements ConfigType {
             "mostly",
             "mother",
             "move",
+            "moved",
             "moves",
+            "moving",
             "mr",
             "mrs",
             "ms",
@@ -1825,6 +1840,7 @@ class Config implements ConfigType {
             "no",
             "nobody",
             "noir",       // French
+            "noire",      // French
             "non",
             "none",
             "nonsense",
@@ -1992,9 +2008,10 @@ class Config implements ConfigType {
             "places",
             "placed",
             "plan",
-            "plans",
-            "planned",
             "planet",
+            "planned",
+            "planning",
+            "plans",
             "plant",
             "planted",
             "platform",
