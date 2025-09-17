@@ -75,6 +75,7 @@ export class Logger {
      * @returns {string} The error message string.
      */
     error(msg: string | Error, ...args: unknown[]): string {
+        this.debug(`Logging error msg="${msg}", args=`, args);
         const allArgs = [msg, ...args];
         msg = this.errorStr(...allArgs);
         console.error(this.line(msg), ...allArgs);
