@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.52
+* (Demo App) Log calls to `extractText()`
+
 ### v1.1.51
 * More `tagOnlyStrings`
 
