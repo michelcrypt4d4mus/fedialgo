@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.54
+* (Demo App) Logging change for poll response
+
 ### v1.1.53
 * Logging of args for calls to `Logger.error()`
 * (Demo App) Use branded mastodon favicon
