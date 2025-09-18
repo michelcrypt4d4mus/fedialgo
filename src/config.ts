@@ -585,6 +585,9 @@ class Config implements ConfigType {
             "among",
             "amongst",
             "an",
+            "animate",
+            "animated",
+            "animates",
             "ann",
             "anna",
             "announce",
@@ -918,6 +921,8 @@ class Config implements ConfigType {
             "covered",
             "covers",
             "cr",             // TLD (Costa Rica)
+            "crap",
+            "crappy",
             "craft",
             "crafts",
             "create",
@@ -1714,6 +1719,7 @@ class Config implements ConfigType {
             "mark",
             "marked",
             "marker",
+            "market",
             "marketing",
             "marks",
             "mas",         // Spanish
@@ -1861,6 +1867,7 @@ class Config implements ConfigType {
             "noticed",
             "noticias",
             "noting",
+            "notizie",    // Italian
             "novel",
             "now",
             "number",
@@ -2439,6 +2446,7 @@ class Config implements ConfigType {
             "several",
             "severe",
             "shared",
+            "sharing",
             "sharp",
             "sharper",
             "shape",
@@ -2499,6 +2507,10 @@ class Config implements ConfigType {
             "sobre",        // Spanish
             "social",
             "society",
+            "soft",
+            "softer",
+            "softest",
+            "softly",
             "some",
             "somebody",
             "someone",
