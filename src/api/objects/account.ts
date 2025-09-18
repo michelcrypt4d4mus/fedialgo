@@ -45,9 +45,10 @@ interface AccountObj extends mastodon.v1.Account {
     asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
-    localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
+    isLocal: boolean;
+    localServerUrl: string;
     webfingerURI: string;  // NOTE: This is lost when we serialze the Account object
 };
 
