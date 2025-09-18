@@ -19,7 +19,7 @@ export declare class Logger {
     /**
      * Alternate constructor; makes the first two arguments into a parenthesized bracketed string.
      * @param {string} name - The main name for the logger.
-     * @param {string} parenthesized - The value to parenthesize in the prefix.
+     * @param {string} parenthesized - The string to parenthesize in the prefix.
      * @param {...string} args - Additional prefix arguments.
      * @returns {Logger} A new Logger instance with the custom prefix.
      * @example Logger.withParenthesizedName('Type', 'paren', 'xyz').log('Hello');  // Logs "[Type (paren)] {xyz} Hello"
