@@ -65,13 +65,13 @@ export default class MastodonServer {
      */
     private fetchTrending;
     /**
-     * Get the top trending links from all servers in the fediverse.
+     * Get the top trending links from a bunch of servers in the fediverse.
      * @static
      * @returns {Promise<TrendingLink[]>} Array of trending links across all servers.
      */
     static fediverseTrendingLinks(): Promise<TrendingLink[]>;
     /**
-     * Get the top trending tags from all servers, minus any invalid or muted tags.
+     * Get the top trending tags from a bunch of servers, minus any invalid or muted tags.
      * @static
      * @returns {Promise<TagList>} {@linkcode TagList} of trending tags across all servers.
      */
@@ -84,8 +84,8 @@ export default class MastodonServer {
      */
     static fediverseTrendingToots(): Promise<Toot[]>;
     /**
-     * Get the server names that are most relevant to the user, meaning servers that a lot of the
-     * accounts the user follows live on.
+     * Get the server names that are most relevant to the user, meaning servers that a
+     * lot of the accounts the user follows live on.
      * @static
      * @returns {Promise<MastodonInstances>} Dictionary of MastodonInstances keyed by domain.
      */

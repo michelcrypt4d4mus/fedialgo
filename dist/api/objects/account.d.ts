@@ -4,7 +4,10 @@ type AccountCount = Record<string, {
     account: Account;
     count: number;
 }>;
-/** Interface for mastodon.v1.Account object extending with additional helper methods and properties. */
+/**
+ * Interface for {@linkcode https://docs.joinmastodon.org/entities/Account/ mastodon.v1.Account}
+ * object extending with additional helper methods and properties.
+ */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;
@@ -69,7 +72,8 @@ export default class Account implements AccountObj {
     get localServerUrl(): string;
     private get buildWebfingerURI();
     /**
-     * Alternate constructor because class-transformer doesn't work with constructor arguments.
+     * Alternate constructor because {@linkcode https://www.npmjs.com/package/class-transformer class-transformer}
+     * doesn't work with constructor arguments.
      * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
      * @returns {Account} Constructed Account instance with extra methods and properties.
      */
