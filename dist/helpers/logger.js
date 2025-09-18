@@ -59,7 +59,7 @@ class Logger {
      * Logs an error message or {@linkcode Error} object to the console with the logger's prefix.
      * Checks whether any element of {@linkcode args} is an instance of {@linkcode Error} for
      * special handling.
-     * @param {string|Error} msg - The error message or Error object.
+     * @param {string|Error} msg - The error message or {@linkcode Error} object.
      * @param {...unknown} args - Additional arguments to log.
      * @returns {string} The error message string.
      */
