@@ -1,5 +1,5 @@
 /**
- * Handle Background polling to try to get more user data for the scoring algorithm
+ * Handle background polling to retrive additional user data for the scoring algorithm
  * after things have died down from the intitial load.
  * @class
  * @property {ReturnType<typeof setInterval>|undefined} intervalRunner - The interval runner for periodic polling.
