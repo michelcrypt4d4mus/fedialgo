@@ -46,8 +46,14 @@ export declare const FULL_HISTORY_PARAMS: {
 export declare const apiLogger: Logger;
 /**
  * Singleton class for interacting with the authenticated
- * {@link https://docs.joinmastodon.org/client/intro/ Mastodon API} on the FediAlgo user's home server.
+ * {@link https://docs.joinmastodon.org/client/intro/ Mastodon API} on the FediAlgo user's home server
+ * (unauthenticated calls are handled by the {@linkcode MastodonServer} class).
  * Handles caching, concurrency, and provides methods for fetching and updating Mastodon data.
+ *
+ * 1. Methods that are prefixed with {@linkcode fetch} will always do a remote fetch.
+ *
+ * 2. Methods prefixed with {@linkcode get} will attempt to load from the {@linkcode Storage} cache before fetching.
+ *
  * @property {mastodon.rest.Client} api - The Mastodon REST API client instance.
  * @property {string} homeDomain - The Fedialgo user's home server domain.
  * @property {Logger} logger - API logger instance.
