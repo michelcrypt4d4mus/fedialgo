@@ -15,7 +15,7 @@ const MOAR_MUTEX = new Mutex();
 
 
 /**
- * Handle Background polling to try to get more user data for the scoring algorithm
+ * Handle background polling to retrive additional user data for the scoring algorithm
  * after things have died down from the intitial load.
  * @class
  * @property {ReturnType<typeof setInterval>|undefined} intervalRunner - The interval runner for periodic polling.
@@ -25,6 +25,7 @@ export default class UserDataPoller {
     private intervalRunner?: ReturnType<typeof setInterval>;
     private logger = new Logger('UserDataPoller');
 
+    /** Kick off the background polling. */
     start(): void {
         if (this.intervalRunner) {
             this.logger.trace(`User data poller already running, not starting another one`);

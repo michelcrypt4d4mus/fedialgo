@@ -13,7 +13,7 @@ const logger_1 = require("../helpers/logger");
 const enums_1 = require("../enums");
 const MOAR_MUTEX = new async_mutex_1.Mutex();
 /**
- * Handle Background polling to try to get more user data for the scoring algorithm
+ * Handle background polling to retrive additional user data for the scoring algorithm
  * after things have died down from the intitial load.
  * @class
  * @property {ReturnType<typeof setInterval>|undefined} intervalRunner - The interval runner for periodic polling.
@@ -22,6 +22,7 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 class UserDataPoller {
     intervalRunner;
     logger = new logger_1.Logger('UserDataPoller');
+    /** Kick off the background polling. */
     start() {
         if (this.intervalRunner) {
             this.logger.trace(`User data poller already running, not starting another one`);
