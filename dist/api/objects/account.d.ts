@@ -16,9 +16,10 @@ interface AccountObj extends mastodon.v1.Account {
     asBooleanFilterOption: BooleanFilterOption;
     description: string;
     homeserver: string;
-    localServerUrl: string;
     isFollowed?: boolean;
     isFollower?: boolean;
+    isLocal: boolean;
+    localServerUrl: string;
     webfingerURI: string;
 }
 /**
@@ -74,6 +75,7 @@ export default class Account implements AccountObj {
     /**
      * Alternate constructor because {@linkcode https://www.npmjs.com/package/class-transformer class-transformer}
      * doesn't work with constructor arguments.
+     * @static
      * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
      * @returns {Account} Constructed Account instance with extra methods and properties.
      */

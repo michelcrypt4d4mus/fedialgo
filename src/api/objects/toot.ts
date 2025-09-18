@@ -297,7 +297,9 @@ export default class Toot implements TootObj {
     private contentCache: TootCache = {};
 
     /**
-     * Alternate constructor because class-transformer doesn't work with constructor arguments.
+     * Alternate constructor because {@linkcode https://www.npmjs.com/package/class-transformer class-transformer}
+     * doesn't work with constructor arguments.
+     * @static
      * @param {SerializableToot} toot - The toot data to build from.
      * @returns {Toot} The constructed Toot instance.
      */
