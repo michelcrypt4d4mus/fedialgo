@@ -14,7 +14,7 @@ import { WeightPresetLabel, type WeightPresets } from './scorer/weight_presets';
 import { type ObjList } from "./api/counted_list";
 import { BooleanFilterName, MediaCategory, NonScoreWeightName, ScoreName, TagTootsCategory, TrendingType, TypeFilterName, isValueInStringEnum } from "./enums";
 import { makeChunks, makePercentileChunks, sortKeysByValue } from "./helpers/collection_helpers";
-import { FILTER_OPTION_DATA_SOURCES, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type KeysOfValueType, type MastodonInstance, type Hashtag, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
+import { FILTER_OPTION_DATA_SOURCES, type BooleanFilterOption, type FeedFilterSettings, type FilterOptionDataSource, type Hashtag, type KeysOfValueType, type MastodonInstance, type MinMaxAvgScore, type ScoreStats, type StringNumberDict, type TagWithUsageCounts, type TrendingData, type TrendingLink, type TrendingObj, type TrendingWithHistory, type WeightInfoDict, type WeightName, type Weights } from "./types";
 interface AlgorithmArgs {
     api: mastodon.rest.Client;
     user: mastodon.v1.Account;

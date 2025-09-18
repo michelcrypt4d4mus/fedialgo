@@ -14,8 +14,8 @@ export default class DiversityFeedScorer extends FeedScorer {
     description: string;
     constructor();
     /**
-     * Compute a score for each {@linkcode Toot} in the feed based on how many times the {@linkcode Account}
-     * has tooted and which trending tags it contains.
+     * Compute a score for each {@linkcode Toot} in the feed based on how many times the
+     * {@linkcode Account} has tooted and which trending tags it contains.
      *
      * @param {Toot[]} feed - The feed of toots to score.
      * @returns {StringNumberDict} Dictionary mapping toot URIs to their diversity scores.

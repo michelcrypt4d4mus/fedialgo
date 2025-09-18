@@ -1,8 +1,8 @@
 /*
  * Main class that handles scoring and sorting a feed made of Toot objects.
  */
-import 'reflect-metadata'; // Required for class-transformer
-import { Buffer } from 'buffer'; // Maybe Required for class-transformer though seems to be required in client?
+import 'reflect-metadata';  // Required for class-transformer
+import { Buffer } from 'buffer';  // Maybe Required for class-transformer though seems to be required in client?
 import { mastodon } from "masto";
 import { Mutex } from 'async-mutex';
 
@@ -87,9 +87,9 @@ import {
     type ConcurrencyLockRelease,
     type FeedFilterSettings,
     type FilterOptionDataSource,
+    type Hashtag,
     type KeysOfValueType,
     type MastodonInstance,
-    type Hashtag,
     type MinMaxAvgScore,
     type ScoreStats,
     type StringNumberDict,
