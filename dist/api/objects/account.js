@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
- * Helper methods for dealing with Mastodon's Account objects.
+/**
+ * @fileoverview Class and helper methods for dealing with Mastodon's
+ * {@linkcode https://docs.joinmastodon.org/entities/Account/ Account} objects.
  */
 const html_entities_1 = require("html-entities");
 const class_transformer_1 = require("class-transformer");
@@ -101,7 +102,8 @@ class Account {
         return (this.acct.includes("@") ? this.acct : `${this.acct}@${this.homeserver}`).toLowerCase();
     }
     /**
-     * Alternate constructor because class-transformer doesn't work with constructor arguments.
+     * Alternate constructor because {@linkcode https://www.npmjs.com/package/class-transformer class-transformer}
+     * doesn't work with constructor arguments.
      * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
      * @returns {Account} Constructed Account instance with extra methods and properties.
      */

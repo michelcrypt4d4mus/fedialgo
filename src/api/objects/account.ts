@@ -1,5 +1,6 @@
-/*
- * Helper methods for dealing with Mastodon's Account objects.
+/**
+ * @fileoverview Class and helper methods for dealing with Mastodon's
+ * {@linkcode https://docs.joinmastodon.org/entities/Account/ Account} objects.
  */
 import { encode } from 'html-entities';
 import { mastodon } from "masto";
@@ -32,7 +33,10 @@ const ACCOUNT_CREATION_FMT: Intl.DateTimeFormatOptions = {year: "numeric", month
 
 const logger = new Logger("Account");
 
-/** Interface for mastodon.v1.Account object extending with additional helper methods and properties. */
+/**
+ * Interface for {@linkcode https://docs.joinmastodon.org/entities/Account/ mastodon.v1.Account}
+ * object extending with additional helper methods and properties.
+ */
 interface AccountObj extends mastodon.v1.Account {
     displayNameFullHTML: (fontSize?: number) => string;
     displayNameWithEmojis: (fontSize?: number) => string;
@@ -121,7 +125,8 @@ export default class Account implements AccountObj {
     }
 
     /**
-     * Alternate constructor because class-transformer doesn't work with constructor arguments.
+     * Alternate constructor because {@linkcode https://www.npmjs.com/package/class-transformer class-transformer}
+     * doesn't work with constructor arguments.
      * @param {AccountLike} account - The Mastodon Account (or similar) to build from.
      * @returns {Account} Constructed Account instance with extra methods and properties.
      */
