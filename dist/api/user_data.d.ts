@@ -33,7 +33,7 @@ interface UserApiData {
  * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
- * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters}s set by the user.
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters} set by the user.
  */
 export default class UserData {
     blockedDomains: Set<string>;
@@ -58,7 +58,7 @@ export default class UserData {
     /**
      * Alternate constructor to build {@linkcode UserData} from API data.
      * @static
-     * @param {UserApiData} data - The raw API data to build the UserData from.
+     * @param {UserApiData} data - The raw API data to build the {@linkcode UserData} from.
      * @param {string[]} data.blockedDomains - Domains the user has blocked.
      * @param {Toot[]} data.favouritedToots - Toots the user has favourited.
      * @param {Account[]} data.followedAccounts - Accounts the user follows.
@@ -71,7 +71,7 @@ export default class UserData {
     static buildFromData(data: UserApiData): UserData;
     /**
      * If there's newer data in the cache the data is not fresh.
-     * @returns {Promise<boolean>} True if UserData object was created after the last updatedAt in Storage.
+     * @returns {Promise<boolean>} True if UserData object was created after the {@linkcode Storage.lastUpdatedAt}.
      */
     hasNewestApiData(): Promise<boolean>;
     /**

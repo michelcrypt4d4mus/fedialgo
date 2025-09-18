@@ -61,7 +61,7 @@ const logger = new logger_1.Logger("UserData");
  * @property {RegExp} mutedKeywordsRegex - Cached regex for muted keywords, built from server-side filters.
  * @property {TagList} participatedTags - List of tags the user has participated in.
  * @property {string} preferredLanguage - The user's preferred language (ISO code).
- * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters}s set by the user.
+ * @property {mastodon.v2.Filter[]} serverSideFilters - Array of server-side {@linkcode https://docs.joinmastodon.org/entities/Filter/ Filters} set by the user.
  */
 class UserData {
     blockedDomains = new Set();
@@ -101,7 +101,7 @@ class UserData {
     /**
      * Alternate constructor to build {@linkcode UserData} from API data.
      * @static
-     * @param {UserApiData} data - The raw API data to build the UserData from.
+     * @param {UserApiData} data - The raw API data to build the {@linkcode UserData} from.
      * @param {string[]} data.blockedDomains - Domains the user has blocked.
      * @param {Toot[]} data.favouritedToots - Toots the user has favourited.
      * @param {Account[]} data.followedAccounts - Accounts the user follows.
@@ -135,7 +135,7 @@ class UserData {
     }
     /**
      * If there's newer data in the cache the data is not fresh.
-     * @returns {Promise<boolean>} True if UserData object was created after the last updatedAt in Storage.
+     * @returns {Promise<boolean>} True if UserData object was created after the {@linkcode Storage.lastUpdatedAt}.
      */
     async hasNewestApiData() {
         return !!(Storage_1.default.lastUpdatedAt && this.lastUpdatedAt && (this.lastUpdatedAt >= Storage_1.default.lastUpdatedAt));
@@ -194,7 +194,7 @@ class UserData {
 }
 exports.default = UserData;
 ;
-// extract information for language BoooleanFilterOption
+// Extract information for language BoooleanFilterOption.
 function tootLanguageOption(toot) {
     if (!toot.language) {
         logger.warn("Toot has no language set, using default language instead", toot);
