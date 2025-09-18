@@ -5,7 +5,8 @@ import FeedScorer from "../feed_scorer";
 import type Toot from '../../api/objects/toot';
 import { type StringNumberDict } from "../../types";
 /**
- * Scores based on how many times each author or trending tag appears in the feed.
+ * Scores based on how many times each author or trending tag appears in the feed. Has a
+ * negative weighting by default so that accounts that toot a lot don't dominate the feed.
  * @memberof module:toot_scorers
  * @augments Scorer
  */
