@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.55
+* More `tagOnlyStrings`
+
 ### v1.1.54
 * (Demo App) Logging change for poll response
 
