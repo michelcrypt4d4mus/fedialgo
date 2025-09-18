@@ -165,6 +165,7 @@ var BooleanFilterName;
 (function (BooleanFilterName) {
     BooleanFilterName["APP"] = "app";
     BooleanFilterName["HASHTAG"] = "hashtag";
+    BooleanFilterName["KEYWORD"] = "keyword";
     BooleanFilterName["LANGUAGE"] = "language";
     BooleanFilterName["SERVER"] = "server";
     BooleanFilterName["TYPE"] = "type";

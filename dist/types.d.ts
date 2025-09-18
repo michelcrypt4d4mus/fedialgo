@@ -31,6 +31,7 @@ export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type TootSource = (typeof TOOT_SOURCES)[number];
+/** These are both both filter option property names as well as demo app gradient config keys. */
 export declare const FILTER_OPTION_DATA_SOURCES: readonly [...TagTootsCategory[], BooleanFilterName.LANGUAGE, ScoreName.FAVOURITED_ACCOUNTS];
 export type FilterOptionDataSource = (typeof FILTER_OPTION_DATA_SOURCES)[number];
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;

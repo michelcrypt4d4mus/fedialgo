@@ -143,6 +143,7 @@ export declare enum TrendingType {
 export declare enum BooleanFilterName {
     APP = "app",
     HASHTAG = "hashtag",
+    KEYWORD = "keyword",
     LANGUAGE = "language",
     SERVER = "server",
     TYPE = "type",
