@@ -51,7 +51,7 @@ class Logger {
      * @param {string} parenthesized - The value to parenthesize in the prefix.
      * @param {...string} args - Additional prefix arguments.
      * @returns {Logger} A new Logger instance with the custom prefix.
-     * @example Logger.withParenthesizedName('a', 'b', 'c').log('Hello');  // Logs: [a (b)] {c} Hello
+     * @example Logger.withParenthesizedName('Type', 'paren', 'xyz').log('Hello');  // Logs "[Type (paren)] {xyz} Hello"
      */
     static withParenthesizedName(name, parenthesized, ...args) {
         return new Logger(`${name} ${(0, string_helpers_1.arrowed)(parenthesized)}`, ...args);
