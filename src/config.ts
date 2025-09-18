@@ -182,7 +182,7 @@ class Config implements ConfigType {
         daysBeforeFullCacheRefresh: 21,         // Days before the cache is considered stale and needs to be refreshed completely  // TODO: currently unused
         defaultRecordsPerPage: 40,              // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         errorMsgs: {
-            accessTokenRevoked: "The access token was revoked",
+            accessTokenRevoked: "The access token was revoked",  // Error messsage thrown by masto.js
             goToSocialHashtagTimeline: (s: string) => `GoToSocial servers don't enable ${s} by default, check if yours does.`,
             rateLimitError: "Too many requests",  // MastoHttpError: Too many requests
             rateLimitWarning: "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.",
@@ -295,7 +295,8 @@ class Config implements ConfigType {
         numServersToCheck: 30,                  // NUM_SERVERS_TO_CHECK
         // Popular servers that are used as fallbacks if the user isn't following accounts on enough
         // servers to make for a good set of trending toots and hashtags.
-        // Culled from https://mastodonservers.net and https://joinmastodon.org/ and https://fedidb.com/software/mastodon?registration=open
+        // Culled from https://mastodonservers.net and https://joinmastodon.org/ and
+        // https://fedidb.com/software/mastodon?registration=open
         defaultServers: [
             "mastodon.social",
             "mastodon.cloud",

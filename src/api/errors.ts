@@ -1,5 +1,5 @@
 /**
- * Functions for handling Mastodon API errors.
+ * @fileoverview Functions for handling Mastodon API errors.
  * @module api_errors
  */
 

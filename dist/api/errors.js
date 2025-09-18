@@ -1,6 +1,6 @@
 "use strict";
 /**
- * Functions for handling Mastodon API errors.
+ * @fileoverview Functions for handling Mastodon API errors.
  * @module api_errors
  */
 Object.defineProperty(exports, "__esModule", { value: true });
