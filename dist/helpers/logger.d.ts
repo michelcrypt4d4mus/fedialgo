@@ -18,19 +18,18 @@ export declare class Logger {
     constructor(name: string, ...args: LoggerArg[]);
     /**
      * Alternate constructor; makes the first two arguments into a parenthesized bracketed string.
-     * e.g. the prefix will be [name (parenthesized)].
      * @param {string} name - The main name for the logger.
-     * @param {string} parenthesized - The value to parenthesize in the prefix.
+     * @param {string} parenthesized - The string to parenthesize in the prefix.
      * @param {...string} args - Additional prefix arguments.
      * @returns {Logger} A new Logger instance with the custom prefix.
-     * @example Logger.withParenthesizedName('a', 'b', 'c').log('Hello');  // Logs: [a (b)] {c} Hello
+     * @example Logger.withParenthesizedName('Type', 'paren', 'xyz').log('Hello');  // Logs "[Type (paren)] {xyz} Hello"
      */
     static withParenthesizedName(name: string, parenthesized: string, ...args: string[]): Logger;
     /**
      * Logs an error message or {@linkcode Error} object to the console with the logger's prefix.
      * Checks whether any element of {@linkcode args} is an instance of {@linkcode Error} for
      * special handling.
-     * @param {string|Error} msg - The error message or Error object.
+     * @param {string|Error} msg - The error message or {@linkcode Error} object.
      * @param {...unknown} args - Additional arguments to log.
      * @returns {string} The error message string.
      */

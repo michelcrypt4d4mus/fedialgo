@@ -19,13 +19,13 @@ const string_helpers_1 = require("./string_helpers");
 exports.isDevelopment = process.env.NODE_ENV === "development";
 exports.isProduction = process.env.NODE_ENV === "production";
 exports.isTest = process.env.NODE_ENV === "test";
-// Set for a lot more logging
+/** Set for a truly extreme amount of logging. */
 exports.isDeepDebug = process.env.FEDIALGO_DEEP_DEBUG === "true";
-// Even logging, some configuration changes
+/** Additional logging for local development, some configuration changes. */
 exports.isDebugMode = exports.isDeepDebug || process.env.FEDIALGO_DEBUG === "true";
-// Set for long stress tests, pulling tons of data from the mastodon API
+/** Set for long stress tests, pulling tons of data from the mastodon API. */
 exports.isLoadTest = process.env.LOAD_TEST === "true";
-// Set for a much shorter startup time, useful for development and testing
+/** Set for a much shorter startup time, useful for development and testing. */
 exports.isQuickMode = process.env.QUICK_MODE === "true";
 // Log the environment variables we care about to the browser console
 const envVars = {
