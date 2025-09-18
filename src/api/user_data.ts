@@ -1,6 +1,6 @@
-/*
- * Methods for dealing with data about the user currently using fedialgo - background
- * data for the scorers and so on.
+/**
+ * @fileoverview Methods for dealing with data about the user currently using
+ * fedialgo - background data for the scorers and so on.
  */
 import { mastodon } from "masto";
 

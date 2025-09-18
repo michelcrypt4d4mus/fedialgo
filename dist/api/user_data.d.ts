@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Methods for dealing with data about the user currently using
+ * fedialgo - background data for the scorers and so on.
+ */
 import { mastodon } from "masto";
 import Account from "./objects/account";
 import { BooleanFilterOptionList, type ObjList } from "./counted_list";
