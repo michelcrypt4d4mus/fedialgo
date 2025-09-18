@@ -31,6 +31,7 @@ export type StringSet = Set<string | undefined>;
 export type TootLike = mastodon.v1.Status | SerializableToot | Toot;
 export type TootNumberProp = KeysOfValueType<Toot, number>;
 export type TootSource = (typeof TOOT_SOURCES)[number];
+/** These are both both filter option property names as well as demo app gradient config keys. */
 export declare const FILTER_OPTION_DATA_SOURCES: readonly [...TagTootsCategory[], BooleanFilterName.LANGUAGE, ScoreName.FAVOURITED_ACCOUNTS];
 export type FilterOptionDataSource = (typeof FILTER_OPTION_DATA_SOURCES)[number];
 export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
@@ -38,6 +39,7 @@ export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 type FilterOptionUserData = {
     [key in FilterOptionDataSource]?: number;
 };
+/** Add FilterOptionDataSource properties to the {@linkcode NamedTootCount} interface. */
 export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
     isFollowed?: boolean;
 }
@@ -65,11 +67,12 @@ export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;
 /**
- * Union type representing any object that can be returned from the Mastodon API and handled by the app
- * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
+ * Union type representing any object that can be returned from the Mastodon API and handled by
+ * the app in addition to our local extensions like {@linkcode Toot}, {@linkcode Account}, and
+ * {@linkcode TagWithUsageCounts}.
  */
 export type ApiObj = (ApiObjWithID | Hashtag | mastodon.v1.TrendLink | string);
-/** Most (but not all) Mastodon API objects have an 'id' property. */
+/** Union type for most (but not all) Mastodon API objects with an {@linkcode id} property. */
 export type ApiObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 /** Any CacheableApiObj will also be written to localForage with these properties. */
 export interface CacheTimestamp {
@@ -100,7 +103,7 @@ export interface MinMaxAvgScore extends MinMax {
     count: number;
     averageFinalScore: number;
 }
-/** Abstract interface for objects that have numToots of some kind */
+/** Abstract interface for objects that have numToots of some kind. */
 export interface NamedTootCount extends TootCount {
     displayName?: string;
     displayNameWithEmoji?: string;
@@ -112,19 +115,17 @@ export type ScoreStats = {
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
+/** Mastodon Tag object with additional properties for occurence counts and language. */
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 }
-export type TootContext = {
-    ancestors: Toot[];
-    descendants: Toot[];
-    toot: Toot;
-};
+/** Interface for objects that contain counts of accoutns and toots. */
 export interface TootCount {
     numAccounts?: number;
     numToots?: number;
     regex?: RegExp;
 }
+/** Information about a {@link Toot}'s weighted score. */
 export type TootScore = {
     rawScore: number;
     score: number;
@@ -144,6 +145,7 @@ export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {
 }
 export type TrendingObj = Toot | TrendingWithHistory;
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
+/** Holds both the raw and unweighted score for a given {@linkcode ScoreName}. */
 export type WeightedScore = {
     raw: number;
     weighted: number;
@@ -152,6 +154,7 @@ export type WeightInfo = {
     description: string;
     minValue?: number;
 };
+/** Names of all the user adjustable score weightings, both those with a Scorer and those without. */
 export type WeightName = ScoreName | NonScoreWeightName;
 export interface WithCreatedAt {
     createdAt: string | Date;
