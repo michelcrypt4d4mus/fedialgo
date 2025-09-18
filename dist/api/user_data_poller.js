@@ -22,6 +22,7 @@ const MOAR_MUTEX = new async_mutex_1.Mutex();
 class UserDataPoller {
     intervalRunner;
     logger = new logger_1.Logger('UserDataPoller');
+    /** Kick off the background polling. */
     start() {
         if (this.intervalRunner) {
             this.logger.trace(`User data poller already running, not starting another one`);

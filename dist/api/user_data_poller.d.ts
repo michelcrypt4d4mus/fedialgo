@@ -8,6 +8,7 @@
 export default class UserDataPoller {
     private intervalRunner?;
     private logger;
+    /** Kick off the background polling. */
     start(): void;
     /**
      * Stop the pollers. Returns true if there was anything to stop.

@@ -25,6 +25,7 @@ export default class UserDataPoller {
     private intervalRunner?: ReturnType<typeof setInterval>;
     private logger = new Logger('UserDataPoller');
 
+    /** Kick off the background polling. */
     start(): void {
         if (this.intervalRunner) {
             this.logger.trace(`User data poller already running, not starting another one`);
