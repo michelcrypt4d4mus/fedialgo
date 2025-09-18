@@ -66,7 +66,7 @@ export type BooleanFilters = Record<BooleanFilterName, BooleanFilter>;
 export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 type FilterOptionUserData = {[key in FilterOptionDataSource]?: number};
 
-// Add FilterOptionDataSource properties to the ObjWithTootCount interface
+/** Add FilterOptionDataSource properties to the {@linkcode NamedTootCount} interface. */
 export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
     isFollowed?: boolean;
 };
@@ -164,7 +164,7 @@ export interface MinMaxAvgScore extends MinMax {
     averageFinalScore: number;
 };
 
-/** Abstract interface for objects that have numToots of some kind */
+/** Abstract interface for objects that have numToots of some kind. */
 export interface NamedTootCount extends TootCount {
     displayName?: string;
     displayNameWithEmoji?: string; // TODO: just testing this
@@ -179,23 +179,19 @@ export type ScoreStats = {
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
 
+/** Mastodon Tag object with additional properties for occurence counts and language. */
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 };
 
-// Similar to mastodon.v1.Context: https://docs.joinmastodon.org/entities/Context/
-export type TootContext = {
-    ancestors: Toot[];
-    descendants: Toot[];
-    toot: Toot;
-};
-
+/** Interface for objects that contain counts of accoutns and toots. */
 export interface TootCount {
     numAccounts?: number;
     numToots?: number;
     regex?: RegExp;  // TODO: this shouldn't be here
 };
 
+/** Information about a {@link Toot}'s weighted score. */
 export type TootScore = {
     rawScore: number;             // Raw score without time decay etc. applied
     score: number;                // Actual final score
@@ -229,7 +225,7 @@ export type WeightInfo = {
     minValue?: number;
 };
 
-// Names of all the user adjustable score weightings, both those with a Scorer and those without
+/** Names of all the user adjustable score weightings, both those with a Scorer and those without. */
 export type WeightName = ScoreName | NonScoreWeightName;
 
 export interface WithCreatedAt {

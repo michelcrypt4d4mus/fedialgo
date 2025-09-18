@@ -39,6 +39,7 @@ export type NumericFilters = Record<TootNumberProp, NumericFilter>;
 type FilterOptionUserData = {
     [key in FilterOptionDataSource]?: number;
 };
+/** Add FilterOptionDataSource properties to the {@linkcode NamedTootCount} interface. */
 export interface BooleanFilterOption extends FilterOptionUserData, NamedTootCount {
     isFollowed?: boolean;
 }
@@ -101,7 +102,7 @@ export interface MinMaxAvgScore extends MinMax {
     count: number;
     averageFinalScore: number;
 }
-/** Abstract interface for objects that have numToots of some kind */
+/** Abstract interface for objects that have numToots of some kind. */
 export interface NamedTootCount extends TootCount {
     displayName?: string;
     displayNameWithEmoji?: string;
@@ -113,19 +114,17 @@ export type ScoreStats = {
 };
 export type ScoresStats = Record<ScoreName, ScoreStats>;
 export type ScoreType = keyof WeightedScore;
+/** Mastodon Tag object with additional properties for occurence counts and language. */
 export interface TagWithUsageCounts extends mastodon.v1.Tag, NamedTootCount {
     language?: string;
 }
-export type TootContext = {
-    ancestors: Toot[];
-    descendants: Toot[];
-    toot: Toot;
-};
+/** Interface for objects that contain counts of accoutns and toots. */
 export interface TootCount {
     numAccounts?: number;
     numToots?: number;
     regex?: RegExp;
 }
+/** Information about a {@link Toot}'s weighted score. */
 export type TootScore = {
     rawScore: number;
     score: number;
@@ -153,6 +152,7 @@ export type WeightInfo = {
     description: string;
     minValue?: number;
 };
+/** Names of all the user adjustable score weightings, both those with a Scorer and those without. */
 export type WeightName = ScoreName | NonScoreWeightName;
 export interface WithCreatedAt {
     createdAt: string | Date;
