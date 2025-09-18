@@ -67,11 +67,12 @@ export type KeysOfValueType<T, SuperClass> = Exclude<{
     [K in keyof T]: T[K] extends SuperClass ? K : never;
 }[keyof T], undefined>;
 /**
- * Union type representing any object that can be returned from the Mastodon API and handled by the app
- * in addition to our local extensions like Toot, Account, and TagWithUsageCounts.
+ * Union type representing any object that can be returned from the Mastodon API and handled by
+ * the app in addition to our local extensions like {@linkcode Toot}, {@linkcode Account}, and
+ * {@linkcode TagWithUsageCounts}.
  */
 export type ApiObj = (ApiObjWithID | Hashtag | mastodon.v1.TrendLink | string);
-/** Most (but not all) Mastodon API objects have an 'id' property. */
+/** Union type for most (but not all) Mastodon API objects with an {@linkcode id} property. */
 export type ApiObjWithID = (Account | TootLike | mastodon.v1.Account | mastodon.v1.Notification | mastodon.v1.Status | mastodon.v2.Filter);
 /** Any CacheableApiObj will also be written to localForage with these properties. */
 export interface CacheTimestamp {
@@ -144,6 +145,7 @@ export interface TrendingLink extends mastodon.v1.TrendLink, TootCount {
 }
 export type TrendingObj = Toot | TrendingWithHistory;
 export type TrendingWithHistory = TagWithUsageCounts | TrendingLink;
+/** Holds both the raw and unweighted score for a given {@linkcode ScoreName}. */
 export type WeightedScore = {
     raw: number;
     weighted: number;

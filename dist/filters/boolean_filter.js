@@ -51,9 +51,6 @@ const TOOT_MATCHERS = {
     [enums_1.BooleanFilterName.HASHTAG]: (toot, selectedOptions) => {
         return !!selectedOptions.find((v) => toot.realToot.containsTag((0, tag_1.buildTag)(v), true));
     },
-    [enums_1.BooleanFilterName.KEYWORD]: (toot, selectedOptions) => {
-        return !!selectedOptions.find((v) => toot.realToot.containsTag((0, tag_1.buildTag)(v), true));
-    },
     [enums_1.BooleanFilterName.LANGUAGE]: (toot, selectedOptions) => {
         return selectedOptions.includes(toot.realToot.language || config_1.config.locale.defaultLanguage);
     },
