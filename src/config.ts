@@ -1243,6 +1243,7 @@ class Config implements ConfigType {
             "faith",
             "fall",
             "falling",
+            "falls",
             "falsas",       // Spanish
             "falsch",       // German
             "false",
@@ -1425,6 +1426,7 @@ class Config implements ConfigType {
             "handing",
             "hands",
             "has",
+            "hat",         // German
             "he",
             "head",
             "headline",
@@ -1772,6 +1774,7 @@ class Config implements ConfigType {
             "messages",
             "messaging",
             "met",
+            "metro",
             "middle",
             "million",
             "millions",
@@ -1787,6 +1790,7 @@ class Config implements ConfigType {
             "mix",
             "mixed",
             "mixes",
+            "mixing",
             "mode",
             "model",
             "models",
