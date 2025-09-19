@@ -1006,6 +1006,8 @@ class Config implements ConfigType {
             "departments",
             "der",           // German
             "design",
+            "designed",
+            "designing",
             "designs",
             "detail",
             "details",
@@ -1479,6 +1481,7 @@ class Config implements ConfigType {
             "html",
             "http",
             "https",
+            "huh",
             "human",
             "humanity",
             "humans",
@@ -2188,6 +2191,7 @@ class Config implements ConfigType {
             "quoted",
             "quotes",
             "quoting",
+            "race",
             "raced",
             "racing",
             "raise",
@@ -2921,6 +2925,7 @@ class Config implements ConfigType {
             "welcome",
             "well",
             "welt",          // German
+            "weltraum",      // German
             "wenn",          // German
             "went",
             "were",
