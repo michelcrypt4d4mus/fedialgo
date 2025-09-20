@@ -2047,6 +2047,8 @@ class Config implements ConfigType {
             "playing",
             "plays",
             "please",
+            "pleased",
+            "pleasing",
             "plot",
             "pluralistic",    // TODO: the regex should probably exclude @account mentions...
             "plus",
@@ -2126,9 +2128,11 @@ class Config implements ConfigType {
             "print",
             "printed",
             "private",
+            "privately",
             "pro",
             "problem",
             "problematic",
+            "problemo",        // Spanish
             "problems",
             "probably",
             "procedure",
@@ -2698,6 +2702,7 @@ class Config implements ConfigType {
             "text",
             "than",
             "thank",
+            "thanked",
             "thanks",
             "that",
             "the",
@@ -2887,6 +2892,7 @@ class Config implements ConfigType {
             "visits",
             "visual",
             "voice",
+            "von",
             "vuelta",        // Spanish
             "vs",
             "wahrun",        // German
