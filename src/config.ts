@@ -1860,6 +1860,7 @@ class Config implements ConfigType {
             "nonsense",
             "nope",
             "nor",
+            "nord",       // French
             "north",
             "northern",
             "nos",        // French
@@ -2649,6 +2650,10 @@ class Config implements ConfigType {
             "sur",           // French
             "sure",
             "surely",
+            "sweet",
+            "sweeter",
+            "sweetest",
+            "sweetly",
             "system",
             "systems",
             "tag",
