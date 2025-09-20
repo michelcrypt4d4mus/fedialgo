@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More `tagOnlyStrings`
 
 ### v1.1.57
 * More `tagOnlyStrings`
@@ -20,10 +21,7 @@
 ### v1.1.52
 * (Demo App) Log calls to `extractText()`
 
-### v1.1.51
-* More `tagOnlyStrings`
-
-### v1.1.50
+### v1.1.50 - v1.1.51
 * More `tagOnlyStrings`
 
 ### v1.1.49
@@ -38,10 +36,7 @@
 ### v1.1.46
 * (Demo App) Set favicon
 
-### v1.1.45
-* More `tagOnlyStrings`
-
-### v1.1.44
+### v1.1.44 - v1.1.45
 * More `tagOnlyStrings`
 
 ### v1.1.43
@@ -53,10 +48,7 @@
 ### v1.1.41
 * (Demo App) Move default values for GUI checkboxes into `config.ts`, change default for `allowMultiSelect` to `false`
 
-### v1.1.40
-* More `tagOnlyStrings`
-
-### v1.1.39
+### v1.1.39 - v1.1.40
 * More `tagOnlyStrings`
 
 ### v1.1.38
@@ -64,10 +56,7 @@
 * Raise `config.toots.batchCompleteSleepBetweenMS` from 150ms to 210ms because responsiveness is pretty impaired while running
 * More `tagOnlyStrings`
 
-### v1.1.37
-* More `tagOnlyStrings`
-
-### v1.1.36
+### v1.1.36 - v1.1.37
 * More `tagOnlyStrings`
 
 ### v1.1.35
@@ -111,10 +100,7 @@
 ### v1.1.23
 * Rename `MoarDataPoller` to `UserDataPoller`
 
-### v1.1.22
-* More `tagOnlyStrings`
-
-### v1.1.21
+### v1.1.21 - v1.1.22
 * More `tagOnlyStrings`
 
 ### v1.1.20
