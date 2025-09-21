@@ -50,16 +50,18 @@ export default class BooleanFilter extends TootFilter {
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by name
      * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionsSortedByName(minToots?: number): BooleanFilterOptionList;
+    optionsSortedByName(minToots?: number, includeFollowed?: boolean): BooleanFilterOptionList;
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}
      * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionsSortedByValue(minToots?: number): BooleanFilterOptionList;
+    optionsSortedByValue(minToots?: number, includeFollowed?: boolean): BooleanFilterOptionList;
     /**
      * Add or remove an option to/remove an option from {@linkcode this.selectedOptions}.
      * @param {string} optionName - The option name.
@@ -77,6 +79,7 @@ export default class BooleanFilter extends TootFilter {
      * @private
      * @param {BooleanFilterOption[]} options - The options to filter.
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
     private optionListWithMinToots;

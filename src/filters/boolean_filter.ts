@@ -144,24 +144,26 @@ export default class BooleanFilter extends TootFilter {
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by name
      * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionsSortedByName(minToots: number = 0): BooleanFilterOptionList {
+    optionsSortedByName(minToots: number = 0, includeFollowed: boolean = false): BooleanFilterOptionList {
         const options = this.options.objs.toSorted(
             (a, b) => compareStr(a.displayName || a.name, b.displayName || b.name)
         );
 
-        return this.optionListWithMinToots(options, minToots);
+        return this.optionListWithMinToots(options, minToots, includeFollowed);
     }
 
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}
      * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionsSortedByValue(minToots: number = 0): BooleanFilterOptionList {
-        const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots);
+    optionsSortedByValue(minToots: number = 0, includeFollowed: boolean = false): BooleanFilterOptionList {
+        const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots, includeFollowed);
         this.logger.trace(`optionsSortedByValue() sortedObjs:`, sortedObjs.objs);
         return sortedObjs;
     }
@@ -211,10 +213,17 @@ export default class BooleanFilter extends TootFilter {
      * @private
      * @param {BooleanFilterOption[]} options - The options to filter.
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    private optionListWithMinToots(options: BooleanFilterOption[], minToots: number = 0): BooleanFilterOptionList {
-        const newOptions = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
+    private optionListWithMinToots(
+        options: BooleanFilterOption[],
+        minToots: number = 0,
+        includeFollowed: boolean = false
+    ): BooleanFilterOptionList {
+        const newOptions = options.filter(o => {
+            return (o.numToots || 0) >= minToots || this.isOptionEnabled(o.name) || (includeFollowed && o.isFollowed)
+        });
 
         this.selectedOptions.forEach((selected) => {
             if (!newOptions.some(opt => opt.name === selected)) {

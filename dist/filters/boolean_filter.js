@@ -130,20 +130,22 @@ class BooleanFilter extends toot_filter_1.default {
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by name
      * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionsSortedByName(minToots = 0) {
+    optionsSortedByName(minToots = 0, includeFollowed = false) {
         const options = this.options.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.displayName || a.name, b.displayName || b.name));
-        return this.optionListWithMinToots(options, minToots);
+        return this.optionListWithMinToots(options, minToots, includeFollowed);
     }
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}
      * ({@linkcode this.selectedOptions} are always included).
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionsSortedByValue(minToots = 0) {
-        const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots);
+    optionsSortedByValue(minToots = 0, includeFollowed = false) {
+        const sortedObjs = this.optionListWithMinToots(this.options.topObjs(), minToots, includeFollowed);
         this.logger.trace(`optionsSortedByValue() sortedObjs:`, sortedObjs.objs);
         return sortedObjs;
     }
@@ -187,10 +189,13 @@ class BooleanFilter extends toot_filter_1.default {
      * @private
      * @param {BooleanFilterOption[]} options - The options to filter.
      * @param {number} [minToots=0] - Minimum number of toots.
+     * @param {boolean} [includeFollowed=false] - Always include options with {@linkcode isFollowed} set to true.
      * @returns {BooleanFilterOptionList}
      */
-    optionListWithMinToots(options, minToots = 0) {
-        const newOptions = options.filter(opt => (opt.numToots || 0) >= minToots || this.isOptionEnabled(opt.name));
+    optionListWithMinToots(options, minToots = 0, includeFollowed = false) {
+        const newOptions = options.filter(o => {
+            return (o.numToots || 0) >= minToots || this.isOptionEnabled(o.name) || (includeFollowed && o.isFollowed);
+        });
         this.selectedOptions.forEach((selected) => {
             if (!newOptions.some(opt => opt.name === selected)) {
                 this.logger.warn(`Selected option "${selected}" not found in options, adding synthetically`);
