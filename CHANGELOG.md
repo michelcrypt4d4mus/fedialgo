@@ -3,16 +3,7 @@
 ### v1.1.59
 * (Demo App) Trigger error pop up when a `Toot` fails to resolve to a URL on the user's homeserver
 
-### v1.1.58
-* More `tagOnlyStrings`
-
-### v1.1.57
-* More `tagOnlyStrings`
-
-### v1.1.56
-* More `tagOnlyStrings`
-
-### v1.1.55
+### v1.1.55 - v1.1.58
 * More `tagOnlyStrings`
 
 ### v1.1.54
@@ -20,7 +11,6 @@
 
 ### v1.1.53
 * Logging of args for calls to `Logger.error()`
-* (Demo App) Use branded mastodon favicon
 * More `tagOnlyStrings`
 
 ### v1.1.52
