@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+# v1.2.0
 * Add `includeFollowed` param to `BooleanFilter` functions
 * (Demo App) Add switch for "Always Show Followed" to filters section
 
