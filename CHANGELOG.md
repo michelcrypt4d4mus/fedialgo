@@ -1,4 +1,6 @@
 # NEXT RELEASE
+* Add `includeFollowed` param to `BooleanFilter` functions
+* (Demo App) Add switch for "Always Show Followed" to filters section
 
 ### v1.1.59
 * (Demo App) Trigger error pop up when a `Toot` fails to resolve to a URL on the user's homeserver
