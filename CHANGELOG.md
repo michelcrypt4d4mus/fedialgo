@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.1.59
+* (Demo App) Trigger error pop up when a `Toot` fails to resolve to a URL on the user's homeserver
+
 ### v1.1.58
 * More `tagOnlyStrings`
 
