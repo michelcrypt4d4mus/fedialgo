@@ -1587,6 +1587,8 @@ class Config implements ConfigType {
             "joined",
             "joining",
             "joins",
+            "joint",
+            "jointly",
             "jp",
             "jr",
             "keep",

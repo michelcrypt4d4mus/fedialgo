@@ -1448,6 +1448,8 @@ class Config {
             "joined",
             "joining",
             "joins",
+            "joint",
+            "jointly",
             "jp",
             "jr",
             "keep",
