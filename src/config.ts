@@ -592,6 +592,9 @@ class Config implements ConfigType {
             "among",
             "amongst",
             "an",
+            "analysis",
+            "and",
+            "angeles",
             "animate",
             "animated",
             "animates",
@@ -602,9 +605,6 @@ class Config implements ConfigType {
             "announcement",
             "announcements",
             "announcing",
-            "analysis",
-            "and",
-            "angeles",
             "ano",                // Spanish
             "anos",               // Spanish
             "another",
@@ -613,6 +613,7 @@ class Config implements ConfigType {
             "answering",
             "answers",
             "anti",
+            "any",
             "app",
             "application",
             "applications",
@@ -2692,6 +2693,7 @@ class Config implements ConfigType {
             "studied",
             "studies",
             "stuff",
+            "stupid",
             "sturm",        // German
             "style",
             "styled",
