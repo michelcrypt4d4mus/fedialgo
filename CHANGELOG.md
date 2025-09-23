@@ -1,6 +1,7 @@
 # NEXT RELEASE
 
 ### v1.2.1
+* More `tagOnlyStrings`
 
 # v1.2.0
 * Add `includeFollowed` param to `BooleanFilter` functions
