@@ -135,7 +135,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionsSortedByName(minToots = 0, includeFollowed = false) {
         const options = this.options.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.displayName || a.name, b.displayName || b.name));
-        return this.optionListWithMinToots(options, minToots, includeFollowed);
+        return this.optionListWithMinToots(options, minToots, includeFollowed).filter(obj => (obj.numToots || 0) >= 1);
     }
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}

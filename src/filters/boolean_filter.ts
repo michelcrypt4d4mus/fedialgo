@@ -152,7 +152,7 @@ export default class BooleanFilter extends TootFilter {
             (a, b) => compareStr(a.displayName || a.name, b.displayName || b.name)
         );
 
-        return this.optionListWithMinToots(options, minToots, includeFollowed);
+        return this.optionListWithMinToots(options, minToots, includeFollowed).filter(obj => (obj.numToots || 0) >= 1);
     }
 
     /**
