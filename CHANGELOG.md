@@ -1,8 +1,10 @@
 # NEXT RELEASE
 
-### v1.2.2
+### v1.2.3
+* (Demo App) Fix hashtag filter footer switch layout
+* (Demo App) Fix layout for short but wide images in toots
 
-### v1.2.1
+### v1.2.1 - v1.2.2
 * More `tagOnlyStrings`
 
 # v1.2.0
