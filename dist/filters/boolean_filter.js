@@ -135,7 +135,7 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionsSortedByName(minToots = 0, includeFollowed = false) {
         const options = this.options.objs.toSorted((a, b) => (0, string_helpers_1.compareStr)(a.displayName || a.name, b.displayName || b.name));
-        return this.optionListWithMinToots(options, minToots, includeFollowed).filter(obj => (obj.numToots || 0) >= 1);
+        return this.optionListWithMinToots(options, minToots, includeFollowed);
     }
     /**
      * Return options with {@linkcode numToots} >= {@linkcode minToots} sorted by {@linkcode numToots}
@@ -194,7 +194,8 @@ class BooleanFilter extends toot_filter_1.default {
      */
     optionListWithMinToots(options, minToots = 0, includeFollowed = false) {
         const newOptions = options.filter(o => {
-            return (o.numToots || 0) >= minToots || this.isOptionEnabled(o.name) || (includeFollowed && o.isFollowed);
+            const numToots = o.numToots || 0;
+            return numToots >= minToots || this.isOptionEnabled(o.name) || (includeFollowed && o.isFollowed && numToots > 0);
         });
         this.selectedOptions.forEach((selected) => {
             if (!newOptions.some(opt => opt.name === selected)) {
