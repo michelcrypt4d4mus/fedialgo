@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.2.4
 * Fix issue where followed hashtags with 0 toots were showing up in filter list when sorted alphabetically with "always show followed" option enabled
 
 ### v1.2.3
