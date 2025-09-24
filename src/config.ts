@@ -3062,6 +3062,7 @@ class Config implements ConfigType {
             "workers",
             "working",
             "works",
+            "workshop",
             "world",
             "worldview",
             "worried",

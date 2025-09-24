@@ -1,7 +1,10 @@
 # NEXT RELEASE
 
+### v1.2.4
+* Fix issue where followed hashtags with 0 toots were showing up in filter list when sorted alphabetically with "always show followed" option enabled
+
 ### v1.2.3
-* (Demo App) Fix hashtag filter footer switch layout
+* (Demo App) Fix hashtag filter section footer switch layout
 * (Demo App) Fix layout for short but wide images in toots
 
 ### v1.2.1 - v1.2.2

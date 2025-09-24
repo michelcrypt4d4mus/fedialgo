@@ -2923,6 +2923,7 @@ class Config {
             "workers",
             "working",
             "works",
+            "workshop",
             "world",
             "worldview",
             "worried",
