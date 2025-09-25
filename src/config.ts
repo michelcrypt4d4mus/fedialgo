@@ -709,6 +709,10 @@ class Config implements ConfigType {
             "benefits",
             "best",
             "bet",
+            "betray",
+            "betrayed",
+            "betraying",
+            "betrays",
             "better",
             "betting",
             "between",
@@ -1071,6 +1075,9 @@ class Config implements ConfigType {
             "discovered",
             "discovering",
             "discovers",
+            "disgrace",
+            "disgraceful",
+            "disgracefully",
             "disgust",
             "disgusted",
             "disgusting",
@@ -1209,6 +1216,8 @@ class Config implements ConfigType {
             "erin",        // name
             "es",          // Spanish
             "escape",
+            "estado",      // Spanish
+            "estados",     // Spanish
             "et",          // French
             "ete",         // French
             "essential",
@@ -1619,6 +1628,8 @@ class Config implements ConfigType {
             "itself",
             "ja",             // German
             "je",             // French
+            "jeff",
+            "jeffrey",
             "job",
             "join",
             "joined",
@@ -1946,6 +1957,7 @@ class Config implements ConfigType {
             "noting",
             "notizie",    // Italian
             "novel",
+            "novita",     // Italian
             "now",
             "number",
             "nytimes",
@@ -2386,6 +2398,7 @@ class Config implements ConfigType {
             "replacing",
             "report",
             "reporter",
+            "reporting",
             "reports",
             "repost",
             "reposted",
@@ -2662,6 +2675,7 @@ class Config implements ConfigType {
             "spin",
             "spins",
             "spoke",
+            "spot",
             "spotted",
             "spring",
             "spun",
@@ -2963,6 +2977,8 @@ class Config implements ConfigType {
             "variety",
             "various",
             "variously",
+            "vast",
+            "vastly",
             "ve",            // French
             "vehicle",
             "ver",           // German
