@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.2.6
+* More `tagOnlyStrings`
+
 ### v1.2.5
 * Better fix for "always show followed" filter issue
 
