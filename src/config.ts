@@ -910,6 +910,8 @@ class Config implements ConfigType {
             "concepts",
             "concern",
             "concerns",
+            "concrete",
+            "concretely",
             "conference",
             "conflict",
             "conflicted",
@@ -2055,6 +2057,7 @@ class Config implements ConfigType {
             "packed",
             "packs",
             "paid",
+            "pais",        // Spanish
             "pan",
             "panel",
             "paper",
