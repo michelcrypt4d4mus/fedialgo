@@ -2,7 +2,7 @@
  * @fileoverview Centralized location for non-user configurable settings.
  */
 import { isDebugMode, isLoadTest, isQuickMode } from "./helpers/environment_helpers";
-import { optionalSuffix } from "./helpers/string_helpers";
+import { optionalSuffix, suffixedInt } from "./helpers/string_helpers";
 import { timeString } from "./helpers/time_helpers";
 import { type NonScoreWeightInfoDict, type Optional } from "./types";
 import {
@@ -498,6 +498,7 @@ class Config implements ConfigType {
             ...DAYS_SHORT.map(m => m.toLowerCase()),
             ...MONTHS.map(m => m.toLowerCase()),
             ...MONTHS_SHORT.map(m => m.toLowerCase()),
+            ...Array.from({length: 31}, (_, i) => suffixedInt(i)),
             "ab",
             "about",
             "abstract",
@@ -974,10 +975,12 @@ class Config implements ConfigType {
             "credited",
             "crediting",
             "credits",
+            "critic",
             "critical",
             "criticism",
             "criticized",
             "criticizing",
+            "critics",
             "critique",
             "cross",
             "cu",             // Tagalog
@@ -1785,6 +1788,7 @@ class Config implements ConfigType {
             "lowest",
             "lustig",
             "ma",
+            "macht",        // German
             "mad",
             "made",
             "magazine",
@@ -1820,6 +1824,10 @@ class Config implements ConfigType {
             "master",
             "mastered",
             "mastodon",
+            "match",
+            "matched",
+            "matches",
+            "matching",
             "material",
             "materials",
             "matter",
