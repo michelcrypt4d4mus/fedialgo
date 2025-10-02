@@ -525,6 +525,7 @@ class Config implements ConfigType {
             "activitypub",
             "actu",                // French
             "actual",
+            "actualite",           // French
             "actualites",          // French
             "adam",
             "add",
@@ -580,6 +581,7 @@ class Config implements ConfigType {
             "air",
             "aktuel",             // German
             "aktuell",            // German
+            "alex",
             "alienvault",
             "all",
             "also",
@@ -1219,6 +1221,9 @@ class Config implements ConfigType {
             "entertained",
             "entertains",
             "entertainment",
+            "entitled",
+            "entitles",
+            "entitling",
             "entra",       // Spanish
             "episode",
             "equipment",
@@ -1417,11 +1422,12 @@ class Config implements ConfigType {
             "funding",
             "funds",
             "funny",
-            "fur",         // German
+            "fur",          // German
             "further",
             "furthermore",
             "future",
             "fyi",
+            "garante",     // Spanish
             "garden",
             "gardens",
             "gear",
@@ -1431,10 +1437,11 @@ class Config implements ConfigType {
             "generally",
             "genre",
             "genres",
-            "geschichte",  // German
+            "geschichte",   // German
             "get",
             "getting",
             "gets",
+            "gif",
             "gift",
             "gifts",
             "girl",
@@ -1475,6 +1482,9 @@ class Config implements ConfigType {
             "grows",
             "growth",
             "grune",       // German
+            "guarantee",
+            "guaranteed",
+            "guarantees",
             "guardian",
             "guide",
             "guy",
@@ -1653,6 +1663,8 @@ class Config implements ConfigType {
             "joint",
             "jointly",
             "jp",
+            "jpeg",
+            "jpg",
             "jr",
             "just",
             "justin",
@@ -2540,6 +2552,9 @@ class Config implements ConfigType {
             "say",
             "says",
             "scale",
+            "scan",
+            "scanned",
+            "scans",
             "scare",
             "scared",
             "scares",
