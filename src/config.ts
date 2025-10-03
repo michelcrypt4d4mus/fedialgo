@@ -690,6 +690,7 @@ class Config implements ConfigType {
             "bag",
             "bags",
             "bahn",             // German
+            "baked",
             "bar",
             "barred",
             "barring",
@@ -775,6 +776,7 @@ class Config implements ConfigType {
             "build",
             "building",
             "business",
+            "businesses",
             "but",
             "buy",
             "by",
@@ -802,6 +804,8 @@ class Config implements ConfigType {
             "carry",
             "case",
             "cases",
+            "caso",           // Spanish
+            "casos",          // Spanish
             "cat",
             "cats",
             "calendar",
@@ -820,12 +824,14 @@ class Config implements ConfigType {
             "chat",
             "chats",
             "chatting",
+            "cherchez",      // Spanish
             "chief",
             "chiefly",
             "choice",
             "choices",
             "choose",
             "chosen",
+            "ciencia",       // Spanish
             "cine",          // French
             "circle",
             "cities",
@@ -1065,6 +1071,7 @@ class Config implements ConfigType {
             "developments",
             "device",
             "devices",
+            "die",           // German
             "did",
             "diego",
             "digital",
@@ -1185,6 +1192,8 @@ class Config implements ConfigType {
             "edit",
             "edited",
             "editing",
+            "edition",
+            "editions",
             "editorial",
             "edits",
             "edu",           // TLD
@@ -1348,6 +1357,7 @@ class Config implements ConfigType {
             "fill",
             "filled",
             "fills",
+            "fin",             // French
             "final",
             "finally",
             "financial",
@@ -1482,6 +1492,7 @@ class Config implements ConfigType {
             "grows",
             "growth",
             "grune",       // German
+            "grunen",      // German
             "guarantee",
             "guaranteed",
             "guarantees",
@@ -1872,7 +1883,8 @@ class Config implements ConfigType {
             "memories",
             "memory",
             "men",
-            "menschen",   // German
+            "mensch",    // German
+            "menschen",    // German
             "mention",
             "mentioned",
             "mentions",
@@ -1884,7 +1896,7 @@ class Config implements ConfigType {
             "met",
             "metro",
             "middle",
-            "mientras",   // Spanish
+            "mientras",    // Spanish
             "million",
             "millions",
             "min",
@@ -1897,6 +1909,7 @@ class Config implements ConfigType {
             "mins",
             "minute",
             "minutes",
+            "mit",         // German
             "mix",
             "mixed",
             "mixes",
@@ -2846,6 +2859,10 @@ class Config implements ConfigType {
             "tapping",
             "taps",
             "tarde",        // Spanish
+            "target",
+            "targeted",
+            "targeting",
+            "targets",
             "task",
             "team",
             "teamed",
