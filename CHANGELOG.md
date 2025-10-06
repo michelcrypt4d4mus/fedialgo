@@ -1,13 +1,12 @@
 # NEXT RELEASE
 
+### v1.2.18
+* (Demo App) Update browser list in `canius-lite`
+
 ### v1.2.17
 * (Demo App) Adjust tooltip text for autoload switch
 
-### v1.2.16
-
-### v1.2.15
-
-### v1.2.6 - v1.2.14
+### v1.2.6 - v1.2.16
 * More `tagOnlyStrings`
 
 ### v1.2.5
