@@ -1313,6 +1313,10 @@ class Config implements ConfigType {
             "expression",
             "expressions",
             "ext",          // TLD
+            "extra",
+            "extract",
+            "extracted",
+            "extracting",
             "extreme",
             "extremes",
             "eye",
