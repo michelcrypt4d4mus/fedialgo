@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.2.17
+* (Demo App) Adjust tooltip text for autoload switch
+
 ### v1.2.16
 
 ### v1.2.15
