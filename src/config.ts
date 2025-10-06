@@ -669,6 +669,10 @@ class Config implements ConfigType {
             "association",
             "at",
             "ate",
+            "attempt",
+            "attempted",
+            "attempting",
+            "attempts",
             "attention",
             "au",               // Country code for Australia
             "auch",             // German
@@ -830,6 +834,7 @@ class Config implements ConfigType {
             "character",
             "characters",
             "chat",
+            "chateau",       // French
             "chats",
             "chatting",
             "cherchez",      // Spanish
@@ -905,6 +910,7 @@ class Config implements ConfigType {
             "communication",
             "communications",
             "community",
+            "como",           // Spanish
             "compact",
             "compacts",
             "companies",
@@ -1035,6 +1041,9 @@ class Config implements ConfigType {
             "dear",
             "dearly",
             "death",
+            "decency",
+            "decent",
+            "decently",
             "decide",
             "decides",
             "decision",
@@ -1429,6 +1438,8 @@ class Config implements ConfigType {
             "freiheit",     // German
             "french",
             "fresh",
+            "friend",
+            "friends",
             "fringe",
             "from",
             "front",
@@ -1525,6 +1536,10 @@ class Config implements ConfigType {
             "handed",
             "handing",
             "hands",
+            "hard",
+            "harder",
+            "hardest",
+            "hardly",
             "has",
             "hat",         // German
             "he",
@@ -2178,6 +2193,10 @@ class Config implements ConfigType {
             "picture",
             "pictures",
             "piece",
+            "pierce",
+            "pierced",
+            "pierces",
+            "piercing",
             "pink",
             "pixelfed",    // pixelfed.social
             "pl",
@@ -2609,6 +2628,7 @@ class Config implements ConfigType {
             "searches",
             "searching",
             "season",
+            "seat",
             "second",
             "seconds",
             "section",
@@ -3104,6 +3124,7 @@ class Config implements ConfigType {
             "visits",
             "visual",
             "voice",
+            "voices",
             "von",
             "vuelta",        // Spanish
             "vs",
@@ -3196,6 +3217,7 @@ class Config implements ConfigType {
             "with",
             "within",
             "without",
+            "wochenende",   // German
             "woman",
             "women",
             "won",
@@ -3258,6 +3280,7 @@ class Config implements ConfigType {
             "zeit",     // German
             "zh",       // Chinese
             "zu",       // German
+            "zukunft",  // German
         ]),
     }
 

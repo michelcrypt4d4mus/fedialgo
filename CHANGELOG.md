@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v1.2.19
+
 ### v1.2.18
 * (Demo App) Update browser list in `canius-lite`
 
