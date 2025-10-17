@@ -1,8 +1,11 @@
 # NEXT RELEASE
 
+### v1.2.21
+
 ### v1.2.20
 
 ### v1.2.19
+* More `tagOnlyStrings`
 
 ### v1.2.18
 * (Demo App) Update browser list in `canius-lite`
