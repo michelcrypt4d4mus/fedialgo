@@ -521,11 +521,14 @@ class Config implements ConfigType {
             "achieving",
             "across",
             "act",
+            "acted",
+            "acting",
             "action",
             "actions",
             "activities",
             "activity",
             "activitypub",
+            "actor",
             "actu",                // French
             "actual",
             "actualite",           // French
@@ -560,6 +563,7 @@ class Config implements ConfigType {
             "affiliated",
             "affiliating",
             "after",
+            "afternoon",
             "afterward",
             "afterwards",
             "again",
@@ -687,6 +691,7 @@ class Config implements ConfigType {
             "authority",
             "authorities",
             "auto",
+            "autumn",
             "avoid",
             "aware",
             "awareness",
@@ -814,6 +819,9 @@ class Config implements ConfigType {
             "cancels",
             "cannot",
             "capital",
+            "capture",
+            "captured",
+            "captures",
             "card",
             "care",
             "carry",
@@ -822,7 +830,10 @@ class Config implements ConfigType {
             "caso",           // Spanish
             "casos",          // Spanish
             "cat",
+            "catch",
+            "catching",
             "cats",
+            "caught",
             "calendar",
             "ce",             // French
             "center",
@@ -1224,6 +1235,7 @@ class Config implements ConfigType {
             "editing",
             "edition",
             "editions",
+            "editor",
             "editorial",
             "edits",
             "edu",           // TLD
@@ -1634,6 +1646,7 @@ class Config implements ConfigType {
             "if",
             "identity",
             "il",         // Italian / French
+            "illegally",
             "im",
             "image",
             "imagery",
@@ -1719,6 +1732,7 @@ class Config implements ConfigType {
             "jeff",
             "jeffrey",
             "job",
+            "joe",
             "join",
             "joined",
             "joining",
@@ -3283,6 +3297,7 @@ class Config implements ConfigType {
             "www",
             "ycombinator",
             "ya",
+            "yahoo",
             "yay",
             "yea",
             "yeah",
