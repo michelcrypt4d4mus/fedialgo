@@ -841,6 +841,7 @@ class Config implements ConfigType {
             "certain",
             "certainly",
             "cesko",          // Czech
+            "ch",             // TLD
             "challenge",
             "change",
             "changed",
@@ -1270,6 +1271,7 @@ class Config implements ConfigType {
             "engine",
             "english",
             "enjoy",
+            "enough",
             "enterprise",
             "enterprising",
             "entertain",
@@ -1422,14 +1424,18 @@ class Config implements ConfigType {
             "five",
             "flat",
             "flatten",
-            "flipboard",       // Fediverse server
+            "flew",
+            "flies",
             "flight",
             "flights",
+            "flipboard",       // Fediverse server
             "floated",
             "floating",
             "floor",
             "floored",
             "floors",
+            "fly",
+            "flying",
             "focus",
             "focused",
             "focusing",
@@ -1448,6 +1454,9 @@ class Config implements ConfigType {
             "foreign",
             "foreigner",
             "foreigners",
+            "forget",
+            "forgetting",
+            "forgot",
             "form",
             "forth",
             "forum",
@@ -1739,6 +1748,7 @@ class Config implements ConfigType {
             "joins",
             "joint",
             "jointly",
+            "journal",
             "jp",
             "jpeg",
             "jpg",
@@ -1985,6 +1995,7 @@ class Config implements ConfigType {
             "models",
             "modern",
             "monde",       // French
+            "money",
             "month",
             "months",
             "more",
@@ -2002,6 +2013,7 @@ class Config implements ConfigType {
             "mrs",
             "ms",
             "mstdn",
+            "mt",           // Mountain
             "much",
             "mucho",        // Spanish
             "mundo",        // Spanish
@@ -2205,6 +2217,7 @@ class Config implements ConfigType {
             "paul",
             "pay",
             "pays",
+            "peaceful",
             "people",
             "peoples",
             "per",
@@ -2765,6 +2778,7 @@ class Config implements ConfigType {
             "smaller",
             "smallest",
             "smart",
+            "sn",           // TLD
             "snap",
             "snaps",
             "snapped",
@@ -3207,6 +3221,7 @@ class Config implements ConfigType {
             "weaker",
             "weakest",
             "wear",
+            "wearing",
             "wears",
             "web",
             "website",
