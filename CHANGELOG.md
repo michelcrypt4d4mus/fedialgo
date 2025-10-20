@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.2.24
 * Reduce `config.toots.maxAgeInDays` from 7 to 5
 
 ### v1.2.23
