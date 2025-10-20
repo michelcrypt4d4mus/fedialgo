@@ -186,7 +186,7 @@ class MastoApi {
             cutoffAt = (0, time_helpers_1.mostRecent)((0, time_helpers_1.timelineCutoffAt)(), cutoffAt);
             logger.debug(`maxTootedAt: ${(0, time_helpers_1.quotedISOFmt)(maxTootedAt)}, maxId: ${maxId}, cutoffAt: ${(0, time_helpers_1.quotedISOFmt)(cutoffAt)}`);
         }
-        // getApiRecords() returns Toots that haven't had completeProperties() called on them
+        // getApiRecords() returns Toots that haven't had completeProperties() called on them yet
         // which we don't use because breakIf() calls mergeTootsToFeed() on each page of results
         const _incompleteToots = await this.getApiObjsAndUpdate({
             fetchGenerator: () => this.api.v1.timelines.home.list,

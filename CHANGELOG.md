@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Reduce `config.toots.maxAgeInDays` from 7 to 5
 
 ### v1.2.23
 * Update `masto` package to 7.3.0
