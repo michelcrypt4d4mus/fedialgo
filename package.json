@@ -22,7 +22,7 @@
         "languagedetect": "^2.0.0",
         "localforage": "^1.10.0",
         "lodash": "^4.17.21",
-        "masto": "^7.2.0",
+        "masto": "^7.3.0",
         "reflect-metadata": "^0.2.2",
         "regexp.escape": "^2.0.1",
         "tinyld": "^1.3.4"
