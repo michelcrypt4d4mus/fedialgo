@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.2.23
+* Update `masto` package to 7.3.0
+
 ### v1.2.22
 
 ### v1.2.21
