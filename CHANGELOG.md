@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* Add image alt text to `Toot.contentWithCard()` string, scan alt text when looking for hashtag matches
 
 ### v1.2.24
 * Reduce `config.toots.maxAgeInDays` from 7 to 5

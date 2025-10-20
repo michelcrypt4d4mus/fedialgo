@@ -182,11 +182,11 @@ export default class Toot implements TootObj {
      */
     static build(toot: SerializableToot | Toot): Toot;
     /**
-     * True if toot contains {@linkcode str} in the tags, the content, or the link preview card description.
-     * @param {string} str - The string to search for.
+     * True if toot contains {@linkcode pattern} in the tags, the content, or the link preview card description.
+     * @param {string} pattern - The string to search for.
      * @returns {boolean}
      */
-    containsString(str: string): boolean;
+    containsString(pattern: string): boolean;
     /**
      * Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search.
      * @param {TagWithUsageCounts} tag - The tag to search for.
@@ -309,10 +309,33 @@ export default class Toot implements TootObj {
      */
     private completeProperties;
     private containsTagsOfTypeMsg;
+    /**
+     * Return the toot's 'content' field stripped of HTML tags and emojis.
+     * @private
+     * @returns {string}
+     */
     private contentString;
+    /**
+     * Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
+     * Used for inferring the Toot's language.
+     * @private
+     * @returns {string}
+     */
     private contentStripped;
+    /**
+     * Return the content with the card title and description added in parentheses, stripped of diacritics for
+     * matching tags. Returned string is cached for future calls to {@linkcode containsString()} and
+     * {@linkcode containsTag()} etc.
+     * @private
+     * @returns {string}
+     */
     private contentWithCard;
     private determineLanguage;
+    /**
+     * @private
+     * @returns {string} Alt text from any included multimedia objects.
+     */
+    private imageAltText;
     /**
      * Returns true if the {@linkcode Toot} needs to be (re-)evaluated for trending tags, links, etc.
      * @private
