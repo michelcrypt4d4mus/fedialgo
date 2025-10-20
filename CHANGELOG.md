@@ -3,13 +3,7 @@
 ### v1.2.23
 * Update `masto` package to 7.3.0
 
-### v1.2.22
-
-### v1.2.21
-
-### v1.2.20
-
-### v1.2.19
+### v1.2.19 - v.1.2.22
 * More `tagOnlyStrings`
 
 ### v1.2.18
