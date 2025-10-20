@@ -289,12 +289,12 @@ class Toot {
         return tootObj;
     }
     /**
-     * True if toot contains {@linkcode str} in the tags, the content, or the link preview card description.
-     * @param {string} str - The string to search for.
+     * True if toot contains {@linkcode pattern} in the tags, the content, or the link preview card description.
+     * @param {string} pattern - The string to search for.
      * @returns {boolean}
      */
-    containsString(str) {
-        return this.matchesRegex((0, string_helpers_1.wordRegex)(str));
+    containsString(pattern) {
+        return this.matchesRegex((0, string_helpers_1.wordRegex)(pattern));
     }
     /**
      * Return true if the toot contains the tag or hashtag. If fullScan is true uses containsString() to search.
@@ -606,11 +606,20 @@ class Toot {
         const tagTypeStr = (0, change_case_1.capitalCase)(tagType).replace(/ Tag/, " Hashtag");
         return `${tagTypeStr}: ${tags.map(t => `#${t.name}`).join(", ")}`;
     }
-    // Return the toot's 'content' field stripped of HTML tags and emojis
+    /**
+     * Return the toot's 'content' field stripped of HTML tags and emojis.
+     * @private
+     * @returns {string}
+     */
     contentString() {
         return (0, string_helpers_1.htmlToText)(this.realToot.contentWithEmojis());
     }
-    // Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
+    /**
+     * Return the toot's content + link description stripped of everything (links, mentions, tags, etc.)
+     * Used for inferring the Toot's language.
+     * @private
+     * @returns {string}
+     */
     contentStripped() {
         if (!this.contentCache[TootCacheKey.CONTENT_STRIPPED]) {
             const str = (0, string_helpers_1.removeEmojis)((0, string_helpers_1.removeTags)((0, string_helpers_1.removeLinks)(this.contentWithCard())));
@@ -618,12 +627,18 @@ class Toot {
         }
         return this.contentCache[TootCacheKey.CONTENT_STRIPPED];
     }
-    // Return the content with the card title and description added in parentheses, stripped of diacritics for matching tags
-    // cache results for future calls to containsString() and containsTag() etc.
+    /**
+     * Return the content with the card title and description added in parentheses, stripped of diacritics for
+     * matching tags. Returned string is cached for future calls to {@linkcode containsString()} and
+     * {@linkcode containsTag()} etc.
+     * @private
+     * @returns {string}
+     */
     contentWithCard() {
         if (!this.contentCache[TootCacheKey.CONTENT_WITH_CARD]) {
             const cardContent = [this.card?.title || "", this.card?.description || ""].join(" ").trim();
-            const txt = (this.contentString() + (0, string_helpers_1.optionalSuffix)(cardContent, string_helpers_1.htmlToText)).trim();
+            const suffix = (0, string_helpers_1.optionalSuffix)(cardContent, string_helpers_1.htmlToText);
+            const txt = `${this.contentString()} ${this.imageAltText()} ${suffix}`.trim();
             this.contentCache[TootCacheKey.CONTENT_WITH_CARD] = (0, string_helpers_1.removeDiacritics)(txt);
         }
         return this.contentCache[TootCacheKey.CONTENT_WITH_CARD];
@@ -694,6 +709,13 @@ class Toot {
         if (this.isUsersOwnToot() && this.language != config_1.config.locale.defaultLanguage) {
             repairLogger.warn(`User's own toot language set to "${this.language}"`, langLogObj);
         }
+    }
+    /**
+     * @private
+     * @returns {string} Alt text from any included multimedia objects.
+     */
+    imageAltText() {
+        return this.mediaAttachments.map((media) => media.description || "").join(" ");
     }
     /**
      * Returns true if the {@linkcode Toot} needs to be (re-)evaluated for trending tags, links, etc.
