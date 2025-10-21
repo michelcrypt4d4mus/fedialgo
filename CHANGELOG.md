@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v1.2.26
+
 ### v1.2.25
 * Add image alt text to `Toot.contentWithCard()` string, scan alt text when looking for hashtag matches
 
