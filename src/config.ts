@@ -708,6 +708,7 @@ class Config implements ConfigType {
             "ba",
             "back",
             "backed",
+            "background",
             "backs",
             "bad",
             "badly",
@@ -779,6 +780,7 @@ class Config implements ConfigType {
             "bluesky",
             "bodies",
             "body",
+            "book",
             "boost",
             "boosted",
             "boosting",
@@ -1326,6 +1328,7 @@ class Config implements ConfigType {
             "everything",
             "everywhere",
             "evidence",
+            "evil",
             "exact",
             "exactly",
             "exchange",
@@ -1798,6 +1801,7 @@ class Config implements ConfigType {
             "lacking",
             "lacks",
             "lake",
+            "land",
             "landscape",
             "large",
             "larger",
@@ -2076,6 +2080,7 @@ class Config implements ConfigType {
             "newly",
             "news",
             "next",
+            "ngated",
             "nice",
             "nicely",
             "nicer",
@@ -2683,7 +2688,7 @@ class Config implements ConfigType {
             "sales",
             "same",
             "san",
-            "sans",      // French
+            "sans",       // French
             "save",
             "saved",
             "saves",
@@ -2703,8 +2708,9 @@ class Config implements ConfigType {
             "scenic",
             "scenes",
             "scheme",
-            "se",         // Spanish
-            "sean",       // Name
+            "screenshot",  // Used in a lot of alt text
+            "se",          // Spanish
+            "sean",        // Name
             "search",
             "searched",
             "searches",
@@ -2713,6 +2719,7 @@ class Config implements ConfigType {
             "seat",
             "second",
             "seconds",
+            "secret",
             "section",
             "sections",
             "sector",
@@ -3156,6 +3163,8 @@ class Config implements ConfigType {
             "uniquely",
             "united",
             "unity",
+            "unknown",
+            "une",          // French
             "uno",          // Italian
             "uns",          // German
             "until",
@@ -3330,6 +3339,7 @@ class Config implements ConfigType {
             "works",
             "workshop",
             "world",
+            "worldnews",
             "worldview",
             "worried",
             "worry",
