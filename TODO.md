@@ -1,4 +1,5 @@
 # TODO
+1. Hide ultra long toot body test behind a "expand" link
 1. Allow for multiple accounts on a single server (right now it is assumed that the user has only one account on each server)
 1. Make use of the fact that you can see who favourited a post: https://docs.joinmastodon.org/methods/statuses/#favourited_by
 1. Replace hashtag links in demo app with URLs on the local server (currently they go to the toot's originating server)
