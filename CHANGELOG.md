@@ -1,14 +1,11 @@
 # NEXT RELEASE
 
+### v1.2.31
+
 ### v1.2.30
 
-### v1.2.29
-
-### v1.2.28
-
-### v1.2.27
-
-### v1.2.26
+### v1.2.26 - v1.2.29
+* More `tagOnlyStrings`
 
 ### v1.2.25
 * Add image alt text to `Toot.contentWithCard()` string, scan alt text when looking for hashtag matches
@@ -19,7 +16,7 @@
 ### v1.2.23
 * Update `masto` package to 7.3.0
 
-### v1.2.19 - v.1.2.22
+### v1.2.19 - v1.2.22
 * More `tagOnlyStrings`
 
 ### v1.2.18
