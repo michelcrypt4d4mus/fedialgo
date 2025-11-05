@@ -2717,6 +2717,7 @@ class Config {
             "shorter",
             "shortest",
             "shorts",
+            "shot",
             "should",
             "show",
             "showed",

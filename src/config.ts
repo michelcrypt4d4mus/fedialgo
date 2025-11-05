@@ -2856,6 +2856,7 @@ class Config implements ConfigType {
             "shorter",
             "shortest",
             "shorts",      // YouTube shorts
+            "shot",
             "should",
             "show",
             "showed",
