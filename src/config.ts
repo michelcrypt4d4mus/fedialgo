@@ -1323,11 +1323,14 @@ class Config implements ConfigType {
             "enforced",
             "enforcement",
             "enforcing",
-            "eng",         // "English" in some REST urls
+            "eng",           // "English" in some REST urls
             "engine",
             "english",
             "enjoy",
             "enough",
+            "enquete",
+            "enquire",
+            "enquire",
             "enterprise",
             "enterprising",
             "entertain",
@@ -1337,21 +1340,21 @@ class Config implements ConfigType {
             "entitled",
             "entitles",
             "entitling",
-            "entra",       // Spanish
+            "entra",         // Spanish
             "episode",
             "equipment",
             "era",
-            "er",          // German
-            "erin",        // name
-            "es",          // Spanish
+            "er",            // German
+            "erin",          // name
+            "es",            // Spanish
             "escape",
-            "estado",      // Spanish
-            "estados",     // Spanish
-            "et",          // French
-            "ete",         // French
+            "estado",        // Spanish
+            "estados",       // Spanish
+            "et",            // French
+            "ete",           // French
             "essential",
-            "est",         // Spanish
-            "esta",        // Spanish
+            "est",           // Spanish
+            "esta",          // Spanish
             "etc",
             "euro",
             "europe",
@@ -1407,6 +1410,9 @@ class Config implements ConfigType {
             "extreme",
             "extremes",
             "eye",
+            "eyed",
+            "eyes",
+            "eyeing",
             "face",
             "faced",
             "facebook",
@@ -1542,6 +1548,7 @@ class Config implements ConfigType {
             "freiheit",     // German
             "french",
             "fresh",
+            "freund",       // German
             "friend",
             "friends",
             "fringe",
@@ -1791,6 +1798,10 @@ class Config implements ConfigType {
             "intelligence",
             "intelligent",
             "interest",
+            "interested",
+            "interesting",
+            "interestingly",
+            "interests",
             "interior",
             "internacional",
             "internal",
@@ -2182,6 +2193,7 @@ class Config implements ConfigType {
             "noting",
             "notizie",    // Italian
             "novel",
+            "novembre",   // Italian
             "novita",     // Italian
             "now",
             "number",
@@ -2722,6 +2734,7 @@ class Config implements ConfigType {
             "reviewed",
             "reviewing",
             "reviews",
+            "rich",
             "right",
             "rip",
             "ripe",
@@ -2745,6 +2758,7 @@ class Config implements ConfigType {
             "rouge",     // French
             "round",
             "rounds",
+            "rss",
             "rule",
             "ruled",
             "rules",
@@ -2836,6 +2850,7 @@ class Config implements ConfigType {
             "seven",
             "several",
             "severe",
+            "sex",
             "shadow",
             "shadows",
             "shadowy",
@@ -3053,6 +3068,11 @@ class Config implements ConfigType {
             "supplies",
             "supply",
             "support",
+            "supported",
+            "supporter",
+            "supporters",
+            "supporting",
+            "supports",
             "sur",           // French
             "sure",
             "surely",
