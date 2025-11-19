@@ -1031,6 +1031,7 @@ class Config implements ConfigType {
             "cost",
             "costs",
             "could",
+            "course",
             "countries",
             "country",
             "couple",
@@ -1757,6 +1758,8 @@ class Config implements ConfigType {
             "impact",
             "impacted",
             "impacts",
+            "important",
+            "importantly",
             "impress",
             "impressive",
             "in",
@@ -2123,6 +2126,7 @@ class Config implements ConfigType {
             "nachrichten",  // German
             "name",
             "named",
+            "names",
             "naming",
             "nation",
             "national",
@@ -3268,6 +3272,7 @@ class Config implements ConfigType {
             "unity",
             "unknown",
             "une",          // French
+            "unless",
             "uno",          // Italian
             "uns",          // German
             "until",
