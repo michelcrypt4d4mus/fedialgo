@@ -726,10 +726,12 @@ class Config implements ConfigType {
             "ball",
             "balls",
             "bank",
+            "banken",           // German?
             "bar",
             "barred",
             "barring",
             "bars",
+            "bas",              // Indian English
             "base",
             "based",
             "basic",
@@ -867,6 +869,10 @@ class Config implements ConfigType {
             "catching",
             "cats",
             "caught",
+            "causal",
+            "cause",
+            "caused",
+            "causing",
             "calendar",
             "ce",             // French
             "center",
@@ -884,6 +890,9 @@ class Config implements ConfigType {
             "channeled",
             "character",
             "characters",
+            "chase",
+            "chased",
+            "chasing",
             "chat",
             "chateau",       // French
             "chats",
@@ -992,6 +1001,8 @@ class Config implements ConfigType {
             "conflict",
             "conflicted",
             "conflicts",
+            "consequence",
+            "consequences",
             "consider",
             "considered",
             "consolation",
@@ -1063,6 +1074,7 @@ class Config implements ConfigType {
             "critique",
             "cross",
             "cu",             // Tagalog
+            "cultural",
             "culture",
             "cum",            // Latin
             "cup",
@@ -1580,6 +1592,7 @@ class Config implements ConfigType {
             "garden",
             "gardens",
             "gate",
+            "gave",
             "gear",
             "gearing",
             "gen",
@@ -1597,6 +1610,8 @@ class Config implements ConfigType {
             "gifts",
             "girl",
             "girls",
+            "give",
+            "giving",
             "globe",
             "global",
             "glow",
@@ -2835,6 +2850,8 @@ class Config implements ConfigType {
             "sen",
             "send",
             "sense",
+            "sensed",
+            "sensing",
             "sent",
             "sentence",
             "septiembre",  // Spanish
@@ -2903,6 +2920,10 @@ class Config implements ConfigType {
             "situation",
             "situations",
             "six",
+            "size",
+            "sized",
+            "sizes",
+            "sizing",
             "sk",             // TLD
             "skill",
             "skilled",
@@ -3296,6 +3317,7 @@ class Config implements ConfigType {
             "using",
             "usual",
             "usually",
+            "va",             // Spanish
             "valley",
             "valleys",
             "value",
