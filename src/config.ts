@@ -1416,6 +1416,11 @@ class Config implements ConfigType {
             "expression",
             "expressions",
             "ext",          // TLD
+            "extend",
+            "extended",
+            "extending",
+            "extends",
+            "extension",
             "extra",
             "extract",
             "extracted",
@@ -2064,6 +2069,7 @@ class Config implements ConfigType {
             "medien",     // German
             "medium",
             "meduza",
+            "meer",       // Dutch
             "meet",
             "meeting",
             "meetings",
