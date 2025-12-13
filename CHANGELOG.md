@@ -1,17 +1,9 @@
 # NEXT RELEASE
-* Bump `js-yaml` to 3.14.2
+* Upgrade `js-yaml` to 3.14.2
+* More `tagOnlyStrings`
+* (Demo App) Upgrade `js-yaml`, `node-forge`, `glob`, `minimatch` with `npm audit fix`
 
-### v1.2.35
-
-### v1.2.34
-
-### v1.2.33
-
-### v1.2.32
-
-### v1.2.31
-
-### v1.2.26 - v1.2.30
+### v1.2.26 - v1.2.35
 * More `tagOnlyStrings`
 
 ### v1.2.25
