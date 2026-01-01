@@ -120,6 +120,8 @@ class Toot {
     favouritesCount;
     mediaAttachments;
     mentions;
+    quotesCount;
+    quoteApproval;
     reblogsCount;
     repliesCount;
     sensitive;
@@ -253,6 +255,8 @@ class Toot {
         tootObj.muted = toot.muted;
         tootObj.pinned = toot.pinned;
         tootObj.poll = toot.poll;
+        tootObj.quotesCount = toot.quotesCount;
+        tootObj.quoteApproval = toot.quoteApproval;
         tootObj.reblogged = toot.reblogged;
         tootObj.reblogsCount = toot.reblogsCount;
         tootObj.repliesCount = toot.repliesCount;

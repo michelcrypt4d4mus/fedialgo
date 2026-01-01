@@ -6,6 +6,7 @@
 import { capitalCase } from "change-case";
 import { isEmpty, isFinite } from "lodash";
 import { mastodon } from "masto";
+import { QuoteApproval } from "masto/dist/esm/mastodon/entities/v1/quote-approval";
 import { Type } from 'class-transformer';
 
 import Account from "./account";
@@ -213,6 +214,8 @@ export default class Toot implements TootObj {
     favouritesCount!: number;
     mediaAttachments!: mastodon.v1.MediaAttachment[];
     mentions!: mastodon.v1.StatusMention[];
+    quotesCount!: number;
+    quoteApproval!: QuoteApproval;
     reblogsCount!: number;
     repliesCount!: number;
     sensitive!: boolean;
@@ -332,6 +335,8 @@ export default class Toot implements TootObj {
         tootObj.muted = toot.muted;
         tootObj.pinned = toot.pinned;
         tootObj.poll = toot.poll;
+        tootObj.quotesCount = toot.quotesCount;
+        tootObj.quoteApproval = toot.quoteApproval;
         tootObj.reblogged = toot.reblogged;
         tootObj.reblogsCount = toot.reblogsCount;
         tootObj.repliesCount = toot.repliesCount;
