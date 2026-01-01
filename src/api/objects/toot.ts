@@ -622,7 +622,7 @@ export default class Toot implements TootObj {
     //////////////////////////////
 
     /**
-     * Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string.
+     * Replace custom emoji shortcodes (e.g. ":myemoji:") with HTML image tags in a string.
      * @private
      */
     private addEmojiHtmlTags(str: string, fontSize: number = DEFAULT_FONT_SIZE): string {

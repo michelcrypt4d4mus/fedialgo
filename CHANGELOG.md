@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v1.2.38
+* Increase `config.toots.saveChangesIntervalSeconds` to 30 seconds
+* (Demo App) Save timeline on page unload to preserve already seen status of toots in timeline
+
 ### v1.2.37
 * More `tagOnlyStrings`
 * Bump `js-yaml` to 4.1.0 with npm audit fix

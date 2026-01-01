@@ -34,6 +34,37 @@ import { Buffer } from 'buffer'; // Required for class-transformer to work
 (window as any).Buffer = Buffer;
 ```
 
+# Overview
+The package implements a **multi-factor weighted scoring** pipeline to score each individual `Toot` and then sort your Mastodon timeline from the highest to lowest score so that you see the toots that are most interesting to you first. This is roughly the order of operations:
+
+```
+    Raw Posts
+       ↓
+Individual Scores
+       ↓
+ Weighted Scores
+       ↓
+   Time Decay
+       ↓
+Diversity Penalty
+       ↓
+Final Sorted Feed
+```
+
+**23 Scoring Factors** (all in [`src/scorer`](src/scorer/)):
+- **Social Graph:** `AccountScorer`, `AuthorFollowersScorer`, `FollowedAccountsScorer`, `FollowersScorer`, `InteractionsScorer`, `RetootsInFeedScorer`
+- **Engagement:** `NumFavouritesScorer`, `NumRepliesScorer`, `NumRetootsScorer`, `MentionsFollowedScorer`
+- **Trending:** `TrendingTootsScorerScorer`, `TrendingTagsScorer`
+- **User History:** `InteractionsScorer`, `FavouritedAccountsScorer`, `FavouritedTagsScorer`, `HashtagParticipationScorer`, `MostFavouritedAccountsScorer`, `MostRepliedAccountsScorer`, `ParticipatedTagsScorer`
+- **User Preferences:** `FollowedTagsScorer`
+- **Content Type:** `ImageAttachmentScorerScorer`, `VideoAttachmentScorer`
+- **Diversity:** `DiversityFeedScorer` (penalizes topics and people that toot a lot)
+- **Novelty:** `AlreadyShownScorer` (penalizes posts you've already been shown)
+- **Randomness:** `ChaosScorer` (controlled randomness)
+
+(this overview was adapted from [someone's attempt to explain FediAlgo to AI](https://github.com/lens0021/fefme/blob/main/AGENTS.md))
+
+
 # Usage
 The demo app's [`Feed` component](https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed/blob/master/src/pages/Feed.tsx) demonstrates the latest and greatest way to use Fedialgo but here's a quick overview of how to get up and running. This code assumes you already have an access token for a user and a registered Mastodon "application" on the Mastodon server allowing `read` scope access. If you don't have one see [the `masto.js` documentation](https://github.com/neet/masto.js/?tab=readme-ov-file#quick-start) for how to get one.
 
@@ -60,7 +91,7 @@ const algo = await TheAlgorithm.create({
 ```
 
 ### The `setTimelineInApp` Callback
-You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be invoked whenever the timeline is updated. More specifically it will be invoked when any of these things happen:
+You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` to allow FediAlgo to directly manage the state of the timeline in your app. The callback will be invoked whenever the timeline is updated. More specifically it will be invoked when any of these things happen:
 
 * A batch of toots is retrieved from the fediverse and integrated into the timeline
 * You make a call to `updateUserWeights()` (see below)
