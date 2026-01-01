@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * More `tagOnlyStrings`
+* Bump `js-yaml` to 4.1.0 with npm audit fix
 
 ### v1.2.36
 * Upgrade `js-yaml` to 3.14.2
