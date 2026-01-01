@@ -1,5 +1,9 @@
 # NEXT RELEASE
 
+### v1.2.39
+* Update `masto.js` to 7.10.0
+* Add new `quotesCount` and `quoteApproval` props to `Toot` class
+
 ### v1.2.38
 * Increase `config.toots.saveChangesIntervalSeconds` to 30 seconds
 * (Demo App) Save timeline on page unload to preserve already seen status of toots in timeline
