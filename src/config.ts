@@ -3662,7 +3662,7 @@ if (isDebugMode) {
     config.api.data[CacheKey.RECENT_USER_TOOTS]!.minutesUntilStale = 5;
     config.api.backgroundLoadIntervalMinutes = 5;
     config.api.maxRecordsForFeatureScoring = 2_500;
-    config.toots.saveChangesIntervalSeconds = 15;
+    config.toots.saveChangesIntervalSeconds = 30;
 };
 
 // Heavy load test settings
