@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.2.39
 * Update `masto.js` to 7.10.0
 * Add new `quotesCount` and `quoteApproval` props to `Toot` class
 
