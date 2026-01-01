@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* More `tagOnlyStrings`
 
 ### v1.2.36
 * Upgrade `js-yaml` to 3.14.2
