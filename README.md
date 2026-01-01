@@ -91,7 +91,7 @@ const algo = await TheAlgorithm.create({
 ```
 
 ### The `setTimelineInApp` Callback
-You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` and allow FediAlgo to manage the state of the timeline in your app. The callback will be invoked whenever the timeline is updated. More specifically it will be invoked when any of these things happen:
+You are encouraged to pass an optional `setTimelineInApp()` callback to `TheAlgorithm.create()` to allow FediAlgo to directly manage the state of the timeline in your app. The callback will be invoked whenever the timeline is updated. More specifically it will be invoked when any of these things happen:
 
 * A batch of toots is retrieved from the fediverse and integrated into the timeline
 * You make a call to `updateUserWeights()` (see below)
