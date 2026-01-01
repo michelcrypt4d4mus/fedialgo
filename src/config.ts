@@ -610,10 +610,13 @@ class Config implements ConfigType {
             "american",
             "americans",
             "americas",
+            "ami",               // French
             "amid",
             "amidst",
             "among",
             "amongst",
+            "amore",             // Italian
+            "amour",             // French
             "an",
             "analysis",
             "and",
@@ -904,6 +907,7 @@ class Config implements ConfigType {
             "choices",
             "choose",
             "chosen",
+            "chris",
             "ciencia",       // Spanish
             "cine",          // French
             "circle",
@@ -1878,6 +1882,7 @@ class Config implements ConfigType {
             "justin",
             "keep",
             "keeps",
+            "kevin",
             "key",
             "keys",
             "ki",             // Spanish?
@@ -2004,6 +2009,7 @@ class Config implements ConfigType {
             "love",
             "loved",
             "loves",
+            "loving",
             "low",
             "lower",
             "lowest",
@@ -2640,6 +2646,7 @@ class Config implements ConfigType {
             "records",
             "recovery",
             "red",
+            "reddit",       // Links
             "redo",
             "reduce",
             "reduced",
@@ -3182,6 +3189,7 @@ class Config implements ConfigType {
             "thoughts",
             "thousand",
             "thousands",
+            "thread",
             "threads",
             "three",
             "through",
