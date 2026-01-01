@@ -38,7 +38,17 @@ import { Buffer } from 'buffer'; // Required for class-transformer to work
 The package implements a **multi-factor weighted scoring** pipeline to score each individual `Toot` and then sort your Mastodon timeline from the highest to lowest score so that you see the toots that are most interesting to you first. This is roughly the order of operations:
 
 ```
-Raw Toots → Individual Scorers → Weighted Scores → Time Decay → Diversity Penalty → Final Sorted Feed
+    Raw Posts
+       ↓
+Individual Scores
+       ↓
+ Weighted Scores
+       ↓
+   Time Decay
+       ↓
+Diversity Penalty
+       ↓
+Final Sorted Feed
 ```
 
 **23 Scoring Factors** (all in [`src/scorer`](src/scorer/)):
