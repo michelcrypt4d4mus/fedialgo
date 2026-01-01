@@ -1,5 +1,6 @@
 # NEXT RELEASE
 * Update `masto.js` to 7.10.0
+* Add new `quotesCount` and `quoteApproval` props to `Toot` class
 
 ### v1.2.38
 * Increase `config.toots.saveChangesIntervalSeconds` to 30 seconds
