@@ -1,4 +1,5 @@
 # NEXT RELEASE
+* (Demo App) Save timeline on page unload to preserve already seen status of toots in timeline
 
 ### v1.2.37
 * More `tagOnlyStrings`

@@ -525,7 +525,7 @@ class Toot {
     //     Private methods      //
     //////////////////////////////
     /**
-     * Replace custome emoji shortcodes (e.g. ":myemoji:") with image tags in a string.
+     * Replace custom emoji shortcodes (e.g. ":myemoji:") with HTML image tags in a string.
      * @private
      */
     addEmojiHtmlTags(str, fontSize = string_helpers_1.DEFAULT_FONT_SIZE) {
