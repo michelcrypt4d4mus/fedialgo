@@ -1,4 +1,6 @@
 # NEXT RELEASE
+
+### v1.2.37
 * More `tagOnlyStrings`
 * Bump `js-yaml` to 4.1.0 with npm audit fix
 * (Demo App) Bump `raw-body` to 2.5.3, `http-errors` to 2.0.1 with `npm audit fix`
