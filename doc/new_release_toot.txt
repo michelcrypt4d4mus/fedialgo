@@ -1,0 +1,28 @@
+
+
+Ω🪬Ω
+#FediAlgo v1.2.2 is deployed now. Has a switch that makes sure any #hashtags / users / etc. that you follow are displayed as filter options even if they don't meet the minimum number of recent toots threshold.
+
+Also a bunch of bug fixes and small improvements.
+
+* Try it here: https://michelcrypt4d4mus.github.io/fedialgo_demo_app_foryoufeed/
+* Code: https://github.com/michelcrypt4d4mus/fedialgo_demo_app_foryoufeed
+* Video of FediAlgo in action (slightly outdated): https://universeodon.com/@cryptadamist/114395249311910522
+
+#activitypub #algorithm #algorithmicFeed #algorithmicTimeline #Fedi #FediTips #FediTools #Fediverse #Feed #FOSS #GoToSocial #hashtag #hashtags #javascript #MastoAdmin #Mastodon #MastodonApi #mastohelp #mastojs #node #nodejs #opensource #socialmedia #SocialWeb #timeline #TL #typescript #webdev
+
+#### Hashtags
+```
+#activitypub #algorithm #algorithmicFeed #algorithmicTimeline #Fedi #FediTips #FediTools #Fediverse #Feed #FOSS #GoToSocial #hashtag #hashtags #javascript #MastoAdmin #Mastodon #MastodonApi #mastohelp #mastojs #node #nodejs #opensource #socialmedia #SocialWeb #timeline #TL #typescript #webdev
+```
+
+
+### Beta Users
+* @LaurensHof@fediversereport.com
+* @michael@thms.uk
+* @paige@canadiancivil.com
+* @reiver@mastodon.social
+* @rolle@mementomori.social
+* @benroyce@mastodon.social
+* @joeneXtra@todon.eu
+* @HistoPol@mastodon.social
