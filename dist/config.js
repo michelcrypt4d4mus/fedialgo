@@ -10,7 +10,7 @@ const time_helpers_1 = require("./helpers/time_helpers");
 const enums_1 = require("./enums");
 // Number of notifications, replies, etc. to pull in initial load. KEY BOTTLENECK on RecentUserToots
 exports.MIN_RECORDS_FOR_FEATURE_SCORING = 320;
-exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5000;
+exports.MAX_ENDPOINT_RECORDS_TO_PULL = 5_000;
 // Locale
 const DEFAULT_LOCALE = "en-CA";
 const DEFAULT_LANGUAGE = DEFAULT_LOCALE.split("-")[0];
@@ -43,22 +43,22 @@ const LOG_PREFIX = '[Config]';
 class Config {
     api = {
         // How long to wait between API requests during backgrund load (actually a random number between 0 and this value)
-        backgroundLoadSleepBetweenRequestsMS: 1200,
-        backgroundLoadIntervalMinutes: 10,
-        daysBeforeFullCacheRefresh: 21,
-        defaultRecordsPerPage: 40,
+        backgroundLoadSleepBetweenRequestsMS: 1_200,
+        backgroundLoadIntervalMinutes: 10, // Time between background polling for additional user data after initial load
+        daysBeforeFullCacheRefresh: 21, // Days before the cache is considered stale and needs to be refreshed completely  // TODO: currently unused
+        defaultRecordsPerPage: 40, // Max per page is usually 40: https://docs.joinmastodon.org/methods/timelines/#request-2
         errorMsgs: {
-            accessTokenRevoked: "The access token was revoked",
+            accessTokenRevoked: "The access token was revoked", // Error messsage thrown by masto.js
             goToSocialHashtagTimeline: (s) => `GoToSocial servers don't enable ${s} by default, check if yours does.`,
-            rateLimitError: "Too many requests",
+            rateLimitError: "Too many requests", // MastoHttpError: Too many requests
             rateLimitWarning: "Your Mastodon server is complaining about too many requests coming too quickly. Wait a bit and try again later.",
         },
-        maxConcurrentHashtagRequests: 15,
-        maxRecordsForFeatureScoring: 1500,
-        maxSecondsPerPage: 60,
-        minutesUntilStaleDefault: 10,
-        mutexWarnSeconds: 10,
-        timeoutMS: 2500,
+        maxConcurrentHashtagRequests: 15, // How many toot requests to make in parallel to the search and hashtag timeline endpoints
+        maxRecordsForFeatureScoring: 1_500, // number of notifications, replies, etc. to pull slowly in background for scoring
+        maxSecondsPerPage: 60, // If loading a single page of results takes longer than this, just give up
+        minutesUntilStaleDefault: 10, // Default how long to wait before considering data stale
+        mutexWarnSeconds: 10, // How long to wait before warning about a mutex lock
+        timeoutMS: 2_500, // Timeout for API calls
         data: {
             [enums_1.CacheKey.BLOCKED_ACCOUNTS]: {
                 initialMaxRecords: exports.MAX_ENDPOINT_RECORDS_TO_PULL,
@@ -70,11 +70,11 @@ class Config {
                 minutesUntilStale: enums_1.MINUTES_IN_DAY,
             },
             [enums_1.CacheKey.FAVOURITED_TOOTS]: {
-                initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2),
+                initialMaxRecords: Math.floor(exports.MIN_RECORDS_FOR_FEATURE_SCORING / 2), // Seems to be the biggest bottleneck
                 minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWED_ACCOUNTS]: {
-                initialMaxRecords: 1600,
+                initialMaxRecords: 1_600,
                 limit: 80,
                 minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
@@ -84,7 +84,7 @@ class Config {
                 minutesUntilStale: 12 * enums_1.MINUTES_IN_HOUR,
             },
             [enums_1.CacheKey.FOLLOWERS]: {
-                initialMaxRecords: 1600,
+                initialMaxRecords: 1_600,
                 limit: 80,
                 minutesUntilStale: 24 * enums_1.MINUTES_IN_HOUR,
             },
@@ -95,7 +95,7 @@ class Config {
             },
             [enums_1.CacheKey.HOME_TIMELINE_TOOTS]: {
                 initialMaxRecords: 800,
-                lookbackForUpdatesMinutes: 180,
+                lookbackForUpdatesMinutes: 180, // How far before the most recent toot we already have to look back for updates (edits, increased reblogs, etc.)
                 supportsMinMaxId: true,
             },
             [enums_1.CacheKey.HOMESERVER_TOOTS]: {
@@ -112,7 +112,7 @@ class Config {
             [enums_1.CacheKey.NOTIFICATIONS]: {
                 initialMaxRecords: exports.MIN_RECORDS_FOR_FEATURE_SCORING,
                 limit: 80,
-                maxCacheRecords: 10000,
+                maxCacheRecords: 10_000,
                 minutesUntilStale: 6 * enums_1.MINUTES_IN_HOUR,
                 supportsMinMaxId: true,
             },
@@ -149,14 +149,14 @@ class Config {
         },
     };
     favouritedTags = {
-        maxParticipations: 3,
-        maxToots: 100,
-        numTags: 15,
+        maxParticipations: 3, // Remove tags that have been used in more than this many toots by the user
+        maxToots: 100, // How many toots to pull for each tag
+        numTags: 15, // How many tags to pull toots for
         numTootsPerTag: 5, // How many toots to pull for each tag
     };
     fediverse = {
-        minServerMAU: 100,
-        numServersToCheck: 30,
+        minServerMAU: 100, // Minimum MAU for a server to be considered for trending toots/tags
+        numServersToCheck: 30, // NUM_SERVERS_TO_CHECK
         // Popular servers that are used as fallbacks if the user isn't following accounts on enough
         // servers to make for a good set of trending toots and hashtags.
         // Culled from https://mastodonservers.net and https://joinmastodon.org/ and
@@ -269,7 +269,7 @@ class Config {
             "mastodon.gamedev.place",
             "mastodon.sdf.org",
             'mathstodon.xyz',
-            "mstdn.social",
+            "mstdn.social", // blocked by CORS
             "threads.net",
         ],
         // Servers that don't support trending links
@@ -313,17 +313,17 @@ class Config {
             "uspol",
             "uspolitics",
         ],
-        maxToots: 200,
-        minPctToCountRetoots: 0.75,
-        numTags: 30,
+        maxToots: 200, // How many total toots to include for the user's most participated tags
+        minPctToCountRetoots: 0.75, // Minimum percentage of retweets to count them as "participation"
+        numTags: 30, // Pull toots for this many of the user's most participated tags
         numTootsPerTag: 10, // How many toots to pull for each participated tag
     };
     scoring = {
-        excessiveTags: 25,
-        excessiveTagsPenalty: 0.1,
-        diversityScorerMinTrendingTagTootsForPenalty: 9,
-        diversityScorerRetootMultiplier: 4,
-        nonScoreWeightMinValue: 0.001,
+        excessiveTags: 25, // Toots with more than this many tags will be penalized
+        excessiveTagsPenalty: 0.1, // Multiplier to penalize toots with excessive tags
+        diversityScorerMinTrendingTagTootsForPenalty: 9, // Min number of toots w/a trending tag before DiversityFeedScorer applies a penalty
+        diversityScorerRetootMultiplier: 4, // How much to multiply the diversity score of a toot with retweets by
+        nonScoreWeightMinValue: 0.001, // Min value for non-score weights (trending, time decay, etc.)
         nonScoreWeightsConfig: {
             // Factor in an exponential function that gives a value between 0 and 1. See Scorer class for details.
             [enums_1.NonScoreWeightName.TIME_DECAY]: {
@@ -339,21 +339,21 @@ class Config {
                 description: "Dampens the effect of outlier scores",
             },
         },
-        scoringBatchSize: 100,
+        scoringBatchSize: 100, // How many toots to score at once
         timeDecayExponent: 1.2, // Exponent for the time decay function (higher = more recent toots are favoured)
     };
     toots = {
-        batchCompleteSize: 25,
-        batchCompleteSleepBetweenMS: 210,
-        completeAfterMinutes: enums_1.MINUTES_IN_DAY,
-        filterUpdateBatchSize: 240,
-        maxAgeInDays: 5,
-        maxContentPreviewChars: 110,
-        maxTimelineLength: 3000,
-        minCharsForLanguageDetect: 8,
-        minToSkipFilterUpdates: 300,
-        saveChangesIntervalSeconds: 30,
-        truncateFullTimelineToLength: 2000,
+        batchCompleteSize: 25, // How many toots call completeToot() on at once
+        batchCompleteSleepBetweenMS: 210, // How long to wait between batches of Toot.completeProperties() calls
+        completeAfterMinutes: enums_1.MINUTES_IN_DAY, // Toots younger than this will periodically have their derived fields reevaluated by Toot.completeToot()
+        filterUpdateBatchSize: 240, // How many new Toots before calling updateFilterOptions()
+        maxAgeInDays: 5, // How long to keep toots in the cache before removing them
+        maxContentPreviewChars: 110, // How many characters to show in a Toot preview
+        maxTimelineLength: 3_000, // Max toots to keep in browser storage. Larger cache doesn't seem to impact performance much
+        minCharsForLanguageDetect: 8, // Min number of characters in a toot before we try to detect its language
+        minToSkipFilterUpdates: 300, // Min timeline toots before we start getting choosy about calling updateFilterOptions()
+        saveChangesIntervalSeconds: 30, // How often to check for updates to toots' numTimesShown
+        truncateFullTimelineToLength: 2_000, // If on startup the timeline is full, truncate it to this length
         tagOnlyStrings: new Set([
             ...enums_1.DAY_NAMES.map(m => m.toLowerCase()),
             ...enums_1.DAYS_SHORT.map(m => m.toLowerCase()),
@@ -391,10 +391,10 @@ class Config {
             "activity",
             "activitypub",
             "actor",
-            "actu",
+            "actu", // French
             "actual",
-            "actualite",
-            "actualites",
+            "actualite", // French
+            "actualites", // French
             "adam",
             "add",
             "address",
@@ -451,8 +451,8 @@ class Config {
             "ahead",
             "aid",
             "air",
-            "aktuel",
-            "aktuell",
+            "aktuel", // German
+            "aktuell", // German
             "alex",
             "alienvault",
             "all",
@@ -467,17 +467,17 @@ class Config {
             "amazed",
             "amazing",
             "america",
-            "americaine",
+            "americaine", // French
             "american",
             "americans",
             "americas",
-            "ami",
+            "ami", // French
             "amid",
             "amidst",
             "among",
             "amongst",
-            "amore",
-            "amour",
+            "amore", // Italian
+            "amour", // French
             "an",
             "analysis",
             "and",
@@ -497,8 +497,8 @@ class Config {
             "announcement",
             "announcements",
             "announcing",
-            "ano",
-            "anos",
+            "ano", // Spanish
+            "anos", // Spanish
             "another",
             "answer",
             "answered",
@@ -515,11 +515,11 @@ class Config {
             "approaching",
             "apps",
             "ar",
-            "archive",
+            "archive", // archive.org links
             "are",
             "area",
             "areas",
-            "armes",
+            "armes", // French
             "arrive",
             "article",
             "articles",
@@ -533,8 +533,8 @@ class Config {
             "ask",
             "asked",
             "asking",
-            "asp",
-            "aspx",
+            "asp", // ASP.NET pages
+            "aspx", // ASP.NET pages
             "ass",
             "asses",
             "assess",
@@ -560,10 +560,10 @@ class Config {
             "attending",
             "attends",
             "attention",
-            "au",
-            "auch",
+            "au", // Country code for Australia
+            "auch", // German
             "audio",
-            "aus",
+            "aus", // German
             "author",
             "authored",
             "authors",
@@ -575,7 +575,7 @@ class Config {
             "aware",
             "awareness",
             "away",
-            "ayuda",
+            "ayuda", // Spanish
             "ba",
             "back",
             "backed",
@@ -585,22 +585,22 @@ class Config {
             "badly",
             "bag",
             "bags",
-            "bahn",
+            "bahn", // German
             "baked",
             "ball",
             "balls",
             "bank",
-            "banken",
+            "banken", // German?
             "bar",
             "barred",
             "barring",
             "bars",
-            "bas",
+            "bas", // Indian English
             "base",
             "based",
             "basic",
             "bay",
-            "bc",
+            "bc", // "because"
             "be",
             "bear",
             "bearing",
@@ -635,8 +635,8 @@ class Config {
             "big",
             "bigger",
             "biggest",
-            "bild",
-            "bilder",
+            "bild", // German
+            "bilder", // German
             "bill",
             "billed",
             "bills",
@@ -700,8 +700,8 @@ class Config {
             "buy",
             "by",
             "bye",
-            "ca",
-            "caer",
+            "ca", // TLD
+            "caer", // Spanish
             "call",
             "calls",
             "came",
@@ -726,8 +726,8 @@ class Config {
             "carry",
             "case",
             "cases",
-            "caso",
-            "casos",
+            "caso", // Spanish
+            "casos", // Spanish
             "cat",
             "catch",
             "catching",
@@ -738,13 +738,13 @@ class Config {
             "caused",
             "causing",
             "calendar",
-            "ce",
+            "ce", // French
             "center",
             "central",
             "certain",
             "certainly",
-            "cesko",
-            "ch",
+            "cesko", // Czech
+            "ch", // TLD
             "challenge",
             "change",
             "changed",
@@ -758,10 +758,10 @@ class Config {
             "chased",
             "chasing",
             "chat",
-            "chateau",
+            "chateau", // French
             "chats",
             "chatting",
-            "cherchez",
+            "cherchez", // Spanish
             "chief",
             "chiefly",
             "choice",
@@ -769,8 +769,8 @@ class Config {
             "choose",
             "chosen",
             "chris",
-            "ciencia",
-            "cine",
+            "ciencia", // Spanish
+            "cine", // French
             "circle",
             "cities",
             "citizens",
@@ -790,10 +790,10 @@ class Config {
             "clients",
             "club",
             "clubs",
-            "cm",
-            "cn",
+            "cm", // TLD
+            "cn", // TLD
             "cnn",
-            "co",
+            "co", // TLD
             "coast",
             "coasted",
             "coasting",
@@ -814,7 +814,7 @@ class Config {
             "coloured",
             "colouring",
             "colours",
-            "com",
+            "com", // TLD
             "come",
             "comment",
             "commentary",
@@ -836,7 +836,7 @@ class Config {
             "communication",
             "communications",
             "community",
-            "como",
+            "como", // Spanish
             "compact",
             "compacts",
             "companies",
@@ -855,7 +855,7 @@ class Config {
             "component",
             "components",
             "computer",
-            "con",
+            "con", // Spanish
             "concept",
             "concepts",
             "concern",
@@ -915,7 +915,7 @@ class Config {
             "coverage",
             "covered",
             "covers",
-            "cr",
+            "cr", // TLD (Costa Rica)
             "crap",
             "crappy",
             "craft",
@@ -938,10 +938,10 @@ class Config {
             "critics",
             "critique",
             "cross",
-            "cu",
+            "cu", // Tagalog
             "cultural",
             "culture",
-            "cum",
+            "cum", // Latin
             "cup",
             "curious",
             "current",
@@ -953,7 +953,7 @@ class Config {
             "customer",
             "customers",
             "cut",
-            "cz",
+            "cz", // TLD
             "daily",
             "danger",
             "dangerous",
@@ -961,17 +961,17 @@ class Config {
             "dark",
             "darker",
             "darkest",
-            "das",
+            "das", // German
             "data",
             "date",
             "dated",
-            "daten",
+            "daten", // German
             "dates",
-            "dati",
+            "dati", // French
             "david",
             "day",
             "daytime",
-            "de",
+            "de", // German
             "deal",
             "dealed",
             "dealing",
@@ -994,8 +994,8 @@ class Config {
             "defence",
             "defense",
             "degree",
-            "deja",
-            "del",
+            "deja", // French
+            "del", // Spanish
             "delay",
             "delayed",
             "delaying",
@@ -1009,21 +1009,21 @@ class Config {
             "deliveries",
             "delivering",
             "delivery",
-            "dem",
+            "dem", // German
             "demand",
             "demanded",
             "demanding",
             "demands",
             "demo",
             "demolish",
-            "den",
+            "den", // German
             "density",
             "depart",
             "department",
             "departments",
             "deploy",
             "deployed",
-            "der",
+            "der", // German
             "design",
             "designed",
             "designing",
@@ -1041,7 +1041,7 @@ class Config {
             "developments",
             "device",
             "devices",
-            "die",
+            "die", // German
             "did",
             "diego",
             "digital",
@@ -1051,7 +1051,7 @@ class Config {
             "dined",
             "dining",
             "dines",
-            "dir",
+            "dir", // German
             "direct",
             "directed",
             "directing",
@@ -1061,7 +1061,7 @@ class Config {
             "director",
             "directors",
             "directs",
-            "dis",
+            "dis", // Spanish
             "dislike",
             "disliked",
             "dislikes",
@@ -1108,7 +1108,7 @@ class Config {
             "donned",
             "door",
             "doors",
-            "dos",
+            "dos", // Spanish
             "dot",
             "double",
             "doubled",
@@ -1138,7 +1138,7 @@ class Config {
             "drivers",
             "drove",
             "droves",
-            "du",
+            "du", // German
             "each",
             "early",
             "earth",
@@ -1149,11 +1149,11 @@ class Config {
             "easy",
             "eat",
             "eats",
-            "eau",
+            "eau", // French
             "economic",
-            "economia",
-            "economie",
-            "eeuu",
+            "economia", // Spanish
+            "economie", // French
+            "eeuu", // Spanish
             "edge",
             "effect",
             "effected",
@@ -1173,10 +1173,10 @@ class Config {
             "editor",
             "editorial",
             "edits",
-            "edu",
+            "edu", // TLD
             "eight",
             "else",
-            "em",
+            "em", // Spanish
             "email",
             "emerge",
             "emerged",
@@ -1201,7 +1201,7 @@ class Config {
             "enforced",
             "enforcement",
             "enforcing",
-            "eng",
+            "eng", // "English" in some REST urls
             "engine",
             "english",
             "enjoy",
@@ -1218,21 +1218,21 @@ class Config {
             "entitled",
             "entitles",
             "entitling",
-            "entra",
+            "entra", // Spanish
             "episode",
             "equipment",
             "era",
-            "er",
-            "erin",
-            "es",
+            "er", // German
+            "erin", // name
+            "es", // Spanish
             "escape",
-            "estado",
-            "estados",
-            "et",
-            "ete",
+            "estado", // Spanish
+            "estados", // Spanish
+            "et", // French
+            "ete", // French
             "essential",
-            "est",
-            "esta",
+            "est", // Spanish
+            "esta", // Spanish
             "etc",
             "euro",
             "europe",
@@ -1280,7 +1280,7 @@ class Config {
             "explore",
             "expression",
             "expressions",
-            "ext",
+            "ext", // TLD
             "extend",
             "extended",
             "extending",
@@ -1321,11 +1321,11 @@ class Config {
             "fall",
             "falling",
             "falls",
-            "falsas",
-            "falsch",
+            "falsas", // Spanish
+            "falsch", // German
             "false",
-            "falso",
-            "familia",
+            "falso", // Spanish
+            "familia", // Spanish
             "families",
             "family",
             "famous",
@@ -1366,7 +1366,7 @@ class Config {
             "fill",
             "filled",
             "fills",
-            "fin",
+            "fin", // French
             "final",
             "finally",
             "financial",
@@ -1385,7 +1385,7 @@ class Config {
             "flies",
             "flight",
             "flights",
-            "flipboard",
+            "flipboard", // Fediverse server
             "floated",
             "floating",
             "floor",
@@ -1417,21 +1417,21 @@ class Config {
             "form",
             "forth",
             "forum",
-            "foto",
+            "foto", // German
             "fotos",
             "found",
             "four",
-            "fr",
+            "fr", // TLD
             "frame",
             "framework",
             "framing",
             "frank",
             "free",
             "freedom",
-            "freiheit",
+            "freiheit", // German
             "french",
             "fresh",
-            "freund",
+            "freund", // German
             "friend",
             "friends",
             "fringe",
@@ -1453,12 +1453,12 @@ class Config {
             "funding",
             "funds",
             "funny",
-            "fur",
+            "fur", // German
             "further",
             "furthermore",
             "future",
             "fyi",
-            "garante",
+            "garante", // Spanish
             "garden",
             "gardens",
             "gate",
@@ -1471,7 +1471,7 @@ class Config {
             "generate",
             "genre",
             "genres",
-            "geschichte",
+            "geschichte", // German
             "get",
             "getting",
             "gets",
@@ -1496,7 +1496,7 @@ class Config {
             "goods",
             "got",
             "gotten",
-            "gov",
+            "gov", // TLD
             "govern",
             "government",
             "grad",
@@ -1520,9 +1520,9 @@ class Config {
             "grown",
             "grows",
             "growth",
-            "gruene",
-            "grune",
-            "grunen",
+            "gruene", // German
+            "grune", // German
+            "grunen", // German
             "guarantee",
             "guaranteed",
             "guarantees",
@@ -1530,7 +1530,7 @@ class Config {
             "guide",
             "guy",
             "ha",
-            "haber",
+            "haber", // Spanish
             "hackernews",
             "had",
             "haha",
@@ -1544,7 +1544,7 @@ class Config {
             "hardest",
             "hardly",
             "has",
-            "hat",
+            "hat", // German
             "he",
             "head",
             "headline",
@@ -1560,9 +1560,9 @@ class Config {
             "heavily",
             "heaviness",
             "heavy",
-            "heise",
-            "heisse",
-            "heiße",
+            "heise", // German
+            "heisse", // German
+            "heiße", // German
             "hell",
             "hello",
             "help",
@@ -1575,7 +1575,7 @@ class Config {
             "hide",
             "hides",
             "hiding",
-            "hier",
+            "hier", // German
             "high",
             "higher",
             "highest",
@@ -1587,14 +1587,14 @@ class Config {
             "him",
             "himself",
             "hip",
-            "histoire",
-            "historia",
+            "histoire", // French
+            "historia", // Spanish
             "historic",
             "history",
             "his",
             "hit",
             "hits",
-            "hk",
+            "hk", // TLD
             "home",
             "homepage",
             "homes",
@@ -1620,7 +1620,7 @@ class Config {
             "humanity",
             "humanly",
             "humans",
-            "ia",
+            "ia", // Italian / Romanian
             "id",
             "idea",
             "ideal",
@@ -1628,7 +1628,7 @@ class Config {
             "ideas",
             "if",
             "identity",
-            "il",
+            "il", // Italian / French
             "illegally",
             "im",
             "image",
@@ -1668,7 +1668,7 @@ class Config {
             "influencing",
             "info",
             "information",
-            "infosec",
+            "infosec", // infosec.exchange is a big server
             "insight",
             "insightful",
             "insights",
@@ -1709,7 +1709,7 @@ class Config {
             "involved",
             "involves",
             "involving",
-            "io",
+            "io", // TLD
             "is",
             "isolate",
             "isolated",
@@ -1720,9 +1720,9 @@ class Config {
             "it",
             "its",
             "itself",
-            "ja",
-            "je",
-            "jeunes",
+            "ja", // German
+            "je", // French
+            "jeunes", // French
             "jeff",
             "jeffrey",
             "job",
@@ -1746,15 +1746,15 @@ class Config {
             "kevin",
             "key",
             "keys",
-            "ki",
+            "ki", // Spanish?
             "kind",
             "kinds",
             "knew",
             "know",
             "knowing",
             "knowledge",
-            "kultur",
-            "la",
+            "kultur", // German
+            "la", // French
             "label",
             "labeled",
             "labeling",
@@ -1770,7 +1770,7 @@ class Config {
             "large",
             "larger",
             "largest",
-            "las",
+            "las", // Spanish
             "last",
             "lasts",
             "late",
@@ -1778,7 +1778,7 @@ class Config {
             "latest",
             "lay",
             "lays",
-            "le",
+            "le", // French
             "led",
             "lead",
             "leader",
@@ -1806,13 +1806,13 @@ class Config {
             "legal",
             "leisure",
             // "lemonde",        // French
-            "les",
+            "les", // French
             "less",
             "lesser",
             "let",
             "level",
             "levels",
-            "libre",
+            "libre", // Spanish
             "lie",
             "lies",
             "life",
@@ -1876,7 +1876,7 @@ class Config {
             "lowest",
             "lustig",
             "ma",
-            "macht",
+            "macht", // German
             "mad",
             "made",
             "magazine",
@@ -1890,7 +1890,7 @@ class Config {
             "make",
             "makes",
             "making",
-            "mal",
+            "mal", // Spanish
             "male",
             "man",
             "manipulate",
@@ -1907,7 +1907,7 @@ class Config {
             "market",
             "marketing",
             "marks",
-            "mas",
+            "mas", // Spanish
             "mass",
             "master",
             "mastered",
@@ -1931,12 +1931,12 @@ class Config {
             "meaningless",
             "means",
             "meant",
-            "media",
+            "media", // TLD
             "medias",
-            "medien",
+            "medien", // German
             "medium",
             "meduza",
-            "meer",
+            "meer", // Dutch
             "meet",
             "meeting",
             "meetings",
@@ -1949,8 +1949,8 @@ class Config {
             "memories",
             "memory",
             "men",
-            "mensch",
-            "menschen",
+            "mensch", // German
+            "menschen", // German
             "mention",
             "mentioned",
             "mentions",
@@ -1962,7 +1962,7 @@ class Config {
             "met",
             "metro",
             "middle",
-            "mientras",
+            "mientras", // Spanish
             "million",
             "millions",
             "min",
@@ -1975,7 +1975,7 @@ class Config {
             "mins",
             "minute",
             "minutes",
-            "mit",
+            "mit", // German
             "mix",
             "mixed",
             "mixes",
@@ -1984,9 +1984,9 @@ class Config {
             "model",
             "models",
             "modern",
-            "monde",
+            "monde", // French
             "money",
-            "montag",
+            "montag", // German
             "month",
             "months",
             "more",
@@ -2004,14 +2004,14 @@ class Config {
             "mrs",
             "ms",
             "mstdn",
-            "mt",
+            "mt", // Mountain
             "much",
-            "mucho",
-            "mundo",
+            "mucho", // Spanish
+            "mundo", // Spanish
             "must",
             "my",
-            "na",
-            "nachrichten",
+            "na", // Spanish
+            "nachrichten", // German
             "name",
             "named",
             "names",
@@ -2021,7 +2021,7 @@ class Config {
             "nationality",
             "nations",
             "natural",
-            "ne",
+            "ne", // Spanish
             "near",
             "nearby",
             "nearer",
@@ -2053,25 +2053,25 @@ class Config {
             "nicely",
             "nicer",
             "nicest",
-            "niet",
-            "nieuws",
+            "niet", // Dutch
+            "nieuws", // Dutch
             "nil",
             "night",
             "nine",
-            "nl",
+            "nl", // TLD
             "no",
             "nobody",
-            "noir",
-            "noire",
+            "noir", // French
+            "noire", // French
             "non",
             "none",
             "nonsense",
             "nope",
             "nor",
-            "nord",
+            "nord", // French
             "north",
             "northern",
-            "nos",
+            "nos", // French
             "not",
             "note",
             "noted",
@@ -2083,17 +2083,17 @@ class Config {
             "noticed",
             "noticias",
             "noting",
-            "notizie",
+            "notizie", // Italian
             "novel",
-            "novembre",
-            "novita",
+            "novembre", // Italian
+            "novita", // Italian
             "now",
             "number",
             "nytimes",
-            "nz",
+            "nz", // TLD
             "oc",
             "odd",
-            "oder",
+            "oder", // German
             "of",
             "off",
             "offensive",
@@ -2107,7 +2107,7 @@ class Config {
             "oh",
             "ok",
             "okay",
-            "ol",
+            "ol", // German
             "old",
             "older",
             "oldest",
@@ -2148,7 +2148,7 @@ class Config {
             "origin",
             "origins",
             "original",
-            "originale",
+            "originale", // French
             "originals",
             "originally",
             "other",
@@ -2170,13 +2170,13 @@ class Config {
             "packed",
             "packs",
             "paid",
-            "pais",
+            "pais", // Spanish
             "pan",
             "panel",
             "paper",
-            "papier",
-            "papieros",
-            "papiers",
+            "papier", // French
+            "papieros", // French
+            "papiers", // French
             "park",
             "parked",
             "parking",
@@ -2199,8 +2199,8 @@ class Config {
             "partnerships",
             "parts",
             "party",
-            "pas",
-            "pasado",
+            "pas", // French
+            "pasado", // Spanish
             "pass",
             "passed",
             "passion",
@@ -2253,7 +2253,7 @@ class Config {
             "pierces",
             "piercing",
             "pink",
-            "pixelfed",
+            "pixelfed", // pixelfed.social
             "pl",
             "place",
             "placement",
@@ -2280,7 +2280,7 @@ class Config {
             "pleased",
             "pleasing",
             "plot",
-            "pluralistic",
+            "pluralistic", // TODO: the regex should probably exclude @account mentions...
             "plus",
             "pm",
             "poetic",
@@ -2292,15 +2292,15 @@ class Config {
             "poles",
             "policies",
             "policy",
-            "politica",
+            "politica", // Spanish
             "political",
-            "politicas",
+            "politicas", // Spanish
             "politics",
             "politik",
-            "politiken",
-            "politique",
-            "politiques",
-            "politisch",
+            "politiken", // Danish
+            "politique", // French
+            "politiques", // French
+            "politisch", // German
             "polititian",
             "poll",
             "pop",
@@ -2310,7 +2310,7 @@ class Config {
             "popular",
             "population",
             "popularly",
-            "por",
+            "por", // Spanish
             "portfolio",
             "pose",
             "posed",
@@ -2342,10 +2342,10 @@ class Config {
             "prediction",
             "predicts",
             "president",
-            "presidente",
+            "presidente", // Spanish
             "presidents",
             "press",
-            "presse",
+            "presse", // German
             "pretty",
             "prevent",
             "preventable",
@@ -2366,12 +2366,12 @@ class Config {
             "profiles",
             "problem",
             "problematic",
-            "problemo",
+            "problemo", // Spanish
             "problems",
             "probably",
             "procedure",
             "procedures",
-            "proceso",
+            "proceso", // Spanish
             "process",
             "processed",
             "processes",
@@ -2414,7 +2414,7 @@ class Config {
             "provided",
             "provides",
             "ps",
-            "pub",
+            "pub", // TLD
             "public",
             "publicly",
             "publish",
@@ -2433,7 +2433,7 @@ class Config {
             "put",
             "puts",
             "quality",
-            "que",
+            "que", // Spanish
             "question",
             "questioned",
             "questions",
@@ -2495,7 +2495,7 @@ class Config {
             "receiving",
             "recent",
             "recently",
-            "rechts",
+            "rechts", // German
             "recognize",
             "recognized",
             "recognizing",
@@ -2507,7 +2507,7 @@ class Config {
             "records",
             "recovery",
             "red",
-            "reddit",
+            "reddit", // Links
             "redo",
             "reduce",
             "reduced",
@@ -2604,9 +2604,9 @@ class Config {
             "result",
             "resulted",
             "results",
-            "ret",
+            "ret", // "retired"
             "retail",
-            "rete",
+            "rete", // Italian
             "return",
             "returned",
             "returning",
@@ -2636,9 +2636,9 @@ class Config {
             "rise",
             "risk",
             "risks",
-            "ro",
-            "rob",
-            "robert",
+            "ro", // Romanian TLD
+            "rob", // Name
+            "robert", // Name
             "road",
             "rocks",
             "roll",
@@ -2648,7 +2648,7 @@ class Config {
             "room",
             "rooms",
             "rose",
-            "rouge",
+            "rouge", // French
             "round",
             "rounds",
             "rss",
@@ -2671,7 +2671,7 @@ class Config {
             "sam",
             "same",
             "san",
-            "sans",
+            "sans", // French
             "save",
             "saved",
             "saves",
@@ -2691,9 +2691,9 @@ class Config {
             "scenic",
             "scenes",
             "scheme",
-            "screenshot",
-            "se",
-            "sean",
+            "screenshot", // Used in a lot of alt text
+            "se", // Spanish
+            "sean", // Name
             "search",
             "searched",
             "searches",
@@ -2707,8 +2707,8 @@ class Config {
             "sections",
             "sector",
             "sectors",
-            "seguranca",
-            "securite",
+            "seguranca", // Spanish
+            "securite", // French
             "security",
             "see",
             "seen",
@@ -2716,7 +2716,7 @@ class Config {
             "seems",
             "seen",
             "sees",
-            "seguridad",
+            "seguridad", // Spanish
             "self",
             "sell",
             "selling",
@@ -2728,7 +2728,7 @@ class Config {
             "sensing",
             "sent",
             "sentence",
-            "septiembre",
+            "septiembre", // Spanish
             "serial",
             "series",
             "serious",
@@ -2765,7 +2765,7 @@ class Config {
             "short",
             "shorter",
             "shortest",
-            "shorts",
+            "shorts", // YouTube shorts
             "shot",
             "should",
             "show",
@@ -2773,7 +2773,7 @@ class Config {
             "showing",
             "shown",
             "shows",
-            "si",
+            "si", // Spanish
             "side",
             "sides",
             "sign",
@@ -2798,7 +2798,7 @@ class Config {
             "sized",
             "sizes",
             "sizing",
-            "sk",
+            "sk", // TLD
             "skill",
             "skilled",
             "skills",
@@ -2810,13 +2810,13 @@ class Config {
             "smaller",
             "smallest",
             "smart",
-            "sn",
+            "sn", // TLD
             "snap",
             "snaps",
             "snapped",
             "snapping",
             "so",
-            "sobre",
+            "sobre", // Spanish
             "social",
             "society",
             "soft",
@@ -2849,7 +2849,7 @@ class Config {
             "south",
             "southern",
             "space",
-            "spass",
+            "spass", // German
             "speak",
             "speaking",
             "speaks",
@@ -2863,12 +2863,12 @@ class Config {
             "speeches",
             "speed",
             "spend",
-            "spende",
+            "spende", // German
             "spending",
             "spends",
             "spent",
-            "spiel",
-            "spielzug",
+            "spiel", // German
+            "spielzug", // German
             "sphere",
             "spheres",
             "spin",
@@ -2879,7 +2879,7 @@ class Config {
             "spring",
             "spun",
             "st",
-            "stadt",
+            "stadt", // German
             "stand",
             "standing",
             "stands",
@@ -2918,7 +2918,7 @@ class Config {
             "stories",
             "story",
             "strange",
-            "strategie",
+            "strategie", // French
             "strategies",
             "strategy",
             "stream",
@@ -2942,13 +2942,13 @@ class Config {
             "studies",
             "stuff",
             "stupid",
-            "sturm",
+            "sturm", // German
             "style",
             "styled",
             "styles",
             "subject",
             "subjects",
-            "subj",
+            "subj", // German
             "su",
             "substack",
             "such",
@@ -2972,7 +2972,7 @@ class Config {
             "supporters",
             "supporting",
             "supports",
-            "sur",
+            "sur", // French
             "sure",
             "surely",
             "swap",
@@ -3005,7 +3005,7 @@ class Config {
             "tapped",
             "tapping",
             "taps",
-            "tarde",
+            "tarde", // Spanish
             "target",
             "targeted",
             "targeting",
@@ -3086,7 +3086,7 @@ class Config {
             "tool",
             "tools",
             "top",
-            "topstories",
+            "topstories", // Someone's dumb hashtag
             "total",
             "touch",
             "tough",
@@ -3134,8 +3134,8 @@ class Config {
             "truth",
             "try",
             "trying",
-            "ts",
-            "tue",
+            "ts", // TLD
+            "tue", // German
             "turn",
             "turned",
             "turning",
@@ -3150,10 +3150,10 @@ class Config {
             "ua",
             "uk",
             "un",
-            "una",
+            "una", // Spanish
             "uncertain",
             "uncertainty",
-            "und",
+            "und", // German
             "under",
             "understand",
             "understanding",
@@ -3167,10 +3167,10 @@ class Config {
             "united",
             "unity",
             "unknown",
-            "une",
+            "une", // French
             "unless",
-            "uno",
-            "uns",
+            "uno", // Italian
+            "uns", // German
             "until",
             "untrustworthy",
             "unusual",
@@ -3192,7 +3192,7 @@ class Config {
             "using",
             "usual",
             "usually",
-            "va",
+            "va", // Spanish
             "valley",
             "valleys",
             "value",
@@ -3204,9 +3204,9 @@ class Config {
             "variously",
             "vast",
             "vastly",
-            "ve",
+            "ve", // French
             "vehicle",
-            "ver",
+            "ver", // German
             "verified",
             "verify",
             "version",
@@ -3231,9 +3231,9 @@ class Config {
             "voice",
             "voices",
             "von",
-            "vuelta",
+            "vuelta", // Spanish
             "vs",
-            "wahrun",
+            "wahrun", // German
             "wait",
             "waiting",
             "waits",
@@ -3290,14 +3290,14 @@ class Config {
             "weirdness",
             "welcome",
             "well",
-            "welt",
-            "weltraum",
-            "wenn",
+            "welt", // German
+            "weltraum", // German
+            "wenn", // German
             "went",
             "were",
             "west",
             "western",
-            "wetter",
+            "wetter", // German
             "what",
             "when",
             "where",
@@ -3321,13 +3321,13 @@ class Config {
             "winning",
             "winter",
             "wip",
-            "wird",
-            "wirtschaft",
-            "wissen",
+            "wird", // German
+            "wirtschaft", // German
+            "wissen", // German
             "with",
             "within",
             "without",
-            "wochenende",
+            "wochenende", // German
             "woman",
             "women",
             "won",
@@ -3387,17 +3387,17 @@ class Config {
             "yourself",
             "yourselves",
             "youtube",
-            "za",
-            "zach",
+            "za", // South Africa TLD
+            "zach", // Name
             "ze",
-            "zeit",
-            "zh",
-            "zu",
+            "zeit", // German
+            "zh", // Chinese
+            "zu", // German
             "zukunft", // German
         ]),
     };
     trending = {
-        daysToCountTrendingData: 3,
+        daysToCountTrendingData: 3, // Look at this many days of user counts when assessing trending data
         links: {
             numTrendingLinksPerServer: 20, // How many trending links to pull from each server
         },
@@ -3407,9 +3407,9 @@ class Config {
                 "news",
                 "photography",
             ],
-            maxToots: 200,
-            numTagsPerServer: 20,
-            numTags: 20,
+            maxToots: 200, // Max number of toots with trending tags to push into the user's feed
+            numTagsPerServer: 20, // How many trending tags to pull from each server (Mastodon default is 10)
+            numTags: 20, // How many trending tags to use after ranking their popularity
             numTootsPerTag: 15, // How many toots to pull for each trending tag
         },
         toots: {
@@ -3502,7 +3502,7 @@ if (environment_helpers_1.isQuickMode) {
     config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].lookbackForUpdatesMinutes = 10;
     config.api.backgroundLoadIntervalMinutes = enums_1.SECONDS_IN_HOUR;
     config.favouritedTags.numTags = 5;
-    config.toots.maxTimelineLength = 1500;
+    config.toots.maxTimelineLength = 1_500;
     config.participatedTags.numTags = 10;
     config.trending.tags.numTags = 10;
 }
@@ -3515,20 +3515,20 @@ if (environment_helpers_1.isDebugMode) {
     config.api.data[enums_1.CacheKey.NOTIFICATIONS].minutesUntilStale = 10;
     config.api.data[enums_1.CacheKey.RECENT_USER_TOOTS].minutesUntilStale = 5;
     config.api.backgroundLoadIntervalMinutes = 5;
-    config.api.maxRecordsForFeatureScoring = 2500;
+    config.api.maxRecordsForFeatureScoring = 2_500;
     config.toots.saveChangesIntervalSeconds = 30;
 }
 ;
 // Heavy load test settings
 if (environment_helpers_1.isLoadTest) {
     console.debug(`${LOG_PREFIX} LOAD_TEST mode enabled, applying debug settings...`);
-    config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2500;
-    config.toots.maxTimelineLength = 5000;
-    config.api.maxRecordsForFeatureScoring = 15000;
+    config.api.data[enums_1.CacheKey.HOME_TIMELINE_TOOTS].initialMaxRecords = 2_500;
+    config.toots.maxTimelineLength = 5_000;
+    config.api.maxRecordsForFeatureScoring = 15_000;
     config.participatedTags.maxToots = 500;
     config.participatedTags.numTags = 50;
     config.participatedTags.numTootsPerTag = 10;
-    config.trending.tags.maxToots = 1000;
+    config.trending.tags.maxToots = 1_000;
     config.trending.tags.numTags = 40;
 }
 ;

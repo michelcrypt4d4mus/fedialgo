@@ -3,7 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.detectForeignScriptLanguage = exports.detectLanguage = exports.languageName = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
+exports.languageName = exports.FOREIGN_SCRIPTS = exports.LANGUAGE_CODES = exports.LANGUAGE_NAMES = void 0;
+exports.detectLanguage = detectLanguage;
+exports.detectForeignScriptLanguage = detectForeignScriptLanguage;
 /**
  * @fileoverview Helpers to try to guess the language text is written in.
  * @module language_helper
@@ -54,7 +56,7 @@ exports.LANGUAGE_NAMES = {
     dzongkha: "dz",
     ewe: "ee",
     greek: "el",
-    pidgin: "en",
+    pidgin: "en", // Actually Nigerian Pidgin is pcm but we assume it means English. Must come before "english"
     english: "en",
     esperanto: "eo",
     spanish: "es",
@@ -173,7 +175,7 @@ exports.LANGUAGE_NAMES = {
     sundanese: "su",
     swedish: "sv",
     swahili: "sw",
-    taiwanese: "zh-tw",
+    taiwanese: "zh-tw", // Chinese (Taiwan)
     tamil: "ta",
     telugu: "te",
     tajik: "tg",
@@ -202,7 +204,7 @@ exports.LANGUAGE_NAMES = {
     yoruba: "yo",
     zhuang: "za",
     chinese: "zh",
-    chineseMainland: "zh-cn",
+    chineseMainland: "zh-cn", // Chinese (China)
     zulu: "zu",
 };
 // Mapping of language codes to the actual name of the language
@@ -249,9 +251,9 @@ const VERY_HIGH_LANG_ACCURACY = 0.7;
 // const KOREAN_LOCALE = `${LANGUAGE_NAMES.korean}-KR`;
 // const RUSSIAN_LOCALE = `${LANGUAGE_NAMES.russian}-${LANGUAGE_NAMES.russian.toUpperCase()}`;
 const IGNORE_LANGUAGES = new Set([
-    "ber",
-    "eo",
-    "tk",
+    "ber", // Berber
+    "eo", // Esperanto
+    "tk", // Turkmen
     "tlh", // Klingon
 ]);
 const LANG_DETECTOR_OVERCONFIDENT_LANGS = new Set([
@@ -326,7 +328,6 @@ function detectLanguage(text) {
         tinyLD: langInfoFromTinyLD,
     };
 }
-exports.detectLanguage = detectLanguage;
 ;
 /**
  * Returns the language code of the matched regex (if any). Not as thorough as {@linkcode detectLanguage}
@@ -342,7 +343,6 @@ function detectForeignScriptLanguage(str) {
     }
     ;
 }
-exports.detectForeignScriptLanguage = detectForeignScriptLanguage;
 ;
 function buildLangDetectResult(minAccuracy, langAccuracies) {
     langAccuracies ||= [];

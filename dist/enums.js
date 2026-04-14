@@ -4,7 +4,10 @@
  * @module enums
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isApiCacheKey = exports.isFediverseCacheKey = exports.isTagTootsCategory = exports.isCacheKey = exports.isValueInStringEnum = exports.simpleCacheKeyDict = exports.buildCacheKeyDict = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.SECONDS_IN_WEEK = exports.SECONDS_IN_DAY = exports.SECONDS_IN_HOUR = exports.MINUTES_IN_DAY = exports.MINUTES_IN_HOUR = exports.SECONDS_IN_MINUTE = exports.isWeightName = exports.isTypeFilterName = exports.isScoreName = exports.isNonScoreWeightName = exports.isApiCacheKey = exports.isFediverseCacheKey = exports.isTagTootsCategory = exports.isCacheKey = exports.DAYS_SHORT = exports.DAY_NAMES = exports.MONTHS_SHORT = exports.MONTHS = exports.TOOT_SOURCES = exports.UNIQUE_ID_PROPERTIES = exports.STORAGE_KEYS_WITH_TOOTS = exports.STORAGE_KEYS_WITH_ACCOUNTS = exports.ALL_CACHE_KEYS = exports.ALL_ACTIONS = exports.TypeFilterName = exports.BooleanFilterName = exports.TrendingType = exports.MediaCategory = exports.ScoreName = exports.NonScoreWeightName = exports.TagTootsCategory = exports.FediverseCacheKey = exports.CacheKey = exports.AlgorithmStorageKey = exports.LogAction = exports.LoadAction = void 0;
+exports.buildCacheKeyDict = buildCacheKeyDict;
+exports.simpleCacheKeyDict = simpleCacheKeyDict;
+exports.isValueInStringEnum = isValueInStringEnum;
 /**
  * Actions that {@linkcode TheAlgorithm} can take.
  * @enum {string}
@@ -228,7 +231,7 @@ exports.UNIQUE_ID_PROPERTIES = {
         dict[key] = 'webfingerURI'; // Accounts have a 'webfingerURI' property
         return dict;
     }, {}),
-    [CacheKey.FOLLOWED_TAGS]: 'name',
+    [CacheKey.FOLLOWED_TAGS]: 'name', // Followed tags have a 'name' property
     [CacheKey.NOTIFICATIONS]: 'id',
     [CacheKey.SERVER_SIDE_FILTERS]: 'id', // Filters have an 'id' property
 };
@@ -270,13 +273,11 @@ function buildCacheKeyDict(fxn, initialDict, keys) {
         return dict;
     }, (initialDict ?? {}));
 }
-exports.buildCacheKeyDict = buildCacheKeyDict;
 ;
 // Generate a dict with all {@linkcode ApiCacheKey}s as keys and a whatever fxn() returns as values.
 function simpleCacheKeyDict(fxn, keys) {
     return buildCacheKeyDict(fxn, null, keys);
 }
-exports.simpleCacheKeyDict = simpleCacheKeyDict;
 ;
 /**
  * Generate a function to check if a value exists in a string enum.
@@ -288,7 +289,6 @@ function isValueInStringEnum(strEnum) {
     const enumValues = new Set(Object.values(strEnum));
     return (str) => enumValues.has(str);
 }
-exports.isValueInStringEnum = isValueInStringEnum;
 ;
 /** True if argument is a member of {@linkcode CacheKey}. */
 exports.isCacheKey = isValueInStringEnum(CacheKey);

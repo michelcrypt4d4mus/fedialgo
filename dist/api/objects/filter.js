@@ -4,7 +4,8 @@
  * @module server_side_filters
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.extractMutedKeywords = exports.buildMutedRegex = void 0;
+exports.buildMutedRegex = buildMutedRegex;
+exports.extractMutedKeywords = extractMutedKeywords;
 const string_helpers_1 = require("../../helpers/string_helpers");
 /**
  * Build a regex that matches any of the muted keywords from server-side
@@ -16,7 +17,6 @@ const string_helpers_1 = require("../../helpers/string_helpers");
 function buildMutedRegex(serverSideFilters) {
     return (0, string_helpers_1.wordsRegex)(extractMutedKeywords(serverSideFilters));
 }
-exports.buildMutedRegex = buildMutedRegex;
 ;
 /**
  * Extract all the muted keywords from server-side
@@ -31,6 +31,5 @@ function extractMutedKeywords(serverSideFilters) {
     // logger.trace(`<mutedKeywords()> found ${keywords.length} keywords:`, keywords);
     return keywords;
 }
-exports.extractMutedKeywords = extractMutedKeywords;
 ;
 //# sourceMappingURL=filter.js.map

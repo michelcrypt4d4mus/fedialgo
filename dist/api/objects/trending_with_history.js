@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setTrendingRankToAvg = exports.uniquifyTrendingObjs = exports.decorateTagHistory = exports.decorateLinkHistory = void 0;
+exports.decorateLinkHistory = decorateLinkHistory;
+exports.decorateTagHistory = decorateTagHistory;
+exports.uniquifyTrendingObjs = uniquifyTrendingObjs;
+exports.setTrendingRankToAvg = setTrendingRankToAvg;
 const collection_helpers_1 = require("../../helpers/collection_helpers");
 const config_1 = require("../../config");
 const tag_1 = require("./tag");
@@ -16,7 +19,6 @@ function decorateLinkHistory(link) {
     newLink.regex = (0, string_helpers_1.wordRegex)(newLink.url);
     return decorateHistoryScores(newLink);
 }
-exports.decorateLinkHistory = decorateLinkHistory;
 ;
 /**
  * Decorate a mastodon {@linkcode https://docs.joinmastodon.org/entities/PreviewCard/#trends-link Tag} with
@@ -29,7 +31,6 @@ function decorateTagHistory(tag) {
     (0, tag_1.repairTag)(newTag);
     return decorateHistoryScores(newTag);
 }
-exports.decorateTagHistory = decorateTagHistory;
 ;
 /**
  * Return one of each unique trending object sorted by the number of accounts tooting that object.
@@ -55,7 +56,6 @@ function uniquifyTrendingObjs(trendingObjs, uniqueKey) {
     const sortedObjs = Object.values(urlObjs).sort((a, b) => (b.numAccounts || 0) - (a.numAccounts || 0));
     return sortedObjs;
 }
-exports.uniquifyTrendingObjs = uniquifyTrendingObjs;
 ;
 /**
  * A toot can trend on multiple servers in which case we set trendingRank for all to the avg
@@ -69,7 +69,6 @@ function setTrendingRankToAvg(rankedToots) {
         uriToots.forEach((toot) => toot.trendingRank = avgScore);
     });
 }
-exports.setTrendingRankToAvg = setTrendingRankToAvg;
 ;
 /**
  * Add {@linkcode numToots} & {@linkcode numAccounts} to the trending object by summing

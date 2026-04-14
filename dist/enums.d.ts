@@ -31,7 +31,7 @@ export type Action = LoadAction | LogAction;
 export declare enum AlgorithmStorageKey {
     APP_OPENS = "AppOpens",
     FILTERS = "Filters",
-    TIMELINE_TOOTS = "TimelineToots",
+    TIMELINE_TOOTS = "TimelineToots",// The entire timeline (home timeline + trending toots etc.)
     USER = "FedialgoUser",
     WEIGHTS = "Weights"
 }
@@ -47,10 +47,10 @@ export declare enum CacheKey {
     BLOCKED_DOMAINS = "BlockedDomains",
     FAVOURITED_TOOTS = "FavouritedToots",
     FOLLOWED_ACCOUNTS = "FollowedAccounts",
-    FOLLOWED_TAGS = "FollowedTags",
+    FOLLOWED_TAGS = "FollowedTags",// this used to be actually set to ScoreName.FOLLOWED_TAGS (same string)... i don't think there's any reason to keep that now
     FOLLOWERS = "Followers",
-    HASHTAG_TOOTS = "HashtagToots",
-    HOME_TIMELINE_TOOTS = "HomeTimelineToots",
+    HASHTAG_TOOTS = "HashtagToots",// TODO: there's nothing actually stored here but it's a flag for Toot serialization
+    HOME_TIMELINE_TOOTS = "HomeTimelineToots",// Toots that the API returns for the home timeline
     HOMESERVER_TOOTS = "HomeserverToots",
     INSTANCE_INFO = "InstanceInfo",
     MUTED_ACCOUNTS = "MutedAccounts",
@@ -132,7 +132,7 @@ export declare enum MediaCategory {
  */
 export declare enum TrendingType {
     LINKS = "links",
-    SERVERS = "servers",
+    SERVERS = "servers",// Not necessarily really a trending data type but for now...
     STATUSES = "statuses",
     TAGS = "tags"
 }

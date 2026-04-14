@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
+exports.mostRecentTootedAt = exports.earliestTootedAt = exports.mostRecentToot = exports.earliestToot = exports.tootedAt = void 0;
+exports.sortByCreatedAt = sortByCreatedAt;
 /**
  * @fileoverview {@linkcode Toot} class and helper methods for dealing with Mastodon
  * {@linkcode https://docs.joinmastodon.org/entities/Status/ Status} objects.
@@ -20,6 +21,7 @@ exports.mostRecentTootedAt = exports.earliestTootedAt = exports.sortByCreatedAt 
  */
 const change_case_1 = require("change-case");
 const lodash_1 = require("lodash");
+// import { QuoteApproval } from "masto/dist/esm/mastodon/entities/v1/quote-approval";
 const class_transformer_1 = require("class-transformer");
 const account_1 = __importDefault(require("./account"));
 const api_1 = __importDefault(require("../api"));
@@ -1051,7 +1053,6 @@ exports.mostRecentToot = mostRecentToot;
 function sortByCreatedAt(toots) {
     return toots.toSorted((a, b) => (a.createdAt < b.createdAt) ? -1 : 1);
 }
-exports.sortByCreatedAt = sortByCreatedAt;
 ;
 /**
  * Get the Date of the earliest {@linkcode Toot} in a list.

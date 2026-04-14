@@ -4,7 +4,10 @@
  * @module api_errors
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.throwSanitizedRateLimitError = exports.throwIfAccessTokenRevoked = exports.isRateLimitError = exports.isAccessTokenRevokedError = void 0;
+exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
+exports.isRateLimitError = isRateLimitError;
+exports.throwIfAccessTokenRevoked = throwIfAccessTokenRevoked;
+exports.throwSanitizedRateLimitError = throwSanitizedRateLimitError;
 const api_1 = require("./api");
 const config_1 = require("../config");
 /**
@@ -19,7 +22,6 @@ function isAccessTokenRevokedError(error) {
     }
     return error.message.includes(config_1.config.api.errorMsgs.accessTokenRevoked);
 }
-exports.isAccessTokenRevokedError = isAccessTokenRevokedError;
 ;
 /**
  * Returns true if the error is a rate limit error.
@@ -33,7 +35,6 @@ function isRateLimitError(error) {
     }
     return error.message.includes(config_1.config.api.errorMsgs.rateLimitError);
 }
-exports.isRateLimitError = isRateLimitError;
 ;
 /**
  * Throws if the error is an access token revoked error, otherwise logs and moves on.
@@ -47,7 +48,6 @@ function throwIfAccessTokenRevoked(logger, error, msg) {
     if (isAccessTokenRevokedError(error))
         throw error;
 }
-exports.throwIfAccessTokenRevoked = throwIfAccessTokenRevoked;
 ;
 /**
  * Throws a sanitized rate limit error if detected, otherwise logs and throws the original error.
@@ -64,6 +64,5 @@ function throwSanitizedRateLimitError(error, msg) {
         api_1.apiLogger.logAndThrowError(msg, error);
     }
 }
-exports.throwSanitizedRateLimitError = throwSanitizedRateLimitError;
 ;
 //# sourceMappingURL=errors.js.map

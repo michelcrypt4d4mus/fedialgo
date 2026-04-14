@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.2.40
+* Update out of date packages and get rid of `QuoteApproval` import hack now that `masto.js` is updated with the fix
+
 ### v1.2.39
 * Update `masto.js` to 7.10.0
 * Add new `quotesCount` and `quoteApproval` props to `Toot` class

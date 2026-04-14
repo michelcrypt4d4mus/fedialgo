@@ -26,7 +26,7 @@ const HASHTAG_TOOTS_CONFIG = {
         config: config_1.config.favouritedTags,
     },
     [enums_1.TagTootsCategory.PARTICIPATED]: {
-        buildTagList: async () => await tag_list_1.default.buildParticipatedTags(),
+        buildTagList: async () => await tag_list_1.default.buildParticipatedTags(), // TODO: why do I have to define an anonymous fxn for this to work?
         config: config_1.config.participatedTags,
     },
     [enums_1.TagTootsCategory.TRENDING]: {
