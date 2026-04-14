@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lockExecution = void 0;
+exports.lockExecution = lockExecution;
 const time_helpers_1 = require("./time_helpers");
 const config_1 = require("../config");
 const logger_1 = require("./logger");
@@ -35,6 +35,5 @@ async function lockExecution(locker, logger) {
     }
     return releaseLock;
 }
-exports.lockExecution = lockExecution;
 ;
 //# sourceMappingURL=mutex_helpers.js.map

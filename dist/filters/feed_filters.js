@@ -15,18 +15,31 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBooleanFilterOptions = exports.repairFilterSettings = exports.buildFiltersFromArgs = exports.buildNewFilterSettings = void 0;
+exports.buildNewFilterSettings = buildNewFilterSettings;
+exports.buildFiltersFromArgs = buildFiltersFromArgs;
+exports.repairFilterSettings = repairFilterSettings;
+exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 /**
  * @fileoverview Helpers for building and serializing a complete set of {@linkcode FeedFilterSettings}.
  */
@@ -61,7 +74,6 @@ function buildNewFilterSettings() {
     populateMissingFilters(filters);
     return filters;
 }
-exports.buildNewFilterSettings = buildNewFilterSettings;
 /**
  * Build a {@linkcode FeedFilterSettings} object from the serialized version.
  * NOTE: Mutates object.
@@ -81,7 +93,6 @@ function buildFiltersFromArgs(filterArgs) {
     logger.trace(`buildFiltersFromArgs() result:`, filterArgs);
     return filterArgs;
 }
-exports.buildFiltersFromArgs = buildFiltersFromArgs;
 /**
  * Remove filter args with invalid {@linkcode propertyName}s. Used to upgrade
  * existing users who may have obsolete args in browser Storage.
@@ -109,7 +120,6 @@ function repairFilterSettings(filters) {
     filters.numericFilterArgs = validNumericFilterArgs;
     return wasChanged;
 }
-exports.repairFilterSettings = repairFilterSettings;
 /**
  * Compute language, app, etc. tallies for toots in feed and use the result to initialize filter options.
  * Note that this shouldn't need to be called when initializing from storage because the filter options
@@ -193,7 +203,6 @@ async function updateBooleanFilterOptions(filters, toots, scanForTags = false) {
     await Storage_1.default.setFilters(filters);
     logger.debugWithTraceObjs(`Updated all filters ${timer.ageString()}`, filters);
 }
-exports.updateBooleanFilterOptions = updateBooleanFilterOptions;
 // Fill in any missing numeric filters (if there's no args saved nothing will be reconstructed
 // when Storage tries to restore the filter objects).
 function populateMissingFilters(filters) {

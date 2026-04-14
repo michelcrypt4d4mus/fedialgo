@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sizeOf = exports.sizeFromBufferByteLength = exports.sizeFromTextEncoder = exports.isNumberOrNumberString = exports.BytesDict = void 0;
+exports.isNumberOrNumberString = exports.BytesDict = void 0;
+exports.sizeFromTextEncoder = sizeFromTextEncoder;
+exports.sizeFromBufferByteLength = sizeFromBufferByteLength;
+exports.sizeOf = sizeOf;
 /*
  * Math and numbers.
  */
@@ -50,7 +53,6 @@ function sizeFromTextEncoder(obj) {
         return 0;
     }
 }
-exports.sizeFromTextEncoder = sizeFromTextEncoder;
 ;
 // Use Buffer to get the byte length of an object
 function sizeFromBufferByteLength(obj) {
@@ -62,7 +64,6 @@ function sizeFromBufferByteLength(obj) {
         return 0;
     }
 }
-exports.sizeFromBufferByteLength = sizeFromBufferByteLength;
 ;
 // Not 100% accurate. From https://gist.github.com/rajinwonderland/36887887b8a8f12063f1d672e318e12e
 function sizeOf(obj, sizes) {
@@ -115,7 +116,6 @@ function sizeOf(obj, sizes) {
     }
     return bytes;
 }
-exports.sizeOf = sizeOf;
 ;
 // Roughly, assuming UTF-8 encoding. UTF-16 would be 2x this, emojis are 4 bytes, etc.
 const strBytes = (str) => str.length;

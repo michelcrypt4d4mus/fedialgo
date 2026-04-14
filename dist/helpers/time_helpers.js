@@ -4,7 +4,17 @@
  * @module time_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WaitTime = exports.toISOFormatIfExists = exports.toISOFormat = exports.timelineCutoffAt = exports.timeString = exports.subtractSeconds = exports.sleep = exports.quotedISOFmt = exports.nowString = exports.mostRecent = exports.coerceDate = exports.ageString = exports.AgeIn = void 0;
+exports.WaitTime = exports.timeString = exports.AgeIn = void 0;
+exports.ageString = ageString;
+exports.coerceDate = coerceDate;
+exports.mostRecent = mostRecent;
+exports.nowString = nowString;
+exports.quotedISOFmt = quotedISOFmt;
+exports.sleep = sleep;
+exports.subtractSeconds = subtractSeconds;
+exports.timelineCutoffAt = timelineCutoffAt;
+exports.toISOFormat = toISOFormat;
+exports.toISOFormatIfExists = toISOFormatIfExists;
 const lodash_1 = require("lodash");
 const config_1 = require("../config");
 const enums_1 = require("../enums");
@@ -67,7 +77,6 @@ function ageString(date) {
     const secondsStr = seconds < 0.1 ? seconds.toFixed(3) : seconds.toFixed(1);
     return `in ${secondsStr} seconds`;
 }
-exports.ageString = ageString;
 ;
 /**
  * Coerce a string or number into a {@linkcode Date} object.
@@ -79,7 +88,6 @@ function coerceDate(date) {
         return null;
     return (PARSEABLE_DATE_TYPES.has(typeof date) ? new Date(date) : date);
 }
-exports.coerceDate = coerceDate;
 ;
 /**
  * Returns the most recent (latest) date from a list of {@linkcode Date} or {@linkcode null} values.
@@ -96,7 +104,6 @@ function mostRecent(...args) {
     }
     return mostRecentDate;
 }
-exports.mostRecent = mostRecent;
 ;
 /**
  * String for the current time in local datetime format.
@@ -107,7 +114,6 @@ function nowString() {
     const now = new Date();
     return `${now.toLocaleDateString()} ${now.toLocaleTimeString().split(".")[0]}`;
 }
-exports.nowString = nowString;
 ;
 /**
  * Returns the ISO format of a date, wrapped in quotes.
@@ -118,7 +124,6 @@ exports.nowString = nowString;
 function quotedISOFmt(date, withMilliseconds) {
     return date ? (0, string_helpers_1.quoted)(toISOFormat(date, withMilliseconds)) : string_helpers_1.NULL;
 }
-exports.quotedISOFmt = quotedISOFmt;
 ;
 /**
  * Asynchronous sleep helper that pauses execution for the specified number of milliseconds.
@@ -128,7 +133,6 @@ exports.quotedISOFmt = quotedISOFmt;
 async function sleep(milliseconds) {
     await new Promise(r => setTimeout(r, milliseconds));
 }
-exports.sleep = sleep;
 ;
 /**
  * Subtracts a number of seconds from a date and returns the new {@linkcode Date}.
@@ -139,7 +143,6 @@ exports.sleep = sleep;
 function subtractSeconds(date, seconds) {
     return new Date(date.getTime() - (seconds * 1000));
 }
-exports.subtractSeconds = subtractSeconds;
 ;
 /**
  * Generate a string representing a timestamp.
@@ -182,7 +185,6 @@ function timelineCutoffAt() {
     const timelineLookBackSeconds = config_1.config.toots.maxAgeInDays * enums_1.SECONDS_IN_DAY;
     return subtractSeconds(new Date(), timelineLookBackSeconds);
 }
-exports.timelineCutoffAt = timelineCutoffAt;
 ;
 /**
  * Convert date to string in the format "YYYY-MM-DDTHH:MM:SSZ".
@@ -196,7 +198,6 @@ function toISOFormat(date, withMilliseconds) {
     const isoString = coerceDate(date).toISOString();
     return withMilliseconds ? isoString : isoString.replace(/\.\d+/, "");
 }
-exports.toISOFormat = toISOFormat;
 ;
 /**
  * Like {@linkcode toISOFormat} but returns {@linkcode null} if the date is {@linkcode undefined} or
@@ -208,7 +209,6 @@ exports.toISOFormat = toISOFormat;
 function toISOFormatIfExists(date, withMilliseconds) {
     return date ? toISOFormat(date, withMilliseconds) : null;
 }
-exports.toISOFormatIfExists = toISOFormatIfExists;
 ;
 /** Helper class for telemetry. */
 class WaitTime {

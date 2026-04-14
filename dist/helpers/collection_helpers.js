@@ -4,7 +4,44 @@
  * @module collection_helpers
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.zipPromiseCalls = exports.zipArrays = exports.uniquifyByProp = exports.uniquifyApiObjs = exports.uniquify = exports.truncateToLength = exports.transformKeys = exports.swapKeysAndValues = exports.sumValues = exports.sumArray = exports.subtractConstant = exports.split = exports.sortObjsByCreatedAt = exports.sortObjsByProps = exports.sortedDictString = exports.sortKeysByValue = exports.shuffle = exports.resolvePromiseDict = exports.removeKeys = exports.reduceToCounts = exports.makePercentileChunks = exports.makeChunks = exports.keyByProperty = exports.keyById = exports.decrementCount = exports.incrementCount = exports.groupBy = exports.getPromiseResults = exports.findMinMaxId = exports.filterWithLog = exports.countValues = exports.computeMinMax = exports.checkUniqueRows = exports.batchMap = exports.average = exports.asOptionalArray = exports.atLeastValues = exports.addDicts = void 0;
+exports.uniquify = void 0;
+exports.addDicts = addDicts;
+exports.atLeastValues = atLeastValues;
+exports.asOptionalArray = asOptionalArray;
+exports.average = average;
+exports.batchMap = batchMap;
+exports.checkUniqueRows = checkUniqueRows;
+exports.computeMinMax = computeMinMax;
+exports.countValues = countValues;
+exports.filterWithLog = filterWithLog;
+exports.findMinMaxId = findMinMaxId;
+exports.getPromiseResults = getPromiseResults;
+exports.groupBy = groupBy;
+exports.incrementCount = incrementCount;
+exports.decrementCount = decrementCount;
+exports.keyById = keyById;
+exports.keyByProperty = keyByProperty;
+exports.makeChunks = makeChunks;
+exports.makePercentileChunks = makePercentileChunks;
+exports.reduceToCounts = reduceToCounts;
+exports.removeKeys = removeKeys;
+exports.resolvePromiseDict = resolvePromiseDict;
+exports.shuffle = shuffle;
+exports.sortKeysByValue = sortKeysByValue;
+exports.sortedDictString = sortedDictString;
+exports.sortObjsByProps = sortObjsByProps;
+exports.sortObjsByCreatedAt = sortObjsByCreatedAt;
+exports.split = split;
+exports.subtractConstant = subtractConstant;
+exports.sumArray = sumArray;
+exports.sumValues = sumValues;
+exports.swapKeysAndValues = swapKeysAndValues;
+exports.transformKeys = transformKeys;
+exports.truncateToLength = truncateToLength;
+exports.uniquifyApiObjs = uniquifyApiObjs;
+exports.uniquifyByProp = uniquifyByProp;
+exports.zipArrays = zipArrays;
+exports.zipPromiseCalls = zipPromiseCalls;
 const lodash_1 = require("lodash");
 const string_helpers_1 = require("./string_helpers");
 const config_1 = require("../config");
@@ -29,7 +66,6 @@ function addDicts(...dicts) {
     });
     return sumDict;
 }
-exports.addDicts = addDicts;
 ;
 /**
  * Returns a new object with only the key/value pairs that have a value greater than {@linkcode minValue}.
@@ -40,7 +76,6 @@ exports.addDicts = addDicts;
 function atLeastValues(obj, minValue) {
     return Object.fromEntries(Object.entries(obj).filter(([_k, v]) => v > minValue));
 }
-exports.atLeastValues = atLeastValues;
 ;
 /**
  * Returns an array containing the value if defined, otherwise an empty array.
@@ -51,7 +86,6 @@ exports.atLeastValues = atLeastValues;
 function asOptionalArray(value) {
     return (0, lodash_1.isNil)(value) ? [] : [value];
 }
-exports.asOptionalArray = asOptionalArray;
 ;
 /**
  * Calculates the average of an array of numbers, ignoring {@linkcode null}/{@linkcode undefined}
@@ -65,7 +99,6 @@ function average(values) {
         return NaN;
     return values.reduce((a, b) => a + b, 0) / values.length;
 }
-exports.average = average;
 ;
 /**
  * Processes an array asynchronously in batches.
@@ -98,7 +131,6 @@ async function batchMap(array, fxn, options) {
     ;
     return results;
 }
-exports.batchMap = batchMap;
 ;
 /**
  * Checks if the elements of an array have unique IDs and logs a warning if not.
@@ -111,7 +143,6 @@ function checkUniqueRows(cacheKey, array, logger) {
         logger.warn(`checkUniqueRows() Found ${array.length - uniqObjs.length} duplicate objects in "${cacheKey}"`);
     }
 }
-exports.checkUniqueRows = checkUniqueRows;
 ;
 /**
  * Computes the minimum and maximum values from an array using a value function.
@@ -134,7 +165,6 @@ function computeMinMax(array, valueFxn) {
         return minMax;
     }, { min: Number.MAX_VALUE, max: Number.MIN_VALUE });
 }
-exports.computeMinMax = computeMinMax;
 ;
 /**
  * Returns a dictionary keyed by the result of {@linkcode getKey()} with the count of each key.
@@ -150,7 +180,6 @@ function countValues(items, getKey = (item) => item, countNulls) {
         return ((0, lodash_1.isNil)(key) && !countNulls) ? counts : incrementCount(counts, key);
     }, {});
 }
-exports.countValues = countValues;
 ;
 /**
  * Filters an array and logs the number of elements removed.
@@ -168,7 +197,6 @@ objType) {
     logger.logArrayReduction(array, filtered, objType || "object", reason);
     return filtered;
 }
-exports.filterWithLog = filterWithLog;
 ;
 /**
  * Finds the minimum and maximum {@linkcode id} property in an array of objects.
@@ -212,7 +240,6 @@ function findMinMaxId(array) {
         max: sortedIDs.slice(-1)[0].toString()
     };
 }
-exports.findMinMaxId = findMinMaxId;
 ;
 /**
  * Collates the fulfilled and rejected results from
@@ -229,7 +256,6 @@ async function getPromiseResults(promises) {
         rejectedReasons: results.filter(r => r.status == "rejected").map(r => r.reason),
     };
 }
-exports.getPromiseResults = getPromiseResults;
 ;
 /**
  * Groups an array by the result of {@linkcode makeKey()}.
@@ -247,7 +273,6 @@ function groupBy(array, makeKey) {
         return grouped;
     }, {});
 }
-exports.groupBy = groupBy;
 ;
 /**
  * Increments the count for a key in a dictionary by {@linkcode increment}.
@@ -261,7 +286,6 @@ function incrementCount(counts, k, increment = 1) {
     counts[k] = (counts[k] || 0) + increment;
     return counts;
 }
-exports.incrementCount = incrementCount;
 ;
 /**
  * Return true if the object is a non-null object (not an array, function, etc.).
@@ -282,7 +306,6 @@ function isRecord(obj) {
 function decrementCount(counts, k, increment = 1) {
     return incrementCount(counts, k, -1 * increment);
 }
-exports.decrementCount = decrementCount;
 ;
 /**
  * Builds a dictionary from an array keyed by id.
@@ -293,7 +316,6 @@ exports.decrementCount = decrementCount;
 function keyById(array) {
     return keyByProperty(array, obj => obj.id);
 }
-exports.keyById = keyById;
 ;
 /**
  * Builds a dictionary from an array keyed by a property.
@@ -308,7 +330,6 @@ function keyByProperty(array, keyFxn) {
         return keyedDict;
     }, {});
 }
-exports.keyByProperty = keyByProperty;
 ;
 /**
  * Splits an array into chunks of a given size or number of chunks.
@@ -329,7 +350,6 @@ function makeChunks(array, options) {
     chunkSize = numChunks ? Math.ceil(array.length / numChunks) : chunkSize;
     return (0, lodash_1.chunk)(array, chunkSize);
 }
-exports.makeChunks = makeChunks;
 ;
 /**
  * Sorts an array by a function and divides into {@linkcode numPercentile} chunks.
@@ -343,7 +363,6 @@ function makePercentileChunks(array, fxn, numPercentiles) {
     const sortedArray = array.toSorted((a, b) => (fxn(a) ?? 0) - (fxn(b) ?? 0));
     return makeChunks(sortedArray, { numChunks: numPercentiles });
 }
-exports.makePercentileChunks = makePercentileChunks;
 ;
 /**
  * Reduces an array to a {@linkcode StringNumberDict} using an update function.
@@ -358,7 +377,6 @@ function reduceToCounts(objs, updateCounts) {
         return counts;
     }, {});
 }
-exports.reduceToCounts = reduceToCounts;
 ;
 /**
  * Removes keys from an object if their value is {@linkcode null} or in {@linkcode keysToRemove} array.
@@ -382,7 +400,6 @@ function removeKeys(obj, keysToRemove, keysToRemoveIfFalse) {
     });
     return copy;
 }
-exports.removeKeys = removeKeys;
 ;
 /**
  * Use {@linkcode https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/allSettled Promise.allSettled()}
@@ -410,7 +427,6 @@ async function resolvePromiseDict(dict, logger, defaultValue = null) {
     });
     return zipArrays(indexed[0], resolved);
 }
-exports.resolvePromiseDict = resolvePromiseDict;
 ;
 /**
  * Randomizes the order of an array.
@@ -422,7 +438,6 @@ function shuffle(array) {
     const sortRandom = (a, b) => (0, string_helpers_1.hashObject)(a).localeCompare((0, string_helpers_1.hashObject)(b));
     return array.toSorted(sortRandom);
 }
-exports.shuffle = shuffle;
 ;
 /**
  * Sorts the keys of a dictionary by their values in descending order.
@@ -441,7 +456,6 @@ function sortKeysByValue(dict) {
         }
     });
 }
-exports.sortKeysByValue = sortKeysByValue;
 ;
 /**
  * Create a string representation of a dictionary with the keys sorted by their values.
@@ -451,7 +465,6 @@ exports.sortKeysByValue = sortKeysByValue;
 function sortedDictString(dict) {
     return "\n   " + sortKeysByValue(dict).map(k => `${k}: ${dict[k]}`).join(",\n    ");
 }
-exports.sortedDictString = sortedDictString;
 ;
 /**
  * Sorts an array of objects by one or two properties.
@@ -497,7 +510,6 @@ function sortObjsByProps(array, prop, ascending, ignoreCase) {
         return 0;
     });
 }
-exports.sortObjsByProps = sortObjsByProps;
 ;
 /**
  * Sorts an array of objects by the {@linkcode createdAt} property.
@@ -508,7 +520,6 @@ exports.sortObjsByProps = sortObjsByProps;
 function sortObjsByCreatedAt(array) {
     return sortObjsByProps(array, "createdAt");
 }
-exports.sortObjsByCreatedAt = sortObjsByCreatedAt;
 ;
 /**
  * Splits an array into two arrays based on a condition.
@@ -523,7 +534,6 @@ function split(array, condition) {
         array.filter((element) => !condition(element)),
     ];
 }
-exports.split = split;
 ;
 /**
  * Subtracts a constant from all values in a dictionary.
@@ -534,7 +544,6 @@ exports.split = split;
 function subtractConstant(dict, constant) {
     return Object.fromEntries(Object.entries(dict).map(([k, v]) => [k, v - constant]));
 }
-exports.subtractConstant = subtractConstant;
 ;
 /**
  * Sums the elements of an array. {@linkcode null} and {@linkcode undefined} count as 0.
@@ -544,7 +553,6 @@ exports.subtractConstant = subtractConstant;
 function sumArray(array) {
     return array.map((x) => (x ?? 0)).reduce((total, b) => total + b, 0);
 }
-exports.sumArray = sumArray;
 ;
 /**
  * Sums the values of a dictionary. {@linkcode null} and {@linkcode undefined} count as 0.
@@ -554,7 +562,6 @@ exports.sumArray = sumArray;
 function sumValues(obj) {
     return sumArray(Object.values(obj));
 }
-exports.sumValues = sumValues;
 ;
 /**
  * Swaps the keys and values of a dictionary.
@@ -565,7 +572,6 @@ exports.sumValues = sumValues;
 function swapKeysAndValues(dict) {
     return Object.fromEntries(Object.entries(dict).map(entry => entry.toReversed()));
 }
-exports.swapKeysAndValues = swapKeysAndValues;
 ;
 /**
  * Recursively applies a {@linkcode transform()} function to all keys in a nested object.
@@ -586,7 +592,6 @@ function transformKeys(data, transform) {
     }
     return data;
 }
-exports.transformKeys = transformKeys;
 ;
 /**
  * Truncates an array to a maximum length, logging if truncated.
@@ -604,7 +609,6 @@ function truncateToLength(array, maxRecords, logger) {
     (logger ?? new logger_1.Logger("truncateToConfiguredLength()")).deep(`Truncated array of ${startLen} to ${array.length}`);
     return array;
 }
-exports.truncateToLength = truncateToLength;
 ;
 /**
  * Returns a new array with only unique, non-null string values.
@@ -638,7 +642,6 @@ function uniquifyApiObjs(cacheKey, array, logger) {
     logger.deep(`Uniquifying array of ${array.length} objects by "${uniqueProperty}" property`);
     return uniquifyByProp(array, (obj) => obj[uniqueProperty], cacheKey);
 }
-exports.uniquifyApiObjs = uniquifyApiObjs;
 ;
 /**
  * Removes elements of an array with duplicate values for a given property.
@@ -656,7 +659,6 @@ function uniquifyByProp(rows, transform, logPrefix) {
     }
     return newRows;
 }
-exports.uniquifyByProp = uniquifyByProp;
 ;
 /**
  * Zips two arrays into a dictionary
@@ -669,7 +671,6 @@ exports.uniquifyByProp = uniquifyByProp;
 function zipArrays(array1, array2) {
     return Object.fromEntries(array1.map((e, i) => [e, array2[i]]));
 }
-exports.zipArrays = zipArrays;
 ;
 /**
  * Runs a list of {@linkcode Promise}s in parallel, each generated by a call to {@linkcode promiser(arg)},
@@ -699,7 +700,6 @@ async function zipPromiseCalls(args, promiser, logger) {
         return results;
     }, {});
 }
-exports.zipPromiseCalls = zipPromiseCalls;
 ;
 // TODO: unused stuff below here
 // From https://dev.to/nikosanif/create-promises-with-timeout-error-in-typescript-fmm

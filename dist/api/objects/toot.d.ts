@@ -1,5 +1,4 @@
 import { mastodon } from "masto";
-import { QuoteApproval } from "masto/dist/esm/mastodon/entities/v1/quote-approval";
 import Account from "./account";
 import { MediaCategory, ScoreName } from '../../enums';
 import { Logger } from '../../helpers/logger';
@@ -118,7 +117,7 @@ export default class Toot implements TootObj {
     mediaAttachments: mastodon.v1.MediaAttachment[];
     mentions: mastodon.v1.StatusMention[];
     quotesCount: number;
-    quoteApproval: QuoteApproval;
+    quoteApproval: mastodon.v1.QuoteApproval;
     reblogsCount: number;
     repliesCount: number;
     sensitive: boolean;

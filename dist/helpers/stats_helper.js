@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rechartsDataPoints = void 0;
+exports.rechartsDataPoints = rechartsDataPoints;
 const collection_helpers_1 = require("./collection_helpers");
 const logger_1 = require("./logger");
 const enums_1 = require("../enums");
@@ -54,7 +54,6 @@ function rechartsDataPoints(toots, numPercentiles) {
     logger.trace(`[rechartsDataPoints()]`, stats);
     return stats;
 }
-exports.rechartsDataPoints = rechartsDataPoints;
 ;
 // Compute the min, max, and average of a score for each percentile segment
 function scoreStats(toots, scoreType, scoreName, numPercentiles) {

@@ -3,7 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tagInfoStr = exports.repairTag = exports.isValidForSubstringSearch = exports.buildTag = void 0;
+exports.buildTag = buildTag;
+exports.isValidForSubstringSearch = isValidForSubstringSearch;
+exports.repairTag = repairTag;
+exports.tagInfoStr = tagInfoStr;
 /**
  * @fileoverview Helper methods for dealing with Mastodon's
  * {@linkcode https://docs.joinmastodon.org/entities/Tag/ Tag} objects.
@@ -23,12 +26,11 @@ function buildTag(str) {
     const name = str.trim().toLowerCase();
     return {
         name,
-        id: (0, string_helpers_1.createRandomString)(16),
+        id: (0, string_helpers_1.createRandomString)(16), // Generate a random ID for the tag. // TODO: same str should return the same ID?
         regex: (0, string_helpers_1.wordRegex)(name),
         url: api_1.default.instance.tagUrl(name),
     };
 }
-exports.buildTag = buildTag;
 /**
  * Returns {@linkcode true} for hashtags that are searchable as a string even if the "#" prefix wasn't used,
  * which is true for most tags except single-letter tags and configured "tag only" strings.
@@ -38,7 +40,6 @@ exports.buildTag = buildTag;
 function isValidForSubstringSearch(tag) {
     return (tag.name.length > 1 && !config_1.config.toots.tagOnlyStrings.has(tag.name));
 }
-exports.isValidForSubstringSearch = isValidForSubstringSearch;
 /** Lowercase the tag name, replace URL with one on homeserver. */
 function repairTag(tag) {
     const language = (0, language_helper_1.detectForeignScriptLanguage)(tag.name);
@@ -61,11 +62,9 @@ function repairTag(tag) {
     }
     return tag;
 }
-exports.repairTag = repairTag;
 /** Create a string representation of the tag with its usage counts & language. */
 function tagInfoStr(tag) {
     const infoStr = `${tag.numToots} numToots${(0, string_helpers_1.optionalSuffix)(tag.language)}`;
     return `${tag.name} (${infoStr})`;
 }
-exports.tagInfoStr = tagInfoStr;
 //# sourceMappingURL=tag.js.map

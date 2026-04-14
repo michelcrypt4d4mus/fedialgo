@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -55,7 +65,7 @@ const time_helpers_1 = require("../helpers/time_helpers");
 ;
 ;
 // Constants
-exports.BIG_NUMBER = 10000000000;
+exports.BIG_NUMBER = 10_000_000_000;
 exports.FULL_HISTORY_PARAMS = { maxRecords: exports.BIG_NUMBER, moar: true };
 // Mutex locking and concurrency
 const USER_DATA_MUTEX = new async_mutex_1.Mutex(); // For locking user data fetching
@@ -193,7 +203,7 @@ class MastoApi {
             cacheKey: cacheKey,
             maxId: maxId,
             maxRecords: maxRecords,
-            skipCache: true,
+            skipCache: true, // Home timeline manages its own cache state via breakIf()
             skipMutex: true,
             breakIf: async (newStatuses, allStatuses) => {
                 const oldestTootAt = (0, toot_1.earliestTootedAt)(newStatuses);
@@ -299,7 +309,7 @@ class MastoApi {
         return await this.getWithBackgroundFetch({
             cacheKey: enums_1.CacheKey.FOLLOWED_ACCOUNTS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).following.list,
-            minRecords: this.user.followingCount - 10,
+            minRecords: this.user.followingCount - 10, // We want to get at least this many followed accounts
             processFxn: (account) => account.isFollowed = true,
             ...(params || {})
         });
@@ -326,7 +336,7 @@ class MastoApi {
         return await this.getWithBackgroundFetch({
             cacheKey: enums_1.CacheKey.FOLLOWERS,
             fetchGenerator: () => this.api.v1.accounts.$select(this.user.id).followers.list,
-            minRecords: this.user.followersCount - 10,
+            minRecords: this.user.followersCount - 10, // We want to get at least this many followed accounts
             processFxn: (account) => account.isFollower = true,
             ...(params || {})
         });
@@ -492,7 +502,7 @@ class MastoApi {
         const startedAt = new Date();
         try {
             const toots = await this.getApiObjsAndUpdate({
-                cacheKey: enums_1.CacheKey.HASHTAG_TOOTS,
+                cacheKey: enums_1.CacheKey.HASHTAG_TOOTS, // This CacheKey is just for log prefixes + signaling how to serialize
                 fetchGenerator: () => this.api.v1.timelines.tag.$select(tagName).list,
                 logger,
                 maxRecords,
