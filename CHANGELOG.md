@@ -1,5 +1,7 @@
 # NEXT RELEASE
 
+### v1.2.41
+
 ### v1.2.40
 * Update out of date packages and get rid of `QuoteApproval` import hack now that `masto.js` is updated with the fix
 
