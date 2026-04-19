@@ -16,8 +16,9 @@ npm link fedialgo
 ```
 
 ### Debugging
-If you set the environment variable `FEDIALGO_DEBUG=true` a _lot_ more debugging info will be printed to the browser console. You can set this and other environment variables permanently by creating a `.env` file. See [`.env.example`](./.env.example) for other environment variables you can play with.
+If you set the environment variable `FEDIALGO_DEBUG=true` more debugging info will be printed to the browser console. You can set this and other environment variables permanently by creating a `.env` file. See [`.env.example`](./.env.example) for other environment variables you can play with.
 
+You can also set `FEDIALGO_DEEP_DEBUG` for a _lot_ more debugging info.
 
 # Building and Deploying
 For changes to propagate you must run `npm run build` to generate changes to files in `dist/` and then check those files into git (it's terrible, I know).
