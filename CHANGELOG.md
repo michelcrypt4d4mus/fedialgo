@@ -1,5 +1,8 @@
 # NEXT RELEASE
 
+### v1.2.42
+* Lower `ALREADY_SHOWN` default weight
+
 ### v1.2.41
 
 ### v1.2.40
